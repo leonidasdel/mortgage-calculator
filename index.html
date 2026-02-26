@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Υπολογισμός Δόσης Στεγαστικού Δανείου</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:       #1d4ed8;
+      --blue-dark:  #1e40af;
+      --blue-light: #eff6ff;
+      --blue-mid:   #bfdbfe;
+      --red:        #dc2626;
+      --red-light:  #fef2f2;
+      --green:      #059669;
+      --green-light:#ecfdf5;
+      --amber-light:#fffbeb;
+      --amber-border:#fcd34d;
+      --g50:  #f9fafb;
+      --g100: #f3f4f6;
+      --g200: #e5e7eb;
+      --g300: #d1d5db;
+      --g400: #9ca3af;
+      --g500: #6b7280;
+      --g600: #4b5563;
+      --g700: #374151;
+      --g800: #1f2937;
+      --g900: #111827;
+      --shadow: 0 1px 3px rgba(0,0,0,.10), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+      --r: 8px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--g50);
+      color: var(--g800);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--blue);
+      color: #fff;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 10px;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav .brand { font-size: 17px; font-weight: 700; letter-spacing: -.3px; }
+    nav .sep   { color: rgba(255,255,255,.35); }
+    nav .sub   { font-size: 13px; color: rgba(255,255,255,.80); }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1300px; margin: 0 auto; padding: 20px 14px 40px; }
+    .page-title { font-size: 20px; font-weight: 700; color: var(--g900); margin-bottom: 18px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+
+    /* ── CARD ── */
+    .card {
+      background: #fff;
+      border: 1px solid var(--g200);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+    .card-header { padding: 14px 18px; border-bottom: 1px solid var(--g100); }
+    .card-header h2 { font-size: 14px; font-weight: 600; color: var(--g800); }
+    .card-body { padding: 18px; }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 14px; }
+    .form-group:last-child { margin-bottom: 0; }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--g700);
+      margin-bottom: 5px;
+    }
+    .input-wrap { position: relative; display: flex; align-items: center; }
+    .pfx, .sfx {
+      position: absolute;
+      color: var(--g400);
+      font-size: 13px;
+      pointer-events: none;
+      user-select: none;
+    }
+    .pfx { left: 9px; }
+    .sfx { right: 9px; }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--g300);
+      border-radius: 6px;
+      font-size: 14px;
+      color: var(--g800);
+      background: #fff;
+      -moz-appearance: textfield;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(29,78,216,.12);
+    }
+    .has-pfx input { padding-left: 26px; }
+    .has-sfx input { padding-right: 34px; }
+
+    /* ── SECTION DIVIDERS ── */
+    .sec-div { margin: 18px 0 14px; padding-top: 16px; border-top: 1px solid var(--g100); }
+    .sec-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: var(--g500);
+      margin-bottom: 12px;
+    }
+
+    /* ── INFO BOXES ── */
+    .info-box {
+      border-radius: 6px;
+      padding: 9px 12px;
+      font-size: 12px;
+      margin-top: 10px;
+      line-height: 1.45;
+    }
+    .info-box.blue  { background: var(--blue-light); border: 1px solid var(--blue-mid); color: var(--blue-dark); }
+    .info-box.amber { background: var(--amber-light); border: 1px solid var(--amber-border); color: #78350f; }
+    .info-box.green { background: var(--green-light); border: 1px solid #a7f3d0; color: #065f46; }
+
+    /* ── BUTTONS ── */
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 14px;
+      transition: background .15s, opacity .15s;
+    }
+    button:disabled { opacity: .45; cursor: default; }
+    .btn-primary  { background: var(--blue); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--blue-dark); }
+    .btn-outline  { background: #fff; color: var(--g700); border: 1px solid var(--g300); }
+    .btn-outline:hover:not(:disabled) { background: var(--g50); }
+    .btn-danger   { background: var(--red-light); color: var(--red); border: 1px solid #fecaca; padding: 5px 9px; font-size: 12px; }
+    .btn-danger:hover { background: #fee2e2; }
+
+    /* ── HERO CARDS ── */
+    .hero-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .hero-card {
+      background: var(--blue);
+      color: #fff;
+      border-radius: var(--r);
+      padding: 14px;
+      text-align: center;
+    }
+    .hero-card.dark { background: var(--blue-dark); }
+    .hero-card.grace { background: #7c3aed; }
+    .hero-lbl { font-size: 11px; opacity: .85; margin-bottom: 3px; }
+    .hero-val { font-size: 26px; font-weight: 700; letter-spacing: -.5px; }
+    .hero-sub { font-size: 11px; opacity: .72; margin-top: 2px; }
+
+    /* ── SUMMARY GRID ── */
+    .sum-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--g200);
+      border: 1px solid var(--g200);
+      border-radius: var(--r);
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .sum-item { background: #fff; padding: 11px 14px; }
+    .sum-lbl  { font-size: 11px; color: var(--g500); margin-bottom: 2px; }
+    .sum-val  { font-size: 14px; font-weight: 600; color: var(--g800); }
+    .sum-val.red  { color: var(--red); }
+    .sum-val.blue { color: var(--blue); }
+
+    /* ── CHART ── */
+    .chart-legend { display: flex; gap: 14px; justify-content: center; margin-top: 8px; font-size: 12px; color: var(--g600); }
+    .leg-item { display: flex; align-items: center; gap: 5px; }
+    .leg-dot  { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+    canvas { display: block; width: 100%; }
+
+    /* ── TABLE ── */
+    .tbl-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tbl-info { font-size: 12px; color: var(--g500); }
+    .tbl-wrap { overflow-x: auto; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      background: var(--g50);
+      color: var(--g600);
+      font-size: 11px;
+      font-weight: 700;
+      text-align: right;
+      padding: 9px 11px;
+      border-bottom: 1px solid var(--g200);
+      white-space: nowrap;
+    }
+    th:first-child { text-align: center; }
+    td { padding: 8px 11px; text-align: right; border-bottom: 1px solid var(--g100); font-variant-numeric: tabular-nums; }
+    td:first-child { text-align: center; color: var(--g400); font-size: 12px; }
+    td.date { color: var(--g500); font-size: 12px; }
+    td.pmt  { font-weight: 600; }
+    td.prin { color: var(--blue); }
+    td.int  { color: var(--red); }
+    td.bal  { color: var(--g700); }
+    tr:hover td { background: var(--g50); }
+    tr.grace-row td { background: #faf5ff; }
+    tr.variable-row td { background: var(--blue-light); }
+    tr.early-row td { background: #fef9c3; }
+
+    /* ── PAGINATION ── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--g600);
+    }
+
+    /* ── EARLY REPAYMENTS ── */
+    .empty-state {
+      text-align: center;
+      font-size: 12px;
+      color: var(--g400);
+      padding: 12px;
+      background: var(--g50);
+      border: 1px dashed var(--g300);
+      border-radius: 6px;
+    }
+    .er-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 8px;
+      padding: 10px;
+      background: var(--g50);
+      border: 1px solid var(--g200);
+      border-radius: 6px;
+    }
+    .er-item label { font-size: 11px; }
+    .er-item input { font-size: 13px; padding: 6px 8px; }
+    .er-item .has-pfx input { padding-left: 22px; }
+
+    /* ── GREEK INFO BOX ── */
+    .gr-info { background: var(--green-light); border: 1px solid #a7f3d0; border-radius: 6px; padding: 12px; margin-top: 16px; }
+    .gr-info h3 { font-size: 13px; font-weight: 600; color: #065f46; margin-bottom: 8px; }
+    .gr-info ul  { padding-left: 16px; }
+    .gr-info li  { font-size: 12px; color: #065f46; margin-bottom: 3px; }
+
+    /* ── EXPORT ── */
+    .export-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+    /* ── DISCLAIMER ── */
+    .disclaimer {
+      font-size: 11px;
+      color: var(--g500);
+      background: var(--g50);
+      border: 1px solid var(--g200);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      nav, .left-panel, .export-row, .pagination, .tbl-controls button { display: none !important; }
+      .grid { grid-template-columns: 1fr !important; }
+      .card  { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; margin-bottom: 10px; }
+      body   { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">🏦 MortgageCalc</span>
+  <span class="sep">/</span>
+  <span class="sub">Υπολογισμός Δόσης Στεγαστικού Δανείου</span>
+</nav>
+
+<div class="container">
+  <div class="page-title">Υπολογισμός Δόσης Δανείου</div>
+
+  <div class="grid">
+    <!-- ═══════════════════ LEFT PANEL ═══════════════════ -->
+    <div class="left-panel">
+      <div class="card">
+        <div class="card-header"><h2>Παράμετροι Δανείου</h2></div>
+        <div class="card-body">
+
+          <!-- Loan amount -->
+          <div class="form-group">
+            <label for="loanAmount">Ποσό Δανείου (€)</label>
+            <div class="input-wrap has-pfx">
+              <span class="pfx">€</span>
+              <input type="number" id="loanAmount" value="100000" min="1000" step="1000">
+            </div>
+          </div>
+
+          <!-- Duration -->
+          <div class="form-group">
+            <label for="loanYears">Διάρκεια Δανείου (έτη)</label>
+            <div class="input-wrap has-sfx">
+              <input type="number" id="loanYears" value="30" min="1" max="40">
+              <span class="sfx">έτη</span>
+            </div>
+          </div>
+
+          <!-- ── Fixed rate ── -->
+          <div class="sec-div">
+            <div class="sec-label">Περίοδος Σταθερού Επιτοκίου</div>
+            <div class="form-group">
+              <label for="fixedYears">Έτη Σταθερού Επιτοκίου</label>
+              <div class="input-wrap has-sfx">
+                <input type="number" id="fixedYears" value="5" min="0">
+                <span class="sfx">έτη</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="fixedRate">Σταθερό Επιτόκιο (%)</label>
+              <div class="input-wrap has-sfx">
+                <input type="number" id="fixedRate" value="2.9" min="0" step="0.05">
+                <span class="sfx">%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Variable rate ── -->
+          <div class="sec-div">
+            <div class="sec-label">Παράμετροι Κυμαινόμενου Επιτοκίου</div>
+            <div class="form-group">
+              <label for="euribor">Euribor 3M (%)</label>
+              <div class="input-wrap has-sfx">
+                <input type="number" id="euribor" value="2.464" min="0" step="0.001">
+                <span class="sfx">%</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="bankMargin">Περιθώριο Τράπεζας (%)</label>
+              <div class="input-wrap has-sfx">
+                <input type="number" id="bankMargin" value="2.1" min="0" step="0.05">
+                <span class="sfx">%</span>
+              </div>
+            </div>
+            <div class="info-box blue" id="varRateBox">
+              💡 Κυμαινόμενο Επιτόκιο = Euribor 3M + Περιθώριο = <strong id="varRateVal">4.56%</strong>
+            </div>
+          </div>
+
+          <!-- ── Grace period ── -->
+          <div class="sec-div">
+            <div class="sec-label">Περίοδος Χάριτος</div>
+            <div class="form-group">
+              <label for="gracePeriod">Περίοδος Χάριτος (μήνες)</label>
+              <div class="input-wrap has-sfx">
+                <input type="number" id="gracePeriod" value="0" min="0">
+                <span class="sfx">μήνες</span>
+              </div>
+            </div>
+            <div class="info-box amber">
+              💡 Κατά την περίοδο χάριτος πληρώνετε μόνο τόκους — χωρίς μείωση κεφαλαίου.
+            </div>
+          </div>
+
+          <!-- ── Early repayments ── -->
+          <div class="sec-div">
+            <div class="sec-label">Πρόωρες Αποπληρωμές</div>
+            <div id="erList"></div>
+            <button class="btn-outline" onclick="addER()" style="width:100%; margin-top:8px;">
+              + Προσθήκη Πρόωρης Αποπληρωμής
+            </button>
+          </div>
+
+          <!-- ── Greek mortgage info ── -->
+          <div class="gr-info">
+            <h3>📋 Σχετικά με τα Ελληνικά Στεγαστικά Δάνεια</h3>
+            <ul>
+              <li>Εισφορά Ν.128/1975: 0,12% ετησίως επί του ποσού δανείου</li>
+              <li>Σταθερό επιτόκιο: σταθερές δόσεις για τα πρώτα έτη</li>
+              <li>Κυμαινόμενο επιτόκιο: προσαρμόζεται βάσει Euribor</li>
+              <li>Τυπικό περιθώριο τράπεζας: 1,5% – 3% πάνω από Euribor</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ RIGHT PANEL ═══════════════════ -->
+    <div class="right-panel">
+
+      <!-- Summary -->
+      <div class="card">
+        <div class="card-header"><h2>Σύνοψη Μηνιαίας Δόσης</h2></div>
+        <div class="card-body">
+
+          <div class="hero-row" id="heroRow">
+            <div class="hero-card">
+              <div class="hero-lbl">Μηνιαία Δόση (Σταθερή Περίοδος)</div>
+              <div class="hero-val" id="hFixedPmt">€0.00</div>
+              <div class="hero-sub" id="hFixedSub">—</div>
+            </div>
+            <div class="hero-card dark">
+              <div class="hero-lbl">Μετά την Περίοδο Σταθερού Επιτοκίου</div>
+              <div class="hero-val" id="hVarPmt">€0.00</div>
+              <div class="hero-sub" id="hVarSub">—</div>
+            </div>
+          </div>
+
+          <div class="sum-grid">
+            <div class="sum-item"><div class="sum-lbl">Ποσό Δανείου</div><div class="sum-val" id="sAmount">—</div></div>
+            <div class="sum-item"><div class="sum-lbl">Επιτόκιο (Σταθερό)</div><div class="sum-val" id="sRate">—</div></div>
+            <div class="sum-item"><div class="sum-lbl">Διάρκεια Δανείου</div><div class="sum-val" id="sDur">—</div></div>
+            <div class="sum-item"><div class="sum-lbl">Πλήθος Δόσεων</div><div class="sum-val" id="sCount">—</div></div>
+            <div class="sum-item"><div class="sum-lbl">Συνολικοί Τόκοι</div><div class="sum-val red" id="sInterest">—</div></div>
+            <div class="sum-item"><div class="sum-lbl">Εισφορά Ν.128/1975 (0,12%)</div><div class="sum-val" id="sN128">—</div></div>
+            <div class="sum-item" style="grid-column: span 2;"><div class="sum-lbl">Συνολικό Ποσό Πληρωμής</div><div class="sum-val blue" id="sTotal">—</div></div>
+          </div>
+
+          <div class="info-box blue" id="infoMsg" style="display:none;"></div>
+
+          <div class="export-row">
+            <button class="btn-outline" onclick="exportCSV()">📥 Εξαγωγή CSV</button>
+            <button class="btn-outline" onclick="window.print()">🖨️ Εκτύπωση / PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="card">
+        <div class="card-header"><h2>Ετήσια Ανάλυση Πληρωμών</h2></div>
+        <div class="card-body">
+          <div class="hero-row" style="margin-bottom:12px;">
+            <div style="text-align:center; padding:10px; background:var(--blue-light); border-radius:6px;">
+              <div style="font-size:11px; color:var(--blue); font-weight:700; text-transform:uppercase; letter-spacing:.5px;">Συνολικό Κεφάλαιο</div>
+              <div style="font-size:20px; font-weight:700; color:var(--blue);" id="cPrincipal">€0</div>
+            </div>
+            <div style="text-align:center; padding:10px; background:var(--red-light); border-radius:6px;">
+              <div style="font-size:11px; color:var(--red); font-weight:700; text-transform:uppercase; letter-spacing:.5px;">Συνολικοί Τόκοι</div>
+              <div style="font-size:20px; font-weight:700; color:var(--red);" id="cInterest">€0</div>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <canvas id="chart" height="240"></canvas>
+          </div>
+          <div class="chart-legend">
+            <div class="leg-item"><div class="leg-dot" style="background:#1d4ed8;"></div><span>Κεφάλαιο</span></div>
+            <div class="leg-item"><div class="leg-dot" style="background:#dc2626;"></div><span>Τόκοι</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amortization table -->
+      <div class="card">
+        <div class="card-header"><h2>Πίνακας Αποπληρωμής</h2></div>
+        <div class="card-body">
+
+          <div class="tbl-controls">
+            <span class="tbl-info" id="tblInfo">—</span>
+            <button class="btn-outline" id="toggleBtn" onclick="toggleTable()">Εμφάνιση Όλων</button>
+          </div>
+
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Ημερομηνία</th>
+                  <th>Δόση</th>
+                  <th>Κεφάλαιο</th>
+                  <th>Τόκος</th>
+                  <th>Υπόλοιπο</th>
+                </tr>
+              </thead>
+              <tbody id="tblBody"></tbody>
+            </table>
+          </div>
+
+          <div class="pagination" id="pagination"></div>
+
+          <div class="disclaimer">
+            <strong>Σημαντική Σημείωση:</strong> Οι υπολογισμοί παρέχονται αποκλειστικά για ενημερωτικούς σκοπούς και δεν αποτελούν χρηματοοικονομική συμβουλή. Επικοινωνήστε με την τράπεζά σας για επίσημα στοιχεία.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /right-panel -->
+  </div><!-- /grid -->
+</div><!-- /container -->
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let schedule   = [];
+let showAll    = false;
+let page       = 1;
+const PER_PAGE = 12;
+let erList     = [];
+let erCounter  = 0;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function $id(id)  { return document.getElementById(id); }
+function num(id)  { return parseFloat($id(id).value) || 0; }
+
+function fmtEur(v, d = 2) {
+  return '€' + v.toFixed(d).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function fmtDate(d) {
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  return `${dd}/${mm}/${d.getFullYear()}`;
+}
+
+function addMonths(base, n) {
+  const d = new Date(base.getFullYear(), base.getMonth() + n, base.getDate());
+  return d;
+}
+
+/* ═══════════════════════════════════════════
+   CALCULATION ENGINE
+═══════════════════════════════════════════ */
+function pmt(P, annualRate, months) {
+  if (P <= 0 || months <= 0) return 0;
+  if (annualRate === 0)       return P / months;
+  const r = annualRate / 100 / 12;
+  const f = Math.pow(1 + r, months);
+  return P * r * f / (f - 1);
+}
+
+function buildSchedule() {
+  const loanAmount   = num('loanAmount');
+  const loanYears    = Math.max(1, Math.round(num('loanYears')));
+  const fixedYears   = Math.max(0, Math.round(num('fixedYears')));
+  const fixedRate    = num('fixedRate');
+  const euribor      = num('euribor');
+  const bankMargin   = num('bankMargin');
+  const graceMonths  = Math.max(0, Math.round(num('gracePeriod')));
+  const varRate      = euribor + bankMargin;
+
+  const totalMonths  = loanYears * 12;
+  const fixedMonths  = Math.min(fixedYears * 12, totalMonths);
+  const n128pm       = loanAmount * 0.0012 / 12;   // Ν.128/1975 monthly
+
+  // Starting date: today, first payment is month+1
+  const today = new Date();
+
+  let balance = loanAmount;
+  const rows  = [];
+
+  // Fixed-period base PMT (for full amortising term at fixed rate)
+  const amortMonths = totalMonths - graceMonths;
+  let pmtFixed = pmt(loanAmount, fixedRate, amortMonths > 0 ? amortMonths : totalMonths);
+  let pmtVar   = 0;
+  let varPhaseStarted = false;
+
+  for (let m = 1; m <= totalMonths; m++) {
+    if (balance < 0.005) break;
+
+    const isGrace = m <= graceMonths;
+    const isFixed = m <= fixedMonths;
+    const rate    = isFixed ? fixedRate : varRate;
+    const mRate   = rate / 100 / 12;
+    const payDate = addMonths(today, m);
+
+    // Start variable phase: recalculate PMT
+    if (!isFixed && !varPhaseStarted) {
+      const remMonths = totalMonths - m + 1;
+      pmtVar = pmt(balance, varRate, remMonths > 0 ? remMonths : 1);
+      varPhaseStarted = true;
+    }
+
+    const interest = balance * mRate;
+    let principal  = 0;
+    let basePmt    = 0;
+
+    if (isGrace) {
+      basePmt   = interest;
+      principal = 0;
+    } else {
+      basePmt   = isFixed ? pmtFixed : pmtVar;
+      principal = Math.min(Math.max(0, basePmt - interest), balance);
+    }
+
+    // Early repayment this month?
+    let earlyAmt = 0;
+    const er = erList.find(e => e.month === m);
+    if (er && er.amount > 0) {
+      earlyAmt = Math.min(er.amount, balance - principal);
+      if (earlyAmt < 0) earlyAmt = 0;
+      const afterBalance = balance - principal - earlyAmt;
+      const remMonths    = totalMonths - m;
+      if (remMonths > 0 && afterBalance > 0.01) {
+        if (isFixed) {
+          pmtFixed = pmt(afterBalance, fixedRate, remMonths);
+        } else {
+          pmtVar = pmt(afterBalance, varRate, remMonths);
+        }
+      }
+    }
+
+    const newBalance   = Math.max(0, balance - principal - earlyAmt);
+    const totalPayment = (isGrace ? interest : basePmt) + n128pm;
+
+    rows.push({
+      month:      m,
+      date:       payDate,
+      payment:    totalPayment,
+      principal,
+      interest,
+      n128:       n128pm,
+      earlyAmt,
+      balance:    newBalance,
+      isGrace,
+      isFixed,
+      rate,
+    });
+
+    balance = newBalance;
+  }
+
+  return rows;
+}
+
+/* ═══════════════════════════════════════════
+   UPDATE UI
+═══════════════════════════════════════════ */
+function update() {
+  const loanAmount = num('loanAmount');
+  const loanYears  = num('loanYears');
+  const fixedYears = num('fixedYears');
+  const fixedRate  = num('fixedRate');
+  const euribor    = num('euribor');
+  const bankMargin = num('bankMargin');
+  const varRate    = euribor + bankMargin;
+
+  // Variable rate label
+  $id('varRateVal').textContent = varRate.toFixed(2) + '%';
+
+  schedule = buildSchedule();
+  if (!schedule.length) return;
+
+  // ── Summary values ──
+  const totalInterest = schedule.reduce((s, r) => s + r.interest,  0);
+  const totalN128     = schedule.reduce((s, r) => s + r.n128,     0);
+  const totalPrincipal = schedule.reduce((s, r) => s + r.principal + r.earlyAmt, 0);
+  const grandTotal    = totalPrincipal + totalInterest + totalN128;
+  const actualMonths  = schedule.length;
+
+  const firstAmort = schedule.find(r => !r.isGrace);
+  const firstVar   = schedule.find(r => !r.isFixed && !r.isGrace);
+
+  const fixedPmt = firstAmort ? firstAmort.payment : (schedule[0] ? schedule[0].payment : 0);
+  const varPmt   = firstVar   ? firstVar.payment   : fixedPmt;
+
+  // Hero cards
+  $id('hFixedPmt').textContent = fmtEur(fixedPmt);
+  $id('hVarPmt').textContent   = fmtEur(varPmt);
+  $id('hFixedSub').textContent = fixedYears > 0
+    ? `Σταθερή για ${fixedYears} έτ${fixedYears === 1 ? 'ος' : 'η'} @ ${fixedRate.toFixed(2)}%`
+    : `Κυμαινόμενο επιτόκιο @ ${varRate.toFixed(2)}%`;
+  $id('hVarSub').textContent   = `Κυμαινόμενο Euribor + ${bankMargin}% = ${varRate.toFixed(2)}%`;
+
+  // Summary grid
+  $id('sAmount').textContent   = fmtEur(loanAmount);
+  $id('sRate').textContent     = fixedRate.toFixed(2) + '%';
+  $id('sDur').textContent      = `${loanYears} έτη`;
+  $id('sCount').textContent    = `${actualMonths} δόσεις`;
+  $id('sInterest').textContent = fmtEur(totalInterest);
+  $id('sN128').textContent     = fmtEur(totalN128);
+  $id('sTotal').textContent    = fmtEur(grandTotal);
+
+  // Info message
+  const pct = loanAmount > 0 ? (totalInterest / loanAmount * 100).toFixed(1) : '0';
+  const msg = $id('infoMsg');
+  msg.style.display = 'block';
+  msg.innerHTML = `💡 Θα πληρώσετε <strong>${fmtEur(totalInterest)}</strong> σε τόκους για ${loanYears} έτη — <strong>${pct}%</strong> του ποσού δανείου.`;
+
+  // Chart totals
+  $id('cPrincipal').textContent = fmtEur(totalPrincipal);
+  $id('cInterest').textContent  = fmtEur(totalInterest);
+
+  drawChart();
+  page = 1;
+  renderTable();
+}
+
+/* ═══════════════════════════════════════════
+   CHART
+═══════════════════════════════════════════ */
+function drawChart() {
+  const canvas = $id('chart');
+  if (!canvas) return;
+
+  const W  = canvas.parentElement.clientWidth || 600;
+  const H  = 240;
+  canvas.width  = W;
+  canvas.height = H;
+
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  // Aggregate by year
+  const years = {};
+  for (const r of schedule) {
+    const yr = Math.ceil(r.month / 12);
+    if (!years[yr]) years[yr] = { p: 0, i: 0 };
+    years[yr].p += r.principal + r.earlyAmt;
+    years[yr].i += r.interest;
+  }
+
+  const keys = Object.keys(years).map(Number).sort((a,b)=>a-b);
+  if (!keys.length) return;
+
+  const maxVal = Math.max(...keys.map(k => years[k].p + years[k].i));
+  if (maxVal <= 0) return;
+
+  const PL = 52, PR = 12, PT = 16, PB = 28;
+  const cW  = W - PL - PR;
+  const cH  = H - PT - PB;
+
+  const bW  = Math.max(3, Math.min(26, (cW / keys.length) * 0.65));
+  const gap = cW / keys.length;
+
+  // Grid lines
+  const gridN = 4;
+  for (let i = 0; i <= gridN; i++) {
+    const y   = PT + cH * (1 - i / gridN);
+    const val = maxVal * i / gridN;
+
+    ctx.strokeStyle = '#f3f4f6';
+    ctx.lineWidth   = 1;
+    ctx.beginPath();
+    ctx.moveTo(PL, y);
+    ctx.lineTo(W - PR, y);
+    ctx.stroke();
+
+    ctx.fillStyle  = '#9ca3af';
+    ctx.font       = '10px system-ui, sans-serif';
+    ctx.textAlign  = 'right';
+    const lbl = val >= 1000 ? (val/1000).toFixed(0)+'K' : val.toFixed(0);
+    ctx.fillText('€'+lbl, PL - 4, y + 4);
+  }
+
+  // Bars
+  keys.forEach((yr, i) => {
+    const d   = years[yr];
+    const x   = PL + i * gap + gap/2 - bW/2;
+    const tot = d.p + d.i;
+
+    const totalH    = tot / maxVal * cH;
+    const principH  = d.p / maxVal * cH;
+    const interestH = d.i / maxVal * cH;
+
+    // Interest (top, red)
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(x, PT + cH - totalH, bW, interestH);
+
+    // Principal (bottom, blue)
+    ctx.fillStyle = '#1d4ed8';
+    ctx.fillRect(x, PT + cH - principH, bW, principH);
+
+    // X-axis label
+    const every = keys.length <= 10 ? 1 : keys.length <= 20 ? 2 : 5;
+    if (yr === 1 || yr % every === 0 || yr === keys[keys.length-1]) {
+      ctx.fillStyle = '#6b7280';
+      ctx.font      = '10px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(yr, x + bW/2, H - 6);
+    }
+  });
+
+  // X-axis label text
+  ctx.fillStyle = '#9ca3af';
+  ctx.font      = '10px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Έτη', W/2, H - 6);
+}
+
+/* ═══════════════════════════════════════════
+   TABLE
+═══════════════════════════════════════════ */
+function renderTable() {
+  const tbody  = $id('tblBody');
+  const pager  = $id('pagination');
+  const info   = $id('tblInfo');
+  const toggle = $id('toggleBtn');
+
+  let rows;
+
+  if (showAll) {
+    rows            = schedule;
+    info.textContent  = `Εμφάνιση όλων (${schedule.length} δόσεις)`;
+    toggle.textContent = 'Σύνοψη';
+    pager.innerHTML   = '';
+  } else {
+    const totalPages = Math.ceil(schedule.length / PER_PAGE);
+    if (page > totalPages) page = 1;
+
+    const start = (page - 1) * PER_PAGE;
+    rows        = schedule.slice(start, start + PER_PAGE);
+    const end   = Math.min(start + PER_PAGE, schedule.length);
+
+    info.textContent  = `Δόσεις ${start+1}–${end} από ${schedule.length}`;
+    toggle.textContent = 'Εμφάνιση Όλων';
+
+    // Pagination
+    pager.innerHTML = '';
+    if (totalPages > 1) {
+      const prev = document.createElement('button');
+      prev.className   = 'btn-outline';
+      prev.textContent = '← Προηγούμενο';
+      prev.disabled    = page === 1;
+      prev.onclick     = () => { page--; renderTable(); };
+      pager.appendChild(prev);
+
+      const lbl = document.createElement('span');
+      lbl.textContent = `Σελίδα ${page} από ${totalPages}`;
+      pager.appendChild(lbl);
+
+      const next = document.createElement('button');
+      next.className   = 'btn-outline';
+      next.textContent = 'Επόμενο →';
+      next.disabled    = page === totalPages;
+      next.onclick     = () => { page++; renderTable(); };
+      pager.appendChild(next);
+    }
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    let cls = '';
+    if (r.isGrace)         cls = 'grace-row';
+    else if (!r.isFixed)   cls = 'variable-row';
+    if (r.earlyAmt > 0)    cls = 'early-row';
+
+    return `<tr class="${cls}">
+      <td>${r.month}</td>
+      <td class="date">${fmtDate(r.date)}</td>
+      <td class="pmt">${fmtEur(r.payment)}</td>
+      <td class="prin">${fmtEur(r.principal)}</td>
+      <td class="int">${fmtEur(r.interest)}</td>
+      <td class="bal">${fmtEur(r.balance)}</td>
+    </tr>${r.earlyAmt > 0 ? `<tr class="early-row"><td colspan="2" style="color:#92400e;font-size:11px;text-align:left;padding:4px 11px;">⚡ Πρόωρη αποπληρωμή</td><td colspan="4" style="color:#92400e;font-size:11px;text-align:right;padding:4px 11px;">${fmtEur(r.earlyAmt)}</td></tr>` : ''}`;
+  }).join('');
+}
+
+function toggleTable() {
+  showAll = !showAll;
+  renderTable();
+}
+
+/* ═══════════════════════════════════════════
+   EARLY REPAYMENTS
+═══════════════════════════════════════════ */
+function addER() {
+  erCounter++;
+  erList.push({ id: erCounter, month: 12, amount: 0 });
+  renderERList();
+}
+
+function removeER(id) {
+  erList = erList.filter(e => e.id !== id);
+  renderERList();
+  update();
+}
+
+function updateER(id, field, val) {
+  const item = erList.find(e => e.id === id);
+  if (!item) return;
+  item[field] = field === 'month' ? Math.max(1, Math.round(parseFloat(val) || 1))
+                                  : Math.max(0, parseFloat(val) || 0);
+  update();
+}
+
+function renderERList() {
+  const el = $id('erList');
+  if (!erList.length) {
+    el.innerHTML = `<div class="empty-state">
+      Δεν έχουν προστεθεί πρόωρες αποπληρωμές. Κάντε κλικ παρακάτω για να μειώσετε το δάνειό σας γρηγορότερα.
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = erList.map(er => `
+    <div class="er-item">
+      <div>
+        <label>Μήνας</label>
+        <div class="input-wrap">
+          <input type="number" min="1" value="${er.month}"
+            onchange="updateER(${er.id},'month',this.value)"
+            style="width:100%;padding:6px 8px;border:1px solid var(--g300);border-radius:6px;font-size:13px;">
+        </div>
+      </div>
+      <div>
+        <label>Ποσό (€)</label>
+        <div class="input-wrap has-pfx">
+          <span class="pfx" style="font-size:12px;">€</span>
+          <input type="number" min="0" value="${er.amount}"
+            onchange="updateER(${er.id},'amount',this.value)"
+            style="width:100%;padding:6px 8px 6px 22px;border:1px solid var(--g300);border-radius:6px;font-size:13px;">
+        </div>
+      </div>
+      <button class="btn-danger" onclick="removeER(${er.id})" style="align-self:flex-end;">✕</button>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════
+   CSV EXPORT
+═══════════════════════════════════════════ */
+function exportCSV() {
+  const headers = ['Δόση','Ημερομηνία','Δόση (€)','Κεφάλαιο (€)','Τόκος (€)','Εισφορά Ν.128 (€)','Υπόλοιπο (€)','Επιτόκιο (%)','Πρόωρη Αποπληρωμή (€)'];
+  const body = schedule.map(r => [
+    r.month,
+    fmtDate(r.date),
+    r.payment.toFixed(2),
+    r.principal.toFixed(2),
+    r.interest.toFixed(2),
+    r.n128.toFixed(2),
+    r.balance.toFixed(2),
+    r.rate.toFixed(3),
+    r.earlyAmt.toFixed(2),
+  ]);
+
+  const csv = [headers, ...body].map(row => row.join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'amortization_schedule.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ═══════════════════════════════════════════
+   EVENT BINDING
+═══════════════════════════════════════════ */
+['loanAmount','loanYears','fixedYears','fixedRate','euribor','bankMargin','gracePeriod']
+  .forEach(id => $id(id).addEventListener('input', () => { page = 1; update(); }));
+
+window.addEventListener('resize', drawChart);
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+renderERList();
+update();
+</script>
+</body>
+</html>
