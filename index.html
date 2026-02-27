@@ -55,10 +55,11 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      overflow: hidden;
     }
-    nav .brand { font-size: 17px; font-weight: 700; letter-spacing: -.3px; white-space: nowrap; }
-    nav .sep   { color: rgba(255,255,255,.35); }
+    nav .brand { font-size: 17px; font-weight: 700; letter-spacing: -.3px; white-space: nowrap; flex-shrink: 0; }
+    nav .sep   { color: rgba(255,255,255,.35); flex-shrink: 0; }
     nav .sub   { font-size: 12px; color: rgba(255,255,255,.80); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 
     /* ── LAYOUT ── */
@@ -289,26 +290,37 @@
       border: 1px dashed var(--g300);
       border-radius: 6px;
     }
+    .er-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 11px;
+      color: var(--g500);
+    }
+    .er-header .btn-danger {
+      padding: 4px 8px;
+      font-size: 11px;
+      min-height: 28px;
+      border-radius: 5px;
+    }
     .er-item {
       display: grid;
       grid-template-columns: 1fr 1fr auto;
-      gap: 8px;
+      gap: 6px;
       align-items: end;
-      margin-bottom: 8px;
-      padding: 12px;
+      margin-bottom: 6px;
+      padding: 8px 10px;
       background: var(--g50);
       border: 1px solid var(--g200);
       border-radius: 6px;
     }
-    @media (max-width: 400px) {
-      .er-item { grid-template-columns: 1fr 1fr; }
-      .er-item .btn-danger { grid-column: span 2; justify-self: end; }
-    }
-    .er-item label { font-size: 11px; }
-    .er-item input { font-size: 16px; padding: 8px 10px; min-height: 44px; }
-    .er-item .has-pfx input { padding-left: 24px; }
-    .er-buttons { display: flex; gap: 8px; margin-top: 10px; }
-    .er-buttons .btn-outline { flex: 1; }
+    .er-item label { font-size: 10px; }
+    .er-item input { font-size: 15px; padding: 6px 8px; min-height: 40px; }
+    .er-item .has-pfx input { padding-left: 22px; }
+    .er-item .btn-danger { padding: 6px 8px; font-size: 13px; min-height: 40px; min-width: 36px; }
+    .er-buttons { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .er-buttons .btn-outline { flex: 1; min-width: 130px; }
     .bulk-er-form {
       margin-top: 10px;
       padding: 14px;
@@ -1040,7 +1052,12 @@ function renderERList() {
     return;
   }
 
-  el.innerHTML = erList.map(er => `
+  const header = `<div class="er-header">
+    <span>${erList.length} πρόωρ${erList.length === 1 ? 'η' : 'ες'} αποπληρωμή${erList.length === 1 ? '' : 'ές'}</span>
+    <button class="btn-danger" onclick="clearAllER()">✕ Διαγραφή Όλων</button>
+  </div>`;
+
+  el.innerHTML = header + erList.map(er => `
     <div class="er-item">
       <div>
         <label>Μήνας</label>
@@ -1052,13 +1069,19 @@ function renderERList() {
       <div>
         <label>Ποσό (€)</label>
         <div class="input-wrap has-pfx">
-          <span class="pfx">€</span>
+          <span class="pfx" style="font-size:12px;">€</span>
           <input type="number" min="0" value="${er.amount}"
             onchange="updateER(${er.id},'amount',this.value)">
         </div>
       </div>
       <button class="btn-danger" onclick="removeER(${er.id})" style="align-self:flex-end;">✕</button>
     </div>`).join('');
+}
+
+function clearAllER() {
+  erList = [];
+  renderERList();
+  update();
 }
 
 /* ═══════════════════════════════════════════
