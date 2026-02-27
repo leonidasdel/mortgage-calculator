@@ -275,6 +275,37 @@
     .er-item label { font-size: 11px; }
     .er-item input { font-size: 13px; padding: 6px 8px; }
     .er-item .has-pfx input { padding-left: 22px; }
+    .er-buttons { display: flex; gap: 8px; margin-top: 8px; }
+    .er-buttons .btn-outline { flex: 1; }
+    .bulk-er-form {
+      margin-top: 8px;
+      padding: 12px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+    }
+    .bulk-er-form .bulk-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--g700);
+      margin-bottom: 8px;
+    }
+    .bulk-er-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .bulk-er-grid label { font-size: 11px; color: var(--g600); display: block; margin-bottom: 3px; }
+    .bulk-er-grid input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid var(--g300);
+      border-radius: 6px;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+    .bulk-er-grid .has-pfx input { padding-left: 22px; }
 
     /* ── GREEK INFO BOX ── */
     .gr-info { background: var(--green-light); border: 1px solid #a7f3d0; border-radius: 6px; padding: 12px; margin-top: 16px; }
@@ -402,9 +433,48 @@
           <div class="sec-div">
             <div class="sec-label">Πρόωρες Αποπληρωμές</div>
             <div id="erList"></div>
-            <button class="btn-outline" onclick="addER()" style="width:100%; margin-top:8px;">
-              + Προσθήκη Πρόωρης Αποπληρωμής
-            </button>
+            <div class="er-buttons">
+              <button class="btn-outline" onclick="addER()">
+                + Μεμονωμένη
+              </button>
+              <button class="btn-outline" onclick="toggleBulkER()">
+                + Μαζική Προσθήκη
+              </button>
+            </div>
+            <!-- Bulk add form -->
+            <div id="bulkERForm" class="bulk-er-form" style="display:none;">
+              <div class="bulk-title">Μαζική Προσθήκη Πρόωρων Αποπληρωμών</div>
+              <div class="bulk-er-grid">
+                <div>
+                  <label>Από Μήνα</label>
+                  <input type="number" id="bulkStart" min="1" value="12" oninput="updateBulkPreview()">
+                </div>
+                <div>
+                  <label>Ποσό (€)</label>
+                  <div class="input-wrap has-pfx">
+                    <span class="pfx" style="font-size:12px;">€</span>
+                    <input type="number" id="bulkAmount" min="0" value="3000" oninput="updateBulkPreview()">
+                  </div>
+                </div>
+                <div>
+                  <label>Κάθε (μήνες)</label>
+                  <input type="number" id="bulkEvery" min="1" value="12" oninput="updateBulkPreview()">
+                </div>
+                <div>
+                  <label>Αριθμός Πληρωμών</label>
+                  <input type="number" id="bulkCount" min="1" value="12" oninput="updateBulkPreview()">
+                </div>
+              </div>
+              <div style="font-size:11px;color:var(--g500);margin-bottom:8px;" id="bulkPreview"></div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-primary" onclick="addBulkER()" style="flex:1;">
+                  Προσθήκη
+                </button>
+                <button class="btn-outline" onclick="toggleBulkER()" style="flex:1;">
+                  Ακύρωση
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- ── Greek mortgage info ── -->
@@ -943,6 +1013,48 @@ function renderERList() {
       </div>
       <button class="btn-danger" onclick="removeER(${er.id})" style="align-self:flex-end;">✕</button>
     </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════
+   BULK EARLY REPAYMENTS
+═══════════════════════════════════════════ */
+function toggleBulkER() {
+  const form = $id('bulkERForm');
+  const visible = form.style.display !== 'none';
+  form.style.display = visible ? 'none' : 'block';
+  if (!visible) updateBulkPreview();
+}
+
+function updateBulkPreview() {
+  const startMonth = Math.max(1, Math.round(parseFloat($id('bulkStart').value) || 1));
+  const amount     = Math.max(0, parseFloat($id('bulkAmount').value) || 0);
+  const every      = Math.max(1, Math.round(parseFloat($id('bulkEvery').value) || 1));
+  const count      = Math.max(1, Math.round(parseFloat($id('bulkCount').value) || 1));
+  const lastMonth  = startMonth + (count - 1) * every;
+  const preview    = $id('bulkPreview');
+  if (!preview) return;
+  preview.textContent =
+    `Θα προστεθούν ${count} πληρωμές × €${amount.toLocaleString('el-GR')} — ` +
+    `από μήνα ${startMonth}, κάθε ${every} μήνα/ες, έως μήνα ${lastMonth}.`;
+}
+
+function addBulkER() {
+  const startMonth = Math.max(1, Math.round(parseFloat($id('bulkStart').value) || 1));
+  const amount     = Math.max(0, parseFloat($id('bulkAmount').value) || 0);
+  const every      = Math.max(1, Math.round(parseFloat($id('bulkEvery').value) || 1));
+  const count      = Math.max(1, Math.round(parseFloat($id('bulkCount').value) || 1));
+
+  for (let i = 0; i < count; i++) {
+    erCounter++;
+    erList.push({ id: erCounter, month: startMonth + i * every, amount });
+  }
+
+  // Keep list sorted by month
+  erList.sort((a, b) => a.month - b.month);
+
+  $id('bulkERForm').style.display = 'none';
+  renderERList();
+  update();
 }
 
 /* ═══════════════════════════════════════════
