@@ -42,7 +42,7 @@ export class MortgageCalculatorComponent implements OnInit {
   ngOnInit(): void {
     const saved = this.persistence.loadState();
     if (saved) {
-      if (saved.inputs) this.loanForm.patchValue(saved.inputs, { emitEvent: false });
+      if (saved.inputs) this.loanForm.patchValue(saved.inputs);
       if (Array.isArray(saved.erList)) this.erList.set(saved.erList);
     }
 
