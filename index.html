@@ -327,6 +327,7 @@
     .er-item {
       display: flex;
       flex-direction: row;
+      flex-wrap: wrap;
       gap: 4px;
       align-items: center;
       margin-bottom: 4px;
@@ -343,6 +344,7 @@
     .er-item .has-pfx input { padding-left: 18px; }
     .er-item .pfx { font-size: 11px; }
     .er-item .btn-danger { padding: 3px 6px; font-size: 12px; min-height: 30px; min-width: 26px; flex-shrink: 0; }
+    .er-months-saved { flex-basis: 100%; font-size: 11px; color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 4px; padding: 2px 6px; margin-top: 2px; text-align: center; }
     .er-buttons { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
     .er-buttons .btn-outline { flex: 1; min-width: 130px; }
     .er-mode-toggle { margin-bottom: 12px; }
@@ -721,8 +723,9 @@ let schedule   = [];
 let showAll    = false;
 let page       = 1;
 const PER_PAGE = 12;
-let erList     = [];
-let erCounter  = 0;
+let erList        = [];
+let erCounter     = 0;
+let erMonthsSaved = {};
 
 /* ═══════════════════════════════════════════
    LOCAL STORAGE PERSISTENCE
@@ -981,6 +984,22 @@ function update() {
     savingsEl.style.display = 'none';
   }
 
+  // Per-prepayment months saved
+  erMonthsSaved = {};
+  if (erList.length > 0) {
+    const savedER3 = erList;
+    const sortedER = [...erList].sort((a, b) => a.month - b.month);
+    for (let i = 0; i < sortedER.length; i++) {
+      erList = sortedER.slice(0, i);
+      const prevLen = buildSchedule().length;
+      erList = sortedER.slice(0, i + 1);
+      const withLen = buildSchedule().length;
+      erMonthsSaved[sortedER[i].id] = Math.max(0, prevLen - withLen);
+    }
+    erList = savedER3;
+  }
+  renderERList();
+
   // Chart totals
   $id('cPrincipal').textContent = fmtEur(totalPrincipal);
   $id('cInterest').textContent  = fmtEur(totalInterest);
@@ -1194,7 +1213,18 @@ function renderERList() {
     <button class="btn-danger" onclick="clearAllER()">✕ Διαγραφή Όλων</button>
   </div>`;
 
-  el.innerHTML = header + erList.map(er => `
+  el.innerHTML = header + erList.map(er => {
+    const ms = erMonthsSaved[er.id] || 0;
+    let msBadge = '';
+    if (ms > 0) {
+      const yrs = Math.floor(ms / 12);
+      const mos = ms % 12;
+      const parts = [];
+      if (yrs > 0) parts.push(`${yrs} έτ${yrs === 1 ? 'ος' : 'η'}`);
+      if (mos > 0) parts.push(`${mos} μήν${mos === 1 ? 'α' : 'ες'}`);
+      msBadge = `<span class="er-months-saved">↓ ${parts.join(' και ')} νωρίτερα</span>`;
+    }
+    return `
     <div class="er-item">
       <div class="input-wrap er-month-wrap">
         <input type="number" min="1" value="${er.month}" placeholder="Μήνας"
@@ -1206,7 +1236,9 @@ function renderERList() {
           onchange="updateER(${er.id},'amount',this.value)">
       </div>
       <button class="btn-danger" onclick="removeER(${er.id})">✕</button>
-    </div>`).join('');
+      ${msBadge}
+    </div>`;
+  }).join('');
 }
 
 function clearAllER() {
