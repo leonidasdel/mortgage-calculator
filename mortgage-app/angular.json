@@ -30,7 +30,6 @@
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "baseHref": "/mortgage-calculator/",
             "assets": [
               {
                 "glob": "**/*",
@@ -43,6 +42,7 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "/mortgage-calculator/",
               "budgets": [
                 {
                   "type": "initial",
