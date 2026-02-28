@@ -1,0 +1,59 @@
+<div class="tbl-controls">
+  <span class="tbl-info">
+    @if (showAll) {
+      Εμφάνιση όλων ({{ schedule.length }} δόσεις)
+    } @else {
+      Δόσεις {{ rangeStart }}–{{ rangeEnd }} από {{ schedule.length }}
+    }
+  </span>
+  <button class="btn-outline" (click)="toggleShowAll()">
+    {{ showAll ? 'Σύνοψη' : 'Εμφάνιση Όλων' }}
+  </button>
+</div>
+
+<div class="tbl-scroll-hint">← Σύρτε οριζόντια για να δείτε όλες τις στήλες →</div>
+
+<div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Ημερομηνία</th>
+        <th>Δόση</th>
+        <th>Κεφάλαιο</th>
+        <th>Τόκος</th>
+        <th>Υπόλοιπο</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (r of visibleRows; track r.month) {
+        <tr [class]="rowClass(r)">
+          <td>{{ r.month }}</td>
+          <td class="date">{{ r.date | dateDDMMYYYY }}</td>
+          <td class="pmt">{{ r.payment | euro }}</td>
+          <td class="prin">{{ r.principal | euro }}</td>
+          <td class="int">{{ r.interest | euro }}</td>
+          <td class="bal">{{ r.balance | euro }}</td>
+        </tr>
+        @if (r.earlyAmt > 0) {
+          <tr class="early-row">
+            <td colspan="2" class="er-label">⚡ Πρόωρη αποπληρωμή</td>
+            <td colspan="4" class="er-amount">{{ r.earlyAmt | euro }}</td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (!showAll && totalPages > 1) {
+  <div class="pagination">
+    <button class="btn-outline" [disabled]="page === 1" (click)="prevPage()">← Προηγούμενο</button>
+    <span>Σελίδα {{ page }} από {{ totalPages }}</span>
+    <button class="btn-outline" [disabled]="page === totalPages" (click)="nextPage()">Επόμενο →</button>
+  </div>
+}
+
+<div class="disclaimer">
+  <strong>Σημαντική Σημείωση:</strong> Οι υπολογισμοί παρέχονται αποκλειστικά για ενημερωτικούς σκοπούς και δεν αποτελούν χρηματοοικονομική συμβουλή. Επικοινωνήστε με την τράπεζά σας για επίσημα στοιχεία.
+</div>

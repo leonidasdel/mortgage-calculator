@@ -1,0 +1,77 @@
+<div [formGroup]="form">
+
+  <!-- Loan amount -->
+  <div class="form-group">
+    <label for="loanAmount">Ποσό Δανείου (€)</label>
+    <div class="input-wrap has-pfx">
+      <span class="pfx">€</span>
+      <input type="number" id="loanAmount" formControlName="loanAmount" min="1000" step="1000">
+    </div>
+  </div>
+
+  <!-- Duration -->
+  <div class="form-group">
+    <label for="loanYears">Διάρκεια Δανείου (έτη)</label>
+    <div class="input-wrap has-sfx">
+      <input type="number" id="loanYears" formControlName="loanYears" min="1" max="40">
+      <span class="sfx">έτη</span>
+    </div>
+  </div>
+
+  <!-- Fixed rate section -->
+  <div class="sec-div">
+    <div class="sec-label">Περίοδος Σταθερού Επιτοκίου</div>
+    <div class="form-group">
+      <label for="fixedYears">Έτη Σταθερού Επιτοκίου</label>
+      <div class="input-wrap has-sfx">
+        <input type="number" id="fixedYears" formControlName="fixedYears" min="0">
+        <span class="sfx">έτη</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="fixedRate">Σταθερό Επιτόκιο (%)</label>
+      <div class="input-wrap has-sfx">
+        <input type="number" id="fixedRate" formControlName="fixedRate" min="0" step="0.05">
+        <span class="sfx">%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variable rate section -->
+  <div class="sec-div">
+    <div class="sec-label">Παράμετροι Κυμαινόμενου Επιτοκίου</div>
+    <div class="form-group">
+      <label for="euribor">Euribor 3M (%)</label>
+      <div class="input-wrap has-sfx">
+        <input type="number" id="euribor" formControlName="euribor" min="0" step="0.001">
+        <span class="sfx">%</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="bankMargin">Περιθώριο Τράπεζας (%)</label>
+      <div class="input-wrap has-sfx">
+        <input type="number" id="bankMargin" formControlName="bankMargin" min="0" step="0.05">
+        <span class="sfx">%</span>
+      </div>
+    </div>
+    <div class="info-box blue">
+      💡 Κυμαινόμενο Επιτόκιο = Euribor 3M + Περιθώριο = <strong>{{ varRate }}%</strong>
+    </div>
+  </div>
+
+  <!-- Grace period -->
+  <div class="sec-div">
+    <div class="sec-label">Περίοδος Χάριτος</div>
+    <div class="form-group">
+      <label for="gracePeriod">Περίοδος Χάριτος (μήνες)</label>
+      <div class="input-wrap has-sfx">
+        <input type="number" id="gracePeriod" formControlName="gracePeriod" min="0">
+        <span class="sfx">μήνες</span>
+      </div>
+    </div>
+    <div class="info-box amber">
+      💡 Κατά την περίοδο χάριτος πληρώνετε μόνο τόκους — χωρίς μείωση κεφαλαίου.
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,31 @@
+@if (visible) {
+  <div class="bulk-er-form" [formGroup]="form">
+    <div class="bulk-title">Μαζική Προσθήκη Πρόωρων Αποπληρωμών</div>
+    <div class="bulk-er-grid">
+      <div>
+        <label>Από Μήνα</label>
+        <input type="number" formControlName="startMonth" min="1">
+      </div>
+      <div>
+        <label>Ποσό (€)</label>
+        <div class="input-wrap has-pfx">
+          <span class="pfx" style="font-size:12px;">€</span>
+          <input type="number" formControlName="amount" min="0">
+        </div>
+      </div>
+      <div>
+        <label>Κάθε (μήνες)</label>
+        <input type="number" formControlName="every" min="1">
+      </div>
+      <div>
+        <label>Αριθμός Πληρωμών</label>
+        <input type="number" formControlName="count" min="1">
+      </div>
+    </div>
+    <div class="bulk-preview">{{ preview }}</div>
+    <div class="bulk-actions">
+      <button class="btn-primary" (click)="submit()">Προσθήκη</button>
+      <button class="btn-outline" (click)="cancel.emit()">Ακύρωση</button>
+    </div>
+  </div>
+}

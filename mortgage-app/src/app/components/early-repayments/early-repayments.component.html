@@ -1,0 +1,65 @@
+<!-- ER mode toggle -->
+<div class="er-mode-toggle">
+  <label class="er-mode-label">Τρόπος αποπληρωμής:</label>
+  <div class="er-mode-options">
+    <label class="er-mode-option">
+      <input type="radio" name="erMode" value="reducePmt"
+        [checked]="erMode === 'reducePmt'"
+        (change)="onErModeChange('reducePmt')">
+      <span>Μείωση μηνιαίας δόσης</span>
+    </label>
+    <label class="er-mode-option">
+      <input type="radio" name="erMode" value="reduceDur"
+        [checked]="erMode === 'reduceDur'"
+        (change)="onErModeChange('reduceDur')">
+      <span>Μείωση διάρκειας δανείου</span>
+    </label>
+  </div>
+</div>
+
+<!-- ER list -->
+@if (erList.length === 0) {
+  <div class="empty-state">
+    Δεν έχουν προστεθεί πρόωρες αποπληρωμές. Κάντε κλικ παρακάτω για να μειώσετε το δάνειό σας γρηγορότερα.
+  </div>
+} @else {
+  <div class="er-header">
+    <span>{{ erList.length }} πρόωρ{{ erList.length === 1 ? 'η' : 'ες' }} αποπληρωμή{{ erList.length === 1 ? '' : 'ές' }}</span>
+    <button class="btn-danger" (click)="clearAll()">✕ Διαγραφή Όλων</button>
+  </div>
+
+  @for (er of erList; track er.id) {
+    <div class="er-item" [class.er-item--inactive]="isInactive(er)">
+      <div class="input-wrap er-month-wrap">
+        <input type="number" min="1" [value]="er.month"
+          (change)="updateERField(er.id, 'month', $any($event.target).value)">
+      </div>
+      <div class="input-wrap has-pfx er-amount-wrap">
+        <span class="pfx">€</span>
+        <input type="number" min="0" [value]="er.amount"
+          (change)="updateERField(er.id, 'amount', $any($event.target).value)">
+      </div>
+      <button class="btn-danger" (click)="removeER(er.id)">✕</button>
+
+      @if (monthsSavedLabel(er)) {
+        <span class="er-months-saved">{{ monthsSavedLabel(er) }}</span>
+      }
+      @if (isInactive(er)) {
+        <span class="er-inactive-note">⚠ Δεν εφαρμόζεται — το δάνειο λήγει στον μήνα {{ scheduleLength }}</span>
+      }
+    </div>
+  }
+}
+
+<!-- Action buttons -->
+<div class="er-buttons">
+  <button class="btn-outline" (click)="addER()">+ Μεμονωμένη</button>
+  <button class="btn-outline" (click)="showBulk = !showBulk">+ Μαζική Προσθήκη</button>
+</div>
+
+<!-- Bulk form -->
+<app-bulk-er-form
+  [visible]="showBulk"
+  (addBulk)="onBulkAdd($event)"
+  (cancel)="showBulk = false">
+</app-bulk-er-form>
