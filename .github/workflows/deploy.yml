@@ -1,0 +1,38 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: mortgage-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: mortgage-app
+
+      - name: Run tests
+        run: npm test -- --watch=false
+        working-directory: mortgage-app
+
+      - name: Build
+        run: npm run build -- --base-href /mortgage-calculator/
+        working-directory: mortgage-app
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: mortgage-app/dist/mortgage-app/browser

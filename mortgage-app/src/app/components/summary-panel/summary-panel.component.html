@@ -1,0 +1,74 @@
+@if (summary) {
+  <!-- Hero cards -->
+  <div class="hero-row">
+    <div class="hero-card">
+      <div class="hero-lbl">Μηνιαία Δόση (Σταθερή Περίοδος)</div>
+      <div class="hero-val">{{ summary.fixedPayment | euro }}</div>
+      <div class="hero-sub">{{ fixedSubLabel }}</div>
+    </div>
+    <div class="hero-card dark">
+      <div class="hero-lbl">Μετά την Περίοδο Σταθερού Επιτοκίου</div>
+      <div class="hero-val">{{ summary.variablePayment | euro }}</div>
+      <div class="hero-sub">{{ varSubLabel }}</div>
+    </div>
+  </div>
+
+  <!-- Summary grid -->
+  <div class="sum-grid">
+    <div class="sum-item">
+      <div class="sum-lbl">Ποσό Δανείου</div>
+      <div class="sum-val">{{ params.loanAmount | euro }}</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-lbl">Επιτόκιο (Σταθερό)</div>
+      <div class="sum-val">{{ params.fixedRate.toFixed(2) }}%</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-lbl">Διάρκεια Δανείου</div>
+      <div class="sum-val">{{ params.loanYears }} έτη</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-lbl">Πλήθος Δόσεων</div>
+      <div class="sum-val">{{ summary.actualMonths }} δόσεις</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-lbl">Συνολικοί Τόκοι</div>
+      <div class="sum-val red">{{ summary.totalInterest | euro }}</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-lbl">Εισφορά Ν.128/1975 (0,12%)</div>
+      <div class="sum-val">{{ summary.totalN128 | euro }}</div>
+    </div>
+    <div class="sum-item" style="grid-column: span 2;">
+      <div class="sum-lbl">Συνολικό Ποσό Πληρωμής</div>
+      <div class="sum-val blue">{{ summary.grandTotal | euro }}</div>
+    </div>
+  </div>
+
+  <!-- Info message -->
+  <div class="info-box blue">
+    💡 Θα πληρώσετε <strong>{{ summary.totalInterest | euro }}</strong> σε τόκους για {{ params.loanYears }} έτη — <strong>{{ interestPct }}%</strong> του ποσού δανείου.
+  </div>
+
+  <!-- Savings message -->
+  @if (hasErSavings) {
+    <div class="info-box green" style="margin-top:10px;">
+      🎉 <strong>Εξοικονόμηση από πρόωρες αποπληρωμές</strong><br>
+      Αρχικοί τόκοι: <strong>{{ (summary.baseInterest ?? 0) | euro }}</strong> → Τελικοί τόκοι: <strong>{{ summary.totalInterest | euro }}</strong><br>
+      @if (params.erMode === 'reducePmt') {
+        Εξοικονομείτε <strong>{{ (summary.interestSaved ?? 0) | euro }}</strong> σε τόκους
+        @if (savingsTimePart) { και <strong>{{ savingsTimePart }}</strong> νωρίτερα }
+        .
+      } @else {
+        Εξοικονομείτε <strong>{{ (summary.interestSaved ?? 0) | euro }}</strong> σε τόκους.<br>
+        📅 Λήξη δανείου <strong>{{ savingsTimePart }} νωρίτερα</strong> — η μηνιαία δόση παραμένει σταθερή.
+      }
+    </div>
+  }
+
+  <!-- Export -->
+  <div class="export-row">
+    <button class="btn-outline" (click)="exportCsv.emit()">📥 Εξαγωγή CSV</button>
+    <button class="btn-outline" (click)="window_print()">🖨️ Εκτύπωση / PDF</button>
+  </div>
+}

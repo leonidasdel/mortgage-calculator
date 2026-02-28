@@ -1,0 +1,86 @@
+<app-nav></app-nav>
+
+<div class="container">
+  <div class="page-title">Υπολογισμός Δόσης Δανείου</div>
+
+  <div class="grid">
+    <!-- ═══════════════════ LEFT PANEL ═══════════════════ -->
+    <div class="left-panel">
+
+      <div class="card">
+        <div class="card-header"><h2>Παράμετροι Δανείου</h2></div>
+        <div class="card-body">
+          <app-loan-form [form]="loanForm"></app-loan-form>
+
+          <div class="sec-div">
+            <div class="sec-label">Πρόωρες Αποπληρωμές</div>
+            <app-early-repayments
+              [erList]="erList()"
+              [erMonthsSaved]="erMonthsSaved()"
+              [scheduleLength]="schedule().length"
+              [erMode]="loanForm.get('erMode')?.value"
+              (erListChange)="onErListChange($event)"
+              (erModeChange)="onErModeChange($event)">
+            </app-early-repayments>
+          </div>
+
+          <div class="gr-info">
+            <h3>📋 Σχετικά με τα Ελληνικά Στεγαστικά Δάνεια</h3>
+            <ul>
+              <li>Εισφορά Ν.128/1975: 0,12% ετησίως επί του ποσού δανείου</li>
+              <li>Σταθερό επιτόκιο: σταθερές δόσεις για τα πρώτα έτη</li>
+              <li>Κυμαινόμενο επιτόκιο: προσαρμόζεται βάσει Euribor</li>
+              <li>Τυπικό περιθώριο τράπεζας: 1,5% – 3% πάνω από Euribor</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ RIGHT PANEL ═══════════════════ -->
+    <div class="right-panel">
+
+      <div class="card">
+        <div class="card-header"><h2>Σύνοψη Μηνιαίας Δόσης</h2></div>
+        <div class="card-body">
+          <app-summary-panel
+            [summary]="summary()"
+            [params]="loanForm.value"
+            (exportCsv)="onExportCsv()">
+          </app-summary-panel>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>Ετήσια Ανάλυση Πληρωμών</h2></div>
+        <div class="card-body">
+          <div class="hero-row" style="margin-bottom:12px;">
+            <div style="text-align:center; padding:10px; background:var(--blue-light); border-radius:6px;">
+              <div style="font-size:11px; color:var(--blue); font-weight:700; text-transform:uppercase; letter-spacing:.5px;">Συνολικό Κεφάλαιο</div>
+              <div style="font-size:20px; font-weight:700; color:var(--blue);">{{ summary().totalPrincipal | euro }}</div>
+            </div>
+            <div style="text-align:center; padding:10px; background:var(--red-light); border-radius:6px;">
+              <div style="font-size:11px; color:var(--red); font-weight:700; text-transform:uppercase; letter-spacing:.5px;">Συνολικοί Τόκοι</div>
+              <div style="font-size:20px; font-weight:700; color:var(--red);">{{ summary().totalInterest | euro }}</div>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <app-amortization-chart [schedule]="schedule()"></app-amortization-chart>
+          </div>
+          <div class="chart-legend">
+            <div class="leg-item"><div class="leg-dot" style="background:#1d4ed8;"></div><span>Κεφάλαιο</span></div>
+            <div class="leg-item"><div class="leg-dot" style="background:#dc2626;"></div><span>Τόκοι</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>Πίνακας Αποπληρωμής</h2></div>
+        <div class="card-body">
+          <app-amortization-table [schedule]="schedule()"></app-amortization-table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
