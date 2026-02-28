@@ -345,6 +345,13 @@
     .er-item .btn-danger { padding: 3px 6px; font-size: 12px; min-height: 30px; min-width: 26px; flex-shrink: 0; }
     .er-buttons { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
     .er-buttons .btn-outline { flex: 1; min-width: 130px; }
+    .er-mode-toggle { margin-bottom: 12px; }
+    .er-mode-label { font-size: 12px; font-weight: 600; color: var(--g600); display: block; margin-bottom: 6px; }
+    .er-mode-options { display: flex; gap: 6px; flex-wrap: wrap; }
+    .er-mode-option { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--g700);
+      background: var(--g100); border: 1px solid var(--g200); border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+    .er-mode-option:has(input:checked) { background: #eff6ff; border-color: var(--blue); color: var(--blue); font-weight: 600; }
+    .er-mode-option input { accent-color: var(--blue); cursor: pointer; }
     .bulk-er-form {
       margin-top: 10px;
       padding: 14px;
@@ -526,6 +533,19 @@
           <!-- ── Early repayments ── -->
           <div class="sec-div">
             <div class="sec-label">Πρόωρες Αποπληρωμές</div>
+            <div class="er-mode-toggle">
+              <label class="er-mode-label">Τρόπος αποπληρωμής:</label>
+              <div class="er-mode-options">
+                <label class="er-mode-option">
+                  <input type="radio" name="erMode" value="reducePmt" checked onchange="update()">
+                  <span>Μείωση μηνιαίας δόσης</span>
+                </label>
+                <label class="er-mode-option">
+                  <input type="radio" name="erMode" value="reduceDur" onchange="update()">
+                  <span>Μείωση διάρκειας δανείου</span>
+                </label>
+              </div>
+            </div>
             <div id="erList"></div>
             <div class="er-buttons">
               <button class="btn-outline" onclick="addER()">
@@ -832,7 +852,10 @@ function buildSchedule() {
       if (earlyAmt < 0) earlyAmt = 0;
       const afterBalance = balance - principal - earlyAmt;
       const remMonths    = totalMonths - m;
-      if (remMonths > 0 && afterBalance > 0.01) {
+      // reducePmt mode: recalculate PMT so monthly payment goes down
+      // reduceDur mode: keep same PMT so loan ends earlier (no recalculation)
+      const erMode = (document.querySelector('input[name="erMode"]:checked') || {}).value || 'reducePmt';
+      if (erMode === 'reducePmt' && remMonths > 0 && afterBalance > 0.01) {
         if (isFixed) {
           pmtFixed = pmt(afterBalance, fixedRate, remMonths);
         } else {
@@ -921,13 +944,14 @@ function update() {
   // Savings from early repayments
   const savingsEl = $id('savingsMsg');
   if (erList.length > 0) {
+    const erMode = (document.querySelector('input[name="erMode"]:checked') || {}).value || 'reducePmt';
     const savedER = erList;
     erList = [];
     const baseSchedule = buildSchedule();
     erList = savedER;
 
-    const baseInterest = baseSchedule.reduce((s, r) => s + r.interest, 0);
-    const baseMonths   = baseSchedule.length;
+    const baseInterest  = baseSchedule.reduce((s, r) => s + r.interest, 0);
+    const baseMonths    = baseSchedule.length;
     const interestSaved = baseInterest - totalInterest;
     const monthsSaved   = baseMonths - actualMonths;
     const yearsSaved    = Math.floor(monthsSaved / 12);
@@ -937,14 +961,22 @@ function update() {
     if (monthsSaved > 0) {
       const yStr = yearsSaved > 0 ? `${yearsSaved} έτ${yearsSaved === 1 ? 'ος' : 'η'}` : '';
       const mStr = remMonths  > 0 ? `${remMonths} μήν${remMonths === 1 ? 'α' : 'ες'}` : '';
-      timePart = ' και <strong>' + [yStr, mStr].filter(Boolean).join(' και ') + '</strong> νωρίτερα';
+      timePart = '<strong>' + [yStr, mStr].filter(Boolean).join(' και ') + '</strong>';
+    }
+
+    let modeNote = '';
+    if (erMode === 'reduceDur') {
+      modeNote = `<br>📅 Λήξη δανείου <strong>${timePart} νωρίτερα</strong> — η μηνιαία δόση παραμένει σταθερή.`;
+    } else {
+      if (timePart) modeNote = ` και ${timePart} νωρίτερα`;
     }
 
     savingsEl.style.display = 'block';
     savingsEl.innerHTML =
       `🎉 <strong>Εξοικονόμηση από πρόωρες αποπληρωμές</strong><br>` +
       `Αρχικοί τόκοι: <strong>${fmtEur(baseInterest)}</strong> → Τελικοί τόκοι: <strong>${fmtEur(totalInterest)}</strong><br>` +
-      `Εξοικονομείτε <strong>${fmtEur(interestSaved)}</strong> σε τόκους${timePart}.`;
+      `Εξοικονομείτε <strong>${fmtEur(interestSaved)}</strong> σε τόκους${erMode === 'reducePmt' ? modeNote : ''}.` +
+      (erMode === 'reduceDur' ? modeNote : '');
   } else {
     savingsEl.style.display = 'none';
   }
