@@ -1,0 +1,107 @@
+:host { display: block; }
+
+.home-hero {
+  text-align: center;
+  padding: 48px 16px 32px;
+}
+.home-title {
+  font-size: 36px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--blue) 0%, #7c3aed 50%, #059669 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+}
+.home-subtitle {
+  font-size: 16px;
+  color: var(--g500);
+  font-weight: 400;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 16px 60px;
+}
+
+.tool-card {
+  display: block;
+  background: #fff;
+  border: 1px solid var(--g200);
+  border-radius: 12px;
+  padding: 28px 24px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+}
+.tool-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.10);
+  border-color: var(--blue-mid);
+}
+
+.tool-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+.tool-icon.mortgage-gradient {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+}
+.tool-icon.salary-gradient {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+}
+
+.tool-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--g900);
+  margin-bottom: 8px;
+}
+.tool-desc {
+  font-size: 14px;
+  color: var(--g500);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.tool-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.tool-tag {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--g100);
+  color: var(--g600);
+}
+
+.tool-cta {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--blue);
+}
+
+@media (max-width: 480px) {
+  .home-hero { padding: 32px 16px 24px; }
+  .home-title { font-size: 28px; }
+  .home-subtitle { font-size: 14px; }
+  .tools-grid { gap: 16px; }
+  .tool-card { padding: 20px 16px; }
+}
