@@ -325,22 +325,24 @@
       border-radius: 5px;
     }
     .er-item {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 6px;
-      align-items: end;
-      margin-bottom: 6px;
-      padding: 8px 10px;
+      display: flex;
+      flex-direction: row;
+      gap: 4px;
+      align-items: center;
+      margin-bottom: 4px;
+      padding: 4px 6px;
       background: var(--g50);
       max-width: 100%;
       border: 1px solid var(--g200);
       border-radius: 6px;
     }
     .er-item > * { min-width: 0; }
-    .er-item label { font-size: 10px; }
-    .er-item input { font-size: 14px; padding: 5px 7px; min-height: 36px; }
-    .er-item .has-pfx input { padding-left: 20px; }
-    .er-item .btn-danger { padding: 5px 7px; font-size: 13px; min-height: 36px; min-width: 32px; }
+    .er-item .er-month-wrap { width: 70px; flex-shrink: 0; }
+    .er-item .er-amount-wrap { flex: 1; }
+    .er-item input { font-size: 13px; padding: 4px 6px; min-height: 30px; }
+    .er-item .has-pfx input { padding-left: 18px; }
+    .er-item .pfx { font-size: 11px; }
+    .er-item .btn-danger { padding: 3px 6px; font-size: 12px; min-height: 30px; min-width: 26px; flex-shrink: 0; }
     .er-buttons { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
     .er-buttons .btn-outline { flex: 1; min-width: 130px; }
     .bulk-er-form {
@@ -1092,22 +1094,16 @@ function renderERList() {
 
   el.innerHTML = header + erList.map(er => `
     <div class="er-item">
-      <div>
-        <label>Μήνας</label>
-        <div class="input-wrap">
-          <input type="number" min="1" value="${er.month}"
-            onchange="updateER(${er.id},'month',this.value)">
-        </div>
+      <div class="input-wrap er-month-wrap">
+        <input type="number" min="1" value="${er.month}" placeholder="Μήνας"
+          onchange="updateER(${er.id},'month',this.value)">
       </div>
-      <div>
-        <label>Ποσό (€)</label>
-        <div class="input-wrap has-pfx">
-          <span class="pfx" style="font-size:12px;">€</span>
-          <input type="number" min="0" value="${er.amount}"
-            onchange="updateER(${er.id},'amount',this.value)">
-        </div>
+      <div class="input-wrap has-pfx er-amount-wrap">
+        <span class="pfx">€</span>
+        <input type="number" min="0" value="${er.amount}" placeholder="Ποσό"
+          onchange="updateER(${er.id},'amount',this.value)">
       </div>
-      <button class="btn-danger" onclick="removeER(${er.id})" style="align-self:flex-end;">✕</button>
+      <button class="btn-danger" onclick="removeER(${er.id})">✕</button>
     </div>`).join('');
 }
 
