@@ -1,0 +1,286 @@
+<div class="page-header">
+  <div class="page-header-icon salary-icon">💰</div>
+  <div>
+    <h1 class="page-title">Υπολογισμός Μισθού</h1>
+    <p class="page-subtitle">Υπολογίστε τον καθαρό μισθό σας μετά από φόρους και εισφορές ΕΦΚΑ</p>
+  </div>
+</div>
+
+<div class="grid">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9881;</div>
+        <h2>Παράμετροι Υπολογισμού</h2>
+      </div>
+      <div class="card-body" [formGroup]="salaryForm">
+
+        <!-- Gross salary -->
+        <div class="form-group">
+          <label for="grossMonthly">Μικτός Μηνιαίος Μισθός (&#8364;)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">&#8364;</span>
+            <input type="number" id="grossMonthly" formControlName="grossMonthly"
+                   min="0" step="50" (input)="onGrossChange()">
+          </div>
+        </div>
+
+        <!-- Net salary -->
+        <div class="form-group">
+          <label for="netMonthly">Καθαρός Μηνιαίος Μισθός (&#8364;)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">&#8364;</span>
+            <input type="number" id="netMonthly" formControlName="netMonthly"
+                   min="0" step="50" (input)="onNetChange()">
+          </div>
+        </div>
+
+        <div class="info-box blue">
+          💡 Πληκτρολογήστε είτε τον Μικτό είτε τον Καθαρό μισθό — ο άλλος θα υπολογιστεί αυτόματα
+        </div>
+
+        <!-- Year -->
+        <div class="sec-div">
+          <div class="sec-label">Στοιχεία Εργαζομένου</div>
+          <div class="form-group">
+            <label for="year">Έτος</label>
+            <div class="input-wrap">
+              <select id="year" formControlName="year" class="form-select" (change)="onParamChange()">
+                <option [value]="2026">2026</option>
+                <option [value]="2025">2025</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Age group -->
+          <div class="form-group">
+            <label for="ageGroup">Ηλικιακή Ομάδα</label>
+            <div class="input-wrap">
+              <select id="ageGroup" formControlName="ageGroup" class="form-select" (change)="onParamChange()">
+                <option value="under25">Έως 25 ετών</option>
+                <option value="26to30">26-30 ετών</option>
+                <option value="over30">Άνω των 30 ετών</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Children -->
+          <div class="form-group">
+            <label for="children">Παιδιά</label>
+            <div class="input-wrap">
+              <select id="children" formControlName="children" class="form-select" (change)="onParamChange()">
+                <option [value]="0">0</option>
+                <option [value]="1">1</option>
+                <option [value]="2">2</option>
+                <option [value]="3">3</option>
+                <option [value]="4">4</option>
+                <option [value]="5">5</option>
+                <option [value]="6">6+</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Benefits in kind -->
+        <div class="sec-div">
+          <div class="sec-label">Παροχές σε Είδος</div>
+
+          @if (benefits().length === 0) {
+            <div class="empty-state">
+              Δεν έχουν προστεθεί παροχές. Κάντε κλικ στο "+ Προσθήκη Παροχής" για να προσθέσετε παροχές σε είδος.
+            </div>
+          } @else {
+            @for (b of benefits(); track b.id) {
+              <div class="benefit-item">
+                <div class="benefit-desc">
+                  <input type="text" [value]="b.description" placeholder="Περιγραφή"
+                         (change)="updateBenefit(b.id, 'description', $any($event.target).value)">
+                </div>
+                <div class="input-wrap has-pfx benefit-val">
+                  <span class="pfx">&#8364;</span>
+                  <input type="number" [value]="b.monthlyValue" min="0"
+                         (change)="updateBenefit(b.id, 'monthlyValue', $any($event.target).value)">
+                </div>
+                <button class="btn-danger" (click)="removeBenefit(b.id)">&#10005;</button>
+              </div>
+            }
+          }
+
+          <div class="er-buttons" style="margin-top:10px;">
+            <button class="btn-outline" (click)="addBenefit()">+ Προσθήκη Παροχής</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- Main results hero -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128176;</div>
+        <h2>Αποτελέσματα</h2>
+      </div>
+      <div class="card-body">
+        <div class="hero-row">
+          <div class="salary-hero gross">
+            <div class="hero-lbl">Μικτά</div>
+            <div class="hero-val">{{ result().grossMonthly | euro }}</div>
+          </div>
+          <div class="salary-hero net">
+            <div class="hero-lbl">Καθαρά</div>
+            <div class="hero-val">{{ result().netMonthly | euro }}</div>
+          </div>
+        </div>
+
+        <!-- Breakdown -->
+        <div class="salary-breakdown">
+          <div class="breakdown-row">
+            <span class="breakdown-label">Μικτός Μισθός</span>
+            <span class="breakdown-value">{{ result().grossMonthly | euro }}</span>
+          </div>
+          <div class="breakdown-row deduction">
+            <span class="breakdown-label">ΕΦΚΑ ({{ result().efkaEmployeeRate | number:'1.2-2' }}%)</span>
+            <span class="breakdown-value red">-{{ result().efkaEmployee | euro }}</span>
+          </div>
+          <div class="breakdown-row deduction">
+            <span class="breakdown-label">Φόρος Εισοδήματος</span>
+            <span class="breakdown-value red">-{{ result().incomeTax | euro }}</span>
+          </div>
+          <div class="breakdown-row total">
+            <span class="breakdown-label">Καθαρός Μισθός</span>
+            <span class="breakdown-value green">{{ result().netMonthly | euro }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Annual summary -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128197;</div>
+        <h2>Ετήσια Σύνοψη</h2>
+      </div>
+      <div class="card-body">
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Ετήσια Μικτά</div>
+            <div class="sum-val">{{ result().annualGross | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Ετήσια ΕΦΚΑ</div>
+            <div class="sum-val red">-{{ result().annualEfka | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Ετήσιος Φόρος</div>
+            <div class="sum-val red">-{{ result().annualTax | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Ετήσια Καθαρά</div>
+            <div class="sum-val green">{{ result().annualNet | euro }}</div>
+          </div>
+        </div>
+
+        <!-- Bonuses -->
+        <h3 class="section-title">Δώρα</h3>
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Δώρο Χριστουγέννων</div>
+            <div class="sum-val">{{ result().christmasBonus | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Δώρο Πάσχα</div>
+            <div class="sum-val">{{ result().easterBonus | euro }}</div>
+          </div>
+          <div class="sum-item" style="grid-column: span 2;">
+            <div class="sum-lbl">Επίδομα Αδείας</div>
+            <div class="sum-val">{{ result().leaveAllowance | euro }}</div>
+          </div>
+        </div>
+
+        <!-- Employer cost -->
+        <h3 class="section-title">Κόστος Εργοδότη</h3>
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Μηνιαίο</div>
+            <div class="sum-val">{{ result().employerMonthly | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">ΕΦΚΑ Εργοδότη</div>
+            <div class="sum-val">{{ result().efkaEmployer | euro }}</div>
+          </div>
+          <div class="sum-item" style="grid-column: span 2;">
+            <div class="sum-lbl">Ετήσιο Σύνολο</div>
+            <div class="sum-val blue">{{ result().employerAnnual | euro }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tax details -->
+    <div class="card">
+      <div class="card-header clickable" (click)="toggleTaxDetails()">
+        <div class="card-header-icon">&#128209;</div>
+        <h2>Φορολογικές Κλίμακες & Πληροφορίες Υπολογισμού</h2>
+        <span class="toggle-arrow" [class.open]="showTaxDetails()">&#9660;</span>
+      </div>
+      @if (showTaxDetails()) {
+        <div class="card-body">
+          <div class="info-box blue" style="margin-bottom:14px;">
+            <h3 style="font-size:13px; font-weight:600; margin-bottom:8px;">Βασικά Στοιχεία Υπολογισμού {{ salaryForm.get('year')?.value }}</h3>
+            <p style="font-size:13px; line-height:1.6; margin-bottom:8px;">Ο υπολογισμός του τελικού μισθού περιλαμβάνει:</p>
+            <ul style="padding-left:18px; font-size:13px; line-height:1.7;">
+              <li><strong>14 μισθοί</strong> ετησίως (12 μηνιαίοι + δώρο Χριστουγέννων + δώρο Πάσχα/επίδομα αδείας)</li>
+              <li><strong>Ασφαλιστικές εισφορές εργαζομένου (ΕΦΚΑ):</strong> 13,37%</li>
+              <li><strong>Εργοδοτικές εισφορές:</strong> 21,79%</li>
+              <li><strong>Ανώτατο όριο ασφαλιστέων αποδοχών:</strong> 7.573 &#8364;</li>
+            </ul>
+          </div>
+
+          <h3 class="section-title">Ανάλυση Φόρου ({{ ageGroupLabel }})</h3>
+          <div class="tax-table-wrap">
+            <table class="tax-table">
+              <thead>
+                <tr>
+                  <th>Κλίμακα</th>
+                  <th>Συντελεστής</th>
+                  <th>Φορολ. Ποσό</th>
+                  <th>Φόρος</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (b of result().taxBreakdown; track b.from) {
+                  <tr>
+                    <td>{{ b.from | number:'1.0-0' }}&#8364; — {{ b.to !== null ? (b.to | number:'1.0-0') + '€' : '...' }}</td>
+                    <td>{{ b.rate | number:'1.0-0' }}%</td>
+                    <td>{{ b.taxableAmount | euro }}</td>
+                    <td>{{ b.tax | euro }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3">Έκπτωση φόρου</td>
+                  <td class="green">-{{ result().taxDiscount | euro }}</td>
+                </tr>
+                <tr class="total-row">
+                  <td colspan="3">Ετήσιος Φόρος</td>
+                  <td>{{ result().annualTax | euro }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div class="disclaimer" style="margin-top:14px;">
+            <strong>Σημείωση:</strong> Οι υπολογισμοί είναι ενδεικτικοί και βασίζονται στη νομοθεσία του {{ salaryForm.get('year')?.value }}.
+            Για ακριβείς υπολογισμούς, συμβουλευτείτε έναν φοροτεχνικό.
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

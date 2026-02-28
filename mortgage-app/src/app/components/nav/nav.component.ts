@@ -6,4 +6,14 @@ import { Component } from '@angular/core';
   templateUrl: './nav.component.html',
   styleUrl: './nav.component.scss',
 })
-export class NavComponent {}
+export class NavComponent {
+  mobileMenuOpen = false;
+
+  toggleMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMenu(): void {
+    this.mobileMenuOpen = false;
+  }
+}
