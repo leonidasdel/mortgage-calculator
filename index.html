@@ -345,6 +345,9 @@
     .er-item .pfx { font-size: 11px; }
     .er-item .btn-danger { padding: 3px 6px; font-size: 12px; min-height: 30px; min-width: 26px; flex-shrink: 0; }
     .er-months-saved { flex-basis: 100%; font-size: 11px; color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 4px; padding: 2px 6px; margin-top: 2px; text-align: center; }
+    .er-item--inactive { opacity: 0.5; }
+    .er-item--inactive input { background: var(--g100); }
+    .er-inactive-note { flex-basis: 100%; font-size: 11px; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 6px; margin-top: 2px; text-align: center; }
     .er-buttons { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
     .er-buttons .btn-outline { flex: 1; min-width: 130px; }
     .er-mode-toggle { margin-bottom: 12px; }
@@ -819,6 +822,21 @@ function buildSchedule() {
   let pmtVar   = 0;
   let varPhaseStarted = false;
 
+  // Pre-calculate the natural (no-prepayment) PMT for the variable phase.
+  // Used by reduceDur mode so that prepayments during the fixed phase keep the
+  // variable-phase payment level constant (making the loan end earlier, not cheaper).
+  let naturalPmtVar = 0;
+  if (fixedMonths > 0 && fixedMonths < totalMonths) {
+    let natBal = loanAmount;
+    const fxMRate = fixedRate / 100 / 12;
+    for (let i = 1; i <= fixedMonths; i++) {
+      if (i <= graceMonths) continue;
+      const intr = natBal * fxMRate;
+      natBal = Math.max(0, natBal - Math.max(0, pmtFixed - intr));
+    }
+    naturalPmtVar = pmt(natBal, varRate, totalMonths - fixedMonths);
+  }
+
   for (let m = 1; m <= totalMonths; m++) {
     if (balance < 0.005) break;
 
@@ -830,8 +848,15 @@ function buildSchedule() {
 
     // Start variable phase: recalculate PMT
     if (!isFixed && !varPhaseStarted) {
-      const remMonths = totalMonths - m + 1;
-      pmtVar = pmt(balance, varRate, remMonths > 0 ? remMonths : 1);
+      const erMode = (document.querySelector('input[name="erMode"]:checked') || {}).value || 'reducePmt';
+      if (erMode === 'reduceDur' && naturalPmtVar > 0) {
+        // reduceDur: keep the same payment as the no-prepayment scenario so the
+        // loan ends earlier rather than the monthly payment dropping.
+        pmtVar = naturalPmtVar;
+      } else {
+        const remMonths = totalMonths - m + 1;
+        pmtVar = pmt(balance, varRate, remMonths > 0 ? remMonths : 1);
+      }
       varPhaseStarted = true;
     }
 
@@ -1214,9 +1239,11 @@ function renderERList() {
   </div>`;
 
   el.innerHTML = header + erList.map(er => {
+    const actualEnd = schedule.length;
+    const isInactive = actualEnd > 0 && er.month > actualEnd;
     const ms = erMonthsSaved[er.id] || 0;
     let msBadge = '';
-    if (ms > 0) {
+    if (ms > 0 && !isInactive) {
       const yrs = Math.floor(ms / 12);
       const mos = ms % 12;
       const parts = [];
@@ -1224,8 +1251,11 @@ function renderERList() {
       if (mos > 0) parts.push(`${mos} μήν${mos === 1 ? 'α' : 'ες'}`);
       msBadge = `<span class="er-months-saved">↓ ${parts.join(' και ')} νωρίτερα</span>`;
     }
+    const inactiveBadge = isInactive
+      ? `<span class="er-inactive-note">⚠ Δεν εφαρμόζεται — το δάνειο λήγει στον μήνα ${actualEnd}</span>`
+      : '';
     return `
-    <div class="er-item">
+    <div class="er-item${isInactive ? ' er-item--inactive' : ''}">
       <div class="input-wrap er-month-wrap">
         <input type="number" min="1" value="${er.month}" placeholder="Μήνας"
           onchange="updateER(${er.id},'month',this.value)">
@@ -1236,7 +1266,7 @@ function renderERList() {
           onchange="updateER(${er.id},'amount',this.value)">
       </div>
       <button class="btn-danger" onclick="removeER(${er.id})">✕</button>
-      ${msBadge}
+      ${msBadge}${inactiveBadge}
     </div>`;
   }).join('');
 }
