@@ -1,5 +1,6 @@
 import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 
@@ -42,6 +43,7 @@ const routes: Routes = [
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     ReactiveFormsModule,
     RouterModule.forRoot(routes, { useHash: true }),
   ],
