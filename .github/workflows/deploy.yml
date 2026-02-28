@@ -28,7 +28,7 @@ jobs:
         working-directory: mortgage-app
 
       - name: Build
-        run: npm run build -- --base-href /mortgage-calculator/
+        run: npm run build
         working-directory: mortgage-app
 
       - name: Deploy to GitHub Pages
@@ -36,3 +36,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: mortgage-app/dist/mortgage-app/browser
+          enable_jekyll: false
