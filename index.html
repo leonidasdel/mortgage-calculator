@@ -619,6 +619,8 @@
 
           <div class="info-box blue" id="infoMsg" style="display:none;"></div>
 
+          <div class="info-box green" id="savingsMsg" style="display:none;"></div>
+
           <div class="export-row">
             <button class="btn-outline" onclick="exportCSV()">📥 Εξαγωγή CSV</button>
             <button class="btn-outline" onclick="window.print()">🖨️ Εκτύπωση / PDF</button>
@@ -915,6 +917,37 @@ function update() {
   const msg = $id('infoMsg');
   msg.style.display = 'block';
   msg.innerHTML = `💡 Θα πληρώσετε <strong>${fmtEur(totalInterest)}</strong> σε τόκους για ${loanYears} έτη — <strong>${pct}%</strong> του ποσού δανείου.`;
+
+  // Savings from early repayments
+  const savingsEl = $id('savingsMsg');
+  if (erList.length > 0) {
+    const savedER = erList;
+    erList = [];
+    const baseSchedule = buildSchedule();
+    erList = savedER;
+
+    const baseInterest = baseSchedule.reduce((s, r) => s + r.interest, 0);
+    const baseMonths   = baseSchedule.length;
+    const interestSaved = baseInterest - totalInterest;
+    const monthsSaved   = baseMonths - actualMonths;
+    const yearsSaved    = Math.floor(monthsSaved / 12);
+    const remMonths     = monthsSaved % 12;
+
+    let timePart = '';
+    if (monthsSaved > 0) {
+      const yStr = yearsSaved > 0 ? `${yearsSaved} έτ${yearsSaved === 1 ? 'ος' : 'η'}` : '';
+      const mStr = remMonths  > 0 ? `${remMonths} μήν${remMonths === 1 ? 'α' : 'ες'}` : '';
+      timePart = ' και <strong>' + [yStr, mStr].filter(Boolean).join(' και ') + '</strong> νωρίτερα';
+    }
+
+    savingsEl.style.display = 'block';
+    savingsEl.innerHTML =
+      `🎉 <strong>Εξοικονόμηση από πρόωρες αποπληρωμές</strong><br>` +
+      `Αρχικοί τόκοι: <strong>${fmtEur(baseInterest)}</strong> → Τελικοί τόκοι: <strong>${fmtEur(totalInterest)}</strong><br>` +
+      `Εξοικονομείτε <strong>${fmtEur(interestSaved)}</strong> σε τόκους${timePart}.`;
+  } else {
+    savingsEl.style.display = 'none';
+  }
 
   // Chart totals
   $id('cPrincipal').textContent = fmtEur(totalPrincipal);
