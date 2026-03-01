@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { AmortizationRow } from '../../models/mortgage.models';
 
 const STORAGE_KEY = 'consumerLoanCalcState';
+const N128_RATE = 0.006; // 0.60% per annum — Εισφορά Ν.128/1975 for consumer loans
 
 interface ConsumerLoanSummary {
   loanAmount: number;
@@ -13,6 +14,7 @@ interface ConsumerLoanSummary {
   monthlyPayment: number;
   totalPrincipal: number;
   totalInterest: number;
+  totalN128: number;
   grandTotal: number;
 }
 
@@ -54,10 +56,11 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
     const { loanAmount, interestRate, loanMonths, loanFees } = this.form.value;
     const totalPrincipal = rows.reduce((s, r) => s + r.principal, 0);
     const totalInterest  = rows.reduce((s, r) => s + r.interest, 0);
+    const totalN128      = rows.reduce((s, r) => s + r.n128, 0);
     const fees           = Math.max(0, loanFees || 0);
     const monthlyPayment = rows.length > 0 ? rows[0].payment : 0;
-    const grandTotal     = totalPrincipal + totalInterest + fees;
-    return { loanAmount, interestRate, loanMonths: Math.max(1, Math.round(loanMonths)), loanFees: fees, monthlyPayment, totalPrincipal, totalInterest, grandTotal };
+    const grandTotal     = totalPrincipal + totalInterest + totalN128 + fees;
+    return { loanAmount, interestRate, loanMonths: Math.max(1, Math.round(loanMonths)), loanFees: fees, monthlyPayment, totalPrincipal, totalInterest, totalN128, grandTotal };
   });
 
   setMonths(m: number): void {
@@ -80,6 +83,7 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
     if (loanAmount <= 0 || months <= 0) return [];
     const monthly = this.pmt(loanAmount, interestRate, months);
     const mRate   = interestRate / 100 / 12;
+    const n128pm  = loanAmount * N128_RATE / 12; // Εισφορά Ν.128/1975: 0.60% ετησίως επί του ποσού δανείου
     const today   = new Date();
     let balance   = loanAmount;
     const rows: AmortizationRow[] = [];
@@ -90,7 +94,7 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
       const principal = Math.min(Math.max(0, monthly - interest), balance);
       const newBalance = Math.max(0, balance - principal);
       const date = new Date(today.getFullYear(), today.getMonth() + m, today.getDate());
-      rows.push({ month: m, date, payment: monthly, principal, interest, n128: 0, earlyAmt: 0, balance: newBalance, isGrace: false, isFixed: true, rate: interestRate });
+      rows.push({ month: m, date, payment: monthly + n128pm, principal, interest, n128: n128pm, earlyAmt: 0, balance: newBalance, isGrace: false, isFixed: true, rate: interestRate });
       balance = newBalance;
     }
     return rows;
