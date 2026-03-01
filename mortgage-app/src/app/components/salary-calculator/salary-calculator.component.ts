@@ -2,7 +2,7 @@ import { Component, computed, signal, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
-import { AgeGroup, BenefitInKind, SalaryParams } from '../../models/salary.models';
+import { AgeGroup, BenefitInKind, SalaryChange, SalaryParams } from '../../models/salary.models';
 
 const STORAGE_KEY = 'salaryCalcState';
 
@@ -17,6 +17,9 @@ export class SalaryCalculatorComponent implements OnInit {
   benefits = signal<BenefitInKind[]>([]);
   inputMode = signal<'gross' | 'net'>('gross');
   showTaxDetails = signal(false);
+  hasSalaryChange = signal(false);
+  salaryChangeMonth = signal(4);
+  previousGross = signal(0);
 
   private formValues;
 
@@ -45,12 +48,16 @@ export class SalaryCalculatorComponent implements OnInit {
   result = computed(() => {
     this.formValues();
     const fv = this.salaryForm.value;
+    const salaryChange: SalaryChange | undefined = this.hasSalaryChange()
+      ? { effectiveMonth: this.salaryChangeMonth(), previousGross: this.previousGross() }
+      : undefined;
     const params: SalaryParams = {
       grossMonthly: fv.grossMonthly || 0,
       year: fv.year || 2026,
       ageGroup: fv.ageGroup || 'over30',
       children: fv.children || 0,
       benefitsInKind: this.benefits(),
+      salaryChange,
     };
     return this.calc.calculate(params);
   });
@@ -64,11 +71,15 @@ export class SalaryCalculatorComponent implements OnInit {
     this.inputMode.set('net');
     const netTarget = this.salaryForm.get('netMonthly')?.value || 0;
     const fv = this.salaryForm.value;
+    const salaryChange: SalaryChange | undefined = this.hasSalaryChange()
+      ? { effectiveMonth: this.salaryChangeMonth(), previousGross: this.previousGross() }
+      : undefined;
     const gross = this.calc.reverseCalculate(netTarget, {
       year: fv.year || 2026,
       ageGroup: fv.ageGroup || 'over30',
       children: fv.children || 0,
       benefitsInKind: this.benefits(),
+      salaryChange,
     });
     this.salaryForm.patchValue({ grossMonthly: gross }, { emitEvent: false });
     // Trigger recompute
@@ -85,7 +96,8 @@ export class SalaryCalculatorComponent implements OnInit {
 
   private syncFromGross(): void {
     const r = this.result();
-    this.salaryForm.patchValue({ netMonthly: r.netMonthly }, { emitEvent: false });
+    const net = r.currentMonthly ? r.currentMonthly.netMonthly : r.netMonthly;
+    this.salaryForm.patchValue({ netMonthly: net }, { emitEvent: false });
   }
 
   // Benefits management
@@ -113,6 +125,24 @@ export class SalaryCalculatorComponent implements OnInit {
     this.showTaxDetails.set(!this.showTaxDetails());
   }
 
+  toggleSalaryChange(): void {
+    this.hasSalaryChange.set(!this.hasSalaryChange());
+    this.onParamChange();
+    this.saveState();
+  }
+
+  onSalaryChangeMonthChange(value: string): void {
+    this.salaryChangeMonth.set(parseInt(value, 10) || 4);
+    this.onParamChange();
+    this.saveState();
+  }
+
+  onPreviousGrossChange(value: string): void {
+    this.previousGross.set(Math.max(0, parseFloat(value) || 0));
+    this.onParamChange();
+    this.saveState();
+  }
+
   get ageGroupLabel(): string {
     const ag = this.salaryForm.get('ageGroup')?.value;
     switch (ag) {
@@ -128,6 +158,9 @@ export class SalaryCalculatorComponent implements OnInit {
         inputs: this.salaryForm.value,
         benefits: this.benefits(),
         inputMode: this.inputMode(),
+        hasSalaryChange: this.hasSalaryChange(),
+        salaryChangeMonth: this.salaryChangeMonth(),
+        previousGross: this.previousGross(),
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch { /* storage unavailable */ }
@@ -141,6 +174,9 @@ export class SalaryCalculatorComponent implements OnInit {
       if (state.inputs) this.salaryForm.patchValue(state.inputs, { emitEvent: false });
       if (Array.isArray(state.benefits)) this.benefits.set(state.benefits);
       if (state.inputMode) this.inputMode.set(state.inputMode);
+      if (state.hasSalaryChange != null) this.hasSalaryChange.set(state.hasSalaryChange);
+      if (state.salaryChangeMonth != null) this.salaryChangeMonth.set(state.salaryChangeMonth);
+      if (state.previousGross != null) this.previousGross.set(state.previousGross);
     } catch { /* ignore */ }
   }
 }
