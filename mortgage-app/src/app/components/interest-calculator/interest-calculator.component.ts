@@ -146,6 +146,14 @@ export class InterestCalculatorComponent implements OnInit {
     }
   }
 
+  endDateFormatted = computed(() => {
+    this.formValues();
+    const val = this.form.value.endDate;
+    if (!val) return '';
+    const [y, m, d] = val.split('-');
+    return `${d}/${m}/${y}`;
+  });
+
   result = computed<InterestResult>(() => {
     this.formValues();
     const fv = this.form.value;
