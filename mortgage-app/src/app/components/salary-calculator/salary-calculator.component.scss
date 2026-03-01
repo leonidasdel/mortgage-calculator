@@ -101,6 +101,45 @@
   flex-shrink: 0;
 }
 
+/* Raise difference box */
+.raise-diff-box {
+  margin-top: 16px;
+  border-radius: var(--r);
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border: 1px solid #bbf7d0;
+  padding: 14px 16px;
+}
+.raise-diff-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: #166534;
+  margin-bottom: 10px;
+}
+.raise-diff-items {
+  display: flex;
+  gap: 16px;
+}
+.raise-diff-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.raise-diff-label {
+  font-size: 11px;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+.raise-diff-value {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.raise-diff-value.green { color: #059669; }
+.raise-diff-value.red { color: var(--red); }
+
 /* Tax table */
 .tax-table-wrap {
   overflow-x: auto;

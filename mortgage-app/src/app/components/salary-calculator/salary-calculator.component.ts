@@ -45,6 +45,14 @@ export class SalaryCalculatorComponent implements OnInit {
     this.salaryForm.valueChanges.subscribe(() => this.saveState());
   }
 
+  raiseDiff = computed(() => {
+    const r = this.result();
+    if (!r.previousMonthly || !r.currentMonthly) return null;
+    const monthly = +(r.currentMonthly.netMonthly - r.previousMonthly.netMonthly).toFixed(2);
+    const annual = +(monthly * 14).toFixed(2);
+    return { monthly, annual };
+  });
+
   result = computed(() => {
     this.formValues();
     const fv = this.salaryForm.value;

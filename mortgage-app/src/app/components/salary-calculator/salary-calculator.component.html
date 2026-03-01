@@ -245,6 +245,25 @@
               <span class="breakdown-value green">{{ result().currentMonthly!.netMonthly | euro }}</span>
             </div>
           </div>
+          @if (raiseDiff(); as diff) {
+            <div class="raise-diff-box">
+              <div class="raise-diff-header">📈 Διαφορά Αύξησης</div>
+              <div class="raise-diff-items">
+                <div class="raise-diff-item">
+                  <span class="raise-diff-label">Μηνιαία</span>
+                  <span class="raise-diff-value" [class.green]="diff.monthly > 0" [class.red]="diff.monthly < 0">
+                    {{ diff.monthly > 0 ? '+' : '' }}{{ diff.monthly | euro }}
+                  </span>
+                </div>
+                <div class="raise-diff-item">
+                  <span class="raise-diff-label">Ετήσια (×14)</span>
+                  <span class="raise-diff-value" [class.green]="diff.annual > 0" [class.red]="diff.annual < 0">
+                    {{ diff.annual > 0 ? '+' : '' }}{{ diff.annual | euro }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          }
         } @else {
           <!-- Standard single salary display -->
           <div class="hero-row">
