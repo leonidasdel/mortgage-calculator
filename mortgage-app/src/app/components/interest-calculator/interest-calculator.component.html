@@ -1,0 +1,161 @@
+<div class="page-header">
+  <div class="page-header-icon interest-icon">📈</div>
+  <div>
+    <h1 class="page-title">Υπολογισμός Τόκων</h1>
+    <p class="page-subtitle">Υπολογίστε την απόδοση των καταθέσεών σας μετά από φόρο τόκων 15%</p>
+  </div>
+</div>
+
+<div class="grid">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9881;</div>
+        <h2>Παράμετροι Υπολογισμού</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <div class="form-group">
+          <label for="capital">Ποσό Κεφαλαίου (&#8364;)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">&#8364;</span>
+            <input type="number" id="capital" formControlName="capital" min="0" step="1000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="rate">Ετήσιο Επιτόκιο (%)</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="rate" formControlName="rate" min="0" step="0.1">
+            <span class="sfx">%</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="startDate">Ημερομηνία Έναρξης</label>
+          <div class="input-wrap">
+            <input type="date" id="startDate" formControlName="startDate">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">Ημερομηνία Λήξης</label>
+          <div class="input-wrap">
+            <input type="date" id="endDate" formControlName="endDate">
+          </div>
+        </div>
+
+        <div class="info-box blue">
+          💡 Οι τόκοι υπολογίζονται ημερησίως με παρακράτηση φόρου 15%
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- Results hero -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128176;</div>
+        <h2>Αποτελέσματα</h2>
+      </div>
+      <div class="card-body">
+        <div class="hero-row">
+          <div class="interest-hero net">
+            <div class="hero-lbl">Καθαροί Τόκοι</div>
+            <div class="hero-val">{{ result().netInterest | euro }}</div>
+          </div>
+          <div class="interest-hero total">
+            <div class="hero-lbl">Συνολικό Ποσό</div>
+            <div class="hero-val">{{ result().totalAmount | euro }}</div>
+          </div>
+        </div>
+
+        <!-- Breakdown -->
+        <div class="salary-breakdown" style="margin-top: 16px;">
+          <div class="breakdown-row">
+            <span class="breakdown-label">Ημέρες</span>
+            <span class="breakdown-value">{{ result().days }} ημέρες</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="breakdown-label">Κεφάλαιο</span>
+            <span class="breakdown-value">{{ result().capital | euro }}</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="breakdown-label">Μικτοί Τόκοι</span>
+            <span class="breakdown-value green">+{{ result().grossInterest | euro }}</span>
+          </div>
+          <div class="breakdown-row deduction">
+            <span class="breakdown-label">Παρακρατούμενος Φόρος (15%)</span>
+            <span class="breakdown-value red">-{{ result().tax | euro }}</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="breakdown-label">Καθαροί Τόκοι</span>
+            <span class="breakdown-value green">{{ result().netInterest | euro }}</span>
+          </div>
+          <div class="breakdown-row total">
+            <span class="breakdown-label">Τελικό Ποσό</span>
+            <span class="breakdown-value green">{{ result().totalAmount | euro }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analysis -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128200;</div>
+        <h2>Ανάλυση</h2>
+      </div>
+      <div class="card-body">
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Πραγματικό Ετήσιο Επιτόκιο</div>
+            <div class="sum-val blue">{{ result().effectiveRate | number:'1.2-2' }}%</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Ημερήσιοι Τόκοι</div>
+            <div class="sum-val">&#8364;{{ result().dailyInterest | number:'1.4-4' }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Συντελεστής Φόρου</div>
+            <div class="sum-val red">{{ result().taxRate }}%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128214;</div>
+        <h2>Πληροφορίες</h2>
+      </div>
+      <div class="card-body">
+        <div class="info-box blue" style="margin-bottom: 12px;">
+          <h3 style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">Τύπος Υπολογισμού Τόκων</h3>
+          <p style="font-size: 13px; font-family: monospace; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 6px;">
+            Τόκοι = Κεφάλαιο &#215; (Επιτόκιο / 365) &#215; Ημέρες
+          </p>
+        </div>
+        <div class="info-box blue">
+          <h3 style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">Φορολογικές Πληροφορίες</h3>
+          <ul style="padding-left: 18px; font-size: 13px; line-height: 1.7;">
+            <li>Οι τόκοι φορολογούνται με σταθερό συντελεστή <strong>15%</strong></li>
+            <li>Ο φόρος παρακρατείται στην πηγή από την τράπεζα</li>
+            <li>Δεν απαιτείται επιπλέον δήλωση για αυτό το εισόδημα</li>
+          </ul>
+        </div>
+        <div class="disclaimer" style="margin-top: 14px;">
+          <strong>Σημείωση:</strong> Οι υπολογισμοί είναι ενδεικτικοί.
+          Για ακριβείς υπολογισμούς, επικοινωνήστε με την τράπεζά σας.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

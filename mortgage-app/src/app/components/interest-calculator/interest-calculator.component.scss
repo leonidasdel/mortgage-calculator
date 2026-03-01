@@ -1,0 +1,54 @@
+/* Interest calculator hero cards */
+.interest-hero {
+  border-radius: var(--r);
+  padding: 20px 16px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+.interest-hero:hover {
+  transform: translateY(-2px);
+}
+.interest-hero.net {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #fff;
+}
+.interest-hero.total {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  color: #fff;
+}
+.interest-hero .hero-lbl {
+  font-size: 12px;
+  opacity: 0.85;
+  margin-bottom: 6px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.interest-hero .hero-val {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* Suffix input styling */
+.input-wrap.has-sfx {
+  position: relative;
+}
+.input-wrap.has-sfx input {
+  padding-right: 32px;
+}
+.sfx {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--g500);
+  font-weight: 600;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .interest-hero .hero-val { font-size: 22px; }
+  .interest-hero { padding: 14px 10px; }
+}
