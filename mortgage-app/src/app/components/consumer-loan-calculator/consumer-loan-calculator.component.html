@@ -71,7 +71,9 @@
 
         <div class="info-box" style="background:var(--blue-light);border-left:3px solid var(--blue);margin-top:8px;">
           <ul style="margin:0;padding-left:16px;font-size:12px;color:var(--text-secondary);">
-            <li>Εισφορά Ν.128/1975: 0,60% ετησίως επί του ποσού δανείου</li>
+            <li>Εισφορά Ν.128/1975: 0,60% ετησίως επί του εκάστοτε ανεξόφλητου κεφαλαίου</li>
+            <li>Πραγματικό επιτόκιο = ονομαστικό + 0,60% εισφορά</li>
+            <li>ΣΕΠΠΕ: Συνολικό Ετήσιο Πραγματικό Ποσοστό Επιβάρυνσης (περιλαμβάνει και τα έξοδα)</li>
           </ul>
         </div>
 
@@ -95,7 +97,7 @@
           <div class="hero-card">
             <div class="hero-lbl">Μηνιαία Δόση</div>
             <div class="hero-val">{{ summary().monthlyPayment | euro }}</div>
-            <div class="hero-sub">{{ summary().loanMonths }} μήνες · {{ summary().interestRate.toFixed(2) }}%</div>
+            <div class="hero-sub">{{ summary().loanMonths }} μήνες · {{ summary().effectiveRate.toFixed(2) }}% πραγμ.</div>
           </div>
           <div class="hero-card dark">
             <div class="hero-lbl">Συνολικό Ποσό Πληρωμής</div>
@@ -111,8 +113,12 @@
             <div class="sum-val">{{ summary().loanAmount | euro }}</div>
           </div>
           <div class="sum-item">
-            <div class="sum-lbl">Επιτόκιο</div>
+            <div class="sum-lbl">Ονομαστικό Επιτόκιο</div>
             <div class="sum-val">{{ summary().interestRate.toFixed(2) }}%</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Πραγματικό Επιτόκιο</div>
+            <div class="sum-val">{{ summary().effectiveRate.toFixed(2) }}%</div>
           </div>
           <div class="sum-item">
             <div class="sum-lbl">Διάρκεια</div>
@@ -136,6 +142,10 @@
               <div class="sum-val red">{{ summary().loanFees | euro }}</div>
             </div>
           }
+          <div class="sum-item">
+            <div class="sum-lbl">ΣΕΠΠΕ (APR)</div>
+            <div class="sum-val" style="color:var(--orange,#d97706);font-weight:700;">{{ summary().seppe.toFixed(2) }}%</div>
+          </div>
           <div class="sum-item" style="grid-column: span 2;">
             <div class="sum-lbl">Συνολικό Ποσό Πληρωμής</div>
             <div class="sum-val blue">{{ summary().grandTotal | euro }}</div>
