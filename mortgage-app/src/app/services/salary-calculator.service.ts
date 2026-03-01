@@ -176,7 +176,8 @@ export class SalaryCalculatorService {
       };
     }
 
-    // Bonus taxes: Christmas = 1 unit, Easter = 0.5 units, Leave = 0.5 units
+    // Bonus taxes: annual tax distributed proportionally across 14 payment units
+    // (confirmed: taxapps.gr uses "Βάσει ετήσιας κλίμακας" — annual tax scale)
     const christmasTax = monthlyTax;
     const christmasNet = +(christmasGrossTotal - christmasEfka - christmasTax).toFixed(2);
 
