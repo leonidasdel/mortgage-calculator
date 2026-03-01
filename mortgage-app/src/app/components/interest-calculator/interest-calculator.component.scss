@@ -1,12 +1,18 @@
-/* Interest calculator hero cards */
+/* ── PAGE HEADER ICON ── */
+.page-header-icon.interest-icon {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+/* ── HERO CARDS ── */
 .interest-hero {
   border-radius: var(--r);
-  padding: 20px 16px;
+  padding: 24px 20px;
   text-align: center;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .interest-hero:hover {
   transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
 .interest-hero.net {
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
@@ -17,12 +23,12 @@
   color: #fff;
 }
 .interest-hero .hero-lbl {
-  font-size: 12px;
+  font-size: 11px;
   opacity: 0.85;
-  margin-bottom: 6px;
-  font-weight: 500;
+  margin-bottom: 8px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 1px;
 }
 .interest-hero .hero-val {
   font-size: 28px;
@@ -30,12 +36,31 @@
   letter-spacing: -0.5px;
 }
 
-/* Suffix input styling */
+/* ── DATE INPUTS ── */
+input[type="date"] {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--g300);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--g800);
+  background: #fff;
+  min-height: 40px;
+  transition: border-color .15s, box-shadow .15s;
+  font-family: inherit;
+}
+input[type="date"]:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+
+/* ── SUFFIX INPUT ── */
 .input-wrap.has-sfx {
   position: relative;
 }
 .input-wrap.has-sfx input {
-  padding-right: 32px;
+  padding-right: 36px;
 }
 .sfx {
   position: absolute;
@@ -48,7 +73,67 @@
   pointer-events: none;
 }
 
+/* ── BREAKDOWN TABLE ── */
+.interest-breakdown {
+  border: 1px solid var(--g200);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--g100);
+  font-size: 14px;
+}
+.breakdown-row:last-child {
+  border-bottom: none;
+}
+.breakdown-row.deduction {
+  background: var(--g50);
+}
+.breakdown-row.total {
+  background: var(--green-light);
+  font-weight: 600;
+  border-top: 2px solid var(--green);
+}
+.breakdown-label {
+  color: var(--g700);
+}
+.breakdown-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.breakdown-value.red { color: var(--red); }
+.breakdown-value.green { color: var(--green); }
+
+/* ── INFO SECTION ── */
+.info-formula {
+  font-size: 13px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  background: rgba(0,0,0,0.04);
+  padding: 10px 12px;
+  border-radius: 8px;
+  letter-spacing: 0.3px;
+}
+.info-heading {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: inherit;
+}
+.info-list {
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* ── RESPONSIVE ── */
 @media (max-width: 480px) {
   .interest-hero .hero-val { font-size: 22px; }
-  .interest-hero { padding: 14px 10px; }
+  .interest-hero { padding: 18px 14px; }
+  .breakdown-row { padding: 10px 12px; font-size: 13px; }
+  input[type="date"] { font-size: 16px; }
 }
