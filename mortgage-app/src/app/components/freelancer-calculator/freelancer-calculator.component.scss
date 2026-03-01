@@ -1,0 +1,109 @@
+/* ── PAGE HEADER ICON ── */
+.page-header-icon.freelancer-icon {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+}
+
+/* ── HINT TEXT ── */
+.fl-hint {
+  font-size: 11px;
+  color: var(--g400);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* ── SELECT ── */
+.fl-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--g200);
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  color: var(--g800);
+}
+.fl-select:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+}
+
+/* ── WATERFALL BREAKDOWN ── */
+.fl-waterfall {
+  border: 1px solid var(--g200);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.fl-wf-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--g100);
+}
+.fl-wf-row:last-child {
+  border-bottom: none;
+}
+.fl-wf-row.sub {
+  padding-left: 24px;
+  background: var(--g50);
+}
+.fl-wf-row.total {
+  background: var(--g100);
+  font-weight: 600;
+}
+.fl-wf-row.highlight {
+  background: var(--blue-light);
+}
+.fl-wf-lbl {
+  flex: 1;
+}
+.fl-wf-val {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.fl-wf-val.red { color: var(--red); }
+.fl-wf-val.blue { color: var(--blue); }
+
+/* ── TABLES ── */
+.fl-table-wrap {
+  overflow-x: auto;
+}
+.fl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.fl-table th {
+  text-align: left;
+  padding: 8px 10px;
+  background: var(--g50);
+  border-bottom: 2px solid var(--g200);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--g500);
+}
+.fl-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--g100);
+}
+.fl-table tfoot td {
+  border-top: 2px solid var(--g200);
+  background: var(--g50);
+}
+.fl-table .red {
+  color: var(--red);
+  font-weight: 600;
+}
+.fl-table .blue {
+  color: var(--blue);
+}
+
+/* ── EFKA COMPARISON HIGHLIGHT ── */
+.fl-comparison tr.efka-selected td {
+  background: var(--blue-light);
+  font-weight: 600;
+}

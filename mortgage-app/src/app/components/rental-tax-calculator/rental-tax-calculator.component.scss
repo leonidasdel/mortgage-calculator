@@ -1,0 +1,77 @@
+/* ── PAGE HEADER ICON ── */
+.page-header-icon.rental-tax-icon {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+/* ── HINT TEXT ── */
+.rt-hint {
+  font-size: 11px;
+  color: var(--g400);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* ── RADIO ROW ── */
+.rt-radio-row {
+  display: flex;
+  gap: 16px;
+}
+.rt-radio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.rt-radio input[type="radio"] {
+  accent-color: var(--blue);
+}
+
+/* ── SELECT ── */
+.form-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--g200);
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  color: var(--g800);
+}
+.form-select:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+}
+
+/* ── TAX TABLE ── */
+.rt-table-wrap {
+  overflow-x: auto;
+}
+.rt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.rt-table th {
+  text-align: left;
+  padding: 8px 10px;
+  background: var(--g50);
+  border-bottom: 2px solid var(--g200);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--g500);
+}
+.rt-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--g100);
+}
+.rt-table tfoot td {
+  border-top: 2px solid var(--g200);
+  background: var(--g50);
+}
+.rt-table .red {
+  color: var(--red);
+  font-weight: 600;
+}

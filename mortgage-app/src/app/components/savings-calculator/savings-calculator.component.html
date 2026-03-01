@@ -1,0 +1,239 @@
+<div class="page-header">
+  <div class="page-header-icon savings-icon">🪴</div>
+  <div>
+    <h1 class="page-title">Αποταμίευση</h1>
+    <p class="page-subtitle">Υπολογίστε την ανάπτυξη των αποταμιεύσεών σας με σύνθετο τόκο</p>
+  </div>
+</div>
+
+<div class="grid">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9881;</div>
+        <h2>Παράμετροι</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <div class="form-group">
+          <label for="initialDeposit">Αρχικό Κεφάλαιο (&#8364;)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">&#8364;</span>
+            <input type="number" id="initialDeposit" formControlName="initialDeposit" min="0" step="1000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="monthlyContribution">Μηνιαία Αποταμίευση (&#8364;)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">&#8364;</span>
+            <input type="number" id="monthlyContribution" formControlName="monthlyContribution" min="0" step="50">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="annualReturn">Ετήσια Απόδοση (%)</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="annualReturn" formControlName="annualReturn" min="0" step="0.5">
+            <span class="sfx">%</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Διάρκεια</label>
+          <div class="sv-quick">
+            @for (d of quickDurations; track d) {
+              <button type="button"
+                      class="sv-pill"
+                      [class.active]="form.get('durationYears')?.value === d"
+                      (click)="setYears(d)">
+                {{ d }} έτη
+              </button>
+            }
+          </div>
+          <div class="sv-years-row">
+            <div class="input-wrap">
+              <input type="number" id="durationYears" formControlName="durationYears" min="1" max="50" step="1">
+            </div>
+            <span class="sv-years-lbl">έτη</span>
+          </div>
+        </div>
+
+        <div class="sec-div">
+          <div class="sec-label">Φορολογία & Πληθωρισμός</div>
+        </div>
+
+        <div class="form-group">
+          <label class="sv-check-row">
+            <input type="checkbox" formControlName="applyTax">
+            <span>Παρακράτηση φόρου τόκων</span>
+          </label>
+          @if (form.get('applyTax')?.value) {
+            <div class="input-wrap has-sfx" style="margin-top:6px;">
+              <input type="number" id="taxRate" formControlName="taxRate" min="0" max="100" step="1">
+              <span class="sfx">%</span>
+            </div>
+            <div class="sv-hint">Ο φόρος τόκων στην Ελλάδα είναι 15%</div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="sv-check-row">
+            <input type="checkbox" formControlName="applyInflation">
+            <span>Προσαρμογή πληθωρισμού</span>
+          </label>
+          @if (form.get('applyInflation')?.value) {
+            <div class="input-wrap has-sfx" style="margin-top:6px;">
+              <input type="number" id="inflationRate" formControlName="inflationRate" min="0" max="100" step="0.5">
+              <span class="sfx">%</span>
+            </div>
+          }
+        </div>
+
+        <div class="info-box blue">
+          💡 Η απόδοση υπολογίζεται με μηνιαίο ανατοκισμό (compound interest). Οι εισφορές γίνονται στο τέλος κάθε μήνα.
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- Results card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128176;</div>
+        <h2>Αποτελέσματα</h2>
+      </div>
+      <div class="card-body">
+
+        <div class="hero-row">
+          <div class="hero-card">
+            <div class="hero-lbl">Τελικό Κεφάλαιο</div>
+            <div class="hero-val">{{ result().finalNominal | euro:0 }}</div>
+            <div class="hero-sub">μετά {{ form.get('durationYears')?.value }} έτη</div>
+          </div>
+          <div class="hero-card dark">
+            <div class="hero-lbl">Καθαρά Κέρδη</div>
+            <div class="hero-val">{{ result().netGains | euro:0 }}</div>
+            <div class="hero-sub">@if (result().applyTax) { μετά φόρων } @else { χωρίς φόρο }</div>
+          </div>
+        </div>
+
+        @if (result().applyInflation && result().finalReal !== null) {
+          <div class="hero-row" style="margin-top:8px;">
+            <div class="hero-card" style="background:linear-gradient(135deg,#d1fae5 0%,#a7f3d0 100%);">
+              <div class="hero-lbl" style="color:#065f46;">Πραγματική Αξία</div>
+              <div class="hero-val" style="color:#065f46;">{{ result().finalReal! | euro:0 }}</div>
+              <div class="hero-sub" style="color:#065f46;">προσαρμοσμένη για πληθωρισμό</div>
+            </div>
+          </div>
+        }
+
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Αρχικό Κεφάλαιο</div>
+            <div class="sum-val">{{ form.get('initialDeposit')?.value | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Συνολικές Εισφορές</div>
+            <div class="sum-val">{{ result().totalContributed | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Κέρδη (προ φόρων)</div>
+            <div class="sum-val">{{ result().grossGains | euro }}</div>
+          </div>
+          @if (result().applyTax) {
+            <div class="sum-item">
+              <div class="sum-lbl">Φόρος Τόκων</div>
+              <div class="sum-val red">{{ result().totalTax | euro }}</div>
+            </div>
+          }
+          <div class="sum-item">
+            <div class="sum-lbl">Κέρδη (μετά φόρων)</div>
+            <div class="sum-val" style="color:#059669;font-weight:700;">{{ result().netGains | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Τελικό Ποσό</div>
+            <div class="sum-val blue">{{ result().finalNominal | euro }}</div>
+          </div>
+        </div>
+
+        <div class="info-box blue">
+          💡 Θα επενδύσετε συνολικά <strong>{{ result().totalContributed | euro }}</strong>
+          και θα κερδίσετε <strong>{{ result().netGains | euro }}</strong> @if (result().applyTax) { (μετά φόρων) }
+          — δηλαδή τα χρήματά σας θα πολλαπλασιαστούν <strong>×{{ (result().finalNominal / result().totalContributed).toFixed(1) }}</strong>.
+        </div>
+
+        <div class="export-row">
+          <button class="btn-outline" (click)="print()">&#128424; Εκτύπωση / PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128200;</div>
+        <h2>Εξέλιξη Κεφαλαίου</h2>
+      </div>
+      <div class="card-body">
+        <div style="overflow-x:auto;">
+          <canvas #savingsChart></canvas>
+        </div>
+        <div class="chart-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:#1d4ed8;"></div><span>Εισφορές</span></div>
+          <div class="leg-item"><div class="leg-dot" style="background:#059669;"></div><span>Κέρδη</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128203;</div>
+        <h2>Ετήσια Ανάλυση</h2>
+      </div>
+      <div class="card-body">
+        <div class="sv-table-wrap">
+          <table class="sv-table">
+            <thead>
+              <tr>
+                <th>Έτος</th>
+                <th class="num">Εισφορές</th>
+                <th class="num">Τόκοι Έτους</th>
+                <th class="num">Σύνολο Κερδών</th>
+                <th class="num">Σύνολο</th>
+                @if (result().applyInflation) {
+                  <th class="num">Πραγμ. Αξία</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of result().yearlyRows; track row.year) {
+                <tr>
+                  <td>{{ row.year }}</td>
+                  <td class="num">{{ row.totalContributed | euro:0 }}</td>
+                  <td class="num yearly-gains">{{ row.yearlyGains | euro:0 }}</td>
+                  <td class="num gains">{{ row.gains | euro:0 }}</td>
+                  <td class="num total"><strong>{{ row.totalValue | euro:0 }}</strong></td>
+                  @if (result().applyInflation) {
+                    <td class="num">{{ row.realValue !== null ? (row.realValue | euro:0) : '—' }}</td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="disclaimer">
+          <strong>Σημαντική Σημείωση:</strong> Οι υπολογισμοί είναι ενδεικτικοί και βασίζονται σε σταθερή ετήσια απόδοση. Οι πραγματικές αποδόσεις μπορεί να διαφέρουν.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

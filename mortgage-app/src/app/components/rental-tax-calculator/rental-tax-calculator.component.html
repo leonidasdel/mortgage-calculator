@@ -1,0 +1,191 @@
+<div class="page-header">
+  <div class="page-header-icon rental-tax-icon">🏘️</div>
+  <div>
+    <h1 class="page-title">Φόρος Ενοικίου</h1>
+    <p class="page-subtitle">Υπολογίστε τον φόρο εισοδήματος από ενοίκια για το 2026</p>
+  </div>
+</div>
+
+<div class="grid">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9881;</div>
+        <h2>Παράμετροι</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <div class="form-group">
+          <label for="annualIncome">Ετήσιο Εισόδημα Ενοικίων (&#8364;)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">&#8364;</span>
+            <input type="number" id="annualIncome" formControlName="annualIncome" min="0" step="500">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="rentalType">Τύπος Ενοικίασης</label>
+          <select id="rentalType" formControlName="rentalType" class="form-select">
+            <option value="long-term">Μακροχρόνια Μίσθωση</option>
+            <option value="short-term">Βραχυχρόνια Μίσθωση (Airbnb κ.λπ.)</option>
+          </select>
+          <div class="rt-hint">Από το 2024 φορολογούνται με την ίδια κλίμακα</div>
+        </div>
+
+        <div class="sec-div">
+          <div class="sec-label">Έκπτωση Εξόδων</div>
+        </div>
+
+        <div class="form-group">
+          <label>Μέθοδος Εκπτώσεων</label>
+          <div class="rt-radio-row">
+            <label class="rt-radio">
+              <input type="radio" formControlName="expenseMethod" value="automatic">
+              <span>Αυτόματη 5%</span>
+            </label>
+            <label class="rt-radio">
+              <input type="radio" formControlName="expenseMethod" value="actual">
+              <span>Πραγματικά Έξοδα</span>
+            </label>
+          </div>
+          <div class="rt-hint">
+            <strong>Αυτόματη 5%:</strong> Αφαιρείται αυτόματα 5% από το ακαθάριστο εισόδημα χωρίς δικαιολογητικά — ισχύει για όλους τους ιδιοκτήτες.<br>
+            <strong>Πραγματικά Έξοδα:</strong> Δηλώνετε τα πραγματικά έξοδα (π.χ. επισκευές, ασφάλιστρα, κοινόχρηστα ιδιοκτήτη, αμοιβές διαχείρισης). Συμφέρει όταν τα έξοδά σας ξεπερνούν το 5% του εισοδήματος.
+          </div>
+        </div>
+
+        @if (form.get('expenseMethod')?.value === 'actual') {
+          <div class="form-group">
+            <label for="actualExpenses">Πραγματικά Έξοδα (&#8364;)</label>
+            <div class="input-wrap has-pfx">
+              <span class="pfx">&#8364;</span>
+              <input type="number" id="actualExpenses" formControlName="actualExpenses" min="0" step="100">
+            </div>
+            <div class="rt-hint">Επισκευές, ασφάλεια, κοινόχρηστα ιδιοκτήτη κ.λπ.</div>
+          </div>
+        }
+
+        <div class="info-box blue">
+          💡 Τα εισοδήματα από ακίνητα φορολογούνται αυτοτελώς με προοδευτική κλίμακα 15%–45%.
+        </div>
+
+        <div class="info-box" style="background:var(--blue-light);border-left:3px solid var(--blue);margin-top:8px;">
+          <ul style="margin:0;padding-left:16px;font-size:12px;color:var(--text-secondary);">
+            <li>Έως €12.000 → 15%</li>
+            <li>€12.001 – €35.000 → 35%</li>
+            <li>Πάνω από €35.000 → 45%</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- Results card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128176;</div>
+        <h2>Αποτελέσματα</h2>
+      </div>
+      <div class="card-body">
+
+        <div class="hero-row">
+          <div class="hero-card">
+            <div class="hero-lbl">Φόρος Ενοικίου</div>
+            <div class="hero-val">{{ result().totalTax | euro }}</div>
+            <div class="hero-sub">πραγματικός συντελεστής {{ result().effectiveRate.toFixed(1) }}%</div>
+          </div>
+          <div class="hero-card dark">
+            <div class="hero-lbl">Καθαρό Ετήσιο Εισόδημα</div>
+            <div class="hero-val">{{ result().netAnnual | euro }}</div>
+            <div class="hero-sub">{{ result().netMonthly | euro }} / μήνα</div>
+          </div>
+        </div>
+
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Ακαθάριστο Εισόδημα</div>
+            <div class="sum-val">{{ result().annualIncome | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Έκπτωση Εξόδων</div>
+            <div class="sum-val">{{ result().expensesDeduction | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Φορολογητέο Εισόδημα</div>
+            <div class="sum-val blue">{{ result().taxableIncome | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Πραγματικός Συντελεστής</div>
+            <div class="sum-val">{{ result().effectiveRate.toFixed(2) }}%</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Φόρος</div>
+            <div class="sum-val red">{{ result().totalTax | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Καθαρό / Μήνα</div>
+            <div class="sum-val blue">{{ result().netMonthly | euro }}</div>
+          </div>
+        </div>
+
+        <div class="info-box blue">
+          💡 Θα πληρώσετε <strong>{{ result().totalTax | euro }}</strong> φόρο ενοικίου
+          — θα κρατήσετε <strong>{{ result().netAnnual | euro }}</strong> καθαρά ({{ result().netMonthly | euro }} / μήνα).
+        </div>
+
+        <div class="export-row">
+          <button class="btn-outline" (click)="print()">&#128424; Εκτύπωση / PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tax breakdown card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128203;</div>
+        <h2>Ανάλυση Φόρου ανά Κλίμακα</h2>
+      </div>
+      <div class="card-body">
+        <div class="rt-table-wrap">
+          <table class="rt-table">
+            <thead>
+              <tr>
+                <th>Κλίμακα</th>
+                <th>Συντελεστής</th>
+                <th>Φορολ. Ποσό</th>
+                <th>Φόρος</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of result().bracketRows; track row.from) {
+                <tr>
+                  <td>{{ row.from | euro:0 }} – {{ row.to !== null ? (row.to | euro:0) : '...' }}</td>
+                  <td>{{ (row.rate * 100).toFixed(0) }}%</td>
+                  <td>{{ row.taxableAmount | euro }}</td>
+                  <td class="red">{{ row.tax | euro }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2"><strong>Σύνολο</strong></td>
+                <td><strong>{{ result().taxableIncome | euro }}</strong></td>
+                <td class="red"><strong>{{ result().totalTax | euro }}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="disclaimer">
+          <strong>Σημαντική Σημείωση:</strong> Οι υπολογισμοί παρέχονται για ενημερωτικούς σκοπούς βάσει της νομοθεσίας 2026. Επικοινωνήστε με λογιστή για επίσημους υπολογισμούς.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

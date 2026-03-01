@@ -12,6 +12,9 @@ import { SalaryCalculatorComponent } from './components/salary-calculator/salary
 import { InterestCalculatorComponent } from './components/interest-calculator/interest-calculator.component';
 import { ConsumerLoanCalculatorComponent } from './components/consumer-loan-calculator/consumer-loan-calculator.component';
 import { RentVsBuyCalculatorComponent } from './components/rent-vs-buy-calculator/rent-vs-buy-calculator.component';
+import { RentalTaxCalculatorComponent } from './components/rental-tax-calculator/rental-tax-calculator.component';
+import { FreelancerCalculatorComponent } from './components/freelancer-calculator/freelancer-calculator.component';
+import { SavingsCalculatorComponent } from './components/savings-calculator/savings-calculator.component';
 import { LoanFormComponent } from './components/loan-form/loan-form.component';
 import { EarlyRepaymentsComponent } from './components/early-repayments/early-repayments.component';
 import { BulkErFormComponent } from './components/bulk-er-form/bulk-er-form.component';
@@ -28,6 +31,9 @@ const routes: Routes = [
   { path: 'interest', component: InterestCalculatorComponent },
   { path: 'consumer-loan', component: ConsumerLoanCalculatorComponent },
   { path: 'rent-vs-buy', component: RentVsBuyCalculatorComponent },
+  { path: 'rental-tax', component: RentalTaxCalculatorComponent },
+  { path: 'freelancer', component: FreelancerCalculatorComponent },
+  { path: 'savings', component: SavingsCalculatorComponent },
   { path: '**', redirectTo: '' },
 ];
 
@@ -41,6 +47,9 @@ const routes: Routes = [
     InterestCalculatorComponent,
     ConsumerLoanCalculatorComponent,
     RentVsBuyCalculatorComponent,
+    RentalTaxCalculatorComponent,
+    FreelancerCalculatorComponent,
+    SavingsCalculatorComponent,
     LoanFormComponent,
     EarlyRepaymentsComponent,
     BulkErFormComponent,

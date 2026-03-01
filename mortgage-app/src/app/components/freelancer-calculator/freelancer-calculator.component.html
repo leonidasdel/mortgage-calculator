@@ -1,0 +1,299 @@
+<div class="page-header">
+  <div class="page-header-icon freelancer-icon">📋</div>
+  <div>
+    <h1 class="page-title">Ελεύθερος Επαγγελματίας</h1>
+    <p class="page-subtitle">Υπολογίστε το καθαρό εισόδημα μετά ΕΦΚΑ, φόρο και προκαταβολή φόρου (2026)</p>
+  </div>
+</div>
+
+<div class="grid">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9881;</div>
+        <h2>Παράμετροι</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <div class="form-group">
+          <label for="annualRevenue">Ετήσια Ακαθάριστα Έσοδα (&#8364;)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">&#8364;</span>
+            <input type="number" id="annualRevenue" formControlName="annualRevenue" min="0" step="1000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="annualExpenses">Ετήσια Επαγγελματικά Έξοδα (&#8364;)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">&#8364;</span>
+            <input type="number" id="annualExpenses" formControlName="annualExpenses" min="0" step="500">
+          </div>
+          <div class="fl-hint">Ενοίκιο γραφείου, εξοπλισμός, λοιπά αναγνωρισμένα έξοδα</div>
+        </div>
+
+        <div class="sec-div">
+          <div class="sec-label">ΕΦΚΑ</div>
+        </div>
+
+        <div class="form-group">
+          <label for="efkaCategory">Κατηγορία ΕΦΚΑ</label>
+          <select id="efkaCategory" formControlName="efkaCategory" class="fl-select">
+            @for (cat of efkaCategories; track cat.id) {
+              <option [value]="cat.id">{{ cat.label }} — €{{ cat.monthly.toFixed(2) }}/μήνα</option>
+            }
+          </select>
+          <div class="fl-hint">Μηνιαία εισφορά: <strong>€{{ getSelectedEfkaMonthly().toFixed(2) }}</strong> · Ετήσια: <strong>€{{ (getSelectedEfkaMonthly() * 12).toFixed(2) }}</strong><br>Περιλαμβάνει: Σύνταξη + Υγεία (παροχές σε χρήμα & είδος) + ΟΑΕΔ €10</div>
+        </div>
+
+        <div class="sec-div">
+          <div class="sec-label">Φορολογικά Στοιχεία</div>
+        </div>
+
+        <div class="form-group">
+          <label for="yearsActive">Έτη Δραστηριότητας</label>
+          <select id="yearsActive" formControlName="yearsActive" class="fl-select">
+            <option value="under3">≤ 3 έτη (προκαταβολή 27,5%)</option>
+            <option value="over3">&gt; 3 έτη (προκαταβολή 55%)</option>
+          </select>
+          <div class="fl-hint">Ο συντελεστής προκαταβολής φόρου μειώνεται τα πρώτα 3 έτη δραστηριότητας</div>
+        </div>
+
+        <div class="form-group">
+          <label for="ageGroup">Ηλικιακή Ομάδα</label>
+          <select id="ageGroup" formControlName="ageGroup" class="fl-select">
+            <option value="under25">Έως 25 ετών (αφορολόγητο €20.000)</option>
+            <option value="26to30">26–30 ετών (9% έως €20.000)</option>
+            <option value="over30">Άνω των 30 ετών (κανονική κλίμακα)</option>
+          </select>
+          <div class="fl-hint">Από το 2026, νέοι έως 25 έχουν αφορολόγητο €20.000. Ηλικία 26–30: 9% αντί 22% στο δεύτερο κλιμάκιο.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="children">Αριθμός Τέκνων</label>
+          <select id="children" formControlName="children" class="fl-select">
+            @for (n of childrenOptions; track n) {
+              <option [value]="n">{{ n === 0 ? 'Χωρίς τέκνα' : n + (n === 1 ? ' τέκνο' : ' τέκνα') }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="info-box blue">
+          💡 Οι εισφορές ΕΦΚΑ αφαιρούνται από τα ακαθάριστα έσοδα πριν τον υπολογισμό φόρου εισοδήματος.
+        </div>
+
+        <div class="info-box" style="background:var(--blue-light);border-left:3px solid var(--blue);margin-top:8px;">
+          <ul style="margin:0;padding-left:16px;font-size:12px;color:var(--text-secondary);">
+            <li>Κλίμακα 30+: 9% · 22% · 28% · 36% · 44%</li>
+            <li>Κλίμακα 26–30: 9% · <strong>9%</strong> · 28% · 36% · 44%</li>
+            <li>Κλίμακα ≤25: <strong>0%</strong> (αφορολόγητο €20.000) · 28% · 36% · 44%</li>
+            <li>Προκαταβολή φόρου: 55% (ή 27,5% τα πρώτα 3 έτη)</li>
+            <li>ΕΦΚΑ: Σύνταξη + Υγεία + ΟΑΕΔ (€10/μήνα)</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- Results card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128176;</div>
+        <h2>Αποτελέσματα</h2>
+      </div>
+      <div class="card-body">
+
+        <div class="hero-row">
+          <div class="hero-card">
+            <div class="hero-lbl">Καθαρό Μηνιαίο</div>
+            <div class="hero-val">{{ result().netMonthly | euro }}</div>
+            <div class="hero-sub">{{ result().netAnnual | euro }} / έτος</div>
+          </div>
+          <div class="hero-card dark">
+            <div class="hero-lbl">Συνολικές Υποχρεώσεις</div>
+            <div class="hero-val">{{ result().totalObligations | euro }}</div>
+            <div class="hero-sub">{{ result().effectiveRate.toFixed(1) }}% πραγματικός συντελεστής</div>
+          </div>
+        </div>
+
+        <!-- Waterfall breakdown -->
+        <div class="fl-waterfall">
+          <div class="fl-wf-row">
+            <span class="fl-wf-lbl">Ακαθάριστα Έσοδα</span>
+            <span class="fl-wf-val blue">{{ result().annualRevenue | euro }}</span>
+          </div>
+          <div class="fl-wf-row sub">
+            <span class="fl-wf-lbl">− Επαγγελματικά Έξοδα</span>
+            <span class="fl-wf-val red">{{ result().annualExpenses | euro }}</span>
+          </div>
+          <div class="fl-wf-row sub">
+            <span class="fl-wf-lbl">− ΕΦΚΑ ({{ result().efkaLabel }})</span>
+            <span class="fl-wf-val red">{{ result().annualEfka | euro }}</span>
+          </div>
+          <div class="fl-wf-row total">
+            <span class="fl-wf-lbl">= Φορολογητέο Εισόδημα</span>
+            <span class="fl-wf-val">{{ result().taxableIncome | euro }}</span>
+          </div>
+          <div class="fl-wf-row sub">
+            <span class="fl-wf-lbl">− Φόρος Εισοδήματος</span>
+            <span class="fl-wf-val red">{{ result().incomeTax | euro }}</span>
+          </div>
+          @if (result().taxDiscount > 0) {
+            <div class="fl-wf-row sub" style="font-size:11px;color:var(--g400);">
+              <span class="fl-wf-lbl">&nbsp;&nbsp;(έκπτωση φόρου: {{ result().taxDiscount | euro }})</span>
+              <span class="fl-wf-val"></span>
+            </div>
+          }
+          <div class="fl-wf-row sub">
+            <span class="fl-wf-lbl">− Προκαταβολή Φόρου ({{ result().advanceTaxRate.toFixed(1) }}%)</span>
+            <span class="fl-wf-val red">{{ result().advanceTax | euro }}</span>
+          </div>
+          <div class="fl-wf-row total highlight">
+            <span class="fl-wf-lbl">= Καθαρό Ετήσιο Εισόδημα</span>
+            <span class="fl-wf-val">{{ result().netAnnual | euro }}</span>
+          </div>
+        </div>
+
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Μηνιαίο ΕΦΚΑ</div>
+            <div class="sum-val">{{ result().monthlyEfka | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Ετήσιο ΕΦΚΑ</div>
+            <div class="sum-val red">{{ result().annualEfka | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Φόρος Εισοδήματος</div>
+            <div class="sum-val red">{{ result().incomeTax | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Προκαταβολή Φόρου</div>
+            <div class="sum-val red">{{ result().advanceTax | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Καθαρό / Μήνα</div>
+            <div class="sum-val blue">{{ result().netMonthly | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Πραγμ. Συντελεστής</div>
+            <div class="sum-val">{{ result().effectiveRate.toFixed(2) }}%</div>
+          </div>
+        </div>
+
+        <div class="info-box blue">
+          💡 Από τα <strong>{{ result().annualRevenue | euro }}</strong> ακαθάριστα, θα κρατήσετε
+          <strong>{{ result().netAnnual | euro }}</strong> καθαρά ({{ result().netMonthly | euro }} / μήνα).
+          Πραγματικός συντελεστής επιβάρυνσης: <strong>{{ result().effectiveRate.toFixed(1) }}%</strong>.
+        </div>
+
+        <div class="export-row">
+          <button class="btn-outline" (click)="print()">&#128424; Εκτύπωση / PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tax breakdown card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128203;</div>
+        <h2>Ανάλυση Φόρου ανά Κλίμακα</h2>
+      </div>
+      <div class="card-body">
+        <div class="fl-table-wrap">
+          <table class="fl-table">
+            <thead>
+              <tr>
+                <th>Κλίμακα</th>
+                <th>Συντελεστής</th>
+                <th>Φορολ. Ποσό</th>
+                <th>Φόρος</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of result().bracketRows; track row.from) {
+                <tr>
+                  <td>{{ row.from | euro:0 }} – {{ row.to !== null ? (row.to | euro:0) : '...' }}</td>
+                  <td>{{ (row.rate * 100).toFixed(0) }}%</td>
+                  <td>{{ row.taxableAmount | euro }}</td>
+                  <td class="red">{{ row.tax | euro }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2"><strong>Σύνολο (προ έκπτωσης)</strong></td>
+                <td><strong>{{ result().taxableIncome | euro }}</strong></td>
+                <td class="red"><strong>{{ result().grossTax | euro }}</strong></td>
+              </tr>
+              @if (result().taxDiscount > 0) {
+                <tr>
+                  <td colspan="3"><strong>Έκπτωση φόρου ({{ form.get('children')?.value }} τέκνα)</strong></td>
+                  <td style="color:#059669;font-weight:600;">−{{ result().taxDiscount | euro }}</td>
+                </tr>
+              }
+              <tr>
+                <td colspan="3"><strong>Τελικός Φόρος</strong></td>
+                <td class="red"><strong>{{ result().incomeTax | euro }}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- EFKA comparison card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128202;</div>
+        <h2>Σύγκριση Κατηγοριών ΕΦΚΑ</h2>
+      </div>
+      <div class="card-body">
+        <div class="fl-table-wrap">
+          <table class="fl-table fl-comparison">
+            <thead>
+              <tr>
+                <th>Κατηγορία</th>
+                <th>ΕΦΚΑ/μήνα</th>
+                <th>Φόρος</th>
+                <th>Προκατ.</th>
+                <th>Καθαρό/μήνα</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of result().efkaComparison; track row.label) {
+                <tr [class.efka-selected]="row.selected">
+                  <td>{{ row.label }}</td>
+                  <td>{{ row.monthlyEfka | euro }}</td>
+                  <td>{{ row.incomeTax | euro }}</td>
+                  <td>{{ row.advanceTax | euro }}</td>
+                  <td class="blue"><strong>{{ row.netMonthly | euro }}</strong></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="fl-hint" style="margin-top:8px;">
+          Η επιλεγμένη κατηγορία επισημαίνεται. Υψηλότερη κατηγορία ΕΦΚΑ = χαμηλότερο φορολογητέο εισόδημα αλλά μεγαλύτερη εισφορά.
+        </div>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="card">
+      <div class="card-body">
+        <div class="disclaimer">
+          <strong>Σημαντική Σημείωση:</strong> Οι υπολογισμοί είναι ενδεικτικοί βάσει της νομοθεσίας 2026.
+          Η προκαταβολή φόρου συμψηφίζεται με τον φόρο του επόμενου φορολογικού έτους.
+          Επικοινωνήστε με λογιστή για επίσημους υπολογισμούς.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
