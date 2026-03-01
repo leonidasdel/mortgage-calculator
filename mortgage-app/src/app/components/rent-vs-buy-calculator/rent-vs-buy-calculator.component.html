@@ -1,0 +1,277 @@
+<div class="page-header">
+  <div class="page-header-icon rent-vs-buy-icon">🏠</div>
+  <div>
+    <h1 class="page-title">Νοικιάζω ή Αγοράζω;</h1>
+    <p class="page-subtitle">Συγκρίνετε το μακροπρόθεσμο οικονομικό αποτέλεσμα ενοικίασης έναντι αγοράς ακινήτου</p>
+  </div>
+</div>
+
+<div class="grid">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">🏗️</div>
+        <h2>Ακίνητο &amp; Αγορά</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <div class="form-group">
+          <label for="propertyPrice">Αξία Ακινήτου</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">€</span>
+            <input type="number" id="propertyPrice" formControlName="propertyPrice" min="0" step="10000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="downPaymentPct">Προκαταβολή (%)</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="downPaymentPct" formControlName="downPaymentPct" min="0" max="100" step="1">
+            <span class="sfx">%</span>
+          </div>
+          <div class="field-hint">= {{ result().downPayment | euro:0 }}</div>
+        </div>
+
+        <div class="form-group">
+          <label for="closingCostsPct">Έξοδα Αγοράς (συμβολαιογράφος, φόρος μεταβίβασης κ.λπ.)</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="closingCostsPct" formControlName="closingCostsPct" min="0" step="0.5">
+            <span class="sfx">%</span>
+          </div>
+          <div class="field-hint">= {{ result().closingCosts | euro:0 }}</div>
+        </div>
+
+        <div class="sec-div">
+          <div class="sec-label">Δάνειο</div>
+        </div>
+
+        <div class="form-group">
+          <label for="mortgageRate">Επιτόκιο Δανείου (%)</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="mortgageRate" formControlName="mortgageRate" min="0" step="0.1">
+            <span class="sfx">%</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="mortgageTerm">Διάρκεια Δανείου (έτη)</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="mortgageTerm" formControlName="mortgageTerm" min="1" max="40" step="1">
+            <span class="sfx">έτη</span>
+          </div>
+        </div>
+
+        <div class="sec-div">
+          <div class="sec-label">Ενοίκιο</div>
+        </div>
+
+        <div class="form-group">
+          <label for="monthlyRent">Μηνιαίο Ενοίκιο</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">€</span>
+            <input type="number" id="monthlyRent" formControlName="monthlyRent" min="0" step="50">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="rentGrowthRate">Ετήσια Αύξηση Ενοικίου (%)</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="rentGrowthRate" formControlName="rentGrowthRate" step="0.5">
+            <span class="sfx">%</span>
+          </div>
+        </div>
+
+        <div class="sec-div">
+          <div class="sec-label">Αγορά &amp; Επενδύσεις</div>
+        </div>
+
+        <div class="form-group">
+          <label for="propertyGrowthRate">Ετήσια Αύξηση Αξίας Ακινήτου (%)</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="propertyGrowthRate" formControlName="propertyGrowthRate" step="0.5">
+            <span class="sfx">%</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="investmentReturn">Απόδοση Επένδυσης Προκαταβολής (%/έτος)</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="investmentReturn" formControlName="investmentReturn" min="0" step="0.5">
+            <span class="sfx">%</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="annualOwnershipCostPct">Ετήσια Κόστη Ιδιοκτησίας — ΕΝΦΙΑ, συντήρηση, ασφάλεια (% αξίας)</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="annualOwnershipCostPct" formControlName="annualOwnershipCostPct" min="0" step="0.1">
+            <span class="sfx">%</span>
+          </div>
+        </div>
+
+        <div class="sec-div">
+          <div class="sec-label">Ορίζοντας Ανάλυσης</div>
+        </div>
+
+        <div class="form-group">
+          <label for="timeHorizon">Χρονικός Ορίζοντας (έτη)</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="timeHorizon" formControlName="timeHorizon" min="1" max="40" step="1">
+            <span class="sfx">έτη</span>
+          </div>
+        </div>
+
+        <div class="info-box blue">
+          💡 Το σενάριο ενοικίασης υποθέτει ότι η προκαταβολή επενδύεται και η μηνιαία διαφορά δαπανών επανεπενδύεται.
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- Verdict -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">⚖️</div>
+        <h2>Αποτέλεσμα σε {{ form.value.timeHorizon }} Έτη</h2>
+      </div>
+      <div class="card-body">
+
+        <!-- Verdict banner -->
+        <div class="verdict-banner"
+             [class.verdict-buy]="result().winner === 'buy'"
+             [class.verdict-rent]="result().winner === 'rent'"
+             [class.verdict-tie]="result().winner === 'tie'">
+          @if (result().winner === 'buy') {
+            <span class="verdict-icon">🏠</span>
+            <div>
+              <div class="verdict-title">Η Αγορά Συμφέρει</div>
+              <div class="verdict-sub">κατά {{ result().advantage | euro:0 }} σε {{ form.value.timeHorizon }} έτη</div>
+            </div>
+          } @else if (result().winner === 'rent') {
+            <span class="verdict-icon">🔑</span>
+            <div>
+              <div class="verdict-title">Η Ενοικίαση Συμφέρει</div>
+              <div class="verdict-sub">κατά {{ result().advantage | euro:0 }} σε {{ form.value.timeHorizon }} έτη</div>
+            </div>
+          } @else {
+            <span class="verdict-icon">⚖️</span>
+            <div>
+              <div class="verdict-title">Ισοδύναμα Αποτελέσματα</div>
+              <div class="verdict-sub">Η διαφορά είναι αμελητέα</div>
+            </div>
+          }
+        </div>
+
+        <!-- Hero cards -->
+        <div class="hero-row">
+          <div class="hero-card">
+            <div class="hero-lbl">Μηνιαία Δόση Δανείου</div>
+            <div class="hero-val">{{ result().monthlyPayment | euro:0 }}</div>
+            <div class="hero-sub">Ποσό δανείου: {{ result().loanAmount | euro:0 }}</div>
+          </div>
+          <div class="hero-card dark">
+            <div class="hero-lbl">Έτος Break-even</div>
+            @if (result().breakEvenYear) {
+              <div class="hero-val">Έτος {{ result().breakEvenYear }}</div>
+              <div class="hero-sub">Η αγορά υπερτερεί μετά {{ result().breakEvenYear }} χρόνια</div>
+            } @else {
+              <div class="hero-val">—</div>
+              <div class="hero-sub">Δεν ξεπερνά εντός {{ form.value.timeHorizon }} ετών</div>
+            }
+          </div>
+        </div>
+
+        <!-- Summary grid -->
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Ίδια Κεφάλαια (Αγορά)</div>
+            <div class="sum-val" [class.blue]="result().winner === 'buy'" [class.green]="result().winner !== 'buy'">
+              {{ result().finalBuyWealth | euro:0 }}
+            </div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Χαρτοφυλάκιο (Ενοικίαση)</div>
+            <div class="sum-val" [class.blue]="result().winner === 'rent'" [class.green]="result().winner !== 'rent'">
+              {{ result().finalRentWealth | euro:0 }}
+            </div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Προκαταβολή</div>
+            <div class="sum-val">{{ result().downPayment | euro:0 }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Έξοδα Αγοράς</div>
+            <div class="sum-val red">{{ result().closingCosts | euro:0 }}</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Year-by-year table -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">📊</div>
+        <h2>Εξέλιξη Πλούτου ανά Έτος</h2>
+      </div>
+      <div class="card-body">
+        <div class="tbl-wrap rvb-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Έτος</th>
+                <th>Ίδια Κεφάλαια (Αγορά)</th>
+                <th>Χαρτοφυλάκιο (Ενοικίαση)</th>
+                <th>Καλύτερο</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of result().yearlyRows; track row.year) {
+                <tr [class.buy-ahead-row]="row.buyAhead" [class.rent-ahead-row]="!row.buyAhead">
+                  <td>{{ row.year }}</td>
+                  <td class="wealth-val" [class.winner-val]="row.buyAhead">{{ row.buyWealth | euro:0 }}</td>
+                  <td class="wealth-val" [class.winner-val]="!row.buyAhead">{{ row.rentWealth | euro:0 }}</td>
+                  <td class="best-col">
+                    @if (row.buyAhead) {
+                      <span class="badge badge-buy">🏠 Αγορά</span>
+                    } @else {
+                      <span class="badge badge-rent">🔑 Ενοίκιο</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info / Assumptions -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">📋</div>
+        <h2>Παραδοχές Υπολογισμού</h2>
+      </div>
+      <div class="card-body">
+        <div class="info-box blue">
+          <ul class="info-list">
+            <li>Το σενάριο <strong>αγοράς</strong> περιλαμβάνει δάνειο σταθερού επιτοκίου, ΕΝΦΙΑ, ασφάλεια &amp; συντήρηση.</li>
+            <li>Το σενάριο <strong>ενοικίασης</strong> υποθέτει επένδυση της προκαταβολής &amp; των εξόδων αγοράς.</li>
+            <li>Η μηνιαία διαφορά δαπανών μεταξύ αγοράς &amp; ενοικίου επανεπενδύεται αυτόματα.</li>
+            <li>Δεν λαμβάνονται υπόψη: φόρος υπεραξίας κατά την πώληση, κόστη εξαγοράς δανείου, πληθωρισμός.</li>
+          </ul>
+        </div>
+        <div class="disclaimer">
+          <strong>Σημείωση:</strong> Οι υπολογισμοί είναι ενδεικτικοί και βασίζονται σε σταθερές παραδοχές.
+          Για εξατομικευμένη συμβουλή, απευθυνθείτε σε χρηματοοικονομικό σύμβουλο.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

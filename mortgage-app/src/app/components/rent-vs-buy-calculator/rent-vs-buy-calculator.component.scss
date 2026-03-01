@@ -1,0 +1,82 @@
+:host { display: block; }
+
+.field-hint {
+  font-size: 11px;
+  color: var(--g500);
+  margin-top: 4px;
+}
+
+/* Verdict banner */
+.verdict-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  border: 1px solid transparent;
+}
+.verdict-banner.verdict-buy {
+  background: var(--blue-light);
+  border-color: var(--blue-mid);
+}
+.verdict-banner.verdict-rent {
+  background: var(--green-light);
+  border-color: #a7f3d0;
+}
+.verdict-banner.verdict-tie {
+  background: var(--amber-light);
+  border-color: var(--amber-border);
+}
+.verdict-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+.verdict-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--g800);
+  margin-bottom: 2px;
+}
+.verdict-sub {
+  font-size: 13px;
+  color: var(--g600);
+}
+
+/* Table overrides */
+.rvb-table-wrap {
+  max-height: 480px;
+  overflow-y: auto;
+}
+th { text-align: right; }
+th:first-child { text-align: center; }
+th:last-child { text-align: center; }
+
+.wealth-val { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.winner-val { font-weight: 700; }
+.buy-ahead-row td { background: #eff6ff; }
+.rent-ahead-row td { background: var(--green-light); }
+tr:hover td { filter: brightness(0.97); }
+
+.best-col { text-align: center !important; }
+
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.badge-buy  { background: var(--blue-light); color: var(--blue-dark); }
+.badge-rent { background: var(--green-light); color: #065f46; }
+
+.info-list {
+  padding-left: 18px;
+  margin: 0;
+}
+.info-list li {
+  margin-bottom: 5px;
+  font-size: 13px;
+  line-height: 1.5;
+}
