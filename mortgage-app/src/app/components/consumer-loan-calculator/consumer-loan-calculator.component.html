@@ -1,0 +1,188 @@
+<div class="page-header">
+  <div class="page-header-icon consumer-icon">💳</div>
+  <div>
+    <h1 class="page-title">Καταναλωτικό Δάνειο</h1>
+    <p class="page-subtitle">Υπολογίστε τη μηνιαία δόση και το συνολικό κόστος του καταναλωτικού σας δανείου</p>
+  </div>
+</div>
+
+<div class="grid">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9881;</div>
+        <h2>Παράμετροι Δανείου</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <div class="form-group">
+          <label for="loanAmount">Ποσό Δανείου (&#8364;)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">&#8364;</span>
+            <input type="number" id="loanAmount" formControlName="loanAmount" min="0" step="100">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="interestRate">Ετήσιο Επιτόκιο (%)</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="interestRate" formControlName="interestRate" min="0" step="0.1">
+            <span class="sfx">%</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Διάρκεια Δανείου</label>
+          <div class="cl-quick">
+            @for (d of quickDurations; track d) {
+              <button type="button"
+                      class="cl-pill"
+                      [class.active]="form.get('loanMonths')?.value === d"
+                      (click)="setMonths(d)">
+                {{ d / 12 >= 1 && d % 12 === 0 ? (d / 12) + ' έτη' : d + ' μήν.' }}
+              </button>
+            }
+          </div>
+          <div class="cl-months-row">
+            <div class="input-wrap">
+              <input type="number" id="loanMonths" formControlName="loanMonths" min="1" max="360" step="1">
+            </div>
+            <span class="cl-months-lbl">μήνες</span>
+          </div>
+        </div>
+
+        <div class="sec-div">
+          <div class="sec-label">Έξοδα Δανείου (Προαιρετικά)</div>
+        </div>
+
+        <div class="form-group">
+          <label for="loanFees">Έξοδα / Προμήθεια (&#8364;)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">&#8364;</span>
+            <input type="number" id="loanFees" formControlName="loanFees" min="0" step="10">
+          </div>
+          <div class="cl-hint">Εφάπαξ έξοδα εκταμίευσης, προμήθειες διαχείρισης κ.λπ.</div>
+        </div>
+
+        <div class="info-box blue">
+          💡 Τα καταναλωτικά δάνεια συνήθως έχουν σταθερό επιτόκιο και ίσες μηνιαίες δόσεις (τοκοχρεολύσιο).
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- Results card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128176;</div>
+        <h2>Αποτελέσματα</h2>
+      </div>
+      <div class="card-body">
+
+        <!-- Hero cards -->
+        <div class="hero-row">
+          <div class="hero-card">
+            <div class="hero-lbl">Μηνιαία Δόση</div>
+            <div class="hero-val">{{ summary().monthlyPayment | euro }}</div>
+            <div class="hero-sub">{{ summary().loanMonths }} μήνες · {{ summary().interestRate.toFixed(2) }}%</div>
+          </div>
+          <div class="hero-card dark">
+            <div class="hero-lbl">Συνολικό Ποσό Πληρωμής</div>
+            <div class="hero-val">{{ summary().grandTotal | euro }}</div>
+            <div class="hero-sub">κεφάλαιο + τόκοι@if (summary().loanFees > 0) { + έξοδα }</div>
+          </div>
+        </div>
+
+        <!-- Summary grid -->
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Ποσό Δανείου</div>
+            <div class="sum-val">{{ summary().loanAmount | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Επιτόκιο</div>
+            <div class="sum-val">{{ summary().interestRate.toFixed(2) }}%</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Διάρκεια</div>
+            <div class="sum-val">{{ summary().loanMonths }} μήνες</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Πλήθος Δόσεων</div>
+            <div class="sum-val">{{ schedule().length }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Συνολικοί Τόκοι</div>
+            <div class="sum-val red">{{ summary().totalInterest | euro }}</div>
+          </div>
+          @if (summary().loanFees > 0) {
+            <div class="sum-item">
+              <div class="sum-lbl">Έξοδα Δανείου</div>
+              <div class="sum-val red">{{ summary().loanFees | euro }}</div>
+            </div>
+          }
+          <div class="sum-item" style="grid-column: span 2;">
+            <div class="sum-lbl">Συνολικό Ποσό Πληρωμής</div>
+            <div class="sum-val blue">{{ summary().grandTotal | euro }}</div>
+          </div>
+        </div>
+
+        <div class="info-box blue">
+          💡 Θα πληρώσετε <strong>{{ summary().totalInterest | euro }}</strong> σε τόκους
+          @if (summary().loanFees > 0) {
+            και <strong>{{ summary().loanFees | euro }}</strong> σε έξοδα
+          }
+          — συνολικά <strong>{{ (summary().grandTotal - summary().loanAmount) | euro }}</strong> πάνω από το κεφάλαιο.
+        </div>
+
+        <div class="export-row">
+          <button class="btn-outline" (click)="print()">&#128424; Εκτύπωση / PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128200;</div>
+        <h2>Ετήσια Ανάλυση Πληρωμών</h2>
+      </div>
+      <div class="card-body">
+        <div class="hero-row" style="margin-bottom:12px;">
+          <div style="text-align:center; padding:10px; background:var(--blue-light); border-radius:6px;">
+            <div style="font-size:11px; color:var(--blue); font-weight:700; text-transform:uppercase; letter-spacing:.5px;">Συνολικό Κεφάλαιο</div>
+            <div style="font-size:20px; font-weight:700; color:var(--blue);">{{ summary().totalPrincipal | euro }}</div>
+          </div>
+          <div style="text-align:center; padding:10px; background:var(--red-light); border-radius:6px;">
+            <div style="font-size:11px; color:var(--red); font-weight:700; text-transform:uppercase; letter-spacing:.5px;">Συνολικοί Τόκοι</div>
+            <div style="font-size:20px; font-weight:700; color:var(--red);">{{ summary().totalInterest | euro }}</div>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <app-amortization-chart [schedule]="schedule()"></app-amortization-chart>
+        </div>
+        <div class="chart-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:#1d4ed8;"></div><span>Κεφάλαιο</span></div>
+          <div class="leg-item"><div class="leg-dot" style="background:#dc2626;"></div><span>Τόκοι</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128203;</div>
+        <h2>Πίνακας Αποπληρωμής</h2>
+      </div>
+      <div class="card-body">
+        <app-amortization-table [schedule]="schedule()"></app-amortization-table>
+      </div>
+    </div>
+
+  </div>
+</div>

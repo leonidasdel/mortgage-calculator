@@ -10,6 +10,7 @@ import { HomeComponent } from './components/home/home.component';
 import { MortgageCalculatorComponent } from './components/mortgage-calculator/mortgage-calculator.component';
 import { SalaryCalculatorComponent } from './components/salary-calculator/salary-calculator.component';
 import { InterestCalculatorComponent } from './components/interest-calculator/interest-calculator.component';
+import { ConsumerLoanCalculatorComponent } from './components/consumer-loan-calculator/consumer-loan-calculator.component';
 import { LoanFormComponent } from './components/loan-form/loan-form.component';
 import { EarlyRepaymentsComponent } from './components/early-repayments/early-repayments.component';
 import { BulkErFormComponent } from './components/bulk-er-form/bulk-er-form.component';
@@ -24,6 +25,7 @@ const routes: Routes = [
   { path: 'mortgage', component: MortgageCalculatorComponent },
   { path: 'salary', component: SalaryCalculatorComponent },
   { path: 'interest', component: InterestCalculatorComponent },
+  { path: 'consumer-loan', component: ConsumerLoanCalculatorComponent },
   { path: '**', redirectTo: '' },
 ];
 
@@ -35,6 +37,7 @@ const routes: Routes = [
     MortgageCalculatorComponent,
     SalaryCalculatorComponent,
     InterestCalculatorComponent,
+    ConsumerLoanCalculatorComponent,
     LoanFormComponent,
     EarlyRepaymentsComponent,
     BulkErFormComponent,
