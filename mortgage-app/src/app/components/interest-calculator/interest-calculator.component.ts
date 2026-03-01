@@ -38,6 +38,7 @@ export class InterestCalculatorComponent implements OnInit {
   activeDuration = signal<number | null>(12);
   durationValue = signal<number>(1);
   durationUnit = signal<'months' | 'years'>('years');
+  showCustomEndDate = signal(false);
 
   constructor(private fb: FormBuilder) {
     const today = new Date();
@@ -66,14 +67,7 @@ export class InterestCalculatorComponent implements OnInit {
   pickDuration(months: number): void {
     this.applyMonths(months);
     this.activeDuration.set(months);
-    // Sync the custom input to reflect the pick
-    if (months % 12 === 0) {
-      this.durationValue.set(months / 12);
-      this.durationUnit.set('years');
-    } else {
-      this.durationValue.set(months);
-      this.durationUnit.set('months');
-    }
+    this.syncDurationInput(months);
   }
 
   onDurationInput(value: number): void {
@@ -124,10 +118,32 @@ export class InterestCalculatorComponent implements OnInit {
       expected.setMonth(expected.getMonth() + d.months);
       if (this.formatDate(expected) === this.formatDate(end)) {
         this.activeDuration.set(d.months);
+        this.syncDurationInput(d.months);
         return;
       }
     }
     this.activeDuration.set(null);
+    // Best-effort sync for non-standard durations
+    const diffMs = end.getTime() - start.getTime();
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+    const approxMonths = diffDays / 30.44;
+    if (approxMonths >= 12 && Math.abs(approxMonths % 12) < 0.5) {
+      this.durationValue.set(Math.round(approxMonths / 12 * 10) / 10);
+      this.durationUnit.set('years');
+    } else {
+      this.durationValue.set(Math.round(approxMonths * 10) / 10);
+      this.durationUnit.set('months');
+    }
+  }
+
+  private syncDurationInput(months: number): void {
+    if (months % 12 === 0) {
+      this.durationValue.set(months / 12);
+      this.durationUnit.set('years');
+    } else {
+      this.durationValue.set(months);
+      this.durationUnit.set('months');
+    }
   }
 
   result = computed<InterestResult>(() => {

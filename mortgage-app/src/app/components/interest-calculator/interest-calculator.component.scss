@@ -121,6 +121,22 @@
   font-weight: 600;
 }
 
+/* ── CUSTOM DATE TOGGLE ── */
+.custom-date-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--g500);
+  cursor: pointer;
+  min-height: auto;
+  transition: color 0.15s;
+}
+.custom-date-toggle:hover {
+  color: var(--blue);
+}
+
 /* ── DATE INPUTS ── */
 input[type="date"] {
   width: 100%;
