@@ -27,6 +27,18 @@ export class InterestCalculatorComponent implements OnInit {
   form: FormGroup;
   private formValues;
 
+  readonly quickPicks = [
+    { label: '3μ', months: 3 },
+    { label: '6μ', months: 6 },
+    { label: '1ε', months: 12 },
+    { label: '2ε', months: 24 },
+    { label: '3ε', months: 36 },
+    { label: '5ε', months: 60 },
+  ];
+  activeDuration = signal<number | null>(12);
+  durationValue = signal<number>(1);
+  durationUnit = signal<'months' | 'years'>('years');
+
   constructor(private fb: FormBuilder) {
     const today = new Date();
     const oneYearLater = new Date(today);
@@ -44,7 +56,78 @@ export class InterestCalculatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadState();
+    this.detectActiveDuration();
     this.form.valueChanges.subscribe(() => this.saveState());
+    // Clear active pill when user manually edits dates
+    this.form.get('startDate')!.valueChanges.subscribe(() => this.detectActiveDuration());
+    this.form.get('endDate')!.valueChanges.subscribe(() => this.detectActiveDuration());
+  }
+
+  pickDuration(months: number): void {
+    this.applyMonths(months);
+    this.activeDuration.set(months);
+    // Sync the custom input to reflect the pick
+    if (months % 12 === 0) {
+      this.durationValue.set(months / 12);
+      this.durationUnit.set('years');
+    } else {
+      this.durationValue.set(months);
+      this.durationUnit.set('months');
+    }
+  }
+
+  onDurationInput(value: number): void {
+    this.durationValue.set(value);
+    this.applyCustomDuration();
+  }
+
+  onDurationUnitChange(unit: 'months' | 'years'): void {
+    this.durationUnit.set(unit);
+    this.applyCustomDuration();
+  }
+
+  private applyCustomDuration(): void {
+    const val = this.durationValue();
+    const unit = this.durationUnit();
+    if (!val || val <= 0) return;
+    const totalMonths = unit === 'years' ? val * 12 : val;
+    // For fractional months, use days (30.44 days/month average)
+    const wholeMonths = Math.floor(totalMonths);
+    const fractionalDays = Math.round((totalMonths - wholeMonths) * 30.44);
+    const start = new Date(this.form.value.startDate);
+    if (isNaN(start.getTime())) return;
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + wholeMonths);
+    end.setDate(end.getDate() + fractionalDays);
+    this.form.patchValue({ endDate: this.formatDate(end) });
+    // Check if this matches a quick pick
+    this.detectActiveDuration();
+  }
+
+  private applyMonths(months: number): void {
+    const start = new Date(this.form.value.startDate);
+    if (isNaN(start.getTime())) return;
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + months);
+    this.form.patchValue({ endDate: this.formatDate(end) });
+  }
+
+  private detectActiveDuration(): void {
+    const start = new Date(this.form.value.startDate);
+    const end = new Date(this.form.value.endDate);
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      this.activeDuration.set(null);
+      return;
+    }
+    for (const d of this.quickPicks) {
+      const expected = new Date(start);
+      expected.setMonth(expected.getMonth() + d.months);
+      if (this.formatDate(expected) === this.formatDate(end)) {
+        this.activeDuration.set(d.months);
+        return;
+      }
+    }
+    this.activeDuration.set(null);
   }
 
   result = computed<InterestResult>(() => {

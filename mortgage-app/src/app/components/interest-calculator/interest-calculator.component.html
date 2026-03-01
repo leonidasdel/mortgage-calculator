@@ -40,6 +40,37 @@
         </div>
 
         <div class="form-group">
+          <label>Διάρκεια</label>
+          <div class="duration-quick">
+            @for (d of quickPicks; track d.months) {
+              <button type="button"
+                      class="duration-pill"
+                      [class.active]="activeDuration() === d.months"
+                      (click)="pickDuration(d.months)">
+                {{ d.label }}
+              </button>
+            }
+          </div>
+          <div class="duration-custom">
+            <input type="number"
+                   class="duration-input"
+                   [value]="durationValue()"
+                   (input)="onDurationInput(+$any($event.target).value)"
+                   min="0.5" step="0.5">
+            <div class="unit-toggle">
+              <button type="button"
+                      class="unit-btn"
+                      [class.active]="durationUnit() === 'months'"
+                      (click)="onDurationUnitChange('months')">Μήνες</button>
+              <button type="button"
+                      class="unit-btn"
+                      [class.active]="durationUnit() === 'years'"
+                      (click)="onDurationUnitChange('years')">Έτη</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
           <label for="endDate">Ημερομηνία Λήξης</label>
           <div class="input-wrap">
             <input type="date" id="endDate" formControlName="endDate">
