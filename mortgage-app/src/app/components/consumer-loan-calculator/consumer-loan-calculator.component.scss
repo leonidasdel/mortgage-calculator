@@ -1,0 +1,58 @@
+/* ── PAGE HEADER ICON ── */
+.page-header-icon.consumer-icon {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+}
+
+/* ── DURATION QUICK PILLS ── */
+.cl-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+.cl-pill {
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--g100);
+  color: var(--g600);
+  border: 1px solid var(--g200);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: auto;
+}
+.cl-pill:hover {
+  background: var(--blue-light);
+  border-color: var(--blue-mid);
+  color: var(--blue);
+}
+.cl-pill.active {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+  font-weight: 600;
+}
+
+/* ── MONTHS ROW ── */
+.cl-months-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cl-months-lbl {
+  font-size: 13px;
+  color: var(--g500);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── HINT TEXT ── */
+.cl-hint {
+  font-size: 11px;
+  color: var(--g400);
+  margin-top: 4px;
+  line-height: 1.4;
+}
