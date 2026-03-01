@@ -69,6 +69,12 @@
           💡 Τα καταναλωτικά δάνεια συνήθως έχουν σταθερό επιτόκιο και ίσες μηνιαίες δόσεις (τοκοχρεολύσιο).
         </div>
 
+        <div class="info-box" style="background:var(--blue-light);border-left:3px solid var(--blue);margin-top:8px;">
+          <ul style="margin:0;padding-left:16px;font-size:12px;color:var(--text-secondary);">
+            <li>Εισφορά Ν.128/1975: 0,60% ετησίως επί του ποσού δανείου</li>
+          </ul>
+        </div>
+
       </div>
     </div>
   </div>
@@ -94,7 +100,7 @@
           <div class="hero-card dark">
             <div class="hero-lbl">Συνολικό Ποσό Πληρωμής</div>
             <div class="hero-val">{{ summary().grandTotal | euro }}</div>
-            <div class="hero-sub">κεφάλαιο + τόκοι@if (summary().loanFees > 0) { + έξοδα }</div>
+            <div class="hero-sub">κεφάλαιο + τόκοι + εισφορά@if (summary().loanFees > 0) { + έξοδα }</div>
           </div>
         </div>
 
@@ -120,6 +126,10 @@
             <div class="sum-lbl">Συνολικοί Τόκοι</div>
             <div class="sum-val red">{{ summary().totalInterest | euro }}</div>
           </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Εισφορά Ν.128/1975</div>
+            <div class="sum-val red">{{ summary().totalN128 | euro }}</div>
+          </div>
           @if (summary().loanFees > 0) {
             <div class="sum-item">
               <div class="sum-lbl">Έξοδα Δανείου</div>
@@ -133,7 +143,8 @@
         </div>
 
         <div class="info-box blue">
-          💡 Θα πληρώσετε <strong>{{ summary().totalInterest | euro }}</strong> σε τόκους
+          💡 Θα πληρώσετε <strong>{{ summary().totalInterest | euro }}</strong> σε τόκους,
+          <strong>{{ summary().totalN128 | euro }}</strong> σε εισφορά Ν.128/1975
           @if (summary().loanFees > 0) {
             και <strong>{{ summary().loanFees | euro }}</strong> σε έξοδα
           }
