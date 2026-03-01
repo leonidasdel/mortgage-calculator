@@ -24,7 +24,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
-  max-width: 800px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 0 16px 60px;
 }
@@ -65,6 +65,9 @@
 }
 .tool-icon.interest-gradient {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+.tool-icon.consumer-gradient {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
 }
 
 .tool-name {
