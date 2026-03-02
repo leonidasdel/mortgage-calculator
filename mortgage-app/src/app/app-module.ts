@@ -1,8 +1,9 @@
-import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { NgModule, provideBrowserGlobalErrorListeners, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { App } from './app';
 import { NavComponent } from './components/nav/nav.component';
@@ -64,6 +65,10 @@ const routes: Routes = [
     CommonModule,
     ReactiveFormsModule,
     RouterModule.forRoot(routes, { useHash: true }),
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
