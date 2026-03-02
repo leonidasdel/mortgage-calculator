@@ -18,12 +18,24 @@ export class AmortizationChartComponent implements OnChanges {
   @Input() schedule: AmortizationRow[] = [];
   @ViewChild('chartCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
 
+  viewMode: 'monthly' | 'yearly' = 'yearly';
+  private userOverride = false;
+
   ngOnChanges(): void {
+    if (!this.userOverride) {
+      this.viewMode = this.schedule.length <= 24 ? 'monthly' : 'yearly';
+    }
     this.draw();
   }
 
   @HostListener('window:resize')
   onResize(): void {
+    this.draw();
+  }
+
+  toggleView(): void {
+    this.userOverride = true;
+    this.viewMode = this.viewMode === 'yearly' ? 'monthly' : 'yearly';
     this.draw();
   }
 
@@ -40,18 +52,26 @@ export class AmortizationChartComponent implements OnChanges {
     if (!ctx) return;
     ctx.clearRect(0, 0, W, H);
 
-    const years: Record<number, { p: number; i: number }> = {};
-    for (const r of this.schedule) {
-      const yr = Math.ceil(r.month / 12);
-      if (!years[yr]) years[yr] = { p: 0, i: 0 };
-      years[yr].p += r.principal + r.earlyAmt;
-      years[yr].i += r.interest;
+    const buckets: Record<number, { p: number; i: number }> = {};
+    if (this.viewMode === 'monthly') {
+      for (const r of this.schedule) {
+        if (!buckets[r.month]) buckets[r.month] = { p: 0, i: 0 };
+        buckets[r.month].p += r.principal + r.earlyAmt;
+        buckets[r.month].i += r.interest;
+      }
+    } else {
+      for (const r of this.schedule) {
+        const yr = Math.ceil(r.month / 12);
+        if (!buckets[yr]) buckets[yr] = { p: 0, i: 0 };
+        buckets[yr].p += r.principal + r.earlyAmt;
+        buckets[yr].i += r.interest;
+      }
     }
 
-    const keys = Object.keys(years).map(Number).sort((a, b) => a - b);
+    const keys = Object.keys(buckets).map(Number).sort((a, b) => a - b);
     if (!keys.length) return;
 
-    const maxVal = Math.max(...keys.map(k => years[k].p + years[k].i));
+    const maxVal = Math.max(...keys.map(k => buckets[k].p + buckets[k].i));
     if (maxVal <= 0) return;
 
     const PL = 52, PR = 12, PT = 16, PB = 28;
@@ -77,8 +97,8 @@ export class AmortizationChartComponent implements OnChanges {
       ctx.fillText('€' + lbl, PL - 4, y + 4);
     }
 
-    keys.forEach((yr, i) => {
-      const d   = years[yr];
+    keys.forEach((key, i) => {
+      const d   = buckets[key];
       const x   = PL + i * gap + gap / 2 - bW / 2;
       const tot = d.p + d.i;
 
@@ -91,18 +111,27 @@ export class AmortizationChartComponent implements OnChanges {
       ctx.fillStyle = '#1d4ed8';
       ctx.fillRect(x, PT + cH - principH, bW, principH);
 
-      const every = keys.length <= 10 ? 1 : keys.length <= 20 ? 2 : 5;
-      if (yr === 1 || yr % every === 0 || yr === keys[keys.length - 1]) {
+      let every: number;
+      if (this.viewMode === 'monthly') {
+        every = keys.length <= 12 ? 1 : keys.length <= 24 ? 2 : keys.length <= 60 ? 6 : 12;
+      } else {
+        every = keys.length <= 10 ? 1 : keys.length <= 20 ? 2 : 5;
+      }
+
+      const isFirst = i === 0;
+      const isLast  = i === keys.length - 1;
+      if (isFirst || isLast || key % every === 0) {
         ctx.fillStyle = '#6b7280';
         ctx.font      = '10px system-ui, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(String(yr), x + bW / 2, H - 6);
+        ctx.fillText(String(key), x + bW / 2, H - 6);
       }
     });
 
+    const axisLabel = this.viewMode === 'monthly' ? 'Μήνες' : 'Έτη';
     ctx.fillStyle = '#9ca3af';
     ctx.font      = '10px system-ui, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Έτη', W / 2, H - 6);
+    ctx.fillText(axisLabel, W / 2, H - 6);
   }
 }

@@ -1,1 +1,24 @@
 canvas { display: block; width: 100%; }
+
+.chart-toggle {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.toggle-btn {
+  background: #fff;
+  color: var(--g500);
+  border: 1px solid var(--g300);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: auto;
+
+  &:hover { background: var(--g50); border-color: var(--g400); }
+  &.active { background: var(--blue); color: #fff; border-color: var(--blue); cursor: default; }
+}

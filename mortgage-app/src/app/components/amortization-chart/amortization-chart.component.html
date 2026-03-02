@@ -1,1 +1,7 @@
+@if (schedule.length > 1) {
+  <div class="chart-toggle">
+    <button (click)="toggleView()" class="toggle-btn" [class.active]="viewMode === 'monthly'">Μήνες</button>
+    <button (click)="toggleView()" class="toggle-btn" [class.active]="viewMode === 'yearly'">Έτη</button>
+  </div>
+}
 <canvas #chartCanvas height="240"></canvas>
