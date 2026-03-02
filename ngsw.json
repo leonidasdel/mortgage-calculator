@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1772447261550,
+  "timestamp": 1772451524769,
   "index": "/mortgage-calculator/index.html",
   "assetGroups": [
     {
@@ -45,9 +45,9 @@
   "dataGroups": [],
   "hashTable": {
     "/mortgage-calculator/apple-touch-icon.png": "0bd82d81b90958d66bb76586a1f8a3e8d792bd88",
-    "/mortgage-calculator/favicon-16x16.png": "e399316c44d63c6278dc797313f92abc4288a9f3",
-    "/mortgage-calculator/favicon-32x32.png": "fbd0ed59eb89300bac6c556defe4adfd5d538021",
-    "/mortgage-calculator/favicon.ico": "5b3a1fdab5ff94e09b85335819300def7ea66fd8",
+    "/mortgage-calculator/favicon-16x16.png": "285385be819136edc213c77dca5a39ec51621627",
+    "/mortgage-calculator/favicon-32x32.png": "479ff34b478829c2cf870a855c398c5e5f431aa5",
+    "/mortgage-calculator/favicon.ico": "a8096439e2c3b1a1057ff9205042b11c643149b3",
     "/mortgage-calculator/icons/icon-128x128.png": "755b8e4701d6a2503638c8bdc96b5688ee92c1f8",
     "/mortgage-calculator/icons/icon-144x144.png": "db7eb03eed9cc41dbb7b5570c0cfe42e19141cc4",
     "/mortgage-calculator/icons/icon-152x152.png": "c8978aa775b513e0e5be380675839a06e3ca7011",
