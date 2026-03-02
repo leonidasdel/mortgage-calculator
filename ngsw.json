@@ -1,0 +1,83 @@
+{
+  "configVersion": 1,
+  "timestamp": 1772447261550,
+  "index": "/mortgage-calculator/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/mortgage-calculator/favicon.ico",
+        "/mortgage-calculator/index.html",
+        "/mortgage-calculator/main-FGCPV6RM.js",
+        "/mortgage-calculator/manifest.webmanifest",
+        "/mortgage-calculator/styles-ZAUGFC6G.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/mortgage-calculator/apple-touch-icon.png",
+        "/mortgage-calculator/favicon-16x16.png",
+        "/mortgage-calculator/favicon-32x32.png",
+        "/mortgage-calculator/icons/icon-128x128.png",
+        "/mortgage-calculator/icons/icon-144x144.png",
+        "/mortgage-calculator/icons/icon-152x152.png",
+        "/mortgage-calculator/icons/icon-192x192.png",
+        "/mortgage-calculator/icons/icon-384x384.png",
+        "/mortgage-calculator/icons/icon-512x512.png",
+        "/mortgage-calculator/icons/icon-72x72.png",
+        "/mortgage-calculator/icons/icon-96x96.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/mortgage-calculator/apple-touch-icon.png": "0bd82d81b90958d66bb76586a1f8a3e8d792bd88",
+    "/mortgage-calculator/favicon-16x16.png": "e399316c44d63c6278dc797313f92abc4288a9f3",
+    "/mortgage-calculator/favicon-32x32.png": "fbd0ed59eb89300bac6c556defe4adfd5d538021",
+    "/mortgage-calculator/favicon.ico": "5b3a1fdab5ff94e09b85335819300def7ea66fd8",
+    "/mortgage-calculator/icons/icon-128x128.png": "755b8e4701d6a2503638c8bdc96b5688ee92c1f8",
+    "/mortgage-calculator/icons/icon-144x144.png": "db7eb03eed9cc41dbb7b5570c0cfe42e19141cc4",
+    "/mortgage-calculator/icons/icon-152x152.png": "c8978aa775b513e0e5be380675839a06e3ca7011",
+    "/mortgage-calculator/icons/icon-192x192.png": "7a109c5ed040e3ca4d96921613e54646e5461117",
+    "/mortgage-calculator/icons/icon-384x384.png": "2f5739a64a5f76bbecf96c405b31925b8018c399",
+    "/mortgage-calculator/icons/icon-512x512.png": "0dc6ce77ded779bb29f45c4b493a4aed97032b61",
+    "/mortgage-calculator/icons/icon-72x72.png": "96948ab3d55f85084ab6924e4db52ccd444f57cc",
+    "/mortgage-calculator/icons/icon-96x96.png": "5a73553dff41128d243c87208b0aa14d0bbde2b3",
+    "/mortgage-calculator/index.html": "08590966e6f470b889a42c7b5b2d70b5059ac98b",
+    "/mortgage-calculator/main-FGCPV6RM.js": "c0d0e6977d55c2ca81ee3ab643e73109d660c1bf",
+    "/mortgage-calculator/manifest.webmanifest": "1de4d26670623752c23e0dc8c05ec611d9c38ec7",
+    "/mortgage-calculator/styles-ZAUGFC6G.css": "9e9e5667124a19c5f1bd1a34fb7df17a0ef06af1"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
