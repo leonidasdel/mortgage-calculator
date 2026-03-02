@@ -43,9 +43,9 @@ export class RentVsBuyCalculatorComponent implements OnInit {
       mortgageTerm: [30],
       monthlyRent: [900],
       rentGrowthRate: [3],
-      propertyGrowthRate: [2],
+      propertyGrowthRate: [1],
       investmentReturn: [5],
-      annualOwnershipCostPct: [1],
+      annualOwnershipCostPct: [0.5],
       timeHorizon: [20],
     });
     this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
