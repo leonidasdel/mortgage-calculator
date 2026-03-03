@@ -42,7 +42,7 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/mortgage-calculator/",
+              "baseHref": "/",
               "serviceWorker": "ngsw-config.json",
               "budgets": [
                 {
