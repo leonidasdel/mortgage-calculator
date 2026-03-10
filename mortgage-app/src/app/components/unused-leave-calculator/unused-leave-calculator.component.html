@@ -351,7 +351,7 @@
 
         <!-- Τελικό καθαρό -->
         <div class="lv-net-box">
-          <div class="lv-net-lbl">ΚΑΘΑΡΟ ΠΟΣΟ ΣΤΟΧΕΔΗΣ</div>
+          <div class="lv-net-lbl">ΚΑΘΑΡΟ ΠΟΣΟ ΣΤΟ ΧΕΡΙ</div>
           <div class="lv-net-val">{{ result().totalNet | euro }}</div>
           <div class="lv-net-sub">
             Αποζημίωση {{ form.get('unusedDays')?.value }} ημερών μη ληφθείσας άδειας
@@ -426,7 +426,17 @@
               </tbody>
               <tfoot>
                 <tr>
-                  <td colspan="2"><strong>Σύνολο Φόρου (πριν μείωση)</strong></td>
+                  <td colspan="2">Σύνολο φόρου κλιμακίων (πριν μείωση)</td>
+                  <td></td>
+                  <td class="num">{{ result().taxOnTotalGross | euro }}</td>
+                </tr>
+                <tr>
+                  <td colspan="2">Μείωση φόρου (άρθρο 16 ΚΦΕ)</td>
+                  <td></td>
+                  <td class="num">− {{ result().taxDiscountAmount | euro }}</td>
+                </tr>
+                <tr>
+                  <td colspan="2"><strong>Φόρος εισοδήματος (μετά μείωση)</strong></td>
                   <td></td>
                   <td class="num"><strong>{{ result().taxOnTotal | euro }}</strong></td>
                 </tr>

@@ -59,7 +59,9 @@ export interface LeaveResult {
   annualBaseTaxable: number;
   taxableLeaveComp: number;
   taxOnBase: number;
-  taxOnTotal: number;
+  taxOnTotalGross: number;   // Φόρος πριν τη μείωση (σύνολο κλιμακίων)
+  taxDiscountAmount: number; // Ποσό μείωσης φόρου (άρθρο 16 ΚΦΕ)
+  taxOnTotal: number;        // Φόρος μετά τη μείωση
   marginalTax: number;
   effectiveTaxRate: number;
   // Σύνολο
@@ -115,7 +117,7 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
     const situation        = fv.situation as 'termination' | 'during_employment';
     const taxYear          = fv.taxYear as '2025' | '2026';
     const ageGroup         = (fv.ageGroup || 'over30') as AgeGroup;
-    const children         = Math.min(Math.max(0, +(fv.children || 0)), 6);
+    const children         = Math.min(Math.max(0, +(fv.children || 0)), 10);
     const useCustom        = !!fv.useCustomAnnualIncome;
 
     // Διαιρέτης: 25 για πενθήμερο, 26 για εξαήμερο
@@ -206,6 +208,10 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
     // Οριακός φόρος = επιπλέον φόρος λόγω της αποζημίωσης
     const marginalTax = Math.max(0, +(taxOnTotal.tax - taxOnBase.tax).toFixed(2));
 
+    // Σύνολο φόρου πριν τη μείωση (για εμφάνιση στον πίνακα κλιμακίων)
+    const taxOnTotalGross   = taxOnTotal.taxGross;
+    const taxDiscountAmount = +(taxOnTotalGross - taxOnTotal.tax).toFixed(2);
+
     const effectiveTaxRate = taxableLeaveComp > 0
       ? +((marginalTax / taxableLeaveComp) * 100).toFixed(1)
       : 0;
@@ -227,6 +233,8 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
       annualBaseTaxable,
       taxableLeaveComp,
       taxOnBase:          taxOnBase.tax,
+      taxOnTotalGross,
+      taxDiscountAmount,
       taxOnTotal:         taxOnTotal.tax,
       marginalTax,
       effectiveTaxRate,
@@ -250,7 +258,7 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
     brackets: number[],
     rates: number[],
     children: number,
-  ): { tax: number; breakdown: TaxBracket[] } {
+  ): { tax: number; taxGross: number; breakdown: TaxBracket[] } {
     const breakdown: TaxBracket[] = [];
     let remaining = taxable;
     let totalTax  = 0;
@@ -278,7 +286,8 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
     }
 
     const tax = Math.max(0, +(totalTax - discount).toFixed(2));
-    return { tax, breakdown };
+    // taxGross: φόρος ΠΡΙΝ τη μείωση (σύνολο κλιμακίων), χρήσιμο για εμφάνιση στον πίνακα
+    return { tax, taxGross: +totalTax.toFixed(2), breakdown };
   }
 
   private saveState(): void {
