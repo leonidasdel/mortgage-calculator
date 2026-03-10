@@ -1,0 +1,492 @@
+<div class="page-header">
+  <div class="page-header-icon leave-icon">🏖️</div>
+  <div>
+    <h1 class="page-title">Μη Ληφθείσα Άδεια</h1>
+    <p class="page-subtitle">Υπολογίστε την αποζημίωση για τις άδειες που δεν πήρατε — μεικτά &amp; καθαρά ποσά</p>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- ═══ LEFT: INPUTS ═══════════════════════════════════════════════════════ -->
+  <div class="left-panel">
+
+    <!-- Αποδοχές -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9881;</div>
+        <h2>Αποδοχές &amp; Άδεια</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <!-- Τύπος αμοιβής -->
+        <div class="form-group">
+          <label>Τύπος Αμοιβής</label>
+          <div class="seg-group">
+            <button type="button" class="seg-btn"
+                    [class.active]="form.get('salaryType')?.value === 'monthly'"
+                    (click)="form.patchValue({ salaryType: 'monthly' })">
+              Μηνιαίος Μισθός
+            </button>
+            <button type="button" class="seg-btn"
+                    [class.active]="form.get('salaryType')?.value === 'daily'"
+                    (click)="form.patchValue({ salaryType: 'daily' })">
+              Ημερομίσθιο
+            </button>
+          </div>
+        </div>
+
+        <!-- Μηνιαίος μισθός -->
+        @if (form.get('salaryType')?.value === 'monthly') {
+          <div class="form-group">
+            <label for="grossMonthly">Μεικτός Μηνιαίος Μισθός (€)</label>
+            <div class="input-wrap has-pfx">
+              <span class="pfx">€</span>
+              <input type="number" id="grossMonthly" formControlName="grossMonthly"
+                     min="0" step="50" placeholder="π.χ. 1500">
+            </div>
+            <div class="lv-hint">
+              Ημερομίσθιο: <strong>{{ result().dailyWage | euro }}</strong>
+              (÷ {{ form.get('workWeek')?.value === '5day' ? '25' : '26' }})
+            </div>
+          </div>
+        }
+
+        <!-- Ημερομίσθιο -->
+        @if (form.get('salaryType')?.value === 'daily') {
+          <div class="form-group">
+            <label for="dailyWage">Ημερομίσθιο (€)</label>
+            <div class="input-wrap has-pfx">
+              <span class="pfx">€</span>
+              <input type="number" id="dailyWage" formControlName="dailyWage"
+                     min="0" step="1" placeholder="π.χ. 69.23">
+            </div>
+            <div class="lv-hint">
+              Μηνιαίο ισοδύναμο: <strong>{{ result().monthlyEquiv | euro }}</strong>
+              (× {{ form.get('workWeek')?.value === '5day' ? '25' : '26' }})
+            </div>
+          </div>
+        }
+
+        <!-- Εβδομαδιαία εργασία -->
+        <div class="form-group">
+          <label>Εβδομαδιαία Εργασία</label>
+          <div class="seg-group">
+            <button type="button" class="seg-btn"
+                    [class.active]="form.get('workWeek')?.value === '5day'"
+                    (click)="form.patchValue({ workWeek: '5day' })">
+              Πενθήμερο (÷25)
+            </button>
+            <button type="button" class="seg-btn"
+                    [class.active]="form.get('workWeek')?.value === '6day'"
+                    (click)="form.patchValue({ workWeek: '6day' })">
+              Εξαήμερο (÷26)
+            </button>
+          </div>
+        </div>
+
+        <!-- Ημέρες μη ληφθείσας άδειας -->
+        <div class="form-group">
+          <label for="unusedDays">Ημέρες Μη Ληφθείσας Άδειας</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="unusedDays" formControlName="unusedDays"
+                   min="0" max="365" step="1" placeholder="π.χ. 10">
+            <span class="sfx">ημ.</span>
+          </div>
+          <div class="lv-hint">
+            Δικαιούμενες: 20 ημ. / έτος (πενθήμερο) ή 24 ημ. (εξαήμερο).
+            Μετά 10ετία: 25 ή 30 ημ.
+          </div>
+        </div>
+
+        <!-- Επίδομα αδείας -->
+        <div class="form-group">
+          <label class="lv-check-row">
+            <input type="checkbox" formControlName="includeHolidayBonus">
+            <span>Συμπερίληψη Επιδόματος Αδείας (50%)</span>
+          </label>
+          @if (form.get('includeHolidayBonus')?.value) {
+            <div class="lv-hint">
+              = 50% αποζημίωσης, μέγιστο ½ μηνιαίου μισθού
+              @if (result().holidayBonusCapped) {
+                <span class="badge-warn">Ανώτατο όριο εφαρμόζεται</span>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Περίσταση -->
+        <div class="form-group">
+          <label>Κατάσταση Εργασιακής Σχέσης</label>
+          <div class="seg-group">
+            <button type="button" class="seg-btn"
+                    [class.active]="form.get('situation')?.value === 'termination'"
+                    (click)="form.patchValue({ situation: 'termination' })">
+              Λύση Σύμβασης
+            </button>
+            <button type="button" class="seg-btn"
+                    [class.active]="form.get('situation')?.value === 'during_employment'"
+                    (click)="form.patchValue({ situation: 'during_employment' })">
+              Εν ενεργεία
+            </button>
+          </div>
+          @if (form.get('situation')?.value === 'termination') {
+            <div class="lv-hint">
+              Η αποζημίωση λόγω λύσης <strong>ΔΕΝ</strong> υπόκειται σε ΕΦΚΑ.
+              Το επίδομα αδείας <strong>υπόκειται</strong> σε ΕΦΚΑ.
+            </div>
+          } @else {
+            <div class="lv-hint">
+              Κατά τη διάρκεια εργασίας, <strong>όλες</strong> οι αποδοχές υπόκεινται σε ΕΦΚΑ.
+            </div>
+          }
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Φορολογικά στοιχεία -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128203;</div>
+        <h2>Φορολογικά Στοιχεία</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <!-- Φορολογικό έτος -->
+        <div class="form-group">
+          <label>Φορολογικό Έτος</label>
+          <div class="seg-group">
+            <button type="button" class="seg-btn"
+                    [class.active]="form.get('taxYear')?.value === '2025'"
+                    (click)="form.patchValue({ taxYear: '2025' })">
+              2025
+            </button>
+            <button type="button" class="seg-btn"
+                    [class.active]="form.get('taxYear')?.value === '2026'"
+                    (click)="form.patchValue({ taxYear: '2026' })">
+              2026
+            </button>
+          </div>
+          @if (form.get('taxYear')?.value === '2026') {
+            <div class="lv-hint">Νέες κλίμακες Ν. 5246/2025: μειωμένοι συντελεστές &amp; αφορολόγητο νέων.</div>
+          }
+        </div>
+
+        <!-- Ηλικιακή ομάδα -->
+        <div class="form-group">
+          <label for="ageGroup">Ηλικιακή Ομάδα</label>
+          <select id="ageGroup" formControlName="ageGroup" class="lv-select">
+            <option value="over30">Άνω των 30 ετών</option>
+            <option value="26to30">26–30 ετών</option>
+            <option value="under25">Έως 25 ετών</option>
+          </select>
+          @if (form.get('taxYear')?.value === '2025') {
+            <div class="lv-hint">Στο 2025 οι συντελεστές είναι ίδιοι για όλες τις ηλικίες.</div>
+          }
+        </div>
+
+        <!-- Αριθμός τέκνων -->
+        <div class="form-group">
+          <label for="children">Εξαρτώμενα Τέκνα</label>
+          <div class="input-wrap">
+            <input type="number" id="children" formControlName="children"
+                   min="0" max="10" step="1">
+          </div>
+        </div>
+
+        <!-- Άλλο ετήσιο εισόδημα -->
+        <div class="sec-div">
+          <div class="sec-label">Εισόδημα Έτους (για ακριβή φόρο)</div>
+        </div>
+
+        <div class="form-group">
+          <label class="lv-check-row">
+            <input type="checkbox" formControlName="useCustomAnnualIncome">
+            <span>Εισαγωγή πραγματικού ετήσιου εισοδήματος</span>
+          </label>
+        </div>
+
+        @if (!form.get('useCustomAnnualIncome')?.value) {
+          <div class="info-box blue">
+            💡 Χρησιμοποιείται το εκτιμώμενο ετήσιο εισόδημα
+            <strong>{{ result().annualBaseGross | euro:0 }}</strong>
+            (μηνιαίος × 14 μισθοί).
+          </div>
+        }
+
+        @if (form.get('useCustomAnnualIncome')?.value) {
+          <div class="form-group">
+            <label for="customAnnualGross">Μεικτό Ετήσιο Εισόδημα Έτους (€)</label>
+            <div class="input-wrap has-pfx">
+              <span class="pfx">€</span>
+              <input type="number" id="customAnnualGross" formControlName="customAnnualGross"
+                     min="0" step="500">
+            </div>
+            <div class="lv-hint">
+              Συμπεριλάβετε μισθούς, δώρα &amp; επίδομα αδείας του τρέχοντος έτους (χωρίς την παρούσα αποζημίωση).
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ RIGHT: RESULTS ══════════════════════════════════════════════════════ -->
+  <div class="right-panel">
+
+    <!-- Hero αποτελέσματα -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128176;</div>
+        <h2>Αποτελέσματα Αποζημίωσης</h2>
+      </div>
+      <div class="card-body">
+
+        <!-- Κύρια νούμερα -->
+        <div class="hero-row">
+          <div class="hero-card dark">
+            <div class="hero-lbl">Καθαρό Ποσό</div>
+            <div class="hero-val">{{ result().totalNet | euro }}</div>
+            <div class="hero-sub">που λαμβάνετε στο χέρι</div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-lbl">Μεικτό Ποσό</div>
+            <div class="hero-val">{{ result().totalGross | euro }}</div>
+            <div class="hero-sub">πριν κρατήσεις</div>
+          </div>
+        </div>
+
+        <!-- Ανάλυση Ποσών -->
+        <div class="lv-section-title">Ανάλυση Αποζημίωσης</div>
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">
+              Ημερομίσθιο
+              <span class="sum-badge">÷{{ form.get('workWeek')?.value === '5day' ? '25' : '26' }}</span>
+            </div>
+            <div class="sum-val">{{ result().dailyWage | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Ημέρες μη ληφθείσας άδειας</div>
+            <div class="sum-val">{{ form.get('unusedDays')?.value }} ημ.</div>
+          </div>
+          <div class="sum-item highlight-blue">
+            <div class="sum-lbl">Αποζημίωση μη ληφθείσας άδειας</div>
+            <div class="sum-val blue">{{ result().leaveCompensation | euro }}</div>
+          </div>
+          @if (form.get('includeHolidayBonus')?.value) {
+            <div class="sum-item highlight-blue">
+              <div class="sum-lbl">
+                Επίδομα αδείας (50%)
+                @if (result().holidayBonusCapped) {
+                  <span class="badge-warn">Capped</span>
+                }
+              </div>
+              <div class="sum-val blue">{{ result().holidayBonus | euro }}</div>
+            </div>
+          }
+          <div class="sum-item total-row">
+            <div class="sum-lbl"><strong>Σύνολο Μεικτό</strong></div>
+            <div class="sum-val"><strong>{{ result().totalGross | euro }}</strong></div>
+          </div>
+        </div>
+
+        <!-- Κρατήσεις -->
+        <div class="lv-section-title">Κρατήσεις</div>
+        <div class="sum-grid">
+
+          @if (form.get('situation')?.value === 'termination') {
+            <div class="sum-item">
+              <div class="sum-lbl">
+                ΕΦΚΑ επί αποζημίωσης
+                <span class="badge-green">Απαλλαγή</span>
+              </div>
+              <div class="sum-val">€0,00</div>
+            </div>
+            @if (form.get('includeHolidayBonus')?.value) {
+              <div class="sum-item">
+                <div class="sum-lbl">ΕΦΚΑ επί επιδόματος ({{ (0.1332 * 100).toFixed(2) }}%)</div>
+                <div class="sum-val red">−{{ result().efkaOnHolidayBonus | euro }}</div>
+              </div>
+            }
+          } @else {
+            <div class="sum-item">
+              <div class="sum-lbl">ΕΦΚΑ επί αποζημίωσης ({{ (0.1332 * 100).toFixed(2) }}%)</div>
+              <div class="sum-val red">−{{ result().efkaOnLeaveComp | euro }}</div>
+            </div>
+            @if (form.get('includeHolidayBonus')?.value) {
+              <div class="sum-item">
+                <div class="sum-lbl">ΕΦΚΑ επί επιδόματος ({{ (0.1332 * 100).toFixed(2) }}%)</div>
+                <div class="sum-val red">−{{ result().efkaOnHolidayBonus | euro }}</div>
+              </div>
+            }
+          }
+
+          <div class="sum-item">
+            <div class="sum-lbl"><strong>Σύνολο ΕΦΚΑ</strong></div>
+            <div class="sum-val red"><strong>−{{ result().totalEfka | euro }}</strong></div>
+          </div>
+
+          <div class="sum-item">
+            <div class="sum-lbl">Φορολογητέο ποσό αποζημίωσης</div>
+            <div class="sum-val">{{ result().taxableLeaveComp | euro }}</div>
+          </div>
+
+          <div class="sum-item">
+            <div class="sum-lbl">
+              Οριακός φόρος εισοδήματος
+              <span class="sum-badge">{{ result().effectiveTaxRate }}%</span>
+            </div>
+            <div class="sum-val red">−{{ result().marginalTax | euro }}</div>
+          </div>
+
+          <div class="sum-item total-row">
+            <div class="sum-lbl"><strong>Σύνολο Κρατήσεων</strong></div>
+            <div class="sum-val red"><strong>−{{ result().totalDeductions | euro }}</strong></div>
+          </div>
+        </div>
+
+        <!-- Τελικό καθαρό -->
+        <div class="lv-net-box">
+          <div class="lv-net-lbl">ΚΑΘΑΡΟ ΠΟΣΟ ΣΤΟΧΕΔΗΣ</div>
+          <div class="lv-net-val">{{ result().totalNet | euro }}</div>
+          <div class="lv-net-sub">
+            Αποζημίωση {{ form.get('unusedDays')?.value }} ημερών μη ληφθείσας άδειας
+          </div>
+        </div>
+
+        <div class="export-row">
+          <button class="btn-outline" (click)="print()">&#128424; Εκτύπωση / PDF</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Ανάλυση Φόρου -->
+    <div class="card">
+      <div class="card-header" style="cursor:pointer;" (click)="toggleTaxBreakdown()">
+        <div class="card-header-icon">&#128269;</div>
+        <h2>Ανάλυση Φόρου Εισοδήματος</h2>
+        <span class="lv-toggle-arrow" [class.open]="showTaxBreakdown">&#9660;</span>
+      </div>
+      @if (showTaxBreakdown) {
+        <div class="card-body">
+          <div class="info-box blue" style="margin-bottom:12px;">
+            💡 Ο φόρος υπολογίζεται στο <strong>ετήσιο φορολογητέο εισόδημα</strong>.
+            Ο οριακός φόρος είναι η επιπλέον επιβάρυνση λόγω της αποζημίωσης.
+          </div>
+
+          <div class="lv-tax-compare">
+            <div class="lv-tax-col">
+              <div class="lv-tax-col-title">Χωρίς αποζημίωση</div>
+              <div class="lv-tax-col-val">{{ result().annualBaseTaxable | euro:0 }}</div>
+              <div class="lv-tax-col-sub">φορολογητέο εισόδημα</div>
+              <div class="lv-tax-col-tax">Φόρος: {{ result().taxOnBase | euro }}</div>
+            </div>
+            <div class="lv-tax-arrow">→</div>
+            <div class="lv-tax-col active">
+              <div class="lv-tax-col-title">Με αποζημίωση</div>
+              <div class="lv-tax-col-val">{{ (result().annualBaseTaxable + result().taxableLeaveComp) | euro:0 }}</div>
+              <div class="lv-tax-col-sub">φορολογητέο εισόδημα</div>
+              <div class="lv-tax-col-tax">Φόρος: {{ result().taxOnTotal | euro }}</div>
+            </div>
+          </div>
+
+          <div class="lv-marginal-box">
+            Οριακός Φόρος = <strong>{{ result().taxOnTotal | euro }}</strong> − <strong>{{ result().taxOnBase | euro }}</strong> = <strong class="blue">{{ result().marginalTax | euro }}</strong>
+          </div>
+
+          <!-- Κλιμάκια -->
+          <div class="lv-section-title" style="margin-top:16px;">Κλιμάκια Φόρου {{ form.get('taxYear')?.value }}</div>
+          <div class="lv-table-wrap">
+            <table class="lv-table">
+              <thead>
+                <tr>
+                  <th>Κλιμάκιο</th>
+                  <th class="num">Συντελεστής</th>
+                  <th class="num">Φορολογητέο</th>
+                  <th class="num">Φόρος</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (b of result().taxBreakdown; track b.from) {
+                  <tr>
+                    <td>
+                      {{ b.from | euro:0 }} –
+                      {{ b.to !== null ? (b.to | euro:0) : '∞' }}
+                    </td>
+                    <td class="num">{{ b.rate.toFixed(0) }}%</td>
+                    <td class="num">{{ b.taxableAmount | euro }}</td>
+                    <td class="num tax-cell">{{ b.tax | euro }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="2"><strong>Σύνολο Φόρου (πριν μείωση)</strong></td>
+                  <td></td>
+                  <td class="num"><strong>{{ result().taxOnTotal | euro }}</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+        </div>
+      }
+    </div>
+
+    <!-- Νομοθετικό πλαίσιο -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9878;</div>
+        <h2>Νομοθετικό Πλαίσιο</h2>
+      </div>
+      <div class="card-body">
+        <div class="lv-law-grid">
+
+          <div class="lv-law-item">
+            <div class="lv-law-icon">📅</div>
+            <div>
+              <div class="lv-law-title">Δικαιούμενες Ημέρες Άδειας</div>
+              <div class="lv-law-desc">Ν. 539/1945: 20 ημ./έτος (πενθήμερο) ή 24 ημ. (εξαήμερο). Μετά 10 χρόνια στον ίδιο εργοδότη ή 12 χρόνια συνολικά: 25 ή 30 ημέρες.</div>
+            </div>
+          </div>
+
+          <div class="lv-law-item">
+            <div class="lv-law-icon">💰</div>
+            <div>
+              <div class="lv-law-title">Υπολογισμός Ημερομισθίου</div>
+              <div class="lv-law-desc">Πενθήμερο: μηνιαίος ÷ 25. Εξαήμερο: μηνιαίος ÷ 26. Το επίδομα αδείας = 50% αποζημίωσης, μέγιστο ½ μηνιαίου μισθού.</div>
+            </div>
+          </div>
+
+          <div class="lv-law-item">
+            <div class="lv-law-icon">🏛️</div>
+            <div>
+              <div class="lv-law-title">ΕΦΚΑ κατά τη Λύση Σύμβασης</div>
+              <div class="lv-law-desc">Η αποζημίωση μη ληφθείσας άδειας ΔΕΝ υπόκειται σε εισφορές ΕΦΚΑ (ΑΝ. 1846/1951). Το επίδομα αδείας υπόκειται σε εισφορές.</div>
+            </div>
+          </div>
+
+          <div class="lv-law-item">
+            <div class="lv-law-icon">📊</div>
+            <div>
+              <div class="lv-law-title">Φορολόγηση</div>
+              <div class="lv-law-desc">Το ποσό υπόκειται σε φόρο εισοδήματος ως τμήμα του ετήσιου εισοδήματος. Εισφορές ΕΦΚΑ εκπίπτουν από το φορολογητέο εισόδημα.</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="disclaimer">
+          <strong>Σημαντική Σημείωση:</strong> Ο υπολογισμός βασίζεται στην ισχύουσα νομοθεσία (Ν. 539/1945, ΑΝ. 1846/1951, ΚΦΕ) και στις εισφορές ΕΦΚΑ 2025 (13,32%).
+          Για ακριβή νομική γνωμοδότηση συμβουλευτείτε εργατολόγο ή λογιστή.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
