@@ -1,0 +1,313 @@
+/* ── PAGE HEADER ICON ── */
+.page-header-icon.leave-icon {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+/* ── SEGMENTED CONTROLS ── */
+.seg-group {
+  display: flex;
+  border: 1px solid var(--g200);
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
+}
+.seg-btn {
+  flex: 1;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #fff;
+  color: var(--g600);
+  border: none;
+  border-right: 1px solid var(--g200);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: auto;
+  line-height: 1.4;
+}
+.seg-btn:last-child {
+  border-right: none;
+}
+.seg-btn:hover {
+  background: var(--g50);
+}
+.seg-btn.active {
+  background: var(--blue);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ── SELECT ── */
+.lv-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--g200);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--g800);
+  background: #fff;
+  appearance: auto;
+  cursor: pointer;
+  min-height: 36px;
+}
+.lv-select:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* ── HINTS ── */
+.lv-hint {
+  font-size: 11px;
+  color: var(--g400);
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+/* ── BADGES ── */
+.badge-warn {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+.badge-green {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+/* ── CHECKBOX ROW ── */
+.lv-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.lv-check-row input[type="checkbox"] {
+  accent-color: var(--blue);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* ── SECTION TITLE ── */
+.lv-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--g500);
+  margin: 16px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--g100);
+}
+
+/* ── SUM GRID EXTRAS ── */
+.sum-item.highlight-blue {
+  background: var(--blue-light);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin: 0 -8px;
+}
+.sum-item.total-row {
+  padding-top: 8px;
+  border-top: 2px solid var(--g200);
+  margin-top: 4px;
+}
+.sum-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--g100);
+  color: var(--g600);
+}
+
+/* ── NET BOX ── */
+.lv-net-box {
+  margin: 20px 0 12px;
+  padding: 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+  color: #fff;
+  text-align: center;
+}
+.lv-net-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  opacity: 0.8;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.lv-net-val {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+.lv-net-sub {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+/* ── TAX BREAKDOWN ── */
+.lv-toggle-arrow {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--g400);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+.lv-toggle-arrow.open {
+  transform: rotate(180deg);
+}
+
+.lv-tax-compare {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+.lv-tax-col {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--g50);
+  border: 1px solid var(--g200);
+  text-align: center;
+}
+.lv-tax-col.active {
+  background: var(--blue-light);
+  border-color: var(--blue-mid);
+}
+.lv-tax-col-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--g500);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+}
+.lv-tax-col-val {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--g800);
+  line-height: 1.2;
+}
+.lv-tax-col-sub {
+  font-size: 10px;
+  color: var(--g400);
+  margin-bottom: 6px;
+}
+.lv-tax-col-tax {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--red);
+}
+.lv-tax-arrow {
+  font-size: 20px;
+  color: var(--g300);
+  flex-shrink: 0;
+}
+
+.lv-marginal-box {
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--g700);
+  text-align: center;
+}
+.lv-marginal-box .blue {
+  color: var(--blue);
+}
+
+/* ── TABLE ── */
+.lv-table-wrap {
+  overflow-x: auto;
+}
+.lv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.lv-table th {
+  text-align: left;
+  padding: 8px 10px;
+  background: var(--g50);
+  border-bottom: 2px solid var(--g200);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--g500);
+  white-space: nowrap;
+}
+.lv-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--g100);
+}
+.lv-table tfoot td {
+  padding: 10px 10px;
+  border-top: 2px solid var(--g200);
+  border-bottom: none;
+  background: var(--g50);
+}
+.lv-table th.num,
+.lv-table td.num {
+  text-align: right;
+}
+.lv-table td.tax-cell {
+  color: var(--red);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ── LEGAL INFO GRID ── */
+.lv-law-grid {
+  display: grid;
+  gap: 12px;
+}
+.lv-law-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--g50);
+  border: 1px solid var(--g100);
+}
+.lv-law-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.lv-law-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--g800);
+  margin-bottom: 2px;
+}
+.lv-law-desc {
+  font-size: 12px;
+  color: var(--g500);
+  line-height: 1.5;
+}

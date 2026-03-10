@@ -16,6 +16,7 @@ import { RentVsBuyCalculatorComponent } from './components/rent-vs-buy-calculato
 import { RentalTaxCalculatorComponent } from './components/rental-tax-calculator/rental-tax-calculator.component';
 import { FreelancerCalculatorComponent } from './components/freelancer-calculator/freelancer-calculator.component';
 import { SavingsCalculatorComponent } from './components/savings-calculator/savings-calculator.component';
+import { UnusedLeaveCalculatorComponent } from './components/unused-leave-calculator/unused-leave-calculator.component';
 import { LoanFormComponent } from './components/loan-form/loan-form.component';
 import { EarlyRepaymentsComponent } from './components/early-repayments/early-repayments.component';
 import { BulkErFormComponent } from './components/bulk-er-form/bulk-er-form.component';
@@ -35,6 +36,7 @@ const routes: Routes = [
   { path: 'rental-tax', component: RentalTaxCalculatorComponent },
   { path: 'freelancer', component: FreelancerCalculatorComponent },
   { path: 'savings', component: SavingsCalculatorComponent },
+  { path: 'unused-leave', component: UnusedLeaveCalculatorComponent },
   { path: '**', redirectTo: '' },
 ];
 
@@ -51,6 +53,7 @@ const routes: Routes = [
     RentalTaxCalculatorComponent,
     FreelancerCalculatorComponent,
     SavingsCalculatorComponent,
+    UnusedLeaveCalculatorComponent,
     LoanFormComponent,
     EarlyRepaymentsComponent,
     BulkErFormComponent,
