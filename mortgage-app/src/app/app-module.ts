@@ -67,7 +67,7 @@ const routes: Routes = [
     BrowserModule,
     CommonModule,
     ReactiveFormsModule,
-    RouterModule.forRoot(routes, { useHash: true }),
+    RouterModule.forRoot(routes),
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
