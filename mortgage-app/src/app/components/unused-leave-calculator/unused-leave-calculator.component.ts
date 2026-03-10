@@ -120,8 +120,11 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
     const children         = Math.min(Math.max(0, +(fv.children || 0)), 10);
     const useCustom        = !!fv.useCustomAnnualIncome;
 
-    // Διαιρέτης: 25 για πενθήμερο, 26 για εξαήμερο
-    const divisor = workWeek === '5day' ? 25 : 26;
+    // Για μισθωτούς (μηνιαίος μισθός): ο νόμιμος διαιρέτης είναι πάντα 25,
+    // ανεξαρτήτως πενθήμερης ή εξαήμερης εργασίας (ΥΑ 8900/46, ΕΓΣΣΕ 1975 άρθρο 5).
+    // Για ημερομίσθιους: μηνιαίο ισοδύναμο = ημερομίσθιο × 25 (πενθήμερο) ή × 26 (εξαήμερο).
+    const dailyDivisor   = 25;                              // πάντα 25 για μισθωτούς
+    const monthlyFactor  = workWeek === '5day' ? 25 : 26;  // για ημερομίσθιους μόνο
 
     // Υπολογισμός ημερομισθίου & μηνιαίου ισοδύναμου
     let dailyWage: number;
@@ -129,10 +132,10 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
 
     if (salaryType === 'monthly') {
       monthlyEquiv = Math.max(0, +(fv.grossMonthly || 0));
-      dailyWage    = +(monthlyEquiv / divisor).toFixed(4);
+      dailyWage    = +(monthlyEquiv / dailyDivisor).toFixed(4); // πάντα ÷25
     } else {
       dailyWage    = Math.max(0, +(fv.dailyWage || 0));
-      monthlyEquiv = +(dailyWage * divisor).toFixed(2);
+      monthlyEquiv = +(dailyWage * monthlyFactor).toFixed(2);   // ×25 ή ×26
     }
 
     // ─── ΑΠΟΖΗΜΙΩΣΗ ΜΗ ΛΗΦΘΕΙΣΑΣ ΑΔΕΙΑΣ ────────────────────────────────────
