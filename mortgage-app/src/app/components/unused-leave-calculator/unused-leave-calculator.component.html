@@ -103,11 +103,12 @@
         <div class="form-group">
           <label class="lv-check-row">
             <input type="checkbox" formControlName="includeHolidayBonus">
-            <span>Συμπερίληψη Επιδόματος Αδείας (50%)</span>
+            <span>Συμπερίληψη Επιδόματος Αδείας</span>
           </label>
           @if (form.get('includeHolidayBonus')?.value) {
             <div class="lv-hint">
-              = 50% αποζημίωσης, μέγιστο ½ μηνιαίου μισθού
+              = ίσο με αποδοχές αδείας (Ν. 4504/1966) —
+              μέγιστο {{ form.get('salaryType')?.value === 'daily' ? '13 ημερομίσθια' : '½ μηνιαίος μισθός' }}
               @if (result().holidayBonusCapped) {
                 <span class="badge-warn">Ανώτατο όριο εφαρμόζεται</span>
               }
@@ -280,9 +281,9 @@
           @if (form.get('includeHolidayBonus')?.value) {
             <div class="sum-item highlight-blue">
               <div class="sum-lbl">
-                Επίδομα αδείας (50%)
+                Επίδομα αδείας
                 @if (result().holidayBonusCapped) {
-                  <span class="badge-warn">Capped</span>
+                  <span class="badge-warn">Ανώτατο όριο</span>
                 }
               </div>
               <div class="sum-val blue">{{ result().holidayBonus | euro }}</div>
@@ -469,7 +470,7 @@
             <div class="lv-law-icon">💰</div>
             <div>
               <div class="lv-law-title">Υπολογισμός Ημερομισθίου</div>
-              <div class="lv-law-desc">Πενθήμερο: μηνιαίος ÷ 25. Εξαήμερο: μηνιαίος ÷ 26. Το επίδομα αδείας = 50% αποζημίωσης, μέγιστο ½ μηνιαίου μισθού.</div>
+              <div class="lv-law-desc">Πενθήμερο: μηνιαίος ÷ 25. Εξαήμερο: μηνιαίος ÷ 26. Το επίδομα αδείας = ίσο με τις αποδοχές αδείας (Ν. 4504/1966, ΑΠ 1182/2017), μέγιστο ½ μηνιαίου μισθού (μισθωτοί) ή 13 ημερομίσθια (ημερομίσθιοι).</div>
             </div>
           </div>
 
@@ -492,7 +493,7 @@
         </div>
 
         <div class="disclaimer">
-          <strong>Σημαντική Σημείωση:</strong> Ο υπολογισμός βασίζεται στην ισχύουσα νομοθεσία (Ν. 539/1945, ΑΝ. 1846/1951, ΚΦΕ) και στις εισφορές ΕΦΚΑ 2025 (13,32%).
+          <strong>Σημαντική Σημείωση:</strong> Ο υπολογισμός βασίζεται στην ισχύουσα νομοθεσία (ΑΝ. 539/1945, Ν. 4504/1966 άρθρο 3, ΑΝ. 1846/1951, ΚΦΕ) και στις εισφορές ΕΦΚΑ 2025 (13,32%).
           Για ακριβή νομική γνωμοδότηση συμβουλευτείτε εργατολόγο ή λογιστή.
         </div>
       </div>

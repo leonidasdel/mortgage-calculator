@@ -140,12 +140,16 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
     const leaveCompensation = +(dailyWage * unusedDays).toFixed(2);
 
     // ─── ΕΠΙΔΟΜΑ ΑΔΕΙΑΣ ─────────────────────────────────────────────────────
-    // = 50% αποζημίωσης, μέγιστο ½ μηνιαίου μισθού
+    // Ν. 4504/1966 άρθρο 3 & ΑΠ 1182/2017:
+    //   Επίδομα = ίσο με τις αποδοχές αδείας (100%, ΌΧΙ 50%)
+    //   Ανώτατο: ½ μηνιαίος μισθός (μισθωτοί) | 13 ημερομίσθια (ημερομίσθιοι)
     let holidayBonus = 0;
     let holidayBonusCapped = false;
     if (includeBonus) {
-      const rawBonus = +(leaveCompensation * 0.5).toFixed(2);
-      const cap      = +(monthlyEquiv / 2).toFixed(2);
+      const rawBonus = leaveCompensation; // 100% των αποδοχών αδείας
+      const cap = salaryType === 'monthly'
+        ? +(monthlyEquiv / 2).toFixed(2)        // μισθωτοί: ½ μηνιαίος μισθός
+        : +(13 * dailyWage).toFixed(2);         // ημερομίσθιοι: 13 ημερομίσθια
       if (rawBonus > cap) {
         holidayBonus      = cap;
         holidayBonusCapped = true;
