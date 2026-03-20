@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BulkErParams } from '../../models/mortgage.models';
 
@@ -24,8 +24,10 @@ export class BulkErFormComponent implements OnChanges {
     });
   }
 
-  ngOnChanges(): void {
-    if (this.visible) this.form.reset({ startMonth: 12, amount: 3000, every: 12, count: 12 });
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['visible']?.currentValue === true && changes['visible'].previousValue === false) {
+      this.form.reset({ startMonth: 12, amount: 3000, every: 12, count: 12 });
+    }
   }
 
   get preview(): string {

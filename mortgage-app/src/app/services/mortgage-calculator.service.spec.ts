@@ -73,10 +73,18 @@ describe('MortgageCalculatorService', () => {
       expect(s[6].isGrace).toBe(false);
     });
 
-    it('should apply N.128/1975 surcharge correctly', () => {
-      const expectedN128 = BASE_PARAMS.loanAmount * 0.0012 / 12;
+    it('should apply N.128/1975 surcharge correctly on declining balance', () => {
       const s = service.buildSchedule(BASE_PARAMS, []);
-      s.forEach(r => expect(r.n128).toBeCloseTo(expectedN128, 5));
+      const n128Rate = 0.0012 / 12;
+      // First row N.128 ≈ loanAmount * rate (balance starts at loanAmount)
+      expect(s[0].n128).toBeCloseTo(BASE_PARAMS.loanAmount * n128Rate, 2);
+      // Each row N.128 = balance_before * rate; balance_before = newBalance + principal + earlyAmt
+      s.forEach(r => {
+        const balanceBefore = r.balance + r.principal + r.earlyAmt;
+        expect(r.n128).toBeCloseTo(balanceBefore * n128Rate, 5);
+      });
+      // N.128 should decline over time as the balance decreases
+      expect(s[s.length - 1].n128).toBeLessThan(s[0].n128);
     });
 
     it('should reduce schedule length in reduceDur mode with ER', () => {
@@ -100,8 +108,11 @@ describe('MortgageCalculatorService', () => {
       const er: EarlyRepayment[] = [{ id: 1, month: 12, amount: 10000 }];
       const withER  = service.buildSchedule({ ...BASE_PARAMS, erMode: 'reduceDur' }, er);
       const without = service.buildSchedule(BASE_PARAMS, []);
-      // Payments just after ER should be the same (natural var payment level)
-      expect(withER[12].payment).toBeCloseTo(without[12].payment, 0);
+      // Base amortization payment (excluding N.128) must be unchanged in reduceDur mode.
+      // N.128 legitimately differs because the outstanding balance is lower after the ER.
+      const basePmtWithER  = withER[12].payment  - withER[12].n128;
+      const basePmtWithout = without[12].payment - without[12].n128;
+      expect(basePmtWithER).toBeCloseTo(basePmtWithout, 0);
     });
   });
 

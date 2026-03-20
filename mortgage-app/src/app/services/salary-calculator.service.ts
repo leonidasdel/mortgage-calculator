@@ -8,9 +8,9 @@ import {
   TaxBracketResult,
 } from '../models/salary.models';
 
-const EFKA_EMPLOYEE_RATE = 0.1337;
+const EFKA_EMPLOYEE_RATE = 0.1332; // μισθωτοί ιδιωτικού τομέα από 01.01.2025
 const EFKA_EMPLOYER_RATE = 0.2179;
-const MAX_INSURABLE_EARNINGS = 7573;
+const MAX_INSURABLE_EARNINGS = 7572.62;
 const MONTHS_PER_YEAR = 14; // 12 regular + Christmas + Easter/Leave
 const LEAVE_SURCHARGE_RATE = 0.04166; // Προσαύξηση επιδόματος αδείας
 

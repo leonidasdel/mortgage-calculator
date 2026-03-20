@@ -1,4 +1,4 @@
-import { Component, computed, OnInit, ElementRef, ViewChild, HostListener } from '@angular/core';
+import { Component, computed, effect, OnInit, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 
@@ -40,6 +40,11 @@ export class SavingsCalculatorComponent implements OnInit {
   @ViewChild('savingsChart', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
 
   constructor(private fb: FormBuilder) {
+    effect(() => {
+      const rows = this.result().yearlyRows;
+      setTimeout(() => this.drawChart(rows), 0);
+    });
+
     this.form = this.fb.group({
       initialDeposit:      [10000],
       monthlyContribution: [200],
@@ -115,9 +120,6 @@ export class SavingsCalculatorComponent implements OnInit {
       applyTax: doTax,
       applyInflation: doInflation,
     };
-
-    // Draw chart after computation
-    setTimeout(() => this.drawChart(rows), 0);
 
     return res;
   });

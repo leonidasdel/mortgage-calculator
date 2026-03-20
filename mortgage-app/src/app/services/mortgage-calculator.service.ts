@@ -29,7 +29,7 @@ export class MortgageCalculatorService {
 
     const totalMonths = loanYears * 12;
     const fixedMonths = Math.min(fixedYears * 12, totalMonths);
-    const n128pm      = loanAmount * 0.0012 / 12;
+    const n128Rate    = 0.0012 / 12; // monthly N.128 rate applied to outstanding balance
 
     const today = new Date();
     let balance = loanAmount;
@@ -83,6 +83,8 @@ export class MortgageCalculatorService {
         basePmt   = isFixed ? pmtFixed : pmtVar;
         principal = Math.min(Math.max(0, basePmt - interest), balance);
       }
+
+      const n128pm   = balance * n128Rate;
 
       let earlyAmt = 0;
       const er = erList.find(e => e.month === m);

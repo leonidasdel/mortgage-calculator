@@ -161,6 +161,11 @@ export class RentVsBuyCalculatorComponent implements OnInit {
       winner = 'rent';
     }
 
+    // Only show break-even if buying wins at the end — otherwise the crossover is misleading
+    if (winner !== 'buy') {
+      breakEvenYear = null;
+    }
+
     return {
       monthlyPayment,
       loanAmount,
