@@ -108,11 +108,9 @@ describe('MortgageCalculatorService', () => {
       const er: EarlyRepayment[] = [{ id: 1, month: 12, amount: 10000 }];
       const withER  = service.buildSchedule({ ...BASE_PARAMS, erMode: 'reduceDur' }, er);
       const without = service.buildSchedule(BASE_PARAMS, []);
-      // Base amortization payment (excluding N.128) must be unchanged in reduceDur mode.
-      // N.128 legitimately differs because the outstanding balance is lower after the ER.
-      const basePmtWithER  = withER[12].payment  - withER[12].n128;
-      const basePmtWithout = without[12].payment - without[12].n128;
-      expect(basePmtWithER).toBeCloseTo(basePmtWithout, 0);
+      // The total monthly payment (pmtFixed) must be unchanged in reduceDur mode.
+      // pmtFixed is never recalculated after an ER in reduceDur mode.
+      expect(withER[12].payment).toBeCloseTo(without[12].payment, 0);
     });
   });
 
