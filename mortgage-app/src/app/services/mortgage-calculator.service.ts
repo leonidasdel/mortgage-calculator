@@ -30,13 +30,14 @@ export class MortgageCalculatorService {
     const totalMonths = loanYears * 12;
     const fixedMonths = Math.min(fixedYears * 12, totalMonths);
     const n128Rate    = 0.0012 / 12; // monthly N.128 rate applied to outstanding balance
+    const n128Annual  = 0.12;        // N.128/1975 as annual %, included in PMT rate
 
     const today = new Date();
     let balance = loanAmount;
     const rows: AmortizationRow[] = [];
 
     const amortMonths = totalMonths - graceMonths;
-    let pmtFixed = this.pmt(loanAmount, fixedRate, amortMonths > 0 ? amortMonths : totalMonths);
+    let pmtFixed = this.pmt(loanAmount, fixedRate + n128Annual, amortMonths > 0 ? amortMonths : totalMonths);
     let pmtVar   = 0;
     let varPhaseStarted = false;
 
@@ -47,10 +48,11 @@ export class MortgageCalculatorService {
       const fxMRate = fixedRate / 100 / 12;
       for (let i = 1; i <= fixedMonths; i++) {
         if (i <= graceMonths) continue;
-        const intr = natBal * fxMRate;
-        natBal = Math.max(0, natBal - Math.max(0, pmtFixed - intr));
+        const intr  = natBal * fxMRate;
+        const n128m = natBal * n128Rate;
+        natBal = Math.max(0, natBal - Math.max(0, pmtFixed - intr - n128m));
       }
-      naturalPmtVar = this.pmt(natBal, varRate, totalMonths - fixedMonths);
+      naturalPmtVar = this.pmt(natBal, varRate + n128Annual, totalMonths - fixedMonths);
     }
 
     for (let m = 1; m <= totalMonths; m++) {
@@ -67,12 +69,13 @@ export class MortgageCalculatorService {
           pmtVar = naturalPmtVar;
         } else {
           const remMonths = totalMonths - m + 1;
-          pmtVar = this.pmt(balance, varRate, remMonths > 0 ? remMonths : 1);
+          pmtVar = this.pmt(balance, varRate + n128Annual, remMonths > 0 ? remMonths : 1);
         }
         varPhaseStarted = true;
       }
 
       const interest  = balance * mRate;
+      const n128pm    = balance * n128Rate;
       let principal   = 0;
       let basePmt     = 0;
 
@@ -81,10 +84,8 @@ export class MortgageCalculatorService {
         principal = 0;
       } else {
         basePmt   = isFixed ? pmtFixed : pmtVar;
-        principal = Math.min(Math.max(0, basePmt - interest), balance);
+        principal = Math.min(Math.max(0, basePmt - interest - n128pm), balance);
       }
-
-      const n128pm   = balance * n128Rate;
 
       let earlyAmt = 0;
       const er = erList.find(e => e.month === m);
@@ -95,15 +96,15 @@ export class MortgageCalculatorService {
         const remMonths    = totalMonths - m;
         if (erMode === 'reducePmt' && remMonths > 0 && afterBalance > 0.01) {
           if (isFixed) {
-            pmtFixed = this.pmt(afterBalance, fixedRate, remMonths);
+            pmtFixed = this.pmt(afterBalance, fixedRate + n128Annual, remMonths);
           } else {
-            pmtVar = this.pmt(afterBalance, varRate, remMonths);
+            pmtVar = this.pmt(afterBalance, varRate + n128Annual, remMonths);
           }
         }
       }
 
       const newBalance   = Math.max(0, balance - principal - earlyAmt);
-      const totalPayment = (isGrace ? interest : basePmt) + n128pm;
+      const totalPayment = isGrace ? interest + n128pm : basePmt;
 
       rows.push({ month: m, date: payDate, payment: totalPayment, principal, interest, n128: n128pm, earlyAmt, balance: newBalance, isGrace, isFixed, rate });
 
