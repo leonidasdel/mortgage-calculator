@@ -80,6 +80,14 @@
             <input type="number" id="rentGrowthRate" formControlName="rentGrowthRate" step="0.5">
             <span class="sfx">%</span>
           </div>
+          @if (form.value.monthlyRent > 0 && form.value.rentGrowthRate > 0) {
+            <div class="field-hint">
+              Αυτό σημαίνει ότι το ενοίκιο σε
+              @for (p of rentProjections(); track p.years) {
+                <strong>{{ p.years }} έτη</strong> → <strong>{{ p.rent | euro:0 }}</strong>{{ !$last ? ', ' : '.' }}
+              }
+            </div>
+          }
         </div>
 
         <div class="sec-div">

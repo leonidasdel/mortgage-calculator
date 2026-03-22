@@ -56,6 +56,16 @@ export class RentVsBuyCalculatorComponent implements OnInit {
     this.form.valueChanges.subscribe(() => this.saveState());
   }
 
+  rentProjections = computed(() => {
+    const fv = this.form.value;
+    const monthly = Math.max(0, fv.monthlyRent || 0);
+    const growth = fv.rentGrowthRate ?? 3;
+    return [3, 5, 10].map(y => ({
+      years: y,
+      rent: Math.round(monthly * Math.pow(1 + growth / 100, y)),
+    }));
+  });
+
   result = computed<RentVsBuyResult>(() => {
     this.formValues();
     const fv = this.form.value;
