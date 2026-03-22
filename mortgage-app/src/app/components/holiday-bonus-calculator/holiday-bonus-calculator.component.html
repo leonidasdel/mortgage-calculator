@@ -1,0 +1,332 @@
+<div class="page-header">
+  <div class="page-header-icon hb-icon">🎁</div>
+  <div>
+    <h1 class="page-title">Δώρα Εορτών</h1>
+    <p class="page-subtitle">Υπολογίστε τα δώρα Χριστουγέννων, Πάσχα και επίδομα αδείας — μεικτά &amp; καθαρά ποσά</p>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- ═══ LEFT: INPUTS ═══════════════════════════════════════════════════════ -->
+  <div class="left-panel">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9881;</div>
+        <h2>Στοιχεία Εργαζομένου</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <!-- Μισθός -->
+        <div class="form-group">
+          <label for="grossMonthly">Μεικτός Μηνιαίος Μισθός (€)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">€</span>
+            <input type="number" id="grossMonthly" formControlName="grossMonthly"
+                   min="0" step="50" placeholder="π.χ. 1500">
+          </div>
+        </div>
+
+        <!-- Έτος -->
+        <div class="form-group">
+          <label>Φορολογικό Έτος</label>
+          <div class="seg-group">
+            <button type="button" class="seg-btn"
+                    [class.active]="form.get('year')?.value === 2025"
+                    (click)="form.patchValue({ year: 2025 })">
+              2025
+            </button>
+            <button type="button" class="seg-btn"
+                    [class.active]="form.get('year')?.value === 2026"
+                    (click)="form.patchValue({ year: 2026 })">
+              2026
+            </button>
+          </div>
+        </div>
+
+        <!-- Ηλικιακή ομάδα -->
+        <div class="form-group">
+          <label for="ageGroup">Ηλικιακή Ομάδα</label>
+          <select id="ageGroup" formControlName="ageGroup" class="hb-select">
+            <option value="over30">Άνω των 30 ετών</option>
+            <option value="26to30">26–30 ετών</option>
+            <option value="under25">Έως 25 ετών</option>
+          </select>
+        </div>
+
+        <!-- Τέκνα -->
+        <div class="form-group">
+          <label for="children">Εξαρτώμενα Τέκνα</label>
+          <div class="input-wrap">
+            <input type="number" id="children" formControlName="children"
+                   min="0" max="10" step="1">
+          </div>
+        </div>
+
+        <!-- Μερική Περίοδος -->
+        <div class="sec-div">
+          <div class="sec-label">Μερική Απασχόληση Περιόδου</div>
+        </div>
+
+        <div class="form-group">
+          <label class="hb-check-row">
+            <input type="checkbox" formControlName="partialEnabled">
+            <span>Δεν εργάστηκα ολόκληρη την περίοδο</span>
+          </label>
+        </div>
+
+        @if (form.get('partialEnabled')?.value) {
+          <div class="info-box amber" style="margin-bottom:14px;">
+            💡 Τα δώρα υπολογίζονται αναλογικά βάσει των μηνών απασχόλησης στην αντίστοιχη περίοδο. Ο φόρος είναι εκτίμηση (γραμμική αναλογία).
+          </div>
+
+          <div class="form-group">
+            <label for="christmasMonthsWorked">
+              Μήνες εργασίας — Δώρο Χριστουγέννων
+              <span class="hb-period-hint">(Μάι–Δεκ, μέγ. 8)</span>
+            </label>
+            <div class="input-wrap has-sfx">
+              <input type="number" id="christmasMonthsWorked"
+                     formControlName="christmasMonthsWorked"
+                     min="0" max="8" step="1">
+              <span class="sfx">/ 8 μήνες</span>
+            </div>
+            <div class="hb-hint">Παράγοντας: {{ (result().christmasFactor * 100).toFixed(0) }}%</div>
+          </div>
+
+          <div class="form-group">
+            <label for="easterMonthsWorked">
+              Μήνες εργασίας — Πάσχα &amp; Επίδομα Αδείας
+              <span class="hb-period-hint">(Ιαν–Απρ, μέγ. 4)</span>
+            </label>
+            <div class="input-wrap has-sfx">
+              <input type="number" id="easterMonthsWorked"
+                     formControlName="easterMonthsWorked"
+                     min="0" max="4" step="1">
+              <span class="sfx">/ 4 μήνες</span>
+            </div>
+            <div class="hb-hint">Παράγοντας: {{ (result().easterFactor * 100).toFixed(0) }}%</div>
+          </div>
+        }
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ RIGHT: RESULTS ══════════════════════════════════════════════════════ -->
+  <div class="right-panel">
+
+    <!-- Σύνολο Δώρων -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">🎄</div>
+        <h2>Σύνολο Δώρων Έτους</h2>
+      </div>
+      <div class="card-body">
+
+        <div class="hero-row">
+          <div class="hero-card dark">
+            <div class="hero-lbl">Καθαρό Σύνολο</div>
+            <div class="hero-val">{{ result().totalNet | euro }}</div>
+            <div class="hero-sub">και τα τρία δώρα</div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-lbl">Μεικτό Σύνολο</div>
+            <div class="hero-val">{{ result().totalGross | euro }}</div>
+            <div class="hero-sub">πριν κρατήσεις</div>
+          </div>
+        </div>
+
+        <div class="lv-section-title">Συνολικές Κρατήσεις</div>
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">ΕΦΚΑ (13,32%)</div>
+            <div class="sum-val red">−{{ result().totalEfka | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Φόρος Εισοδήματος</div>
+            <div class="sum-val red">−{{ result().totalTax | euro }}</div>
+          </div>
+          <div class="sum-item total-row">
+            <div class="sum-lbl"><strong>Καθαρό Σύνολο</strong></div>
+            <div class="sum-val blue"><strong>{{ result().totalNet | euro }}</strong></div>
+          </div>
+        </div>
+
+        <div class="export-row">
+          <button class="btn-outline" (click)="print()">&#128424; Εκτύπωση / PDF</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Δώρο Χριστουγέννων -->
+    <div class="card">
+      <div class="card-header hb-christmas">
+        <div class="card-header-icon">🎅</div>
+        <h2>Δώρο Χριστουγέννων</h2>
+        @if (form.get('partialEnabled')?.value && result().christmasFactor < 1) {
+          <span class="hb-factor-badge">{{ (result().christmasFactor * 100).toFixed(0) }}%</span>
+        }
+      </div>
+      <div class="card-body">
+        <div class="info-box blue" style="margin-bottom:12px;">
+          📅 Περίοδος: <strong>1 Μαΐου – 31 Δεκεμβρίου</strong> &nbsp;|&nbsp; Ισούται με έναν πλήρη μισθό + 4,166% επιπλέον
+        </div>
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Μεικτή Βάση</div>
+            <div class="sum-val">{{ result().christmas.grossBase | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Προσαύξηση (4,166%)</div>
+            <div class="sum-val">{{ result().christmas.leaveSurcharge | euro }}</div>
+          </div>
+          <div class="sum-item highlight-blue">
+            <div class="sum-lbl">Μεικτό Δώρο</div>
+            <div class="sum-val blue">{{ result().christmas.grossTotal | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">ΕΦΚΑ εργαζομένου (13,32%)</div>
+            <div class="sum-val red">−{{ result().christmas.efka | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Φόρος εισοδήματος</div>
+            <div class="sum-val red">−{{ result().christmas.tax | euro }}</div>
+          </div>
+          <div class="sum-item total-row">
+            <div class="sum-lbl"><strong>Καθαρό Δώρο</strong></div>
+            <div class="sum-val blue"><strong>{{ result().christmas.net | euro }}</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Δώρο Πάσχα -->
+    <div class="card">
+      <div class="card-header hb-easter">
+        <div class="card-header-icon">🐣</div>
+        <h2>Δώρο Πάσχα</h2>
+        @if (form.get('partialEnabled')?.value && result().easterFactor < 1) {
+          <span class="hb-factor-badge">{{ (result().easterFactor * 100).toFixed(0) }}%</span>
+        }
+      </div>
+      <div class="card-body">
+        <div class="info-box blue" style="margin-bottom:12px;">
+          📅 Περίοδος: <strong>1 Ιανουαρίου – 30 Απριλίου</strong> &nbsp;|&nbsp; Ισούται με το ½ μηνιαίου μισθού + 4,166%
+        </div>
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Μεικτή Βάση (μισθός ÷ 2)</div>
+            <div class="sum-val">{{ result().easter.grossBase | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Προσαύξηση (4,166%)</div>
+            <div class="sum-val">{{ result().easter.leaveSurcharge | euro }}</div>
+          </div>
+          <div class="sum-item highlight-blue">
+            <div class="sum-lbl">Μεικτό Δώρο</div>
+            <div class="sum-val blue">{{ result().easter.grossTotal | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">ΕΦΚΑ εργαζομένου (13,32%)</div>
+            <div class="sum-val red">−{{ result().easter.efka | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Φόρος εισοδήματος</div>
+            <div class="sum-val red">−{{ result().easter.tax | euro }}</div>
+          </div>
+          <div class="sum-item total-row">
+            <div class="sum-lbl"><strong>Καθαρό Δώρο</strong></div>
+            <div class="sum-val blue"><strong>{{ result().easter.net | euro }}</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Επίδομα Αδείας -->
+    <div class="card">
+      <div class="card-header hb-leave">
+        <div class="card-header-icon">🏖️</div>
+        <h2>Επίδομα Αδείας (Δώρο Καλοκαιριού)</h2>
+        @if (form.get('partialEnabled')?.value && result().easterFactor < 1) {
+          <span class="hb-factor-badge">{{ (result().easterFactor * 100).toFixed(0) }}%</span>
+        }
+      </div>
+      <div class="card-body">
+        <div class="info-box blue" style="margin-bottom:12px;">
+          📅 Περίοδος: <strong>1 Ιανουαρίου – 30 Απριλίου</strong> &nbsp;|&nbsp; Ισούται με το ½ μηνιαίου μισθού (χωρίς προσαύξηση)
+        </div>
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Μεικτή Βάση (μισθός ÷ 2)</div>
+            <div class="sum-val">{{ result().leave.grossBase | euro }}</div>
+          </div>
+          <div class="sum-item highlight-blue">
+            <div class="sum-lbl">Μεικτό Επίδομα</div>
+            <div class="sum-val blue">{{ result().leave.grossTotal | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">ΕΦΚΑ εργαζομένου (13,32%)</div>
+            <div class="sum-val red">−{{ result().leave.efka | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Φόρος εισοδήματος</div>
+            <div class="sum-val red">−{{ result().leave.tax | euro }}</div>
+          </div>
+          <div class="sum-item total-row">
+            <div class="sum-lbl"><strong>Καθαρό Επίδομα</strong></div>
+            <div class="sum-val blue"><strong>{{ result().leave.net | euro }}</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Νομοθετικό πλαίσιο -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9878;</div>
+        <h2>Νομοθετικό Πλαίσιο</h2>
+      </div>
+      <div class="card-body">
+        <div class="lv-law-grid">
+          <div class="lv-law-item">
+            <div class="lv-law-icon">📋</div>
+            <div>
+              <div class="lv-law-title">Δώρο Χριστουγέννων (Ν. 1082/1980)</div>
+              <div class="lv-law-desc">Ισούται με έναν πλήρη μηνιαίο μισθό για πλήρη απασχόληση (Μάι–Δεκ). Για μερική απασχόληση: μισθός × εργάσιμοι μήνες / 8.</div>
+            </div>
+          </div>
+          <div class="lv-law-item">
+            <div class="lv-law-icon">🌸</div>
+            <div>
+              <div class="lv-law-title">Δώρο Πάσχα (Ν. 1082/1980)</div>
+              <div class="lv-law-desc">Ισούται με το ½ μηνιαίου μισθού για πλήρη απασχόληση (Ιαν–Απρ). Για μερική: (μισθός/2) × εργάσιμοι μήνες / 4.</div>
+            </div>
+          </div>
+          <div class="lv-law-item">
+            <div class="lv-law-icon">☀️</div>
+            <div>
+              <div class="lv-law-title">Επίδομα Αδείας (Ν. 539/1945)</div>
+              <div class="lv-law-desc">Ισούται με το ½ μηνιαίου μισθού. Καταβάλλεται κατά τη λήψη της ετήσιας κανονικής άδειας. Υπολογίζεται με βάση την ίδια περίοδο με το Δώρο Πάσχα.</div>
+            </div>
+          </div>
+          <div class="lv-law-item">
+            <div class="lv-law-icon">📊</div>
+            <div>
+              <div class="lv-law-title">ΕΦΚΑ &amp; Φόρος</div>
+              <div class="lv-law-desc">Τα δώρα υπόκεινται σε εισφορές ΕΦΚΑ (13,32%) και φόρο εισοδήματος βάσει της ετήσιας φορολογικής κλίμακας (14μηνο μοντέλο).</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="disclaimer">
+          <strong>Σημαντική Σημείωση:</strong> Ο υπολογισμός βασίζεται στην ισχύουσα νομοθεσία (Ν. 1082/1980, Ν. 539/1945) και εισφορές ΕΦΚΑ 2025 (13,32%). Ο φόρος για μερική περίοδο αποτελεί εκτίμηση. Συμβουλευτείτε λογιστή για ακριβή αποτελέσματα.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

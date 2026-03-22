@@ -1,0 +1,286 @@
+<div class="page-header">
+  <div class="page-header-icon pp-icon">🏡</div>
+  <div>
+    <h1 class="page-title">Κόστος Αγοράς Ακινήτου</h1>
+    <p class="page-subtitle">Υπολογίστε το συνολικό κόστος απόκτησης — ΦΜΑ, συμβολαιογραφικά, κτηματολόγιο &amp; λοιπές δαπάνες</p>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- ═══ LEFT: INPUTS ═══════════════════════════════════════════════════════ -->
+  <div class="left-panel">
+
+    <!-- Στοιχεία Ακινήτου -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">🏠</div>
+        <h2>Στοιχεία Ακινήτου</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <div class="form-group">
+          <label for="purchasePrice">Τίμημα Αγοράς (€)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">€</span>
+            <input type="number" id="purchasePrice" formControlName="purchasePrice"
+                   min="0" step="5000" placeholder="π.χ. 200000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="aaotValue">Αντικειμενική Αξία / ΑΑΟΤ (€)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">€</span>
+            <input type="number" id="aaotValue" formControlName="aaotValue"
+                   min="0" step="5000" placeholder="π.χ. 200000">
+          </div>
+          <div class="pp-hint">
+            Ο ΦΜΑ υπολογίζεται στο <strong>μεγαλύτερο</strong> από τιμήμα &amp; αντικειμενική αξία.
+            Αφήστε ίσο με το τίμημα αν δεν γνωρίζετε.
+          </div>
+        </div>
+
+        @if (result().taxBase > (form.get('purchasePrice')?.value || 0)) {
+          <div class="info-box amber" style="margin-bottom:0;">
+            ⚠️ Η αντικειμενική αξία (<strong>{{ result().taxBase | euro:0 }}</strong>) υπερβαίνει το τίμημα — ο ΦΜΑ υπολογίζεται επί της αντικειμενικής αξίας.
+          </div>
+        }
+
+      </div>
+    </div>
+
+    <!-- Παράμετροι -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128203;</div>
+        <h2>Παράμετροι</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <!-- Πρώτη κατοικία -->
+        <div class="form-group">
+          <label class="pp-check-row">
+            <input type="checkbox" formControlName="isFirstHome">
+            <span>Αγορά Πρώτης Κατοικίας (απαλλαγή ΦΜΑ)</span>
+          </label>
+        </div>
+
+        @if (form.get('isFirstHome')?.value) {
+          <div class="form-group">
+            <label class="pp-check-row">
+              <input type="checkbox" formControlName="isMarried">
+              <span>Έγγαμος / Έγγαμη</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="children">Εξαρτώμενα Τέκνα</label>
+            <div class="input-wrap">
+              <input type="number" id="children" formControlName="children"
+                     min="0" max="10" step="1">
+            </div>
+          </div>
+
+          <div class="info-box blue">
+            🏠 Όριο απαλλαγής πρώτης κατοικίας:
+            <strong>{{ result().fhThreshold | euro:0 }}</strong>
+            @if (form.get('isMarried')?.value) {
+              (€250.000 + {{ form.get('children')?.value }} × €25.000)
+            } @else {
+              (€200.000 + {{ form.get('children')?.value }} × €25.000)
+            }
+          </div>
+        }
+
+        <div class="sec-div" style="margin-top:14px;">
+          <div class="sec-label">Προαιρετικές Δαπάνες</div>
+        </div>
+
+        <div class="form-group" style="margin-top:10px;">
+          <label class="pp-check-row">
+            <input type="checkbox" formControlName="includeAgent">
+            <span>Αμοιβή Μεσίτη (2% + ΦΠΑ)</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="pp-check-row">
+            <input type="checkbox" formControlName="includeLawyer">
+            <span>Αμοιβή Δικηγόρου (~0,5%)</span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ RIGHT: RESULTS ══════════════════════════════════════════════════════ -->
+  <div class="right-panel">
+
+    <!-- Hero αποτελέσματα -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#128176;</div>
+        <h2>Συνολικό Κόστος Απόκτησης</h2>
+      </div>
+      <div class="card-body">
+
+        <div class="hero-row">
+          <div class="hero-card dark">
+            <div class="hero-lbl">Συνολικό Κόστος</div>
+            <div class="hero-val">{{ result().totalAcquisitionCost | euro:0 }}</div>
+            <div class="hero-sub">τίμημα + όλες οι δαπάνες</div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-lbl">Επιπλέον Δαπάνες</div>
+            <div class="hero-val">{{ result().totalExtraCosts | euro:0 }}</div>
+            <div class="hero-sub">+{{ result().extraCostsPct }}% επί τιμήματος</div>
+          </div>
+        </div>
+
+        @if (result().firstHomeFullExempt) {
+          <div class="info-box green" style="margin-bottom:12px;">
+            ✅ Πλήρης απαλλαγή ΦΜΑ — το τίμημα εμπίπτει εντός του ορίου πρώτης κατοικίας ({{ result().fhThreshold | euro:0 }}).
+          </div>
+        }
+
+        <!-- Αναλυτικός πίνακας κόστους -->
+        <div class="pp-table-wrap">
+          <table class="pp-table">
+            <thead>
+              <tr>
+                <th>Δαπάνη</th>
+                <th class="num">Ποσό</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="pp-price-row" colspan="2">
+                  <span class="pp-price-lbl">Τίμημα Αγοράς</span>
+                  <span class="pp-price-val">{{ result().purchasePrice | euro:0 }}</span>
+                </td>
+              </tr>
+              @for (item of result().items; track item.label) {
+                <tr>
+                  <td>
+                    <span [class.pp-exempt-label]="item.isExempt">{{ item.label }}</span>
+                    @if (item.isOptional) {
+                      <span class="pp-optional-badge">Προαιρετικό</span>
+                    }
+                    @if (item.isExempt) {
+                      <span class="pp-exempt-badge">Απαλλαγή</span>
+                    }
+                    @if (item.note) {
+                      <div class="pp-item-note">{{ item.note }}</div>
+                    }
+                  </td>
+                  <td class="num" [class.pp-exempt-val]="item.isExempt">
+                    {{ item.amount | euro }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <td><strong>Επιπλέον Δαπάνες</strong></td>
+                <td class="num"><strong>{{ result().totalExtraCosts | euro }}</strong></td>
+              </tr>
+              <tr class="pp-total-row">
+                <td><strong>Συνολικό Κόστος Απόκτησης</strong></td>
+                <td class="num"><strong>{{ result().totalAcquisitionCost | euro:0 }}</strong></td>
+              </tr>
+              <tr>
+                <td>Επιπλέον κόστος ως % τιμήματος</td>
+                <td class="num pp-pct-val">+{{ result().extraCostsPct }}%</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="export-row">
+          <button class="btn-outline" (click)="print()">&#128424; Εκτύπωση / PDF</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Ανάλυση ΦΜΑ -->
+    @if (form.get('isFirstHome')?.value) {
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon">🏛️</div>
+          <h2>Υπολογισμός ΦΜΑ &amp; Απαλλαγή</h2>
+        </div>
+        <div class="card-body">
+          <div class="sum-grid">
+            <div class="sum-item">
+              <div class="sum-lbl">Φορολογική βάση (μέγ. τιμήματος &amp; ΑΑΟΤ)</div>
+              <div class="sum-val">{{ result().taxBase | euro:0 }}</div>
+            </div>
+            <div class="sum-item highlight-blue">
+              <div class="sum-lbl">Απαλλαγή πρώτης κατοικίας</div>
+              <div class="sum-val blue">{{ result().fmaExemption | euro:0 }}</div>
+            </div>
+            <div class="sum-item">
+              <div class="sum-lbl">Φορολογητέο ποσό ΦΜΑ</div>
+              <div class="sum-val">{{ result().fmaTaxable | euro:0 }}</div>
+            </div>
+            <div class="sum-item total-row">
+              <div class="sum-lbl"><strong>ΦΜΑ (3%)</strong></div>
+              <div class="sum-val" [class.blue]="result().fma === 0" [class.red]="result().fma > 0">
+                <strong>{{ result().fma | euro }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Νομοθετικό πλαίσιο -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9878;</div>
+        <h2>Νομοθετικό Πλαίσιο</h2>
+      </div>
+      <div class="card-body">
+        <div class="lv-law-grid">
+          <div class="lv-law-item">
+            <div class="lv-law-icon">🏛️</div>
+            <div>
+              <div class="lv-law-title">Φόρος Μεταβίβασης Ακινήτου (ΦΜΑ)</div>
+              <div class="lv-law-desc">Συντελεστής 3% επί της αντικειμενικής αξίας ή του τιμήματος (το μεγαλύτερο). Αφορά παλαιά ακίνητα (οικοδομική άδεια πριν 1.1.2006). Τα νέα ακίνητα υπάγονται σε ΦΠΑ (ανασταλμένο).</div>
+            </div>
+          </div>
+          <div class="lv-law-item">
+            <div class="lv-law-icon">🏠</div>
+            <div>
+              <div class="lv-law-title">Απαλλαγή Πρώτης Κατοικίας</div>
+              <div class="lv-law-desc">Άγαμοι: €200.000 | Έγγαμοι: €250.000 | +€25.000 ανά εξαρτώμενο τέκνο. Προϋποθέτει μη ύπαρξη άλλης κατοικίας &amp; χρήση ως κύρια κατοικία.</div>
+            </div>
+          </div>
+          <div class="lv-law-item">
+            <div class="lv-law-icon">📋</div>
+            <div>
+              <div class="lv-law-title">Συμβολαιογραφικά &amp; Κτηματολόγιο</div>
+              <div class="lv-law-desc">Τα συμβολαιογραφικά υπολογίζονται βάσει ρυθμιζόμενης κλίμακας (~1% + ΦΠΑ 24%). Το κτηματολόγιο ~0,475% επί δηλωθέντος τιμήματος.</div>
+            </div>
+          </div>
+          <div class="lv-law-item">
+            <div class="lv-law-icon">🤝</div>
+            <div>
+              <div class="lv-law-title">Μεσιτεία &amp; Δικηγόρος</div>
+              <div class="lv-law-desc">Η αμοιβή μεσίτη (2% + ΦΠΑ) καταβάλλεται συνήθως και από αγοραστή και πωλητή. Η δικηγορική αμοιβή (~0,5%) είναι προαιρετική αλλά συνιστάται για ελεγμένους τίτλους.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="disclaimer">
+          <strong>Σημαντική Σημείωση:</strong> Οι υπολογισμοί αποτελούν εκτίμηση. Τα ποσά συμβολαιογραφικών &amp; κτηματολογίου μπορεί να διαφέρουν βάσει της κλίμακας αμοιβών και της τελικής αξίας. Συμβουλευτείτε συμβολαιογράφο ή δικηγόρο για ακριβή στοιχεία.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

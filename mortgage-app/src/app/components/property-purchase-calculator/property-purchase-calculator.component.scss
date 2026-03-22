@@ -1,0 +1,179 @@
+/* ── PAGE HEADER ICON ── */
+.page-header-icon.pp-icon {
+  background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%);
+}
+
+/* ── HINTS ── */
+.pp-hint {
+  font-size: 11px;
+  color: var(--g400);
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+/* ── CHECKBOX ROW ── */
+.pp-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.pp-check-row input[type="checkbox"] {
+  accent-color: var(--blue);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* ── SUM GRID EXTRAS ── */
+.sum-item.highlight-blue {
+  background: var(--blue-light);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin: 0 -8px;
+}
+.sum-item.total-row {
+  padding-top: 8px;
+  border-top: 2px solid var(--g200);
+  margin-top: 4px;
+}
+
+/* ── COST TABLE ── */
+.pp-table-wrap {
+  overflow-x: auto;
+  margin: 16px 0;
+}
+.pp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.pp-table th {
+  text-align: left;
+  padding: 8px 10px;
+  background: var(--g50);
+  border-bottom: 2px solid var(--g200);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--g500);
+  white-space: nowrap;
+}
+.pp-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--g100);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.pp-table th.num,
+.pp-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.pp-table tfoot td {
+  padding: 10px;
+  border-top: 2px solid var(--g200);
+  border-bottom: none;
+  background: var(--g50);
+  font-size: 13px;
+}
+.pp-table tfoot tr.pp-total-row td {
+  background: var(--blue-light);
+  font-size: 14px;
+  color: var(--blue-dark);
+}
+.pp-table td.pp-pct-val {
+  font-weight: 700;
+  color: var(--g600);
+}
+
+/* ── PRICE ROW ── */
+.pp-price-row {
+  padding: 10px !important;
+  background: var(--g50);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.pp-price-lbl {
+  font-weight: 600;
+  color: var(--g700);
+  font-size: 13px;
+}
+.pp-price-val {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--g800);
+}
+
+/* ── BADGES ── */
+.pp-optional-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  background: var(--g100);
+  color: var(--g500);
+  border: 1px solid var(--g200);
+}
+.pp-exempt-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  color: #065f46;
+}
+.pp-exempt-label {
+  text-decoration: line-through;
+  color: var(--g400);
+}
+.pp-exempt-val {
+  color: var(--green) !important;
+  font-weight: 700;
+}
+
+/* ── ITEM NOTE ── */
+.pp-item-note {
+  font-size: 11px;
+  color: var(--g400);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+/* ── LEGAL INFO GRID ── */
+.lv-law-grid {
+  display: grid;
+  gap: 12px;
+}
+.lv-law-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--g50);
+  border: 1px solid var(--g100);
+}
+.lv-law-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.lv-law-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--g800);
+  margin-bottom: 2px;
+}
+.lv-law-desc {
+  font-size: 12px;
+  color: var(--g500);
+  line-height: 1.5;
+}

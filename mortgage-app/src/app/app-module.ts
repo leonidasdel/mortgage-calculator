@@ -17,6 +17,9 @@ import { RentalTaxCalculatorComponent } from './components/rental-tax-calculator
 import { FreelancerCalculatorComponent } from './components/freelancer-calculator/freelancer-calculator.component';
 import { SavingsCalculatorComponent } from './components/savings-calculator/savings-calculator.component';
 import { UnusedLeaveCalculatorComponent } from './components/unused-leave-calculator/unused-leave-calculator.component';
+import { HolidayBonusCalculatorComponent } from './components/holiday-bonus-calculator/holiday-bonus-calculator.component';
+import { SeveranceCalculatorComponent } from './components/severance-calculator/severance-calculator.component';
+import { PropertyPurchaseCalculatorComponent } from './components/property-purchase-calculator/property-purchase-calculator.component';
 import { LoanFormComponent } from './components/loan-form/loan-form.component';
 import { EarlyRepaymentsComponent } from './components/early-repayments/early-repayments.component';
 import { BulkErFormComponent } from './components/bulk-er-form/bulk-er-form.component';
@@ -37,6 +40,9 @@ const routes: Routes = [
   { path: 'freelancer', component: FreelancerCalculatorComponent },
   { path: 'savings', component: SavingsCalculatorComponent },
   { path: 'unused-leave', component: UnusedLeaveCalculatorComponent },
+  { path: 'holiday-bonus', component: HolidayBonusCalculatorComponent },
+  { path: 'severance', component: SeveranceCalculatorComponent },
+  { path: 'property-purchase', component: PropertyPurchaseCalculatorComponent },
   { path: '**', redirectTo: '' },
 ];
 
@@ -54,6 +60,9 @@ const routes: Routes = [
     FreelancerCalculatorComponent,
     SavingsCalculatorComponent,
     UnusedLeaveCalculatorComponent,
+    HolidayBonusCalculatorComponent,
+    SeveranceCalculatorComponent,
+    PropertyPurchaseCalculatorComponent,
     LoanFormComponent,
     EarlyRepaymentsComponent,
     BulkErFormComponent,

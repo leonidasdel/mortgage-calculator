@@ -34,7 +34,9 @@ export class NavComponent {
       items: [
         { route: '/salary', icon: '💰', label: 'Υπολογισμός Μισθού' },
         { route: '/freelancer', icon: '📋', label: 'Ελεύθ. Επαγγελματίας' },
-        { route: '/unused-leave', icon: '🏖️', label: 'Μη Ληφθείσα Άδεια' },
+        { route: '/unused-leave',  icon: '🏖️', label: 'Μη Ληφθείσα Άδεια' },
+        { route: '/holiday-bonus', icon: '🎁', label: 'Δώρα Εορτών' },
+        { route: '/severance',     icon: '📄', label: 'Αποζημίωση Απόλυσης' },
       ],
     },
     {
@@ -48,7 +50,8 @@ export class NavComponent {
       label: 'Ακίνητα',
       items: [
         { route: '/rent-vs-buy', icon: '🏠', label: 'Νοικιάζω ή Αγοράζω;' },
-        { route: '/rental-tax', icon: '🏘️', label: 'Φόρος Ενοικίου' },
+        { route: '/rental-tax',         icon: '🏘️', label: 'Φόρος Ενοικίου' },
+        { route: '/property-purchase',  icon: '🏡', label: 'Κόστος Αγοράς Ακινήτου' },
       ],
     },
   ];
