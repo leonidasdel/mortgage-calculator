@@ -94,33 +94,20 @@
           </div>
         </div>
 
-        <!-- Benefits in kind -->
+        <!-- Annual bonus -->
         <div class="sec-div">
-          <div class="sec-label">Παροχές σε Είδος</div>
-
-          @if (benefits().length === 0) {
-            <div class="empty-state">
-              Δεν έχουν προστεθεί παροχές. Κάντε κλικ στο "+ Προσθήκη Παροχής" για να προσθέσετε παροχές σε είδος.
+          <div class="sec-label">Μπόνους</div>
+          <div class="form-group">
+            <label>Ετήσιο Μπόνους Μικτό (&#8364;)</label>
+            <div class="input-wrap has-pfx">
+              <span class="pfx">&#8364;</span>
+              <input type="number" min="0" step="100"
+                     [value]="annualBonus()"
+                     (input)="onAnnualBonusChange($any($event.target).value)">
             </div>
-          } @else {
-            @for (b of benefits(); track b.id) {
-              <div class="benefit-item">
-                <div class="benefit-desc">
-                  <input type="text" [value]="b.description" placeholder="Περιγραφή"
-                         (change)="updateBenefit(b.id, 'description', $any($event.target).value)">
-                </div>
-                <div class="input-wrap has-pfx benefit-val">
-                  <span class="pfx">&#8364;</span>
-                  <input type="number" [value]="b.monthlyValue" min="0"
-                         (change)="updateBenefit(b.id, 'monthlyValue', $any($event.target).value)">
-                </div>
-                <button class="btn-danger" (click)="removeBenefit(b.id)">&#10005;</button>
-              </div>
-            }
-          }
-
-          <div class="er-buttons" style="margin-top:10px;">
-            <button class="btn-outline" (click)="addBenefit()">+ Προσθήκη Παροχής</button>
+          </div>
+          <div class="info-box blue" style="font-size:12px;">
+            Το μπόνους επιβαρύνεται με ΕΦΚΑ (βάσει ανωτάτου ορίου) και φόρο εισοδήματος βάσει οριακού συντελεστή
           </div>
         </div>
 
@@ -309,9 +296,15 @@
       <div class="card-body">
         <div class="sum-grid">
           <div class="sum-item">
-            <div class="sum-lbl">Ετήσια Μικτά</div>
-            <div class="sum-val">{{ result().annualGross | euro }}</div>
+            <div class="sum-lbl">Ετήσια Μικτά{{ result().bonusResult ? ' (χωρίς μπόνους)' : '' }}</div>
+            <div class="sum-val">{{ result().annualGrossBase | euro }}</div>
           </div>
+          @if (result().bonusResult) {
+            <div class="sum-item">
+              <div class="sum-lbl">Ετήσια Μικτά (με μπόνους)</div>
+              <div class="sum-val">{{ result().annualGross | euro }}</div>
+            </div>
+          }
           <div class="sum-item">
             <div class="sum-lbl">Ετήσια ΕΦΚΑ</div>
             <div class="sum-val red">-{{ result().annualEfka | euro }}</div>
@@ -321,9 +314,17 @@
             <div class="sum-val red">-{{ result().annualTax | euro }}</div>
           </div>
           <div class="sum-item">
-            <div class="sum-lbl">Ετήσια Καθαρά</div>
-            <div class="sum-val green">{{ result().annualNet | euro }}</div>
+            <div class="sum-lbl">Ετήσια Καθαρά{{ result().bonusResult ? ' (χωρίς μπόνους)' : '' }}</div>
+            <div class="sum-val green">{{ result().annualNetBase | euro }}</div>
+            <div class="sum-val-hint">×12: {{ result().annualNetBase / 12 | euro }} &nbsp;·&nbsp; ×14: {{ result().annualNetBase / 14 | euro }}</div>
           </div>
+          @if (result().bonusResult) {
+            <div class="sum-item">
+              <div class="sum-lbl">Ετήσια Καθαρά (με μπόνους)</div>
+              <div class="sum-val green">{{ result().annualNet | euro }}</div>
+              <div class="sum-val-hint">×12: {{ result().annualNet / 12 | euro }} &nbsp;·&nbsp; ×14: {{ result().annualNet / 14 | euro }}</div>
+            </div>
+          }
         </div>
 
         <!-- Bonuses -->
@@ -394,6 +395,29 @@
             <div class="sum-val green">{{ result().leaveAllowance.net | euro }}</div>
           </div>
         </div>
+
+        <!-- Annual bonus result -->
+        @if (result().bonusResult; as bonus) {
+          <h3 class="section-title">Μπόνους</h3>
+          <div class="sum-grid">
+            <div class="sum-item">
+              <div class="sum-lbl">Μικτό Μπόνους</div>
+              <div class="sum-val">{{ bonus.grossBonus | euro }}</div>
+            </div>
+            <div class="sum-item">
+              <div class="sum-lbl">ΕΦΚΑ ({{ result().efkaEmployeeRate | number:'1.2-2' }}%)</div>
+              <div class="sum-val red">-{{ bonus.efkaEmployee | euro }}</div>
+            </div>
+            <div class="sum-item">
+              <div class="sum-lbl">Φόρος (Οριακός)</div>
+              <div class="sum-val red">-{{ bonus.tax | euro }}</div>
+            </div>
+            <div class="sum-item">
+              <div class="sum-lbl">Καθαρό Μπόνους</div>
+              <div class="sum-val green">{{ bonus.net | euro }}</div>
+            </div>
+          </div>
+        }
 
         <!-- Employer cost -->
         <h3 class="section-title">Κόστος Εργοδότη</h3>

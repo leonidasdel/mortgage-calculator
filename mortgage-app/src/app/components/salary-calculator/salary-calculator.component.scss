@@ -208,6 +208,15 @@
   transform: rotate(180deg);
 }
 
+/* Sub-hint below a sum-val */
+.sum-val-hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b7280;
+  margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 480px) {
   .salary-hero .hero-val { font-size: 22px; }
   .salary-hero { padding: 14px 10px; }

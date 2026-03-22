@@ -2,7 +2,7 @@ import { Component, computed, signal, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
-import { AgeGroup, BenefitInKind, SalaryChange, SalaryParams } from '../../models/salary.models';
+import { SalaryChange, SalaryParams } from '../../models/salary.models';
 
 const STORAGE_KEY = 'salaryCalcState';
 
@@ -14,7 +14,7 @@ const STORAGE_KEY = 'salaryCalcState';
 })
 export class SalaryCalculatorComponent implements OnInit {
   salaryForm: FormGroup;
-  benefits = signal<BenefitInKind[]>([]);
+  annualBonus = signal(0);
   inputMode = signal<'gross' | 'net'>('gross');
   showTaxDetails = signal(false);
   hasSalaryChange = signal(false);
@@ -64,7 +64,7 @@ export class SalaryCalculatorComponent implements OnInit {
       year: fv.year || 2026,
       ageGroup: fv.ageGroup || 'over30',
       children: fv.children || 0,
-      benefitsInKind: this.benefits(),
+      annualBonus: this.annualBonus(),
       salaryChange,
     };
     return this.calc.calculate(params);
@@ -86,7 +86,7 @@ export class SalaryCalculatorComponent implements OnInit {
       year: fv.year || 2026,
       ageGroup: fv.ageGroup || 'over30',
       children: fv.children || 0,
-      benefitsInKind: this.benefits(),
+      annualBonus: this.annualBonus(),
       salaryChange,
     });
     this.salaryForm.patchValue({ grossMonthly: gross }, { emitEvent: false });
@@ -108,25 +108,10 @@ export class SalaryCalculatorComponent implements OnInit {
     this.salaryForm.patchValue({ netMonthly: net }, { emitEvent: false });
   }
 
-  // Benefits management
-  addBenefit(): void {
-    const list = this.benefits();
-    const nextId = list.length > 0 ? Math.max(...list.map(b => b.id)) + 1 : 1;
-    this.benefits.set([...list, { id: nextId, description: '', monthlyValue: 0 }]);
-  }
-
-  removeBenefit(id: number): void {
-    this.benefits.set(this.benefits().filter(b => b.id !== id));
-  }
-
-  updateBenefit(id: number, field: 'description' | 'monthlyValue', value: string): void {
-    this.benefits.set(this.benefits().map(b => {
-      if (b.id !== id) return b;
-      if (field === 'monthlyValue') {
-        return { ...b, monthlyValue: Math.max(0, parseFloat(value) || 0) };
-      }
-      return { ...b, description: value };
-    }));
+  onAnnualBonusChange(value: string): void {
+    this.annualBonus.set(Math.max(0, parseFloat(value) || 0));
+    this.onParamChange();
+    this.saveState();
   }
 
   toggleTaxDetails(): void {
@@ -164,7 +149,7 @@ export class SalaryCalculatorComponent implements OnInit {
     try {
       const state = {
         inputs: this.salaryForm.value,
-        benefits: this.benefits(),
+        annualBonus: this.annualBonus(),
         inputMode: this.inputMode(),
         hasSalaryChange: this.hasSalaryChange(),
         salaryChangeMonth: this.salaryChangeMonth(),
@@ -180,7 +165,7 @@ export class SalaryCalculatorComponent implements OnInit {
       if (!raw) return;
       const state = JSON.parse(raw);
       if (state.inputs) this.salaryForm.patchValue(state.inputs, { emitEvent: false });
-      if (Array.isArray(state.benefits)) this.benefits.set(state.benefits);
+      if (state.annualBonus != null) this.annualBonus.set(state.annualBonus);
       if (state.inputMode) this.inputMode.set(state.inputMode);
       if (state.hasSalaryChange != null) this.hasSalaryChange.set(state.hasSalaryChange);
       if (state.salaryChangeMonth != null) this.salaryChangeMonth.set(state.salaryChangeMonth);

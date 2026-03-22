@@ -10,14 +10,16 @@ export interface SalaryParams {
   year: number;
   ageGroup: AgeGroup;
   children: number;
-  benefitsInKind: BenefitInKind[];
+  annualBonus?: number;
   salaryChange?: SalaryChange;
 }
 
-export interface BenefitInKind {
-  id: number;
-  description: string;
-  monthlyValue: number;
+export interface AnnualBonusResult {
+  grossBonus: number;
+  efkaEmployee: number;
+  efkaEmployer: number;
+  tax: number;
+  net: number;
 }
 
 export interface BonusBreakdown {
@@ -47,10 +49,12 @@ export interface SalaryResult {
   previousMonthly?: MonthlyBreakdown;
   currentMonthly?: MonthlyBreakdown;
 
-  annualGross: number;
+  annualGross: number;       // includes bonus if present
   annualEfka: number;
   annualTax: number;
-  annualNet: number;
+  annualNet: number;         // includes bonus if present
+  annualGrossBase: number;   // without bonus
+  annualNetBase: number;     // without bonus
 
   christmasBonus: BonusBreakdown;
   easterBonus: BonusBreakdown;
@@ -64,6 +68,7 @@ export interface SalaryResult {
   taxBreakdown: TaxBracketResult[];
   taxDiscount: number;
   taxableIncome: number;
+  bonusResult?: AnnualBonusResult;
 }
 
 export interface TaxBracketResult {
