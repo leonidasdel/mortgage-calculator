@@ -1,39 +1,47 @@
-<nav>
-  <div class="nav-inner">
-    <a class="brand" routerLink="/">Salaries<span class="brand-dot">.gr</span></a>
+<!-- Mobile top bar -->
+<div class="mobile-topbar">
+  <button class="hamburger" (click)="toggleMenu()" [class.open]="mobileMenuOpen" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <a class="brand" routerLink="/" (click)="closeMenu()">Salaries<span class="brand-dot">.gr</span></a>
+</div>
 
-    <button class="hamburger" (click)="toggleMenu()" [class.open]="mobileMenuOpen" aria-label="Menu">
-      <span></span><span></span><span></span>
+<!-- Backdrop (mobile overlay) -->
+@if (mobileMenuOpen) {
+  <div class="sidebar-backdrop" (click)="closeMenu()"></div>
+}
+
+<!-- Sidebar -->
+<aside class="sidebar" [class.collapsed]="collapsed" [class.mobile-open]="mobileMenuOpen">
+  <div class="sidebar-header">
+    @if (!collapsed) {
+      <a class="brand" routerLink="/" (click)="closeMenu()">Salaries<span class="brand-dot">.gr</span></a>
+    }
+    <button class="collapse-btn" (click)="toggleCollapse()" aria-label="Toggle sidebar">
+      @if (collapsed) { › } @else { ‹ }
     </button>
-
-    <div class="nav-links" [class.open]="mobileMenuOpen">
-      <a class="nav-link" routerLink="/mortgage" routerLinkActive="active" (click)="closeMenu()">
-        <span class="nav-icon">🏦</span>Στεγαστικό Δάνειο
-      </a>
-      <a class="nav-link" routerLink="/salary" routerLinkActive="active" (click)="closeMenu()">
-        <span class="nav-icon">💰</span>Υπολογισμός Μισθού
-      </a>
-      <a class="nav-link" routerLink="/interest" routerLinkActive="active" (click)="closeMenu()">
-        <span class="nav-icon">📈</span>Υπολογισμός Τόκων
-      </a>
-      <a class="nav-link" routerLink="/consumer-loan" routerLinkActive="active" (click)="closeMenu()">
-        <span class="nav-icon">💳</span>Καταναλωτικό Δάνειο
-      </a>
-      <a class="nav-link" routerLink="/rent-vs-buy" routerLinkActive="active" (click)="closeMenu()">
-        <span class="nav-icon">🏠</span>Νοικιάζω ή Αγοράζω;
-      </a>
-      <a class="nav-link" routerLink="/rental-tax" routerLinkActive="active" (click)="closeMenu()">
-        <span class="nav-icon">🏘️</span>Φόρος Ενοικίου
-      </a>
-      <a class="nav-link" routerLink="/freelancer" routerLinkActive="active" (click)="closeMenu()">
-        <span class="nav-icon">📋</span>Ελεύθ. Επαγγελματίας
-      </a>
-      <a class="nav-link" routerLink="/savings" routerLinkActive="active" (click)="closeMenu()">
-        <span class="nav-icon">🪴</span>Αποταμίευση
-      </a>
-      <a class="nav-link" routerLink="/unused-leave" routerLinkActive="active" (click)="closeMenu()">
-        <span class="nav-icon">🏖️</span>Μη Ληφθείσα Άδεια
-      </a>
-    </div>
   </div>
-</nav>
+
+  <nav class="sidebar-nav">
+    @for (group of navGroups; track group.label) {
+      <div class="nav-group">
+        @if (!collapsed) {
+          <div class="nav-group-label">{{ group.label }}</div>
+        }
+        @for (item of group.items; track item.route) {
+          <a
+            class="nav-link"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [title]="collapsed ? item.label : ''"
+            (click)="closeMenu()">
+            <span class="nav-icon">{{ item.icon }}</span>
+            @if (!collapsed) {
+              <span class="nav-label">{{ item.label }}</span>
+            }
+          </a>
+        }
+      </div>
+    }
+  </nav>
+</aside>
