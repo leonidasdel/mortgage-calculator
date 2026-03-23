@@ -16,14 +16,44 @@ const MONTHS_PER_YEAR = 14; // 12 regular + Christmas + Easter/Leave
 const LEAVE_SURCHARGE_RATE = 0.04166; // Προσαύξηση επιδόματος αδείας
 
 /**
- * Tax brackets indexed by [ageGroup][children][bracketIndex].
- * Each bracket: [from, to (null=unlimited), rate].
+ * Tax brackets indexed by [ageGroup][bracketIndex][childrenIndex].
+ * Each row: rates for children 0..6+.
  */
 type TaxTable = Record<AgeGroup, number[][]>;
 
+// 2025: uniform brackets — age group makes no difference, children only affect discount
 // Rates per bracket [from, to, ...ratesByChildren(0..6+)]
-// Brackets are ordered bottom-up: 0-10k, 10k-20k, 20k-30k, 30k-40k, 40k-60k, 60k+
-const TAX_RATES: TaxTable = {
+// Brackets: 0-10k, 10-20k, 20-30k, 30-40k, 40-60k, 60k+
+const TAX_RATES_2025: TaxTable = {
+  under25: [
+    // children:  0     1     2     3     4     5     6+
+    /* 0-10k  */ [0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09],
+    /* 10-20k */ [0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22],
+    /* 20-30k */ [0.28, 0.28, 0.28, 0.28, 0.28, 0.28, 0.28],
+    /* 30-40k */ [0.36, 0.36, 0.36, 0.36, 0.36, 0.36, 0.36],
+    /* 40-60k */ [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
+    /* 60k+   */ [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
+  ],
+  '26to30': [
+    [0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09],
+    [0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22],
+    [0.28, 0.28, 0.28, 0.28, 0.28, 0.28, 0.28],
+    [0.36, 0.36, 0.36, 0.36, 0.36, 0.36, 0.36],
+    [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
+    [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
+  ],
+  over30: [
+    [0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09],
+    [0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22],
+    [0.28, 0.28, 0.28, 0.28, 0.28, 0.28, 0.28],
+    [0.36, 0.36, 0.36, 0.36, 0.36, 0.36, 0.36],
+    [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
+    [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
+  ],
+};
+
+// 2026: age-differentiated brackets (new tax law)
+const TAX_RATES_2026: TaxTable = {
   under25: [
     // children:  0     1     2     3     4     5     6+
     /* 0-10k  */ [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
@@ -142,7 +172,8 @@ export class SalaryCalculatorService {
     // Tax calculation on 14-month base
     const taxableIncome = +(annualGross14 - annualEfka14).toFixed(2);
     const childrenIdx = Math.min(params.children, 6);
-    const brackets = TAX_RATES[params.ageGroup];
+    const taxTable = params.year <= 2025 ? TAX_RATES_2025 : TAX_RATES_2026;
+    const brackets = taxTable[params.ageGroup];
     const { totalTax, breakdown } = this.calculateTax(
       taxableIncome, brackets, childrenIdx
     );
