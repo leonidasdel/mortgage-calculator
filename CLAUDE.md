@@ -70,7 +70,7 @@ mortgage-app/
 
 **Key constants:**
 ```
-EFKA_EMPLOYEE_RATE    = 0.1332  (13.32%)
+EFKA_EMPLOYEE_RATE    = 0.1337  (13.37%)
 EFKA_EMPLOYER_RATE    = 0.2179  (21.79%)
 MAX_INSURABLE_EARNINGS = 7572.62 €/month
 MONTHS_PER_YEAR       = 14  (12 regular + Christmas + Easter/Leave)
