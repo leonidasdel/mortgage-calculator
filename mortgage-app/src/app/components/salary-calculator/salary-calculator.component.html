@@ -65,17 +65,19 @@
             </div>
           </div>
 
-          <!-- Age group -->
-          <div class="form-group">
-            <label for="ageGroup">Ηλικιακή Ομάδα</label>
-            <div class="input-wrap">
-              <select id="ageGroup" formControlName="ageGroup" class="form-select" (change)="onParamChange()">
-                <option value="under25">Έως 25 ετών</option>
-                <option value="26to30">26-30 ετών</option>
-                <option value="over30">Άνω των 30 ετών</option>
-              </select>
+          <!-- Age group (only relevant for 2026+, uniform brackets in 2025) -->
+          @if (salaryForm.get('year')?.value > 2025) {
+            <div class="form-group">
+              <label for="ageGroup">Ηλικιακή Ομάδα</label>
+              <div class="input-wrap">
+                <select id="ageGroup" formControlName="ageGroup" class="form-select" (change)="onParamChange()">
+                  <option value="under25">Έως 25 ετών</option>
+                  <option value="26to30">26-30 ετών</option>
+                  <option value="over30">Άνω των 30 ετών</option>
+                </select>
+              </div>
             </div>
-          </div>
+          }
 
           <!-- Children -->
           <div class="form-group">
@@ -339,7 +341,7 @@
             <div class="sum-val">{{ result().christmasBonus.leaveSurcharge | euro }}</div>
           </div>
           <div class="sum-item">
-            <div class="sum-lbl">ΕΦΚΑ (13,37%)</div>
+            <div class="sum-lbl">ΕΦΚΑ ({{ result().efkaEmployeeRate | number:'1.2-2' }}%)</div>
             <div class="sum-val red">-{{ result().christmasBonus.efka | euro }}</div>
           </div>
           <div class="sum-item">
@@ -363,7 +365,7 @@
             <div class="sum-val">{{ result().easterBonus.leaveSurcharge | euro }}</div>
           </div>
           <div class="sum-item">
-            <div class="sum-lbl">ΕΦΚΑ (13,37%)</div>
+            <div class="sum-lbl">ΕΦΚΑ ({{ result().efkaEmployeeRate | number:'1.2-2' }}%)</div>
             <div class="sum-val red">-{{ result().easterBonus.efka | euro }}</div>
           </div>
           <div class="sum-item">
@@ -383,7 +385,7 @@
             <div class="sum-val">{{ result().leaveAllowance.grossBase | euro }}</div>
           </div>
           <div class="sum-item">
-            <div class="sum-lbl">ΕΦΚΑ (13,37%)</div>
+            <div class="sum-lbl">ΕΦΚΑ ({{ result().efkaEmployeeRate | number:'1.2-2' }}%)</div>
             <div class="sum-val red">-{{ result().leaveAllowance.efka | euro }}</div>
           </div>
           <div class="sum-item">
@@ -452,13 +454,13 @@
             <p style="font-size:13px; line-height:1.6; margin-bottom:8px;">Ο υπολογισμός του τελικού μισθού περιλαμβάνει:</p>
             <ul style="padding-left:18px; font-size:13px; line-height:1.7;">
               <li><strong>14 μισθοί</strong> ετησίως (12 μηνιαίοι + δώρο Χριστουγέννων + δώρο Πάσχα/επίδομα αδείας)</li>
-              <li><strong>Ασφαλιστικές εισφορές εργαζομένου (ΕΦΚΑ):</strong> 13,37%</li>
+              <li><strong>Ασφαλιστικές εισφορές εργαζομένου (ΕΦΚΑ):</strong> {{ result().efkaEmployeeRate | number:'1.2-2' }}%</li>
               <li><strong>Εργοδοτικές εισφορές:</strong> 21,79%</li>
               <li><strong>Ανώτατο όριο ασφαλιστέων αποδοχών:</strong> 7.573 &#8364;</li>
             </ul>
           </div>
 
-          <h3 class="section-title">Ανάλυση Φόρου ({{ ageGroupLabel }})</h3>
+          <h3 class="section-title">Ανάλυση Φόρου{{ salaryForm.get('year')?.value > 2025 ? ' (' + ageGroupLabel + ')' : '' }}</h3>
           <div class="tax-table-wrap">
             <table class="tax-table">
               <thead>
