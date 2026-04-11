@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 interface NavItem {
   route: string;
@@ -17,9 +17,10 @@ interface NavGroup {
   templateUrl: './nav.component.html',
   styleUrl: './nav.component.scss',
 })
-export class NavComponent {
+export class NavComponent implements OnInit {
   mobileMenuOpen = false;
   collapsed = false;
+  darkMode = false;
 
   readonly navGroups: NavGroup[] = [
     {
@@ -56,6 +57,16 @@ export class NavComponent {
     },
   ];
 
+  ngOnInit(): void {
+    const saved = localStorage.getItem('darkMode');
+    if (saved !== null) {
+      this.darkMode = saved === 'true';
+    } else {
+      this.darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    document.documentElement.classList.toggle('dark', this.darkMode);
+  }
+
   toggleMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
   }
@@ -67,5 +78,11 @@ export class NavComponent {
   toggleCollapse(): void {
     this.collapsed = !this.collapsed;
     document.body.classList.toggle('sidebar-collapsed', this.collapsed);
+  }
+
+  toggleDarkMode(): void {
+    this.darkMode = !this.darkMode;
+    localStorage.setItem('darkMode', String(this.darkMode));
+    document.documentElement.classList.toggle('dark', this.darkMode);
   }
 }
