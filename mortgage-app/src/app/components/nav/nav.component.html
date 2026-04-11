@@ -4,6 +4,9 @@
     <span></span><span></span><span></span>
   </button>
   <a class="brand" routerLink="/" (click)="closeMenu()">Salaries<span class="brand-dot">.gr</span></a>
+  <button class="mobile-dark-btn" (click)="toggleDarkMode()" [attr.aria-label]="darkMode ? 'Φωτεινό θέμα' : 'Σκοτεινό θέμα'">
+    {{ darkMode ? '☀️' : '🌙' }}
+  </button>
 </div>
 
 <!-- Backdrop (mobile overlay) -->
@@ -44,4 +47,13 @@
       </div>
     }
   </nav>
+
+  <div class="sidebar-footer">
+    <button class="dark-mode-btn" (click)="toggleDarkMode()" [title]="collapsed ? (darkMode ? 'Φωτεινό θέμα' : 'Σκοτεινό θέμα') : ''">
+      <span class="nav-icon">{{ darkMode ? '☀️' : '🌙' }}</span>
+      @if (!collapsed) {
+        <span class="nav-label">{{ darkMode ? 'Φωτεινό θέμα' : 'Σκοτεινό θέμα' }}</span>
+      }
+    </button>
+  </div>
 </aside>
