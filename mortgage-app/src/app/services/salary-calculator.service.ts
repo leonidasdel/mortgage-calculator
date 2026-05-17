@@ -230,22 +230,37 @@ export class SalaryCalculatorService {
     const employerMonthly = +(gross + efkaEmployer).toFixed(2);
     const employerAnnual = +(regularMonthlySum + monthlyEfkaEmployerSum + christmasGrossTotal + christmasEmployerEfka + easterGrossTotal + easterEmployerEfka + leaveGrossBase + leaveEmployerEfka).toFixed(2);
 
-    // Annual bonus (μπόνους): subject to EFKA + marginal income tax
+    // Annual bonus (μπόνους): subject to EFKA + marginal income tax.
+    // Treat the bonus as a separate insured payment, then calculate marginal tax
+    // against the actual annual taxable base that includes holiday-bonus surcharges.
     let bonusResult: AnnualBonusResult | undefined;
     if (params.annualBonus && params.annualBonus > 0) {
       const bonus = params.annualBonus;
-      // ΕΦΚΑ: cap applies — only the remaining room up to MAX_INSURABLE_EARNINGS counts
-      const bonusInsurable = Math.max(0, Math.min(gross + bonus, MAX_INSURABLE_EARNINGS) - Math.min(gross, MAX_INSURABLE_EARNINGS));
+
+      const bonusInsurable = Math.min(bonus, MAX_INSURABLE_EARNINGS);
       const bonusEfkaEmp = +(bonusInsurable * EFKA_EMPLOYEE_RATE).toFixed(2);
       const bonusEfkaEr  = +(bonusInsurable * EFKA_EMPLOYER_RATE).toFixed(2);
-      // Marginal tax: recalculate total tax with bonus added to taxable income
-      const taxableWithBonus = +(taxableIncome + bonus - bonusEfkaEmp).toFixed(2);
+
+      const taxableBaseForBonus = +(annualGrossBase - annualEfka).toFixed(2);
+      const { totalTax: totalTaxBaseForBonus } = this.calculateTax(taxableBaseForBonus, brackets, childrenIdx);
+      const taxDiscountBaseForBonus = this.getTaxDiscount(params.children, taxableBaseForBonus);
+      const annualTaxBaseForBonus = Math.max(0, +(totalTaxBaseForBonus - taxDiscountBaseForBonus).toFixed(2));
+
+      const taxableWithBonus = +(taxableBaseForBonus + bonus - bonusEfkaEmp).toFixed(2);
       const { totalTax: totalTaxWithBonus } = this.calculateTax(taxableWithBonus, brackets, childrenIdx);
       const taxDiscountWithBonus = this.getTaxDiscount(params.children, taxableWithBonus);
       const annualTaxWithBonus = Math.max(0, +(totalTaxWithBonus - taxDiscountWithBonus).toFixed(2));
-      const bonusTax = Math.max(0, +(annualTaxWithBonus - annualTax).toFixed(2));
+
+      const bonusTax = Math.max(0, +(annualTaxWithBonus - annualTaxBaseForBonus).toFixed(2));
       const bonusNet = +(bonus - bonusEfkaEmp - bonusTax).toFixed(2);
-      bonusResult = { grossBonus: bonus, efkaEmployee: bonusEfkaEmp, efkaEmployer: bonusEfkaEr, tax: bonusTax, net: bonusNet };
+
+      bonusResult = {
+        grossBonus: bonus,
+        efkaEmployee: bonusEfkaEmp,
+        efkaEmployer: bonusEfkaEr,
+        tax: bonusTax,
+        net: bonusNet,
+      };
     }
 
     // Final annual totals including bonus
