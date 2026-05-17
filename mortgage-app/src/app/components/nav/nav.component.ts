@@ -34,6 +34,7 @@ export class NavComponent implements OnInit {
       label: 'Εισόδημα',
       items: [
         { route: '/salary', icon: '💰', label: 'Υπολογισμός Μισθού' },
+        { route: '/annual-bonus', icon: '💸', label: 'Μπόνους Μισθού' },
         { route: '/freelancer', icon: '📋', label: 'Ελεύθ. Επαγγελματίας' },
         { route: '/unused-leave',  icon: '🏖️', label: 'Μη Ληφθείσα Άδεια' },
         { route: '/holiday-bonus', icon: '🎁', label: 'Δώρα Εορτών' },

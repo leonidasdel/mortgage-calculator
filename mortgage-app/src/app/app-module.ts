@@ -10,6 +10,7 @@ import { NavComponent } from './components/nav/nav.component';
 import { HomeComponent } from './components/home/home.component';
 import { MortgageCalculatorComponent } from './components/mortgage-calculator/mortgage-calculator.component';
 import { SalaryCalculatorComponent } from './components/salary-calculator/salary-calculator.component';
+import { AnnualBonusCalculatorComponent } from './components/annual-bonus-calculator/annual-bonus-calculator.component';
 import { InterestCalculatorComponent } from './components/interest-calculator/interest-calculator.component';
 import { ConsumerLoanCalculatorComponent } from './components/consumer-loan-calculator/consumer-loan-calculator.component';
 import { RentVsBuyCalculatorComponent } from './components/rent-vs-buy-calculator/rent-vs-buy-calculator.component';
@@ -33,6 +34,7 @@ const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'mortgage', component: MortgageCalculatorComponent },
   { path: 'salary', component: SalaryCalculatorComponent },
+  { path: 'annual-bonus', component: AnnualBonusCalculatorComponent },
   { path: 'interest', component: InterestCalculatorComponent },
   { path: 'consumer-loan', component: ConsumerLoanCalculatorComponent },
   { path: 'rent-vs-buy', component: RentVsBuyCalculatorComponent },
@@ -53,6 +55,7 @@ const routes: Routes = [
     HomeComponent,
     MortgageCalculatorComponent,
     SalaryCalculatorComponent,
+    AnnualBonusCalculatorComponent,
     InterestCalculatorComponent,
     ConsumerLoanCalculatorComponent,
     RentVsBuyCalculatorComponent,
