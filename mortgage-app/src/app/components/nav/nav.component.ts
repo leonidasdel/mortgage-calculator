@@ -85,5 +85,6 @@ export class NavComponent implements OnInit {
     this.darkMode = !this.darkMode;
     localStorage.setItem('darkMode', String(this.darkMode));
     document.documentElement.classList.toggle('dark', this.darkMode);
+    window.dispatchEvent(new Event('themechange'));
   }
 }

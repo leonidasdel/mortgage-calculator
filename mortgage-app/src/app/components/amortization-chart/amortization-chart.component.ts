@@ -33,6 +33,11 @@ export class AmortizationChartComponent implements OnChanges {
     this.draw();
   }
 
+  @HostListener('window:themechange')
+  onThemeChange(): void {
+    this.draw();
+  }
+
   toggleView(): void {
     this.userOverride = true;
     this.viewMode = this.viewMode === 'yearly' ? 'monthly' : 'yearly';
@@ -79,18 +84,24 @@ export class AmortizationChartComponent implements OnChanges {
     const cH = H - PT - PB;
     const bW = Math.max(3, Math.min(26, (cW / keys.length) * 0.65));
     const gap = cW / keys.length;
+    const isDark = document.documentElement.classList.contains('dark');
+    const gridColor = isDark ? '#64748b' : '#f3f4f6';
+    const labelColor = isDark ? '#cbd5e1' : '#9ca3af';
+    const axisColor = isDark ? '#e2e8f0' : '#6b7280';
+    const principalColor = isDark ? '#60a5fa' : '#1d4ed8';
+    const interestColor = isDark ? '#f87171' : '#dc2626';
 
     const gridN = 4;
     for (let i = 0; i <= gridN; i++) {
       const y   = PT + cH * (1 - i / gridN);
       const val = maxVal * i / gridN;
-      ctx.strokeStyle = '#f3f4f6';
+      ctx.strokeStyle = gridColor;
       ctx.lineWidth   = 1;
       ctx.beginPath();
       ctx.moveTo(PL, y);
       ctx.lineTo(W - PR, y);
       ctx.stroke();
-      ctx.fillStyle = '#9ca3af';
+      ctx.fillStyle = labelColor;
       ctx.font      = '10px system-ui, sans-serif';
       ctx.textAlign = 'right';
       const lbl = val >= 1000 ? (val / 1000).toFixed(0) + 'K' : val.toFixed(0);
@@ -106,9 +117,9 @@ export class AmortizationChartComponent implements OnChanges {
       const principH  = d.p / maxVal * cH;
       const interestH = d.i / maxVal * cH;
 
-      ctx.fillStyle = '#dc2626';
+      ctx.fillStyle = interestColor;
       ctx.fillRect(x, PT + cH - totalH, bW, interestH);
-      ctx.fillStyle = '#1d4ed8';
+      ctx.fillStyle = principalColor;
       ctx.fillRect(x, PT + cH - principH, bW, principH);
 
       let every: number;
@@ -121,7 +132,7 @@ export class AmortizationChartComponent implements OnChanges {
       const isFirst = i === 0;
       const isLast  = i === keys.length - 1;
       if (isFirst || isLast || key % every === 0) {
-        ctx.fillStyle = '#6b7280';
+        ctx.fillStyle = axisColor;
         ctx.font      = '10px system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(String(key), x + bW / 2, H - 6);
@@ -129,7 +140,7 @@ export class AmortizationChartComponent implements OnChanges {
     });
 
     const axisLabel = this.viewMode === 'monthly' ? 'Μήνες' : 'Έτη';
-    ctx.fillStyle = '#9ca3af';
+    ctx.fillStyle = labelColor;
     ctx.font      = '10px system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(axisLabel, W / 2, H - 6);

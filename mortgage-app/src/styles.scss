@@ -632,21 +632,25 @@ tr.early-row td    { background: #fef9c3; }
 /* ── DARK MODE ── */
 html.dark {
   color-scheme: dark;
-  --g50:  #0f172a;
-  --g100: #1e293b;
+  --blue:       #93c5fd;
+  --blue-dark:  #dbeafe;
+  --blue-light: #0b2a4a;
+  --blue-mid:   #60a5fa;
+  --red:        #fca5a5;
+  --red-light:  #451a1a;
+  --green:      #86efac;
+  --green-light:#052e1a;
+  --g50:  #0b1220;
+  --g100: #182234;
   --g200: #334155;
-  --g300: #475569;
-  --g400: #64748b;
-  --g500: #94a3b8;
-  --g600: #cbd5e1;
-  --g700: #e2e8f0;
-  --g800: #f1f5f9;
-  --g900: #f8fafc;
-  --blue-light:  #1e3a5f;
-  --blue-mid:    #1e40af;
-  --red-light:   #450a0a;
-  --green-light: #052e16;
-  --amber-light: #1c1000;
+  --g300: #64748b;
+  --g400: #94a3b8;
+  --g500: #cbd5e1;
+  --g600: #e2e8f0;
+  --g700: #f1f5f9;
+  --g800: #f8fafc;
+  --g900: #ffffff;
+  --amber-light: #2a1700;
   --amber-border: #854d0e;
   --shadow:    0 1px 3px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3);
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,.4), 0 2px 4px -2px rgba(0,0,0,.3);
@@ -654,72 +658,167 @@ html.dark {
 }
 
 html.dark body {
-  background: linear-gradient(180deg, #0d1b2e 0%, var(--g50) 300px);
+  background: linear-gradient(180deg, #07111f 0%, var(--g50) 300px);
   color: var(--g800);
 }
 
 /* Cards */
 html.dark .card,
 html.dark .cat-section { background: var(--g100); border-color: var(--g200); }
+html.dark .card-header { border-color: var(--g200); }
 
 /* Inputs */
 html.dark input[type="number"],
 html.dark input[type="text"],
 html.dark input[type="date"] {
-  background: var(--g100);
-  color: var(--g800);
+  background: #111827;
+  color: var(--g900);
   border-color: var(--g300);
+  caret-color: var(--blue);
+}
+html.dark input[type="number"]:focus,
+html.dark input[type="text"]:focus,
+html.dark input[type="date"]:focus {
+  border-color: var(--blue-mid);
+  box-shadow: 0 0 0 3px rgba(96,165,250,.24);
 }
 
 /* Custom selects */
 html.dark .form-select {
-  background-color: var(--g100);
-  color: var(--g800);
+  background-color: #111827;
+  color: var(--g900);
   border-color: var(--g300);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
 }
 html.dark .fl-select,
-html.dark .hb-select {
-  background-color: var(--g100);
-  color: var(--g800);
+html.dark .hb-select,
+html.dark .lv-select,
+html.dark .duration-input {
+  background-color: #111827;
+  color: var(--g900);
   border-color: var(--g300);
 }
 
 /* Summary items */
 html.dark .sum-item { background: var(--g100); }
+html.dark .sum-grid { background: var(--g200); border-color: var(--g200); }
 
 /* Tool cards (home) */
 html.dark .tool-card { background: var(--g100); }
 
 /* Buttons */
-html.dark .btn-outline { background: var(--g100); color: var(--g700); border-color: var(--g300); }
+html.dark .btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+html.dark .btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+  box-shadow: 0 2px 10px rgba(96,165,250,.26);
+}
+html.dark .btn-outline { background: #111827; color: var(--g700); border-color: var(--g300); }
 html.dark .btn-outline:hover:not(:disabled) { background: var(--g200); border-color: var(--g400); }
+
+/* Hero cards */
+html.dark .hero-card {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+  color: #fff;
+}
+html.dark .hero-card.dark  { background: linear-gradient(135deg, #1e40af 0%, #172554 100%); }
+html.dark .hero-card.grace { background: linear-gradient(135deg, #6d28d9 0%, #581c87 100%); }
+html.dark .hero-lbl,
+html.dark .hero-sub {
+  opacity: 1;
+  color: rgba(255,255,255,.88);
+}
+html.dark .hero-val { color: #fff; }
 
 /* Segmented / toggle buttons */
 html.dark .seg-btn { background: var(--g100); color: var(--g600); }
 html.dark .seg-btn:hover { background: var(--g200); }
 html.dark .toggle-btn { background: var(--g100); color: var(--g500); border-color: var(--g300); }
 html.dark .toggle-btn:hover { background: var(--g200); border-color: var(--g400); }
+html.dark .seg-btn.active,
+html.dark .toggle-btn.active,
+html.dark .duration-pill.active,
+html.dark .unit-btn.active,
+html.dark .cl-pill.active,
+html.dark .sv-pill.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #60a5fa;
+}
+html.dark .duration-pill:hover,
+html.dark .cl-pill:hover,
+html.dark .sv-pill:hover {
+  background: var(--blue-light);
+  border-color: var(--blue-mid);
+  color: var(--blue-dark);
+}
+
+/* High-contrast semantic foregrounds */
+html.dark .sum-val.blue,
+html.dark .fl-wf-val.blue,
+html.dark td.prin,
+html.dark .badge-buy {
+  color: var(--blue-dark);
+}
+html.dark .sum-val.red,
+html.dark .fl-wf-val.red,
+html.dark td.int {
+  color: var(--red);
+}
+html.dark .sum-val.green,
+html.dark .breakdown-value.green,
+html.dark .green {
+  color: var(--green);
+}
+
+/* Tables */
+html.dark th {
+  background: #111827;
+  color: var(--g600);
+  border-color: var(--g300);
+}
+html.dark td { border-color: var(--g200); }
+html.dark td:first-child,
+html.dark td.date { color: var(--g500); }
+html.dark td.bal { color: var(--g700); }
+html.dark tr:hover td { background: #111827; }
 
 /* Table row highlights */
 html.dark tr.grace-row td { background: #1a1030; }
-html.dark tr.early-row td { background: #1a1800; }
+html.dark tr.early-row td { background: #241900; }
 html.dark .buy-ahead-row td { background: var(--blue-light); }
 
 /* Info boxes — override hardcoded text colors */
-html.dark .info-box.amber { color: #fde68a; }
-html.dark .info-box.green { color: #6ee7b7; }
+html.dark .info-box.blue {
+  background: var(--blue-light);
+  border-color: var(--blue-mid);
+  color: var(--blue-dark);
+}
+html.dark .info-box.amber { background: var(--amber-light); color: #fde68a; }
+html.dark .info-box.green { background: var(--green-light); color: #bbf7d0; border-color: #34d399; }
+html.dark .info-box strong { color: var(--g900); }
+html.dark .info-box.blue strong { color: #eff6ff; }
+html.dark .info-box.green strong { color: #dcfce7; }
+html.dark .info-box.amber strong { color: #fff7ed; }
 
 /* Greek info box */
-html.dark .gr-info { background: #052e16; border-color: #166534; }
+html.dark .gr-info { background: var(--green-light); border-color: #34d399; }
 html.dark .gr-info h3,
-html.dark .gr-info li { color: #86efac; }
+html.dark .gr-info li { color: #bbf7d0; }
 
 /* ER items */
-html.dark .er-months-saved  { color: #4ade80; background: #052e16; border-color: #166534; }
+html.dark .empty-state,
+html.dark .er-item,
+html.dark .disclaimer { background: #111827; border-color: var(--g200); color: var(--g500); }
+html.dark .er-months-saved  { color: #86efac; background: var(--green-light); border-color: #34d399; }
 html.dark .er-inactive-note { color: #fde68a; background: #1c1000; border-color: #854d0e; }
-html.dark .er-mode-option:has(input:checked) { background: var(--blue-light); border-color: var(--blue); }
-html.dark .bulk-er-form { background: #0c1e38; border-color: var(--blue-mid); }
+html.dark .er-mode-option { background: #111827; color: var(--g600); border-color: var(--g300); }
+html.dark .er-mode-option:has(input:checked) { background: var(--blue-light); border-color: var(--blue-mid); color: var(--blue-dark); }
+html.dark .bulk-er-form { background: var(--blue-light); border-color: var(--blue-mid); }
+html.dark .bulk-er-form .bulk-title,
+html.dark .bulk-er-grid label { color: var(--g700); }
 
 /* Amortization table ER labels */
 html.dark .er-label,

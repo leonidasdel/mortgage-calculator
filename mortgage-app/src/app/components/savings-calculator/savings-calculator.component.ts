@@ -138,6 +138,12 @@ export class SavingsCalculatorComponent implements OnInit {
     this.drawChart(rows);
   }
 
+  @HostListener('window:themechange')
+  onThemeChange(): void {
+    const rows = this.result().yearlyRows;
+    this.drawChart(rows);
+  }
+
   private drawChart(rows: SavingsYearRow[]): void {
     const canvas = this.canvasRef?.nativeElement;
     if (!canvas || !rows.length) return;
@@ -159,19 +165,25 @@ export class SavingsCalculatorComponent implements OnInit {
     const cH = H - PT - PB;
     const bW = Math.max(3, Math.min(28, (cW / rows.length) * 0.65));
     const gap = cW / rows.length;
+    const isDark = document.documentElement.classList.contains('dark');
+    const gridColor = isDark ? '#64748b' : '#f3f4f6';
+    const labelColor = isDark ? '#cbd5e1' : '#9ca3af';
+    const axisColor = isDark ? '#e2e8f0' : '#6b7280';
+    const gainsColor = isDark ? '#86efac' : '#059669';
+    const contributionColor = isDark ? '#60a5fa' : '#1d4ed8';
 
     // Grid lines
     const gridN = 4;
     for (let i = 0; i <= gridN; i++) {
       const y = PT + cH * (1 - i / gridN);
       const val = maxVal * i / gridN;
-      ctx.strokeStyle = '#f3f4f6';
+      ctx.strokeStyle = gridColor;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(PL, y);
       ctx.lineTo(W - PR, y);
       ctx.stroke();
-      ctx.fillStyle = '#9ca3af';
+      ctx.fillStyle = labelColor;
       ctx.font = '10px system-ui, sans-serif';
       ctx.textAlign = 'right';
       const lbl = val >= 1000 ? (val / 1000).toFixed(0) + 'K' : val.toFixed(0);
@@ -186,16 +198,16 @@ export class SavingsCalculatorComponent implements OnInit {
       const gainsH = totalH - contribH;
 
       // Gains (green) on top
-      ctx.fillStyle = '#059669';
+      ctx.fillStyle = gainsColor;
       ctx.fillRect(x, PT + cH - totalH, bW, gainsH > 0 ? gainsH : 0);
       // Contributions (blue) on bottom
-      ctx.fillStyle = '#1d4ed8';
+      ctx.fillStyle = contributionColor;
       ctx.fillRect(x, PT + cH - contribH, bW, contribH);
 
       // X-axis labels
       const every = rows.length <= 10 ? 1 : rows.length <= 20 ? 2 : 5;
       if (r.year === 1 || r.year % every === 0 || r.year === rows.length) {
-        ctx.fillStyle = '#6b7280';
+        ctx.fillStyle = axisColor;
         ctx.font = '10px system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(String(r.year), x + bW / 2, H - 6);
