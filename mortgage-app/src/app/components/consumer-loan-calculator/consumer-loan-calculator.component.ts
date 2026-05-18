@@ -136,7 +136,7 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
       if (r <= 0) r = 0.0001;
       if (Math.abs(step) < 1e-10) break;
     }
-    return r * 12 * 100; // convert monthly rate to annual percentage
+    return (Math.pow(1 + r, 12) - 1) * 100; // effective annual APR
   }
 
   private saveState(): void {
