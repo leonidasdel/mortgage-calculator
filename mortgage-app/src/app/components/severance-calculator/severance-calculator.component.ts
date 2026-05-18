@@ -31,6 +31,12 @@ const SEVERANCE_TABLE: { years: number; months: number }[] = [
 ];
 
 const SEVERANCE_CAP_MONTHS = 24;
+const SEVERANCE_TAX_BRACKETS: { upTo: number | null; rate: number }[] = [
+  { upTo: 60000, rate: 0 },
+  { upTo: 100000, rate: 0.10 },
+  { upTo: 150000, rate: 0.20 },
+  { upTo: null, rate: 0.30 },
+];
 
 function getSeveranceMonths(completedYears: number): number {
   if (completedYears < 1) return 0;
@@ -60,6 +66,7 @@ export interface SeveranceResult {
   actualMonths:        number;
   grossMonthly:        number;
   grossSeverance:      number;
+  severanceTax:        number;
   netSeverance:        number;
   isZero:              boolean;
   isCapped:            boolean;
@@ -110,6 +117,8 @@ export class SeveranceCalculatorComponent implements OnInit {
     const actualMonths = termType === 'without_notice' ? fullMonths : fullMonths / 2;
 
     const grossSeverance = +(actualMonths * gross).toFixed(2);
+    const severanceTax = this.calcSeveranceTax(grossSeverance);
+    const netSeverance = Math.max(0, +(grossSeverance - severanceTax).toFixed(2));
 
     return {
       completedYears,
@@ -118,7 +127,8 @@ export class SeveranceCalculatorComponent implements OnInit {
       actualMonths,
       grossMonthly: gross,
       grossSeverance,
-      netSeverance: grossSeverance, // αφορολόγητη & χωρίς ΕΦΚΑ
+      severanceTax,
+      netSeverance,
       isZero:    completedYears < 1,
       isCapped,
       terminationType: termType,
@@ -127,6 +137,21 @@ export class SeveranceCalculatorComponent implements OnInit {
 
   print(): void {
     window.print();
+  }
+
+  private calcSeveranceTax(grossSeverance: number): number {
+    let previousLimit = 0;
+    let tax = 0;
+
+    for (const bracket of SEVERANCE_TAX_BRACKETS) {
+      const upper = bracket.upTo ?? Infinity;
+      const taxable = Math.min(Math.max(0, grossSeverance - previousLimit), upper - previousLimit);
+      if (taxable > 0) tax += taxable * bracket.rate;
+      previousLimit = upper;
+      if (grossSeverance <= upper) break;
+    }
+
+    return +tax.toFixed(2);
   }
 
   private saveState(): void {

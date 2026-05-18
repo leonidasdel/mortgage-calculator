@@ -1,13 +1,13 @@
 import { Component, computed, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { EFKA_EMPLOYEE_RATE, MAX_INSURABLE_EARNINGS } from '../../constants/payroll.constants';
 
 const STORAGE_KEY = 'unusedLeaveCalcState';
 
-// ΕΦΚΑ μισθωτών ιδιωτικού τομέα από 01.01.2025: 13,32%
-const EFKA_RATE = 0.1332;
-// Ανώτατο όριο ασφαλιστέων αποδοχών 2025
-const MAX_INSURABLE = 7572.62;
+// ΕΦΚΑ μισθωτών ιδιωτικού τομέα από 01.01.2025
+const EFKA_RATE = EFKA_EMPLOYEE_RATE;
+const MAX_INSURABLE = MAX_INSURABLE_EARNINGS;
 
 // Φορολογικά κλιμάκια
 const BRACKETS_2025 = [10000, 20000, 30000, 40000]; // 4 όρια → 5 κλιμάκια

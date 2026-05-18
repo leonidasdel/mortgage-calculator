@@ -104,6 +104,37 @@ describe('MortgageCalculatorService', () => {
       expect(pmtAfterER).toBeLessThan(pmtNoER);
     });
 
+    it('should apply all early repayments scheduled for the same month', () => {
+      const er: EarlyRepayment[] = [
+        { id: 1, month: 12, amount: 10000 },
+        { id: 2, month: 12, amount: 5000 },
+      ];
+      const schedule = service.buildSchedule({ ...BASE_PARAMS, erMode: 'reduceDur' }, er);
+      const month12 = schedule.find(r => r.month === 12);
+      const totalEarly = schedule.reduce((sum, r) => sum + r.earlyAmt, 0);
+
+      expect(month12?.earlyAmt).toBeCloseTo(15000, 2);
+      expect(totalEarly).toBeCloseTo(15000, 2);
+    });
+
+    it('should still fully amortize after a reducePmt early repayment during grace period', () => {
+      const params: LoanParams = {
+        loanAmount: 100000,
+        loanYears: 30,
+        fixedYears: 30,
+        fixedRate: 3,
+        euribor: 0,
+        bankMargin: 0,
+        gracePeriod: 12,
+        erMode: 'reducePmt',
+      };
+      const schedule = service.buildSchedule(params, [{ id: 1, month: 1, amount: 10000 }]);
+      const totalPrincipal = schedule.reduce((sum, r) => sum + r.principal + r.earlyAmt, 0);
+
+      expect(schedule[schedule.length - 1].balance).toBeLessThan(1);
+      expect(totalPrincipal).toBeCloseTo(params.loanAmount, 0);
+    });
+
     it('should not reduce payment in reduceDur mode with ER', () => {
       const er: EarlyRepayment[] = [{ id: 1, month: 12, amount: 10000 }];
       const withER  = service.buildSchedule({ ...BASE_PARAMS, erMode: 'reduceDur' }, er);

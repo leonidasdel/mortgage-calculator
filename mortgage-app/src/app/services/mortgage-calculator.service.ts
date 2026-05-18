@@ -35,6 +35,7 @@ export class MortgageCalculatorService {
     const today = new Date();
     let balance = loanAmount;
     const rows: AmortizationRow[] = [];
+    const erByMonth = this.groupEarlyRepaymentsByMonth(erList);
 
     const amortMonths = totalMonths - graceMonths;
     let pmtFixed = this.pmt(loanAmount, fixedRate + n128Annual, amortMonths > 0 ? amortMonths : totalMonths);
@@ -88,12 +89,12 @@ export class MortgageCalculatorService {
       }
 
       let earlyAmt = 0;
-      const er = erList.find(e => e.month === m);
-      if (er && er.amount > 0) {
-        earlyAmt = Math.min(er.amount, balance - principal);
+      const erAmount = erByMonth.get(m) ?? 0;
+      if (erAmount > 0) {
+        earlyAmt = Math.min(erAmount, balance - principal);
         if (earlyAmt < 0) earlyAmt = 0;
         const afterBalance = balance - principal - earlyAmt;
-        const remMonths    = totalMonths - m;
+        const remMonths    = totalMonths - Math.max(m, graceMonths);
         if (erMode === 'reducePmt' && remMonths > 0 && afterBalance > 0.01) {
           if (isFixed) {
             pmtFixed = this.pmt(afterBalance, fixedRate + n128Annual, remMonths);
@@ -162,6 +163,17 @@ export class MortgageCalculatorService {
       result[sorted[i].id] = Math.max(0, prevLen - withLen);
     }
     return result;
+  }
+
+  private groupEarlyRepaymentsByMonth(erList: EarlyRepayment[]): Map<number, number> {
+    const byMonth = new Map<number, number>();
+    for (const er of erList) {
+      const month = Math.max(1, Math.round(er.month || 1));
+      const amount = Math.max(0, er.amount || 0);
+      if (amount <= 0) continue;
+      byMonth.set(month, (byMonth.get(month) ?? 0) + amount);
+    }
+    return byMonth;
   }
 
   private addMonths(base: Date, n: number): Date {

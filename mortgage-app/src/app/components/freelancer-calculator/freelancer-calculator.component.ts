@@ -212,7 +212,7 @@ export class FreelancerCalculatorComponent implements OnInit {
     const incomeTax = Math.max(0, grossTax - taxDiscount);
     const advanceTax = incomeTax * advanceRate;
     const totalObligations = annualEfka + incomeTax + advanceTax;
-    const netAnnual = revenue - totalObligations;
+    const netAnnual = revenue - expenses - totalObligations;
     const netMonthly = netAnnual / 12;
     const effectiveRate = revenue > 0 ? (totalObligations / revenue) * 100 : 0;
 

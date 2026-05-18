@@ -2,7 +2,7 @@
   <div class="page-header-icon sv-icon">📄</div>
   <div>
     <h1 class="page-title">Αποζημίωση Απόλυσης</h1>
-    <p class="page-subtitle">Υπολογίστε την αποζημίωση απόλυσης βάσει Ν. 4808/2021 — αφορολόγητη &amp; χωρίς ΕΦΚΑ</p>
+    <p class="page-subtitle">Υπολογίστε την αποζημίωση απόλυσης βάσει Ν. 4808/2021 — με φόρο μόνο για ποσά άνω των €60.000</p>
   </div>
 </div>
 
@@ -114,9 +114,9 @@
 
           <div class="hero-row">
             <div class="hero-card dark">
-              <div class="hero-lbl">Αποζημίωση</div>
+              <div class="hero-lbl">Καθαρή Αποζημίωση</div>
               <div class="hero-val">{{ result().netSeverance | euro }}</div>
-              <div class="hero-sub">αφορολόγητη στο χέρι</div>
+              <div class="hero-sub">στο χέρι, χωρίς ΕΦΚΑ</div>
             </div>
             <div class="hero-card">
               <div class="hero-lbl">Μισθοί</div>
@@ -164,10 +164,20 @@
               <div class="sum-lbl">Μεικτός μηνιαίος μισθός</div>
               <div class="sum-val">{{ result().grossMonthly | euro }}</div>
             </div>
+            <div class="sum-item">
+              <div class="sum-lbl">Μεικτή αποζημίωση</div>
+              <div class="sum-val">{{ result().grossSeverance | euro }}</div>
+            </div>
+            <div class="sum-item">
+              <div class="sum-lbl">Φόρος αποζημίωσης</div>
+              <div class="sum-val red">{{ result().severanceTax | euro }}</div>
+            </div>
             <div class="sum-item total-row">
               <div class="sum-lbl">
-                <strong>Αποζημίωση</strong>
-                <span class="sv-exempt-badge">Αφορολόγητο</span>
+                <strong>Καθαρή αποζημίωση</strong>
+                @if (result().severanceTax === 0) {
+                  <span class="sv-exempt-badge">Αφορολόγητο</span>
+                }
               </div>
               <div class="sum-val blue"><strong>{{ result().netSeverance | euro }}</strong></div>
             </div>
@@ -178,7 +188,12 @@
             <div class="lv-net-lbl">ΚΑΘΑΡΗ ΑΠΟΖΗΜΙΩΣΗ ΣΤΟ ΧΕΡΙ</div>
             <div class="lv-net-val">{{ result().netSeverance | euro }}</div>
             <div class="lv-net-sub">
-              {{ result().actualMonths }} μισθοί × {{ result().grossMonthly | euro }} — αφορολόγητη, χωρίς ΕΦΚΑ
+              {{ result().actualMonths }} μισθοί × {{ result().grossMonthly | euro }}
+              @if (result().severanceTax > 0) {
+                — μείον φόρος {{ result().severanceTax | euro }}, χωρίς ΕΦΚΑ
+              } @else {
+                — αφορολόγητη, χωρίς ΕΦΚΑ
+              }
             </div>
           </div>
 
@@ -221,7 +236,7 @@
         </div>
 
         <div class="disclaimer">
-          <strong>Σημαντική Σημείωση:</strong> Η αποζημίωση υπολογίζεται βάσει Ν. 4808/2021 για εργαζομένους ιδιωτικού τομέα αορίστου χρόνου. Η νόμιμη αποζημίωση είναι αφορολόγητη και δεν υπόκειται σε ΕΦΚΑ. Για συλλογικές συμβάσεις ή ειδικές περιπτώσεις συμβουλευτείτε εργατολόγο.
+          <strong>Σημαντική Σημείωση:</strong> Η αποζημίωση υπολογίζεται βάσει Ν. 4808/2021 για εργαζομένους ιδιωτικού τομέα αορίστου χρόνου. Η αποζημίωση δεν υπόκειται σε ΕΦΚΑ και φορολογείται αυτοτελώς για το τμήμα άνω των €60.000. Για συλλογικές συμβάσεις ή ειδικές περιπτώσεις συμβουλευτείτε εργατολόγο.
         </div>
       </div>
     </div>
