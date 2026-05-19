@@ -30,6 +30,20 @@
   letter-spacing: -0.5px;
 }
 
+:host-context(html.dark) .salary-hero.gross {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+  color: #fff;
+}
+:host-context(html.dark) .salary-hero.net {
+  background: linear-gradient(135deg, #059669 0%, #065f46 100%);
+  color: #fff;
+}
+:host-context(html.dark) .salary-hero .hero-lbl,
+:host-context(html.dark) .salary-hero .hero-val {
+  color: #fff;
+  opacity: 1;
+}
+
 /* Breakdown */
 .salary-breakdown {
   margin-top: 16px;

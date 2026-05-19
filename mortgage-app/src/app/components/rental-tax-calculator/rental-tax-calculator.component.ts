@@ -41,7 +41,9 @@ export class RentalTaxCalculatorComponent implements OnInit {
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
+      incomeMode:     ['annual'],
       annualIncome:   [12000],
+      monthlyIncome:  [1000],
       rentalType:     ['long-term'],
       expenseMethod:  ['automatic'],
       actualExpenses: [0],
@@ -57,7 +59,10 @@ export class RentalTaxCalculatorComponent implements OnInit {
   result = computed<RentalTaxResult>(() => {
     this.formValues();
     const fv = this.form.value;
-    const annualIncome = Math.max(0, fv.annualIncome || 0);
+    const incomeMode = fv.incomeMode === 'monthly' ? 'monthly' : 'annual';
+    const annualIncome = incomeMode === 'monthly'
+      ? +(Math.max(0, fv.monthlyIncome || 0) * 12).toFixed(2)
+      : Math.max(0, fv.annualIncome || 0);
 
     const expensesDeduction = fv.expenseMethod === 'automatic'
       ? annualIncome * 0.05
@@ -92,6 +97,23 @@ export class RentalTaxCalculatorComponent implements OnInit {
     window.print();
   }
 
+  onIncomeModeChange(mode: 'annual' | 'monthly'): void {
+    this.form.patchValue({ incomeMode: mode });
+    this.saveState();
+  }
+
+  onAnnualIncomeInput(): void {
+    const annualIncome = Math.max(0, Number(this.form.get('annualIncome')?.value) || 0);
+    this.form.patchValue({ monthlyIncome: +(annualIncome / 12).toFixed(2) }, { emitEvent: false });
+    this.saveState();
+  }
+
+  onMonthlyIncomeInput(): void {
+    const monthlyIncome = Math.max(0, Number(this.form.get('monthlyIncome')?.value) || 0);
+    this.form.patchValue({ annualIncome: +(monthlyIncome * 12).toFixed(2) }, { emitEvent: false });
+    this.saveState();
+  }
+
   private saveState(): void {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.form.value)); } catch { /* ignore */ }
   }
@@ -101,7 +123,12 @@ export class RentalTaxCalculatorComponent implements OnInit {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const state = JSON.parse(raw);
-      if (state) this.form.patchValue(state, { emitEvent: false });
+      if (!state) return;
+      if (state.incomeMode == null) state.incomeMode = 'annual';
+      if (state.monthlyIncome == null) {
+        state.monthlyIncome = +(Math.max(0, Number(state.annualIncome) || 0) / 12).toFixed(2);
+      }
+      this.form.patchValue(state, { emitEvent: false });
     } catch { /* ignore */ }
   }
 }
