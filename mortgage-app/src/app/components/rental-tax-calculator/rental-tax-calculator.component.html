@@ -17,10 +17,48 @@
       <div class="card-body" [formGroup]="form">
 
         <div class="form-group">
-          <label for="annualIncome">Ετήσιο Εισόδημα Ενοικίων (&#8364;)</label>
+          <label>Εισόδημα Ενοικίων</label>
+          <div class="rt-income-toggle">
+            <button type="button"
+                    class="rt-income-pill"
+                    [class.active]="form.get('incomeMode')?.value === 'monthly'"
+                    (click)="onIncomeModeChange('monthly')">
+              Μηνιαίο
+            </button>
+            <button type="button"
+                    class="rt-income-pill"
+                    [class.active]="form.get('incomeMode')?.value === 'annual'"
+                    (click)="onIncomeModeChange('annual')">
+              Ετήσιο
+            </button>
+          </div>
+        </div>
+
+        @if (form.get('incomeMode')?.value === 'monthly') {
+          <div class="form-group">
+            <label for="monthlyIncome">Μηνιαίο Εισόδημα Ενοικίων (&#8364;)</label>
+            <div class="input-wrap has-pfx">
+              <span class="pfx">&#8364;</span>
+              <input type="number" id="monthlyIncome" formControlName="monthlyIncome" min="0" step="50" (input)="onMonthlyIncomeInput()">
+            </div>
+            <div class="rt-hint">Ετήσιο ισοδύναμο: <strong>{{ result().annualIncome | euro }}</strong></div>
+          </div>
+        } @else {
+          <div class="form-group">
+            <label for="annualIncome">Ετήσιο Εισόδημα Ενοικίων (&#8364;)</label>
+            <div class="input-wrap has-pfx">
+              <span class="pfx">&#8364;</span>
+              <input type="number" id="annualIncome" formControlName="annualIncome" min="0" step="500" (input)="onAnnualIncomeInput()">
+            </div>
+            <div class="rt-hint">Μηνιαίο ισοδύναμο: <strong>{{ result().annualIncome / 12 | euro }}</strong></div>
+          </div>
+        }
+
+        <div class="form-group rt-annual-readout">
+          <label>Φορολογική βάση εισοδήματος</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="annualIncome" formControlName="annualIncome" min="0" step="500">
+            <input type="number" [value]="result().annualIncome" readonly>
           </div>
         </div>
 

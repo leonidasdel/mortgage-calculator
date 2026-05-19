@@ -7,6 +7,49 @@
   line-height: 1.5;
 }
 
+.rvb-mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.rvb-mode-pill {
+  min-height: 36px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--g200);
+  background: var(--g100);
+  color: var(--g600);
+  font-size: 12px;
+  font-weight: 600;
+}
+.rvb-mode-pill:hover {
+  background: var(--blue-light);
+  border-color: var(--blue-mid);
+  color: var(--blue-dark);
+}
+.rvb-mode-pill.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+:host-context(html.dark) .rvb-mode-pill {
+  background: #111827;
+  color: var(--g600);
+  border-color: var(--g300);
+}
+:host-context(html.dark) .rvb-mode-pill:hover {
+  background: var(--blue-light);
+  border-color: var(--blue-mid);
+  color: var(--blue-dark);
+}
+:host-context(html.dark) .rvb-mode-pill.active {
+  background: #2563eb;
+  border-color: #60a5fa;
+  color: #fff;
+}
+
 /* Verdict banner */
 .verdict-banner {
   display: flex;
@@ -71,6 +114,32 @@ tr:hover td { filter: brightness(0.97); }
 }
 .badge-buy  { background: var(--blue-light); color: var(--blue-dark); }
 .badge-rent { background: var(--green-light); color: #065f46; }
+
+:host-context(html.dark) .buy-ahead-row td {
+  background: #0b2a4a;
+}
+:host-context(html.dark) .rent-ahead-row td {
+  background: #052e1a;
+}
+:host-context(html.dark) .wealth-val,
+:host-context(html.dark) .buy-ahead-row td:first-child,
+:host-context(html.dark) .rent-ahead-row td:first-child {
+  color: var(--g800);
+}
+:host-context(html.dark) .winner-val {
+  color: var(--g900);
+}
+:host-context(html.dark) .badge-buy {
+  background: #0b3b66;
+  color: #dbeafe;
+}
+:host-context(html.dark) .badge-rent {
+  background: #064e3b;
+  color: #bbf7d0;
+}
+:host-context(html.dark) tr:hover td {
+  filter: brightness(1.12);
+}
 
 .info-list {
   padding-left: 18px;

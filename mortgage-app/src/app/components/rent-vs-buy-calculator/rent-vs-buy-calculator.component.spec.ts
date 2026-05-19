@@ -1,0 +1,71 @@
+import { CommonModule } from '@angular/common';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { RentVsBuyCalculatorComponent } from './rent-vs-buy-calculator.component';
+import { EuroPipe } from '../../pipes/euro.pipe';
+
+describe('RentVsBuyCalculatorComponent', () => {
+  beforeEach(async () => {
+    localStorage.clear();
+
+    await TestBed.configureTestingModule({
+      declarations: [RentVsBuyCalculatorComponent, EuroPipe],
+      imports: [CommonModule, ReactiveFormsModule],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
+  });
+
+  it('should calculate down payment and closing costs from explicit amounts', () => {
+    const fixture = TestBed.createComponent(RentVsBuyCalculatorComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component.form.patchValue({ propertyPrice: 198000 });
+    component.onDownPaymentModeChange('amount');
+    component.form.patchValue({ downPaymentAmount: 17820 });
+    component.onDownPaymentAmountInput();
+    component.onClosingCostsModeChange('amount');
+    component.form.patchValue({ closingCostsAmount: 11880 });
+    component.onClosingCostsAmountInput();
+
+    const result = component.result();
+    expect(result.downPayment).toBe(17820);
+    expect(result.downPaymentPct).toBeCloseTo(9, 2);
+    expect(result.closingCosts).toBe(11880);
+    expect(result.closingCostsPct).toBeCloseTo(6, 2);
+  });
+
+  it('should persist and restore amount modes and values', () => {
+    const fixture = TestBed.createComponent(RentVsBuyCalculatorComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component.form.patchValue({ propertyPrice: 198000 });
+    component.onDownPaymentModeChange('amount');
+    component.form.patchValue({ downPaymentAmount: 17820 });
+    component.onDownPaymentAmountInput();
+    component.onClosingCostsModeChange('amount');
+    component.form.patchValue({ closingCostsAmount: 11880 });
+    component.onClosingCostsAmountInput();
+
+    const saved = JSON.parse(localStorage.getItem('rentVsBuyCalcState') ?? '{}');
+    expect(saved.downPaymentMode).toBe('amount');
+    expect(saved.downPaymentAmount).toBe(17820);
+    expect(saved.downPaymentPct).toBe(9);
+    expect(saved.closingCostsMode).toBe('amount');
+    expect(saved.closingCostsAmount).toBe(11880);
+    expect(saved.closingCostsPct).toBe(6);
+
+    const restoredFixture = TestBed.createComponent(RentVsBuyCalculatorComponent);
+    const restored = restoredFixture.componentInstance;
+    restoredFixture.detectChanges();
+
+    expect(restored.form.get('downPaymentMode')?.value).toBe('amount');
+    expect(restored.form.get('downPaymentAmount')?.value).toBe(17820);
+    expect(restored.result().downPayment).toBe(17820);
+    expect(restored.form.get('closingCostsMode')?.value).toBe('amount');
+    expect(restored.form.get('closingCostsAmount')?.value).toBe(11880);
+    expect(restored.result().closingCosts).toBe(11880);
+  });
+});

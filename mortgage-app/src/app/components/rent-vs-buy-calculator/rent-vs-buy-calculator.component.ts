@@ -15,7 +15,9 @@ interface RentVsBuyResult {
   monthlyPayment: number;
   loanAmount: number;
   downPayment: number;
+  downPaymentPct: number;
   closingCosts: number;
+  closingCostsPct: number;
   yearlyRows: YearlyRow[];
   breakEvenYear: number | null;
   finalBuyWealth: number;
@@ -37,8 +39,12 @@ export class RentVsBuyCalculatorComponent implements OnInit {
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       propertyPrice: [250000],
+      downPaymentMode: ['pct'],
       downPaymentPct: [20],
+      downPaymentAmount: [50000],
+      closingCostsMode: ['pct'],
       closingCostsPct: [3],
+      closingCostsAmount: [7500],
       mortgageRate: [3.5],
       mortgageTerm: [30],
       monthlyRent: [900],
@@ -72,8 +78,10 @@ export class RentVsBuyCalculatorComponent implements OnInit {
     const fv = this.form.value;
 
     const propertyPrice = Math.max(0, fv.propertyPrice || 0);
-    const downPaymentPct = Math.min(100, Math.max(0, fv.downPaymentPct ?? 20));
-    const closingCostsPct = Math.max(0, fv.closingCostsPct ?? 3);
+    const downPaymentMode = fv.downPaymentMode === 'amount' ? 'amount' : 'pct';
+    const closingCostsMode = fv.closingCostsMode === 'amount' ? 'amount' : 'pct';
+    const downPaymentPctInput = Math.min(100, Math.max(0, fv.downPaymentPct ?? 20));
+    const closingCostsPctInput = Math.max(0, fv.closingCostsPct ?? 3);
     const mortgageRate = Math.max(0, fv.mortgageRate ?? 3.5);
     const mortgageTerm = Math.max(1, Math.min(40, fv.mortgageTerm || 30));
     const monthlyRent = Math.max(0, fv.monthlyRent || 0);
@@ -83,9 +91,15 @@ export class RentVsBuyCalculatorComponent implements OnInit {
     const annualOwnershipCostPct = Math.max(0, fv.annualOwnershipCostPct ?? 1);
     const timeHorizon = Math.min(40, Math.max(1, fv.timeHorizon || 20));
 
-    const downPayment = propertyPrice * downPaymentPct / 100;
+    const downPayment = downPaymentMode === 'amount'
+      ? Math.min(propertyPrice, Math.max(0, fv.downPaymentAmount || 0))
+      : propertyPrice * downPaymentPctInput / 100;
+    const downPaymentPct = propertyPrice > 0 ? downPayment / propertyPrice * 100 : 0;
     const loanAmount = propertyPrice - downPayment;
-    const closingCosts = propertyPrice * closingCostsPct / 100;
+    const closingCosts = closingCostsMode === 'amount'
+      ? Math.max(0, fv.closingCostsAmount || 0)
+      : propertyPrice * closingCostsPctInput / 100;
+    const closingCostsPct = propertyPrice > 0 ? closingCosts / propertyPrice * 100 : 0;
 
     // Mortgage params
     const n = mortgageTerm * 12;
@@ -181,7 +195,9 @@ export class RentVsBuyCalculatorComponent implements OnInit {
       monthlyPayment,
       loanAmount,
       downPayment,
+      downPaymentPct,
       closingCosts,
+      closingCostsPct,
       yearlyRows,
       breakEvenYear,
       finalBuyWealth,
@@ -190,6 +206,78 @@ export class RentVsBuyCalculatorComponent implements OnInit {
       advantage: Math.abs(diff),
     };
   });
+
+  onPropertyPriceInput(): void {
+    this.syncDerivedAmounts();
+  }
+
+  onDownPaymentModeChange(mode: 'pct' | 'amount'): void {
+    this.form.patchValue({ downPaymentMode: mode });
+    this.syncDownPaymentPair(mode);
+    this.saveState();
+  }
+
+  onDownPaymentPctInput(): void {
+    this.syncDownPaymentPair('pct');
+    this.saveState();
+  }
+
+  onDownPaymentAmountInput(): void {
+    this.syncDownPaymentPair('amount');
+    this.saveState();
+  }
+
+  onClosingCostsModeChange(mode: 'pct' | 'amount'): void {
+    this.form.patchValue({ closingCostsMode: mode });
+    this.syncClosingCostsPair(mode);
+    this.saveState();
+  }
+
+  onClosingCostsPctInput(): void {
+    this.syncClosingCostsPair('pct');
+    this.saveState();
+  }
+
+  onClosingCostsAmountInput(): void {
+    this.syncClosingCostsPair('amount');
+    this.saveState();
+  }
+
+  private syncDerivedAmounts(): void {
+    const downPaymentMode = this.form.get('downPaymentMode')?.value === 'amount' ? 'amount' : 'pct';
+    const closingCostsMode = this.form.get('closingCostsMode')?.value === 'amount' ? 'amount' : 'pct';
+    this.syncDownPaymentPair(downPaymentMode);
+    this.syncClosingCostsPair(closingCostsMode);
+    this.saveState();
+  }
+
+  private syncDownPaymentPair(source: 'pct' | 'amount'): void {
+    const propertyPrice = Math.max(0, Number(this.form.get('propertyPrice')?.value) || 0);
+    if (source === 'pct') {
+      const pct = Math.min(100, Math.max(0, Number(this.form.get('downPaymentPct')?.value) || 0));
+      const amount = +(propertyPrice * pct / 100).toFixed(2);
+      this.form.patchValue({ downPaymentPct: pct, downPaymentAmount: amount });
+      return;
+    }
+
+    const amount = Math.min(propertyPrice, Math.max(0, Number(this.form.get('downPaymentAmount')?.value) || 0));
+    const pct = propertyPrice > 0 ? +(amount / propertyPrice * 100).toFixed(2) : 0;
+    this.form.patchValue({ downPaymentAmount: amount, downPaymentPct: pct });
+  }
+
+  private syncClosingCostsPair(source: 'pct' | 'amount'): void {
+    const propertyPrice = Math.max(0, Number(this.form.get('propertyPrice')?.value) || 0);
+    if (source === 'pct') {
+      const pct = Math.max(0, Number(this.form.get('closingCostsPct')?.value) || 0);
+      const amount = +(propertyPrice * pct / 100).toFixed(2);
+      this.form.patchValue({ closingCostsPct: pct, closingCostsAmount: amount });
+      return;
+    }
+
+    const amount = Math.max(0, Number(this.form.get('closingCostsAmount')?.value) || 0);
+    const pct = propertyPrice > 0 ? +(amount / propertyPrice * 100).toFixed(2) : 0;
+    this.form.patchValue({ closingCostsAmount: amount, closingCostsPct: pct });
+  }
 
   private saveState(): void {
     try {
@@ -202,7 +290,20 @@ export class RentVsBuyCalculatorComponent implements OnInit {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const state = JSON.parse(raw);
-      if (state) this.form.patchValue(state, { emitEvent: false });
+      if (!state) return;
+      if (state.downPaymentMode == null) state.downPaymentMode = 'pct';
+      if (state.closingCostsMode == null) state.closingCostsMode = 'pct';
+      if (state.downPaymentAmount == null) {
+        const price = Math.max(0, Number(state.propertyPrice) || 0);
+        const pct = Math.min(100, Math.max(0, Number(state.downPaymentPct) || 0));
+        state.downPaymentAmount = +(price * pct / 100).toFixed(2);
+      }
+      if (state.closingCostsAmount == null) {
+        const price = Math.max(0, Number(state.propertyPrice) || 0);
+        const pct = Math.max(0, Number(state.closingCostsPct) || 0);
+        state.closingCostsAmount = +(price * pct / 100).toFixed(2);
+      }
+      this.form.patchValue(state, { emitEvent: false });
     } catch { /* ignore */ }
   }
 }
