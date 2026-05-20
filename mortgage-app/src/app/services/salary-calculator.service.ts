@@ -364,6 +364,25 @@ export class SalaryCalculatorService {
   }
 
   /**
+   * Standalone income-tax calculation for salaried-style progressive brackets.
+   * Used by calculators that share the same scale but may not apply Article 16 discounts.
+   */
+  calculateTaxOnly(
+    taxableIncome: number,
+    year: number,
+    ageGroup: AgeGroup,
+    children: number,
+  ): { totalTax: number; breakdown: TaxBracketResult[]; taxDiscount: number; annualTax: number } {
+    const childrenIdx = Math.min(children, 6);
+    const taxTable = year <= 2025 ? TAX_RATES_2025 : TAX_RATES_2026;
+    const brackets = taxTable[ageGroup];
+    const { totalTax, breakdown } = this.calculateTax(taxableIncome, brackets, childrenIdx);
+    const taxDiscount = this.getTaxDiscount(children, taxableIncome);
+    const annualTax = Math.max(0, +(totalTax - taxDiscount).toFixed(2));
+    return { totalTax, breakdown, taxDiscount, annualTax };
+  }
+
+  /**
    * Calculate pro-rata weighted gross salary for a bonus period.
    * Returns the weighted average gross based on days at each salary.
    */

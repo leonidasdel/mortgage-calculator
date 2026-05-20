@@ -6,28 +6,37 @@ const STORAGE_KEY = 'severanceCalcState';
 
 // Ν. 4808/2021 — Αποζημίωση απόλυσης ιδιωτικού τομέα (λευκόχολοι + εργατοτεχνίτες ενοποιημένα)
 // Πίνακας: συμπληρωμένα έτη υπηρεσίας → μήνες αποζημίωσης (απόλυση χωρίς προειδοποίηση)
+// Περιλαμβάνει τη βασική αποζημίωση (έως 12 μήνες) και την επιπλέον αποζημίωση για παλαιούς υπαλλήλους (Ν. 4093/2012)
 const SEVERANCE_TABLE: { years: number; months: number }[] = [
   { years: 0,  months: 0  },
-  { years: 1,  months: 1  },
+  { years: 1,  months: 2  },
   { years: 2,  months: 2  },
   { years: 3,  months: 2  },
-  { years: 4,  months: 2  },
+  { years: 4,  months: 3  },
   { years: 5,  months: 3  },
-  { years: 6,  months: 3  },
-  { years: 7,  months: 3  },
-  { years: 8,  months: 4  },
-  { years: 9,  months: 4  },
-  { years: 10, months: 5  },
-  { years: 11, months: 6  },
-  { years: 12, months: 7  },
-  { years: 13, months: 8  },
-  { years: 14, months: 9  },
-  { years: 15, months: 10 },
-  { years: 16, months: 11 },
-  { years: 17, months: 12 },
-  { years: 18, months: 13 },
-  { years: 19, months: 14 },
-  { years: 20, months: 15 },
+  { years: 6,  months: 4  },
+  { years: 7,  months: 4  },
+  { years: 8,  months: 5  },
+  { years: 9,  months: 5  },
+  { years: 10, months: 6  },
+  { years: 11, months: 7  },
+  { years: 12, months: 8  },
+  { years: 13, months: 9  },
+  { years: 14, months: 10 },
+  { years: 15, months: 11 },
+  { years: 16, months: 12 },
+  { years: 17, months: 13 },
+  { years: 18, months: 14 },
+  { years: 19, months: 15 },
+  { years: 20, months: 16 },
+  { years: 21, months: 17 },
+  { years: 22, months: 18 },
+  { years: 23, months: 19 },
+  { years: 24, months: 20 },
+  { years: 25, months: 21 },
+  { years: 26, months: 22 },
+  { years: 27, months: 23 },
+  { years: 28, months: 24 },
 ];
 
 const SEVERANCE_CAP_MONTHS = 24;
@@ -40,9 +49,7 @@ const SEVERANCE_TAX_BRACKETS: { upTo: number | null; rate: number }[] = [
 
 function getSeveranceMonths(completedYears: number): number {
   if (completedYears < 1) return 0;
-  if (completedYears >= 21) {
-    return Math.min(SEVERANCE_CAP_MONTHS, 15 + (completedYears - 20));
-  }
+  if (completedYears >= 28) return SEVERANCE_CAP_MONTHS;
   // Find last entry where years <= completedYears
   let months = 0;
   for (const row of SEVERANCE_TABLE) {
@@ -65,6 +72,7 @@ export interface SeveranceResult {
   fullSeveranceMonths: number;
   actualMonths:        number;
   grossMonthly:        number;
+  baseSalaryCalculation: number;
   grossSeverance:      number;
   severanceTax:        number;
   netSeverance:        number;
@@ -116,7 +124,8 @@ export class SeveranceCalculatorComponent implements OnInit {
     // Με προειδοποίηση / συναινετική: μισή αποζημίωση
     const actualMonths = termType === 'without_notice' ? fullMonths : fullMonths / 2;
 
-    const grossSeverance = +(actualMonths * gross).toFixed(2);
+    const baseSalaryCalculation = +(gross * 14 / 12).toFixed(2);
+    const grossSeverance = +(actualMonths * baseSalaryCalculation).toFixed(2);
     const severanceTax = this.calcSeveranceTax(grossSeverance);
     const netSeverance = Math.max(0, +(grossSeverance - severanceTax).toFixed(2));
 
@@ -126,6 +135,7 @@ export class SeveranceCalculatorComponent implements OnInit {
       fullSeveranceMonths: fullMonths,
       actualMonths,
       grossMonthly: gross,
+      baseSalaryCalculation,
       grossSeverance,
       severanceTax,
       netSeverance,
