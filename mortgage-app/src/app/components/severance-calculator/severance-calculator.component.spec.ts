@@ -28,7 +28,7 @@ describe('SeveranceCalculatorComponent', () => {
 
     const result = component.result();
 
-    expect(result.grossSeverance).toBe(10000);
+    expect(result.grossSeverance).toBe(13999.98);
     expect(result.severanceTax).toBe(0);
     expect(result.netSeverance).toBe(result.grossSeverance);
   });
@@ -45,8 +45,8 @@ describe('SeveranceCalculatorComponent', () => {
 
     const result = component.result();
 
-    expect(result.grossSeverance).toBe(150000);
-    expect(result.severanceTax).toBe(14000);
-    expect(result.netSeverance).toBe(136000);
+    expect(result.grossSeverance).toBe(186666.72);
+    expect(result.severanceTax).toBe(25000.02);
+    expect(result.netSeverance).toBe(161666.70);
   });
 });

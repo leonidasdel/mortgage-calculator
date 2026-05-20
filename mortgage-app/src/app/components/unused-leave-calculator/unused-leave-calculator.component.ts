@@ -2,37 +2,14 @@ import { Component, computed, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { EFKA_EMPLOYEE_RATE, MAX_INSURABLE_EARNINGS } from '../../constants/payroll.constants';
+import { SalaryCalculatorService } from '../../services/salary-calculator.service';
+import { AgeGroup } from '../../models/salary.models';
 
 const STORAGE_KEY = 'unusedLeaveCalcState';
 
 // ΕΦΚΑ μισθωτών ιδιωτικού τομέα από 01.01.2025
 const EFKA_RATE = EFKA_EMPLOYEE_RATE;
 const MAX_INSURABLE = MAX_INSURABLE_EARNINGS;
-
-// Φορολογικά κλιμάκια
-const BRACKETS_2025 = [10000, 20000, 30000, 40000]; // 4 όρια → 5 κλιμάκια
-const BRACKETS_2026 = [10000, 20000, 30000, 40000, 60000]; // 5 όρια → 6 κλιμάκια
-
-type AgeGroup = 'over30' | '26to30' | 'under25';
-
-// Συντελεστές 2025: ίδιοι για όλες τις ηλικιακές ομάδες
-const RATES_2025: Record<AgeGroup, number[]> = {
-  over30:   [0.09, 0.22, 0.28, 0.36, 0.44],
-  '26to30': [0.09, 0.22, 0.28, 0.36, 0.44],
-  under25:  [0.09, 0.22, 0.28, 0.36, 0.44],
-};
-
-// Συντελεστές 2026 (Ν. 5246/2025): νέες κλίμακες με ηλικιακές διαφορές
-const RATES_2026: Record<AgeGroup, number[]> = {
-  over30:   [0.09, 0.20, 0.26, 0.34, 0.39, 0.44],
-  '26to30': [0.09, 0.09, 0.26, 0.34, 0.39, 0.44],
-  under25:  [0.00, 0.00, 0.26, 0.34, 0.39, 0.44],
-};
-
-// Μείωση φόρου βάσει αριθμού τέκνων (άρθρο 16 ΚΦΕ)
-const TAX_DISCOUNT: Record<number, number> = {
-  0: 777, 1: 900, 2: 1120, 3: 1340, 4: 1580, 5: 1780,
-};
 
 export interface TaxBracket {
   from: number;
@@ -83,7 +60,10 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
 
   showTaxBreakdown = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private salaryService: SalaryCalculatorService,
+  ) {
     this.form = this.fb.group({
       salaryType:           ['monthly'],       // 'monthly' | 'daily'
       grossMonthly:         [1500],
@@ -198,16 +178,14 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
     const annualEfkaBase      = +(insMonthlyBase * EFKA_RATE * 14).toFixed(2);
     const annualBaseTaxable   = Math.max(0, +(annualBaseGross - annualEfkaBase).toFixed(2));
 
-    // Επιλογή κλιμακίων & συντελεστών βάσει έτους
-    const brackets = taxYear === '2026' ? BRACKETS_2026 : BRACKETS_2025;
-    const rates    = taxYear === '2026' ? RATES_2026[ageGroup] : RATES_2025[ageGroup];
+    const year = taxYear === '2026' ? 2026 : 2025;
 
     // Φόρος στο βασικό εισόδημα
-    const taxOnBase  = this.calcTax(annualBaseTaxable, brackets, rates, children);
+    const taxOnBase  = this.calcTax(annualBaseTaxable, year, ageGroup, children);
 
     // Φόρος στο συνολικό εισόδημα (βασικό + αποζημίωση)
     const totalAnnualTaxable = +(annualBaseTaxable + taxableLeaveComp).toFixed(2);
-    const taxOnTotal = this.calcTax(totalAnnualTaxable, brackets, rates, children);
+    const taxOnTotal = this.calcTax(totalAnnualTaxable, year, ageGroup, children);
 
     // Οριακός φόρος = επιπλέον φόρος λόγω της αποζημίωσης
     const marginalTax = Math.max(0, +(taxOnTotal.tax - taxOnBase.tax).toFixed(2));
@@ -256,42 +234,25 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
     window.print();
   }
 
-  // Υπολογισμός φόρου με κλιμάκια
+  // Υπολογισμός φόρου με κλιμάκια (κοινή λογική με SalaryCalculatorService)
   private calcTax(
     taxable: number,
-    brackets: number[],
-    rates: number[],
+    year: number,
+    ageGroup: AgeGroup,
     children: number,
   ): { tax: number; taxGross: number; breakdown: TaxBracket[] } {
-    const breakdown: TaxBracket[] = [];
-    let remaining = taxable;
-    let totalTax  = 0;
-
-    for (let i = 0; i < rates.length; i++) {
-      const from        = i === 0 ? 0 : brackets[i - 1];
-      const to          = i < brackets.length ? brackets[i] : null;
-      const bracketSize = to !== null ? to - from : Infinity;
-      const inBracket   = Math.min(Math.max(0, remaining), bracketSize);
-
-      if (inBracket > 0) {
-        const tax = +(inBracket * rates[i]).toFixed(2);
-        totalTax += tax;
-        breakdown.push({ from, to, rate: rates[i] * 100, taxableAmount: inBracket, tax });
-      }
-
-      remaining -= bracketSize;
-      if (remaining <= 0) break;
-    }
-
-    // Μείωση φόρου (άρθρο 16 ΚΦΕ) – μειώνεται 20€/1.000€ για εισόδημα > 12.000€
-    let discount = children <= 5 ? TAX_DISCOUNT[children] : 1780 + 220 * (children - 5);
-    if (taxable > 12000) {
-      discount = Math.max(0, discount - ((taxable - 12000) / 1000) * 20);
-    }
-
-    const tax = Math.max(0, +(totalTax - discount).toFixed(2));
-    // taxGross: φόρος ΠΡΙΝ τη μείωση (σύνολο κλιμακίων), χρήσιμο για εμφάνιση στον πίνακα
-    return { tax, taxGross: +totalTax.toFixed(2), breakdown };
+    const result = this.salaryService.calculateTaxOnly(taxable, year, ageGroup, children);
+    return {
+      tax: result.annualTax,
+      taxGross: result.totalTax,
+      breakdown: result.breakdown.map(b => ({
+        from: b.from,
+        to: b.to,
+        rate: b.rate,
+        taxableAmount: b.taxableAmount,
+        tax: b.tax,
+      })),
+    };
   }
 
   private saveState(): void {

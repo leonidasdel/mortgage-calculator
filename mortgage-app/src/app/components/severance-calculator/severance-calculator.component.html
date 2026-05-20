@@ -165,6 +165,10 @@
               <div class="sum-val">{{ result().grossMonthly | euro }}</div>
             </div>
             <div class="sum-item">
+              <div class="sum-lbl">Μισθός υπολογισμού (με προσαύξηση 1/6)</div>
+              <div class="sum-val">{{ result().baseSalaryCalculation | euro }}</div>
+            </div>
+            <div class="sum-item">
               <div class="sum-lbl">Μεικτή αποζημίωση</div>
               <div class="sum-val">{{ result().grossSeverance | euro }}</div>
             </div>
@@ -188,7 +192,7 @@
             <div class="lv-net-lbl">ΚΑΘΑΡΗ ΑΠΟΖΗΜΙΩΣΗ ΣΤΟ ΧΕΡΙ</div>
             <div class="lv-net-val">{{ result().netSeverance | euro }}</div>
             <div class="lv-net-sub">
-              {{ result().actualMonths }} μισθοί × {{ result().grossMonthly | euro }}
+              {{ result().actualMonths }} μισθοί × {{ result().baseSalaryCalculation | euro }} (προσαυξημένος κατά 1/6 λόγω δώρων/αδείας)
               @if (result().severanceTax > 0) {
                 — μείον φόρος {{ result().severanceTax | euro }}, χωρίς ΕΦΚΑ
               } @else {
@@ -224,13 +228,15 @@
             </thead>
             <tbody>
               <tr><td>&lt; 1 έτος</td><td class="num">0 μισθοί</td><td class="num">0 μισθοί</td></tr>
-              <tr [class.sv-current-row]="result().completedYears === 1"><td>1 έτος</td><td class="num">1</td><td class="num">0,5</td></tr>
-              <tr [class.sv-current-row]="result().completedYears >= 2 && result().completedYears <= 4"><td>2–4 έτη</td><td class="num">2</td><td class="num">1</td></tr>
-              <tr [class.sv-current-row]="result().completedYears >= 5 && result().completedYears <= 7"><td>5–7 έτη</td><td class="num">3</td><td class="num">1,5</td></tr>
-              <tr [class.sv-current-row]="result().completedYears >= 8 && result().completedYears <= 9"><td>8–9 έτη</td><td class="num">4</td><td class="num">2</td></tr>
-              <tr [class.sv-current-row]="result().completedYears === 10"><td>10 έτη</td><td class="num">5</td><td class="num">2,5</td></tr>
-              <tr [class.sv-current-row]="result().completedYears >= 11 && result().completedYears <= 20"><td>11–20 έτη</td><td class="num">6–15</td><td class="num">3–7,5</td></tr>
-              <tr [class.sv-current-row]="result().completedYears > 20"><td>&gt; 20 έτη</td><td class="num">έως 24</td><td class="num">έως 12</td></tr>
+              <tr [class.sv-current-row]="result().completedYears === 1"><td>1 έτος</td><td class="num">2</td><td class="num">1</td></tr>
+              <tr [class.sv-current-row]="result().completedYears >= 2 && result().completedYears <= 3"><td>2–3 έτη</td><td class="num">2</td><td class="num">1</td></tr>
+              <tr [class.sv-current-row]="result().completedYears === 4"><td>4 έτη</td><td class="num">3</td><td class="num">1,5</td></tr>
+              <tr [class.sv-current-row]="result().completedYears === 5"><td>5 έτη</td><td class="num">3</td><td class="num">1,5</td></tr>
+              <tr [class.sv-current-row]="result().completedYears >= 6 && result().completedYears <= 7"><td>6–7 έτη</td><td class="num">4</td><td class="num">2</td></tr>
+              <tr [class.sv-current-row]="result().completedYears >= 8 && result().completedYears <= 9"><td>8–9 έτη</td><td class="num">5</td><td class="num">2,5</td></tr>
+              <tr [class.sv-current-row]="result().completedYears === 10"><td>10 έτη</td><td class="num">6</td><td class="num">3</td></tr>
+              <tr [class.sv-current-row]="result().completedYears >= 11 && result().completedYears <= 15"><td>11–15 έτη</td><td class="num">7–11</td><td class="num">3,5–5,5</td></tr>
+              <tr [class.sv-current-row]="result().completedYears >= 16"><td>&ge; 16 έτη</td><td class="num">12 έως 24</td><td class="num">6 έως 12</td></tr>
             </tbody>
           </table>
         </div>
