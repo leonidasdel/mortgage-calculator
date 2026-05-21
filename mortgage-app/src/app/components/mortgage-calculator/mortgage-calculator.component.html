@@ -67,42 +67,6 @@
 
     <div class="card">
       <div class="card-header">
-        <div class="card-header-icon">⚖️</div>
-        <h2>Σύγκριση Σεναρίων Δανείου</h2>
-      </div>
-      <div class="card-body" [formGroup]="compareForm">
-        <p class="field-hint" style="margin-bottom:12px;">Σενάριο Α = τρέχουσες παράμετροι · Σενάριο Β = εναλλακτικές τιμές παρακάτω</p>
-        <div class="form-group">
-          <label for="compareLoanAmount">Ποσό δανείου (Σενάριο Β)</label>
-          <div class="input-wrap has-pfx">
-            <span class="pfx">€</span>
-            <input type="number" id="compareLoanAmount" formControlName="loanAmount" min="0" step="5000">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="compareLoanYears">Διάρκεια (Σενάριο Β)</label>
-          <div class="input-wrap has-sfx">
-            <input type="number" id="compareLoanYears" formControlName="loanYears" min="1" max="40" step="1">
-            <span class="sfx">έτη</span>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="compareFixedRate">Σταθερό επιτόκιο (Σενάριο Β)</label>
-          <div class="input-wrap has-sfx">
-            <input type="number" id="compareFixedRate" formControlName="fixedRate" min="0" step="0.1">
-            <span class="sfx">%</span>
-          </div>
-        </div>
-        <app-compare-panel
-          labelA="Σενάριο Α"
-          labelB="Σενάριο Β"
-          [rows]="compareRows()">
-        </app-compare-panel>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
         <div class="card-header-icon">&#128200;</div>
         <h2>Ετήσια Ανάλυση Πληρωμών</h2>
       </div>
