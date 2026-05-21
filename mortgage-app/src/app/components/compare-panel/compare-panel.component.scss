@@ -16,6 +16,7 @@
   background: #fff;
   padding: 10px 12px;
   font-size: 13px;
+  color: var(--g800);
 }
 .compare-col-h {
   font-weight: 700;
@@ -28,8 +29,22 @@
   text-align: right;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  color: var(--g800);
 }
 .compare-val.highlight { color: var(--blue); }
+
+:host-context(html.dark) {
+  .compare-header > div,
+  .compare-row > div {
+    background: var(--g100);
+    color: var(--g700);
+  }
+  .compare-col-h { color: var(--g600); }
+  .compare-lbl { color: var(--g500); }
+  .compare-val { color: var(--g700); }
+  .compare-val.highlight { color: var(--blue-dark); }
+}
+
 @media (max-width: 480px) {
   .compare-header, .compare-row { grid-template-columns: 1fr; }
   .compare-val { text-align: left; }
