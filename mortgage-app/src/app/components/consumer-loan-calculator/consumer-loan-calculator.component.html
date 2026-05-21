@@ -70,7 +70,7 @@
         </div>
 
         <div class="info-box" style="background:var(--blue-light);border-left:3px solid var(--blue);margin-top:8px;">
-          <ul style="margin:0;padding-left:16px;font-size:12px;color:var(--text-secondary);">
+          <ul class="info-list-muted">
             <li>Εισφορά Ν.128/1975: 0,60% ετησίως επί του εκάστοτε ανεξόφλητου κεφαλαίου</li>
             <li>Πραγματικό επιτόκιο = ονομαστικό + 0,60% εισφορά</li>
             <li>ΣΕΠΠΕ: Συνολικό Ετήσιο Πραγματικό Ποσοστό Επιβάρυνσης (περιλαμβάνει και τα έξοδα)</li>
@@ -146,7 +146,7 @@
             <div class="sum-lbl">ΣΕΠΠΕ (APR)</div>
             <div class="sum-val" style="color:var(--orange,#d97706);font-weight:700;">{{ summary().seppe.toFixed(2) }}%</div>
           </div>
-          <div class="sum-item" style="grid-column: span 2;">
+          <div class="sum-item total-row">
             <div class="sum-lbl">Συνολικό Ποσό Πληρωμής</div>
             <div class="sum-val blue">{{ summary().grandTotal | euro }}</div>
           </div>
@@ -174,22 +174,22 @@
         <h2>Ετήσια Ανάλυση Πληρωμών</h2>
       </div>
       <div class="card-body">
-        <div class="hero-row" style="margin-bottom:12px;">
-          <div style="text-align:center; padding:10px; background:var(--blue-light); border-radius:6px;">
-            <div style="font-size:11px; color:var(--blue); font-weight:700; text-transform:uppercase; letter-spacing:.5px;">Συνολικό Κεφάλαιο</div>
-            <div style="font-size:20px; font-weight:700; color:var(--blue);">{{ summary().totalPrincipal | euro }}</div>
+        <div class="hero-row mb-12">
+          <div class="stat-card blue">
+            <div class="stat-lbl">Συνολικό Κεφάλαιο</div>
+            <div class="stat-val">{{ summary().totalPrincipal | euro }}</div>
           </div>
-          <div style="text-align:center; padding:10px; background:var(--red-light); border-radius:6px;">
-            <div style="font-size:11px; color:var(--red); font-weight:700; text-transform:uppercase; letter-spacing:.5px;">Συνολικοί Τόκοι</div>
-            <div style="font-size:20px; font-weight:700; color:var(--red);">{{ summary().totalInterest | euro }}</div>
+          <div class="stat-card red">
+            <div class="stat-lbl">Συνολικοί Τόκοι</div>
+            <div class="stat-val">{{ summary().totalInterest | euro }}</div>
           </div>
         </div>
         <div style="overflow-x:auto;">
           <app-amortization-chart [schedule]="schedule()"></app-amortization-chart>
         </div>
         <div class="chart-legend">
-          <div class="leg-item"><div class="leg-dot" style="background:#1d4ed8;"></div><span>Κεφάλαιο</span></div>
-          <div class="leg-item"><div class="leg-dot" style="background:#dc2626;"></div><span>Τόκοι</span></div>
+          <div class="leg-item"><div class="leg-dot blue"></div><span>Κεφάλαιο</span></div>
+          <div class="leg-item"><div class="leg-dot red"></div><span>Τόκοι</span></div>
         </div>
       </div>
     </div>

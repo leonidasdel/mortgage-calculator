@@ -15,6 +15,7 @@
 .rt-radio-row {
   display: flex;
   gap: 16px;
+  flex-wrap: wrap;
 }
 .rt-radio {
   display: flex;

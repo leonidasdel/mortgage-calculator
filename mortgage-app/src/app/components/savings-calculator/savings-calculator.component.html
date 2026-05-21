@@ -124,11 +124,11 @@
         </div>
 
         @if (result().applyInflation && result().finalReal !== null) {
-          <div class="hero-row" style="margin-top:8px;">
-            <div class="hero-card" style="background:linear-gradient(135deg,#d1fae5 0%,#a7f3d0 100%);">
-              <div class="hero-lbl" style="color:#065f46;">Πραγματική Αξία</div>
-              <div class="hero-val" style="color:#065f46;">{{ result().finalReal! | euro:0 }}</div>
-              <div class="hero-sub" style="color:#065f46;">προσαρμοσμένη για πληθωρισμό</div>
+          <div class="hero-row mt-8">
+            <div class="hero-card green span-2">
+              <div class="hero-lbl">Πραγματική Αξία</div>
+              <div class="hero-val">{{ result().finalReal! | euro:0 }}</div>
+              <div class="hero-sub">προσαρμοσμένη για πληθωρισμό</div>
             </div>
           </div>
         }
@@ -154,7 +154,7 @@
           }
           <div class="sum-item">
             <div class="sum-lbl">Κέρδη (μετά φόρων)</div>
-            <div class="sum-val" style="color:#059669;font-weight:700;">{{ result().netGains | euro }}</div>
+            <div class="sum-val green">{{ result().netGains | euro }}</div>
           </div>
           <div class="sum-item">
             <div class="sum-lbl">Τελικό Ποσό</div>
@@ -185,8 +185,8 @@
           <canvas #savingsChart></canvas>
         </div>
         <div class="chart-legend">
-          <div class="leg-item"><div class="leg-dot" style="background:#1d4ed8;"></div><span>Εισφορές</span></div>
-          <div class="leg-item"><div class="leg-dot" style="background:#059669;"></div><span>Κέρδη</span></div>
+          <div class="leg-item"><div class="leg-dot blue"></div><span>Εισφορές</span></div>
+          <div class="leg-item"><div class="leg-dot green"></div><span>Κέρδη</span></div>
         </div>
       </div>
     </div>
@@ -198,7 +198,8 @@
         <h2>Ετήσια Ανάλυση</h2>
       </div>
       <div class="card-body">
-        <div class="sv-table-wrap">
+        <div class="tbl-scroll-hint">← Σύρτε οριζόντια για να δείτε όλες τις στήλες →</div>
+        <div class="sv-table-wrap tbl-wrap">
           <table class="sv-table">
             <thead>
               <tr>
