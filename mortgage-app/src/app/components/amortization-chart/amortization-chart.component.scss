@@ -7,10 +7,8 @@
 }
 
 .chart-toolbar-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--g500);
 }
 
@@ -37,6 +35,11 @@
     color: #fff;
     border-color: var(--blue);
     cursor: default;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 }
 

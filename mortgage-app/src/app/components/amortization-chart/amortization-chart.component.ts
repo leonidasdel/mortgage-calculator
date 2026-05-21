@@ -32,9 +32,16 @@ interface ChartTheme {
   label: string;
   principal: string;
   interest: string;
+  principalFill: string;
+  interestFill: string;
   principalHover: string;
   interestHover: string;
 }
+
+/** Monthly bar view only makes sense for short loans */
+const MAX_MONTHLY_BUCKETS = 60;
+/** Beyond this, stacked area renders instead of bars */
+const BAR_MODE_MAX_BUCKETS = 48;
 
 @Component({
   selector: 'app-amortization-chart',
@@ -63,9 +70,15 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
   private readonly chartH = 300;
   private readonly pad = { l: 56, r: 16, t: 20, b: 36 };
 
+  get monthlyAllowed(): boolean {
+    return this.schedule.length <= MAX_MONTHLY_BUCKETS;
+  }
+
   ngOnChanges(): void {
     if (!this.userOverride) {
-      this.viewMode = this.schedule.length <= 24 ? 'monthly' : 'yearly';
+      this.viewMode = this.monthlyAllowed ? 'monthly' : 'yearly';
+    } else if (this.viewMode === 'monthly' && !this.monthlyAllowed) {
+      this.viewMode = 'yearly';
     }
     this.draw();
   }
@@ -94,6 +107,7 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
   }
 
   setViewMode(mode: 'monthly' | 'yearly'): void {
+    if (mode === 'monthly' && !this.monthlyAllowed) return;
     if (this.viewMode === mode) return;
     this.userOverride = true;
     this.viewMode = mode;
@@ -109,9 +123,11 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
     const mx = event.clientX - rect.left;
     const my = event.clientY - rect.top;
 
-    const hit = this.barHits.find(
-      b => mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h,
-    );
+    const hit = this.barHits.reduce<BarHit | null>((best, b) => {
+      if (mx < b.x || mx > b.x + b.w) return best;
+      if (my < b.y || my > b.y + b.h) return best;
+      return b;
+    }, null) ?? this.nearestHit(mx);
 
     if (!hit) {
       if (this.hoveredKey !== null) {
@@ -127,6 +143,25 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
       this.draw();
     }
 
+    this.showTooltip(hit, event);
+  }
+
+  onMouseLeave(): void {
+    this.hoveredKey = null;
+    this.hideTooltip();
+    this.draw();
+  }
+
+  private nearestHit(mx: number): BarHit | null {
+    if (!this.barHits.length) return null;
+    return this.barHits.reduce((best, b) => {
+      const cx = b.x + b.w / 2;
+      const bestCx = best.x + best.w / 2;
+      return Math.abs(mx - cx) < Math.abs(mx - bestCx) ? b : best;
+    });
+  }
+
+  private showTooltip(hit: BarHit, event: MouseEvent): void {
     const total = hit.principal + hit.interest;
     const unit = this.viewMode === 'monthly' ? 'Μήνας' : 'Έτος';
     this.tooltipTitle = `${unit} ${hit.key}`;
@@ -135,6 +170,7 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
     this.tooltipTotal = this.formatEuro(total);
     this.tooltipVisible = true;
 
+    const canvas = this.canvasRef.nativeElement;
     const container = canvas.parentElement!;
     const containerRect = container.getBoundingClientRect();
     let tx = event.clientX - containerRect.left + 12;
@@ -144,12 +180,6 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
     ty = Math.max(8, ty);
     this.tooltipX = tx;
     this.tooltipY = ty;
-  }
-
-  onMouseLeave(): void {
-    this.hoveredKey = null;
-    this.hideTooltip();
-    this.draw();
   }
 
   private hideTooltip(): void {
@@ -175,8 +205,7 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
     ctx.clearRect(0, 0, W, H);
 
     const buckets = this.buildBuckets();
-    const keys = buckets.map(b => b.key);
-    if (!keys.length) {
+    if (!buckets.length) {
       this.barHits = [];
       return;
     }
@@ -186,11 +215,31 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
     const { l, r, t, b } = this.pad;
     const cW = W - l - r;
     const cH = H - t - b;
-    const slotW = cW / keys.length;
-    const bW = Math.max(4, Math.min(28, slotW * 0.72));
+    const slotW = cW / buckets.length;
 
     this.barHits = [];
     this.drawGrid(ctx, W, H, maxVal, theme);
+
+    if (buckets.length > BAR_MODE_MAX_BUCKETS) {
+      this.drawAreaChart(ctx, buckets, W, H, maxVal, theme, slotW, cH);
+    } else {
+      this.drawBarChart(ctx, buckets, W, H, maxVal, theme, slotW, cH);
+    }
+  }
+
+  private drawBarChart(
+    ctx: CanvasRenderingContext2D,
+    buckets: ChartBucket[],
+    W: number,
+    H: number,
+    maxVal: number,
+    theme: ChartTheme,
+    slotW: number,
+    cH: number,
+  ): void {
+    const { l, t, b } = this.pad;
+    const bW = Math.max(2, Math.min(28, slotW * 0.72));
+    const keys = buckets.map(bk => bk.key);
 
     buckets.forEach((bucket, i) => {
       const total = bucket.principal + bucket.interest;
@@ -229,6 +278,103 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
         ctx.font = '11px Inter, system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(String(bucket.key), x + bW / 2, H - 14);
+      }
+    });
+  }
+
+  private drawAreaChart(
+    ctx: CanvasRenderingContext2D,
+    buckets: ChartBucket[],
+    W: number,
+    H: number,
+    maxVal: number,
+    theme: ChartTheme,
+    slotW: number,
+    cH: number,
+  ): void {
+    const { l, t, b } = this.pad;
+    const baseY = t + cH;
+    const keys = buckets.map(bk => bk.key);
+
+    const pts = buckets.map((bucket, i) => {
+      const x = l + (i + 0.5) * slotW;
+      const total = bucket.principal + bucket.interest;
+      const totalH = (total / maxVal) * cH;
+      const principH = (bucket.principal / maxVal) * cH;
+      return {
+        bucket,
+        x,
+        totalY: baseY - totalH,
+        principY: baseY - principH,
+      };
+    });
+
+    const dimmed = this.hoveredKey !== null;
+
+    // Interest area (top layer)
+    ctx.globalAlpha = dimmed ? 0.25 : 0.9;
+    ctx.fillStyle = theme.interestFill;
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].principY);
+    pts.forEach(p => ctx.lineTo(p.x, p.totalY));
+    for (let i = pts.length - 1; i >= 0; i--) ctx.lineTo(pts[i].x, pts[i].principY);
+    ctx.closePath();
+    ctx.fill();
+
+    // Principal area
+    ctx.fillStyle = theme.principalFill;
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, baseY);
+    pts.forEach(p => ctx.lineTo(p.x, p.principY));
+    for (let i = pts.length - 1; i >= 0; i--) ctx.lineTo(pts[i].x, baseY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.globalAlpha = 1;
+
+    // Boundary lines
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = theme.interest;
+    ctx.beginPath();
+    pts.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.totalY) : ctx.lineTo(p.x, p.totalY)));
+    ctx.stroke();
+
+    ctx.strokeStyle = theme.principal;
+    ctx.beginPath();
+    pts.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.principY) : ctx.lineTo(p.x, p.principY)));
+    ctx.stroke();
+
+    if (this.hoveredKey !== null) {
+      const hi = pts.find(p => p.bucket.key === this.hoveredKey);
+      if (hi) {
+        ctx.strokeStyle = theme.axis;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.moveTo(hi.x, t);
+        ctx.lineTo(hi.x, baseY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+
+    pts.forEach((p, i) => {
+      const totalH = baseY - p.totalY;
+      this.barHits.push({
+        key: p.bucket.key,
+        x: l + i * slotW,
+        y: p.totalY,
+        w: slotW,
+        h: totalH,
+        principal: p.bucket.principal,
+        interest: p.bucket.interest,
+      });
+
+      if (this.shouldLabelTick(i, keys.length, p.bucket.key, keys)) {
+        ctx.fillStyle = theme.axis;
+        ctx.font = '11px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(String(p.bucket.key), p.x, H - 14);
       }
     });
   }
@@ -319,9 +465,11 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
           grid: '#334155',
           axis: '#e2e8f0',
           label: '#94a3b8',
-          principal: '#3b82f6',
+          principal: '#60a5fa',
           interest: '#f87171',
-          principalHover: '#60a5fa',
+          principalFill: 'rgba(59, 130, 246, 0.35)',
+          interestFill: 'rgba(248, 113, 113, 0.35)',
+          principalHover: '#93c5fd',
           interestHover: '#fca5a5',
         }
       : {
@@ -330,6 +478,8 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
           label: '#94a3b8',
           principal: '#2563eb',
           interest: '#dc2626',
+          principalFill: 'rgba(37, 99, 235, 0.25)',
+          interestFill: 'rgba(220, 38, 38, 0.22)',
           principalHover: '#1d4ed8',
           interestHover: '#b91c1c',
         };

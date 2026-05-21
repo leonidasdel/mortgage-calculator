@@ -2,7 +2,15 @@
   <div class="chart-toolbar">
     <span class="chart-toolbar-label">{{ viewMode === 'monthly' ? 'Ανά μήνα' : 'Ανά έτος' }}</span>
     <div class="chart-toggle">
-      <button type="button" (click)="setViewMode('monthly')" class="toggle-btn" [class.active]="viewMode === 'monthly'">Μήνες</button>
+      <button
+        type="button"
+        (click)="setViewMode('monthly')"
+        class="toggle-btn"
+        [class.active]="viewMode === 'monthly'"
+        [disabled]="!monthlyAllowed"
+        [title]="monthlyAllowed ? '' : 'Η μηνιαία προβολή είναι διαθέσιμη μόνο για δάνεια έως 5 ετών'">
+        Μήνες
+      </button>
       <button type="button" (click)="setViewMode('yearly')" class="toggle-btn" [class.active]="viewMode === 'yearly'">Έτη</button>
     </div>
   </div>
