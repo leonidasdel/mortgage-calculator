@@ -1,0 +1,29 @@
+.sw-update-banner {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: calc(100vw - 32px);
+  padding: 12px 16px;
+  background: var(--g800);
+  color: #fff;
+  border-radius: var(--r);
+  box-shadow: var(--shadow-lg);
+  font-size: 13px;
+}
+
+.sw-update-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.sw-update-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+}

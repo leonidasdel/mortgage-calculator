@@ -1,3 +1,16 @@
+@if (swUpdate.updateAvailable()) {
+  <div class="sw-update-banner" role="alert">
+    <span>Νέα έκδοση διαθέσιμη.</span>
+    <div class="sw-update-actions">
+      <button type="button" class="btn-primary sw-update-btn" (click)="swUpdate.applyUpdate()">
+        Ανανέωση
+      </button>
+      <button type="button" class="btn-outline sw-update-btn" (click)="swUpdate.dismiss()">
+        Αργότερα
+      </button>
+    </div>
+  </div>
+}
 <app-nav></app-nav>
 <div class="main-content">
   <main class="container">
