@@ -1,7 +1,43 @@
 @if (schedule.length > 1) {
-  <div class="chart-toggle">
-    <button (click)="toggleView()" class="toggle-btn" [class.active]="viewMode === 'monthly'">Μήνες</button>
-    <button (click)="toggleView()" class="toggle-btn" [class.active]="viewMode === 'yearly'">Έτη</button>
+  <div class="chart-toolbar">
+    <span class="chart-toolbar-label">{{ viewMode === 'monthly' ? 'Ανά μήνα' : 'Ανά έτος' }}</span>
+    <div class="chart-toggle">
+      <button
+        type="button"
+        (click)="setViewMode('monthly')"
+        class="toggle-btn"
+        [class.active]="viewMode === 'monthly'"
+        [disabled]="!monthlyAllowed"
+        [title]="monthlyAllowed ? '' : 'Η μηνιαία προβολή είναι διαθέσιμη μόνο για δάνεια έως 5 ετών'">
+        Μήνες
+      </button>
+      <button type="button" (click)="setViewMode('yearly')" class="toggle-btn" [class.active]="viewMode === 'yearly'">Έτη</button>
+    </div>
   </div>
 }
-<canvas #chartCanvas height="240"></canvas>
+<div class="chart-wrap">
+  <canvas
+    #chartCanvas
+    (mousemove)="onMouseMove($event)"
+    (mouseleave)="onMouseLeave()">
+  </canvas>
+  @if (tooltipVisible) {
+    <div class="chart-tooltip" [style.left.px]="tooltipX" [style.top.px]="tooltipY">
+      <div class="chart-tooltip-title">{{ tooltipTitle }}</div>
+      <div class="chart-tooltip-row">
+        <span class="chart-tooltip-dot principal"></span>
+        <span>Κεφάλαιο</span>
+        <strong>{{ tooltipPrincipal }}</strong>
+      </div>
+      <div class="chart-tooltip-row">
+        <span class="chart-tooltip-dot interest"></span>
+        <span>Τόκοι</span>
+        <strong>{{ tooltipInterest }}</strong>
+      </div>
+      <div class="chart-tooltip-row total">
+        <span>Σύνολο</span>
+        <strong>{{ tooltipTotal }}</strong>
+      </div>
+    </div>
+  }
+</div>
