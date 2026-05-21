@@ -39,7 +39,6 @@ export class NavComponent implements OnInit {
         { route: '/unused-leave',  icon: '🏖️', label: 'Μη Ληφθείσα Άδεια' },
         { route: '/holiday-bonus', icon: '🎁', label: 'Δώρα Εορτών' },
         { route: '/severance',     icon: '📄', label: 'Αποζημίωση Απόλυσης' },
-        { route: '/overtime',      icon: '⏱️', label: 'Υπερωρίες' },
       ],
     },
     {

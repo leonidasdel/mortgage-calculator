@@ -21,7 +21,6 @@ import { UnusedLeaveCalculatorComponent } from './components/unused-leave-calcul
 import { HolidayBonusCalculatorComponent } from './components/holiday-bonus-calculator/holiday-bonus-calculator.component';
 import { SeveranceCalculatorComponent } from './components/severance-calculator/severance-calculator.component';
 import { PropertyPurchaseCalculatorComponent } from './components/property-purchase-calculator/property-purchase-calculator.component';
-import { OvertimeCalculatorComponent } from './components/overtime-calculator/overtime-calculator.component';
 import { InheritanceGiftCalculatorComponent } from './components/inheritance-gift-calculator/inheritance-gift-calculator.component';
 import { CryptoTaxCalculatorComponent } from './components/crypto-tax-calculator/crypto-tax-calculator.component';
 import { CarCostCalculatorComponent } from './components/car-cost-calculator/car-cost-calculator.component';
@@ -54,7 +53,6 @@ const routes: Routes = [
   { path: 'holiday-bonus', component: HolidayBonusCalculatorComponent },
   { path: 'severance', component: SeveranceCalculatorComponent },
   { path: 'property-purchase', component: PropertyPurchaseCalculatorComponent },
-  { path: 'overtime', component: OvertimeCalculatorComponent },
   { path: 'inheritance-gift', component: InheritanceGiftCalculatorComponent },
   { path: 'crypto-tax', component: CryptoTaxCalculatorComponent },
   { path: 'car-cost', component: CarCostCalculatorComponent },
@@ -79,7 +77,6 @@ const routes: Routes = [
     HolidayBonusCalculatorComponent,
     SeveranceCalculatorComponent,
     PropertyPurchaseCalculatorComponent,
-    OvertimeCalculatorComponent,
     InheritanceGiftCalculatorComponent,
     CryptoTaxCalculatorComponent,
     CarCostCalculatorComponent,

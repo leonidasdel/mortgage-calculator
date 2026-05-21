@@ -3,7 +3,6 @@
   <url><loc>https://salaries.gr/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://salaries.gr/mortgage</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://salaries.gr/salary</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://salaries.gr/overtime</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://salaries.gr/inheritance-gift</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://salaries.gr/crypto-tax</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://salaries.gr/car-cost</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
