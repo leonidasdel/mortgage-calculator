@@ -348,7 +348,7 @@
             <div class="sum-lbl">Φόρος</div>
             <div class="sum-val red">-{{ result().christmasBonus.tax | euro }}</div>
           </div>
-          <div class="sum-item" style="grid-column: span 2;">
+          <div class="sum-item total-row">
             <div class="sum-lbl">Καθαρό Δώρο Χριστουγέννων</div>
             <div class="sum-val green">{{ result().christmasBonus.net | euro }}</div>
           </div>
@@ -372,7 +372,7 @@
             <div class="sum-lbl">Φόρος</div>
             <div class="sum-val red">-{{ result().easterBonus.tax | euro }}</div>
           </div>
-          <div class="sum-item" style="grid-column: span 2;">
+          <div class="sum-item total-row">
             <div class="sum-lbl">Καθαρό Δώρο Πάσχα</div>
             <div class="sum-val green">{{ result().easterBonus.net | euro }}</div>
           </div>
@@ -432,7 +432,7 @@
             <div class="sum-lbl">ΕΦΚΑ Εργοδότη</div>
             <div class="sum-val">{{ result().efkaEmployer | euro }}</div>
           </div>
-          <div class="sum-item" style="grid-column: span 2;">
+          <div class="sum-item total-row">
             <div class="sum-lbl">Ετήσιο Σύνολο</div>
             <div class="sum-val blue">{{ result().employerAnnual | euro }}</div>
           </div>

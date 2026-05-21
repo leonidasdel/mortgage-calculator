@@ -1,36 +1,6 @@
 /* ── PAGE HEADER ICON ── */
-.page-header-icon.sv-icon {
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-}
-
-/* ── SEGMENTED CONTROLS ── */
-.seg-group {
-  display: flex;
-  border: 1px solid var(--g200);
-  border-radius: 8px;
-  overflow: hidden;
-  width: 100%;
-}
-.seg-btn {
-  flex: 1;
-  padding: 7px 10px;
-  font-size: 11px;
-  font-weight: 500;
-  background: #fff;
-  color: var(--g600);
-  border: none;
-  border-right: 1px solid var(--g200);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  line-height: 1.4;
-  text-align: center;
-}
-.seg-btn:last-child { border-right: none; }
-.seg-btn:hover { background: var(--g50); }
-.seg-btn.active {
-  background: var(--blue);
-  color: #fff;
-  font-weight: 600;
+.page-header-icon.severance-icon {
+  background: linear-gradient(135deg, #f3f4f6 0%, #d1d5db 100%);
 }
 
 /* ── HINTS ── */
@@ -49,7 +19,7 @@
   border-radius: 4px;
   font-size: 10px;
   font-weight: 700;
-  background: #ecfdf5;
+  background: var(--green-light);
   border: 1px solid #6ee7b7;
   color: #065f46;
 }
@@ -65,60 +35,6 @@
   border: 1px solid var(--g200);
 }
 
-/* ── SUM GRID EXTRAS ── */
-.sum-item.highlight-blue {
-  background: var(--blue-light);
-  border-radius: 6px;
-  padding: 6px 8px;
-  margin: 0 -8px;
-}
-.sum-item.total-row {
-  padding-top: 8px;
-  border-top: 2px solid var(--g200);
-  margin-top: 4px;
-}
-
-/* ── SECTION TITLE ── */
-.lv-section-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--g500);
-  margin: 16px 0 8px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--g100);
-}
-
-/* ── NET BOX ── */
-.lv-net-box {
-  margin: 20px 0 12px;
-  padding: 20px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
-  color: #fff;
-  text-align: center;
-}
-.lv-net-lbl {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  opacity: 0.8;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.lv-net-val {
-  font-size: 36px;
-  font-weight: 800;
-  letter-spacing: -1px;
-  line-height: 1.1;
-}
-.lv-net-sub {
-  font-size: 12px;
-  opacity: 0.7;
-  margin-top: 4px;
-}
-
 /* ── TABLE ── */
 .sv-table-wrap {
   overflow-x: auto;
@@ -128,6 +44,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  min-width: 380px;
 }
 .sv-table th {
   text-align: left;

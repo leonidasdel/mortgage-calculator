@@ -70,10 +70,12 @@ export class NavComponent implements OnInit {
 
   toggleMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
+    document.body.style.overflow = this.mobileMenuOpen ? 'hidden' : '';
   }
 
   closeMenu(): void {
     this.mobileMenuOpen = false;
+    document.body.style.overflow = '';
   }
 
   toggleCollapse(): void {

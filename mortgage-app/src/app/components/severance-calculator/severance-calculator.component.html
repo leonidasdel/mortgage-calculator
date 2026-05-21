@@ -1,5 +1,5 @@
 <div class="page-header">
-  <div class="page-header-icon sv-icon">📄</div>
+  <div class="page-header-icon severance-icon">📄</div>
   <div>
     <h1 class="page-title">Αποζημίωση Απόλυσης</h1>
     <p class="page-subtitle">Υπολογίστε την αποζημίωση απόλυσης βάσει Ν. 4808/2021 — με φόρο μόνο για ποσά άνω των €60.000</p>
@@ -55,7 +55,7 @@
         <!-- Τύπος λύσης -->
         <div class="form-group">
           <label>Τύπος Λύσης Σύμβασης</label>
-          <div class="seg-group">
+          <div class="seg-group seg-stack-sm">
             <button type="button" class="seg-btn"
                     [class.active]="form.get('terminationType')?.value === 'without_notice'"
                     (click)="form.patchValue({ terminationType: 'without_notice' })">
@@ -126,7 +126,7 @@
           </div>
 
           @if (result().isCapped) {
-            <div class="info-box green" style="margin-bottom:12px;">
+            <div class="info-box green mb-12">
               🔒 Εφαρμόζεται ανώτατο όριο <strong>24 μισθών</strong> (Ν. 4808/2021).
             </div>
           }
@@ -187,23 +187,9 @@
             </div>
           </div>
 
-          <!-- Net box -->
-          <div class="lv-net-box">
-            <div class="lv-net-lbl">ΚΑΘΑΡΗ ΑΠΟΖΗΜΙΩΣΗ ΣΤΟ ΧΕΡΙ</div>
-            <div class="lv-net-val">{{ result().netSeverance | euro }}</div>
-            <div class="lv-net-sub">
-              {{ result().actualMonths }} μισθοί × {{ result().baseSalaryCalculation | euro }} (προσαυξημένος κατά 1/6 λόγω δώρων/αδείας)
-              @if (result().severanceTax > 0) {
-                — μείον φόρος {{ result().severanceTax | euro }}, χωρίς ΕΦΚΑ
-              } @else {
-                — αφορολόγητη, χωρίς ΕΦΚΑ
-              }
-            </div>
-          </div>
-
         }
 
-        <div class="export-row" style="margin-top:12px;">
+        <div class="export-row mt-12">
           <button class="btn-outline" (click)="print()">&#128424; Εκτύπωση / PDF</button>
         </div>
 
@@ -217,7 +203,8 @@
         <h2>Πίνακας Αποζημίωσης (Ν. 4808/2021)</h2>
       </div>
       <div class="card-body">
-        <div class="sv-table-wrap">
+        <div class="tbl-scroll-hint">← Σύρτε οριζόντια για να δείτε όλες τις στήλες →</div>
+        <div class="sv-table-wrap tbl-wrap">
           <table class="sv-table">
             <thead>
               <tr>

@@ -3,40 +3,6 @@
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
 }
 
-/* ── SEGMENTED CONTROLS ── */
-.seg-group {
-  display: flex;
-  border: 1px solid var(--g200);
-  border-radius: 8px;
-  overflow: hidden;
-  width: 100%;
-}
-.seg-btn {
-  flex: 1;
-  padding: 7px 12px;
-  font-size: 12px;
-  font-weight: 500;
-  background: #fff;
-  color: var(--g600);
-  border: none;
-  border-right: 1px solid var(--g200);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  min-height: auto;
-  line-height: 1.4;
-}
-.seg-btn:last-child {
-  border-right: none;
-}
-.seg-btn:hover {
-  background: var(--g50);
-}
-.seg-btn.active {
-  background: var(--blue);
-  color: #fff;
-  font-weight: 600;
-}
-
 /* ── SELECT ── */
 .lv-select {
   width: 100%;
@@ -83,7 +49,7 @@
   border-radius: 4px;
   font-size: 10px;
   font-weight: 600;
-  background: #ecfdf5;
+  background: var(--green-light);
   color: #065f46;
   border: 1px solid #6ee7b7;
 }
@@ -103,30 +69,6 @@
   flex-shrink: 0;
 }
 
-/* ── SECTION TITLE ── */
-.lv-section-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--g500);
-  margin: 16px 0 8px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--g100);
-}
-
-/* ── SUM GRID EXTRAS ── */
-.sum-item.highlight-blue {
-  background: var(--blue-light);
-  border-radius: 6px;
-  padding: 6px 8px;
-  margin: 0 -8px;
-}
-.sum-item.total-row {
-  padding-top: 8px;
-  border-top: 2px solid var(--g200);
-  margin-top: 4px;
-}
 .sum-badge {
   display: inline-block;
   margin-left: 6px;
@@ -136,35 +78,6 @@
   font-weight: 600;
   background: var(--g100);
   color: var(--g600);
-}
-
-/* ── NET BOX ── */
-.lv-net-box {
-  margin: 20px 0 12px;
-  padding: 20px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
-  color: #fff;
-  text-align: center;
-}
-.lv-net-lbl {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  opacity: 0.8;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.lv-net-val {
-  font-size: 36px;
-  font-weight: 800;
-  letter-spacing: -1px;
-  line-height: 1.1;
-}
-.lv-net-sub {
-  font-size: 12px;
-  opacity: 0.7;
-  margin-top: 4px;
 }
 
 /* ── TAX BREAKDOWN ── */
@@ -228,7 +141,7 @@
 }
 
 .lv-marginal-box {
-  background: #ecfdf5;
+  background: var(--green-light);
   border: 1px solid #6ee7b7;
   border-radius: 8px;
   padding: 10px 14px;
@@ -248,6 +161,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  min-width: 380px;
 }
 .lv-table th {
   text-align: left;
@@ -281,33 +195,5 @@
   text-align: right;
 }
 
-/* ── LEGAL INFO GRID ── */
-.lv-law-grid {
-  display: grid;
-  gap: 12px;
-}
-.lv-law-item {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--g50);
-  border: 1px solid var(--g100);
-}
-.lv-law-icon {
-  font-size: 20px;
-  flex-shrink: 0;
-  line-height: 1;
-}
-.lv-law-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--g800);
-  margin-bottom: 2px;
-}
-.lv-law-desc {
-  font-size: 12px;
-  color: var(--g500);
-  line-height: 1.5;
-}
+.lv-law-title { margin-bottom: 2px; }
+.lv-law-desc  { font-size: 12px; color: var(--g500); line-height: 1.5; }
