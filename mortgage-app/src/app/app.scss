@@ -10,12 +10,14 @@
   flex-wrap: wrap;
   justify-content: center;
   max-width: calc(100vw - 32px);
-  padding: 12px 16px;
-  background: var(--g800);
-  color: #fff;
+  padding: 12px 18px;
+  background: #1e293b;
+  color: #f1f5f9;
+  border: 1px solid #334155;
   border-radius: var(--r);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
   font-size: 13px;
+  font-weight: 500;
 }
 
 .sw-update-actions {
@@ -26,4 +28,24 @@
 .sw-update-btn {
   padding: 6px 14px;
   font-size: 12px;
+  min-height: auto;
+}
+
+.sw-update-banner .btn-outline {
+  background: transparent;
+  color: #e2e8f0;
+  border-color: #64748b;
+
+  &:hover:not(:disabled) {
+    background: #334155;
+    border-color: #94a3b8;
+    color: #fff;
+  }
+}
+
+:host-context(html.dark) .sw-update-banner {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-color: #475569;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
 }
