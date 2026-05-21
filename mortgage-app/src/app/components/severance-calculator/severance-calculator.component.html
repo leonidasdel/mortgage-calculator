@@ -99,7 +99,7 @@
   <div class="right-panel">
 
     <!-- Κύρια αποτελέσματα -->
-    <div class="card">
+    <div class="card" id="sv-results">
       <div class="card-header">
         <div class="card-header-icon">&#128176;</div>
         <h2>Αποτελέσματα Αποζημίωσης</h2>
@@ -190,7 +190,12 @@
         }
 
         <div class="export-row mt-12">
-          <button class="btn-outline" (click)="print()">&#128424; Εκτύπωση / PDF</button>
+          <app-export-row
+            sharePath="/severance"
+            [shareState]="form.value"
+            [shareSummary]="shareSummary()"
+            printTargetId="sv-results">
+          </app-export-row>
         </div>
 
       </div>
@@ -234,5 +239,13 @@
       </div>
     </div>
 
+    <app-calc-explanation
+      title="Πώς υπολογίζεται η αποζημίωση;"
+      [steps]="explanationSteps"
+      [formula]="explanationFormula">
+    </app-calc-explanation>
+
   </div>
 </div>
+
+<app-law-footer route="/severance"></app-law-footer>

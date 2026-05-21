@@ -114,7 +114,7 @@
   </div>
 
   <div class="right-panel">
-    <div class="card">
+    <div class="card" id="ab-results">
       <div class="card-header">
         <div class="card-header-icon">&#128176;</div>
         <h2>Καθαρό Μπόνους</h2>
@@ -159,6 +159,13 @@
         <div class="info-box green">
           Ο φόρος υπολογίζεται ως οριακή διαφορά φόρου πάνω στην ετήσια φορολογητέα βάση, με το μπόνους μετά την ΕΦΚΑ εργαζομένου.
         </div>
+
+        <app-export-row
+          sharePath="/annual-bonus"
+          [shareState]="form.value"
+          [shareSummary]="shareSummary()"
+          printTargetId="ab-results">
+        </app-export-row>
       </div>
     </div>
 
@@ -188,5 +195,13 @@
         </div>
       </div>
     </div>
+
+    <app-calc-explanation
+      title="Πώς υπολογίζεται το ετήσιο μπόνους;"
+      [steps]="explanationSteps"
+      [formula]="explanationFormula">
+    </app-calc-explanation>
   </div>
 </div>
+
+<app-law-footer route="/annual-bonus"></app-law-footer>

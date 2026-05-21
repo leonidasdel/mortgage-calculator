@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://salaries.gr/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://salaries.gr/mortgage</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://salaries.gr/salary</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://salaries.gr/overtime</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://salaries.gr/inheritance-gift</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://salaries.gr/crypto-tax</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://salaries.gr/car-cost</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://salaries.gr/severance</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://salaries.gr/consumer-loan</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://salaries.gr/annual-bonus</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://salaries.gr/freelancer</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://salaries.gr/savings</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://salaries.gr/interest</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://salaries.gr/rent-vs-buy</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://salaries.gr/rental-tax</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://salaries.gr/property-purchase</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://salaries.gr/unused-leave</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://salaries.gr/holiday-bonus</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+</urlset>

@@ -1,0 +1,16 @@
+@if (rows.length) {
+  <div class="compare-panel">
+    <div class="compare-header">
+      <div></div>
+      <div class="compare-col-h">{{ labelA }}</div>
+      <div class="compare-col-h">{{ labelB }}</div>
+    </div>
+    @for (row of rows; track row.label) {
+      <div class="compare-row">
+        <div class="compare-lbl">{{ row.label }}</div>
+        <div class="compare-val" [class.highlight]="row.highlight === 'a'">{{ row.valueA }}</div>
+        <div class="compare-val" [class.highlight]="row.highlight === 'b'">{{ row.valueB }}</div>
+      </div>
+    }
+  </div>
+}

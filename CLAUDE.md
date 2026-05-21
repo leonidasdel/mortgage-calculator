@@ -23,8 +23,9 @@ mortgage-app/
       app-module.ts          ← NgModule declaration + RouterModule.forRoot() (routes live here)
       app.ts                 ← Root component (sidebar layout + router-outlet)
       components/            ← One subfolder per component
-      services/              ← 4 injectable services
-      models/                ← 2 model files (mortgage, salary)
+      services/              ← calculator + platform services
+      constants/             ← law metadata, tax brackets, per-calculator law tables
+      models/                ← mortgage, salary models
       pipes/                 ← euro | dateDDMMYYYY
     styles.scss              ← Global CSS variables + all utility classes
 ```
@@ -45,12 +46,23 @@ mortgage-app/
 | `/freelancer` | FreelancerCalculatorComponent |
 | `/savings` | SavingsCalculatorComponent |
 | `/unused-leave` | UnusedLeaveCalculatorComponent |
+| `/overtime` | OvertimeCalculatorComponent |
+| `/inheritance-gift` | InheritanceGiftCalculatorComponent |
+| `/crypto-tax` | CryptoTaxCalculatorComponent |
+| `/car-cost` | CarCostCalculatorComponent |
+| `/severance` | SeveranceCalculatorComponent |
+| `/annual-bonus` | AnnualBonusCalculatorComponent |
+| `/holiday-bonus` | HolidayBonusCalculatorComponent |
+| `/property-purchase` | PropertyPurchaseCalculatorComponent |
 
 **Nav sidebar groups** (NavComponent):
 - Δάνεια → mortgage, consumer-loan
-- Εισόδημα → salary, freelancer, unused-leave
+- Εισόδημα → salary, overtime, freelancer, unused-leave, severance, annual-bonus, holiday-bonus
 - Αποταμίευση → interest, savings
-- Ακίνητα → rent-vs-buy, rental-tax
+- Ακίνητα → rent-vs-buy, rental-tax, property-purchase
+- Φόροι & Άλλα → inheritance-gift, crypto-tax, car-cost
+
+**Shared platform components:** `law-footer`, `export-row`, `calc-explanation`, `compare-panel`
 
 ---
 
@@ -77,7 +89,16 @@ MONTHS_PER_YEAR       = 14  (12 regular + Christmas + Easter/Leave)
 LEAVE_SURCHARGE_RATE  = 0.04166
 ```
 
-**Tax brackets:** 6 brackets (0-10k, 10-20k, 20-30k, 30-40k, 40-60k, 60k+) × 3 age groups (under25 / 26to30 / over30) × 7 children columns (0–6+). Brackets defined in `TAX_RATES` constant in the service.
+**Tax brackets:** imported from `constants/tax-brackets.constants.ts` (2025/2026 tables).
+
+### OvertimeCalculatorService / InheritanceGiftCalculatorService / CryptoTaxCalculatorService / CarCostCalculatorService
+New Phase 1 calculator services in `services/*-calculator.service.ts`.
+
+### ShareStateService
+`services/share-state.service.ts` — serialize/deserialize form state ↔ URL query params (LZString if URL > 2000 chars); copy share link + WhatsApp.
+
+### SeoService
+`services/seo.service.ts` — per-route Title/Meta/OG + FAQ JSON-LD via `SEO_CONFIG`; wired on router `NavigationEnd` in `app.ts`.
 
 ### PersistenceService
 `services/persistence.service.ts` · mortgage-only
@@ -86,7 +107,17 @@ LEAVE_SURCHARGE_RATE  = 0.04166
 
 ### ExportService
 `services/export.service.ts`
-- `exportCSV(schedule: AmortizationRow[])` → downloads `amortization_schedule.csv` (UTF-8 BOM, Greek headers)
+- `exportAmortizationCSV(schedule)` — mortgage amortization CSV
+- `exportCSV(rows, filename)` — generic CSV
+- `printPage()` / `printElement(id)` — browser print
+- `exportPayslipPdf(lines, title)` — salary δελτίο αποδοχών
+- `copySummary(text)` — clipboard + toast
+
+### Constants (`constants/`)
+- `law-metadata.ts` — per-route law/disclaimer for `app-law-footer`
+- `tax-brackets.constants.ts`, `payroll.constants.ts`, `overtime.constants.ts`, `inheritance-gift.constants.ts`, `crypto-tax.constants.ts`, `circulation-fee.constants.ts`
+
+**Public SEO:** `public/sitemap.xml`, `public/robots.txt`
 
 ---
 
@@ -102,7 +133,7 @@ LEAVE_SURCHARGE_RATE  = 0.04166
 
 ### `models/salary.models.ts`
 - `AgeGroup` — `'under25' | '26to30' | 'over30'`
-- `SalaryParams` — grossMonthly, year, ageGroup, children, annualBonus?, salaryChange?
+- `SalaryParams` — grossMonthly, year, ageGroup, children, ftePercent?, annualBonus?, salaryChange?
 - `SalaryChange` — effectiveMonth, previousGross
 - `SalaryResult` — monthly net, annual totals (with/without bonus), bonuses, employer cost, tax breakdown
   - `annualGrossBase` / `annualNetBase` — without bonus
@@ -262,5 +293,13 @@ ngOnInit() {
 | `freelancerCalcState` | FreelancerCalculatorComponent | form values |
 | `rentalTaxCalcState` | RentalTaxCalculatorComponent | form values |
 | `unusedLeaveCalcState` | UnusedLeaveCalculatorComponent | form values |
+| `overtimeCalcState` | OvertimeCalculatorComponent | form values |
+| `inheritanceGiftCalcState` | InheritanceGiftCalculatorComponent | form values |
+| `cryptoTaxCalcState` | CryptoTaxCalculatorComponent | form values |
+| `carCostCalcState` | CarCostCalculatorComponent | form values |
+| `severanceCalcState` | SeveranceCalculatorComponent | form values |
+| `propertyPurchaseCalcState` | PropertyPurchaseCalculatorComponent | form values |
+
+**Share URLs:** URL query params override localStorage on init (via ShareStateService).
 
 All saves/loads wrapped in `try/catch`.

@@ -1,6 +1,8 @@
 import { Component, computed, effect, OnInit, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { CompareRow } from '../compare-panel/compare-panel.component';
+import { ShareStateService } from '../../services/share-state.service';
 
 const STORAGE_KEY = 'savingsCalcState';
 
@@ -37,43 +39,92 @@ export class SavingsCalculatorComponent implements OnInit {
 
   readonly quickDurations = [5, 10, 15, 20, 25, 30];
 
+  readonly explanationSteps = [
+    'Κάθε μήνα προστίθεται η μηνιαία εισφορά στο υπόλοιπο μετά τον μηνιαίο τόκο.',
+    'Η ετήσια απόδοση μειώνεται κατά τον φόρο τόκων (προαιρετικά 15%).',
+    'Ο πληθωρισμός μειώνει την πραγματική αξία στο τέλος της περιόδου.',
+    'Τα κέρδη = τελικό ποσό − συνολικές εισφορές (αρχικό + μηνιαίες).',
+  ];
+
+  readonly explanationFormula =
+    'Τελικό = αρχικό × (1+r)^n + μηνιαία × [(1+r)^n − 1] / r';
+
   @ViewChild('savingsChart', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private shareSvc: ShareStateService,
+  ) {
     effect(() => {
       const rows = this.result().yearlyRows;
       setTimeout(() => this.drawChart(rows), 0);
     });
 
     this.form = this.fb.group({
-      initialDeposit:      [10000],
+      initialDeposit: [10000],
       monthlyContribution: [200],
-      annualReturn:        [7],
-      durationYears:       [20],
-      applyTax:            [true],
-      taxRate:             [15],
-      applyInflation:      [false],
-      inflationRate:       [2],
+      compareMonthlyContribution: [400],
+      annualReturn: [7],
+      durationYears: [20],
+      applyTax: [true],
+      taxRate: [15],
+      applyInflation: [false],
+      inflationRate: [2],
     });
     this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
   }
 
   ngOnInit(): void {
     this.loadState();
+    const qp = this.shareSvc.getQueryParams();
+    if (Object.keys(qp).length) {
+      this.form.patchValue(this.shareSvc.deserializeState(qp), { emitEvent: false });
+    }
     this.form.valueChanges.subscribe(() => this.saveState());
   }
 
   result = computed<SavingsResult>(() => {
     this.formValues();
+    return this.computeSavings(this.form.value);
+  });
+
+  compareResult = computed(() => {
+    this.formValues();
     const fv = this.form.value;
-    const P = Math.max(0, fv.initialDeposit || 0);
-    const C = Math.max(0, fv.monthlyContribution || 0);
-    const annualRate = Math.max(0, fv.annualReturn || 0) / 100;
-    const years = Math.max(1, Math.min(50, Math.round(fv.durationYears || 20)));
-    const doTax = !!fv.applyTax;
-    const taxRate = doTax ? Math.max(0, fv.taxRate || 15) / 100 : 0;
-    const doInflation = !!fv.applyInflation;
-    const inflRate = doInflation ? Math.max(0, fv.inflationRate || 0) / 100 : 0;
+    const monthly = Math.max(0, fv.compareMonthlyContribution || 0);
+    return this.computeSavings(fv, monthly);
+  });
+
+  compareRows = computed((): CompareRow[] => {
+    const a = this.result();
+    const b = this.compareResult();
+    const fmt = (n: number) => `${Math.round(n).toLocaleString('el-GR')} €`;
+    const pick = (va: number, vb: number): 'a' | 'b' | undefined =>
+      va > vb ? 'a' : vb > va ? 'b' : undefined;
+    const monthlyA = Math.max(0, this.form.value.monthlyContribution || 0);
+    const monthlyB = Math.max(0, this.form.value.compareMonthlyContribution || 0);
+    return [
+      { label: 'Μηνιαία εισφορά', valueA: fmt(monthlyA), valueB: fmt(monthlyB) },
+      { label: 'Συνολικές εισφορές', valueA: fmt(a.totalContributed), valueB: fmt(b.totalContributed) },
+      { label: 'Καθαρά κέρδη', valueA: fmt(a.netGains), valueB: fmt(b.netGains), highlight: pick(a.netGains, b.netGains) },
+      { label: 'Τελικό ποσό', valueA: fmt(a.finalNominal), valueB: fmt(b.finalNominal), highlight: pick(a.finalNominal, b.finalNominal) },
+    ];
+  });
+
+  shareSummary = computed(() => {
+    const r = this.result();
+    return `Αποταμίευση Salaries.gr: τελικό ${Math.round(r.finalNominal)}€ μετά ${this.form.value.durationYears} έτη`;
+  });
+
+  private computeSavings(fv: Record<string, unknown>, monthlyOverride?: number): SavingsResult {
+    const P = Math.max(0, Number(fv['initialDeposit']) || 0);
+    const C = monthlyOverride ?? Math.max(0, Number(fv['monthlyContribution']) || 0);
+    const annualRate = Math.max(0, Number(fv['annualReturn']) || 0) / 100;
+    const years = Math.max(1, Math.min(50, Math.round(Number(fv['durationYears']) || 20)));
+    const doTax = !!fv['applyTax'];
+    const taxRate = doTax ? Math.max(0, Number(fv['taxRate']) || 15) / 100 : 0;
+    const doInflation = !!fv['applyInflation'];
+    const inflRate = doInflation ? Math.max(0, Number(fv['inflationRate']) || 0) / 100 : 0;
 
     const netAnnual = annualRate * (1 - taxRate);
     const mRate = netAnnual / 12;
@@ -83,7 +134,6 @@ export class SavingsCalculatorComponent implements OnInit {
     let prevGains = 0;
 
     for (let y = 1; y <= years; y++) {
-      const balanceStartOfYear = balance;
       for (let m = 0; m < 12; m++) {
         balance = balance * (1 + mRate) + C;
       }
@@ -95,7 +145,6 @@ export class SavingsCalculatorComponent implements OnInit {
       rows.push({ year: y, totalContributed: contributed, yearlyGains, gains, totalValue: balance, realValue });
     }
 
-    // Gross gains (before tax) for summary
     const mGross = annualRate / 12;
     let grossBal = P;
     for (let y = 0; y < years; y++) {
@@ -109,7 +158,7 @@ export class SavingsCalculatorComponent implements OnInit {
     const netGains = balance - totalContributed;
     const finalReal = doInflation ? balance / Math.pow(1 + inflRate, years) : null;
 
-    const res: SavingsResult = {
+    return {
       finalNominal: balance,
       finalReal,
       totalContributed,
@@ -120,28 +169,20 @@ export class SavingsCalculatorComponent implements OnInit {
       applyTax: doTax,
       applyInflation: doInflation,
     };
-
-    return res;
-  });
+  }
 
   setYears(y: number): void {
     this.form.patchValue({ durationYears: y });
   }
 
-  print(): void {
-    window.print();
-  }
-
   @HostListener('window:resize')
   onResize(): void {
-    const rows = this.result().yearlyRows;
-    this.drawChart(rows);
+    this.drawChart(this.result().yearlyRows);
   }
 
   @HostListener('window:themechange')
   onThemeChange(): void {
-    const rows = this.result().yearlyRows;
-    this.drawChart(rows);
+    this.drawChart(this.result().yearlyRows);
   }
 
   private drawChart(rows: SavingsYearRow[]): void {
@@ -172,7 +213,6 @@ export class SavingsCalculatorComponent implements OnInit {
     const gainsColor = isDark ? '#86efac' : '#059669';
     const contributionColor = isDark ? '#60a5fa' : '#1d4ed8';
 
-    // Grid lines
     const gridN = 4;
     for (let i = 0; i <= gridN; i++) {
       const y = PT + cH * (1 - i / gridN);
@@ -190,21 +230,17 @@ export class SavingsCalculatorComponent implements OnInit {
       ctx.fillText('€' + lbl, PL - 4, y + 4);
     }
 
-    // Bars
     rows.forEach((r, i) => {
       const x = PL + i * gap + gap / 2 - bW / 2;
       const totalH = r.totalValue / maxVal * cH;
       const contribH = r.totalContributed / maxVal * cH;
       const gainsH = totalH - contribH;
 
-      // Gains (green) on top
       ctx.fillStyle = gainsColor;
       ctx.fillRect(x, PT + cH - totalH, bW, gainsH > 0 ? gainsH : 0);
-      // Contributions (blue) on bottom
       ctx.fillStyle = contributionColor;
       ctx.fillRect(x, PT + cH - contribH, bW, contribH);
 
-      // X-axis labels
       const every = rows.length <= 10 ? 1 : rows.length <= 20 ? 2 : 5;
       if (r.year === 1 || r.year % every === 0 || r.year === rows.length) {
         ctx.fillStyle = axisColor;

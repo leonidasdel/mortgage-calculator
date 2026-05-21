@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { EFKA_EMPLOYEE_RATE, MAX_INSURABLE_EARNINGS } from '../../constants/payroll.constants';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
+import { ShareStateService } from '../../services/share-state.service';
 import { AgeGroup } from '../../models/salary.models';
 
 const STORAGE_KEY = 'unusedLeaveCalcState';
@@ -60,9 +61,20 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
 
   showTaxBreakdown = false;
 
+  readonly explanationSteps = [
+    'Ημερομίσθιο = μηνιαίος ÷ 25 (πενθήμερο) ή ÷ 26 (εξαήμερο).',
+    'Αποζημίωση = ημερομίσθιο × ημέρες μη ληφθείσας άδειας.',
+    'Το επίδομα αδείας = 100% των αποδοχών, με ανώτατο όριο.',
+    'Αφαιρούνται ΕΦΚΑ (αν ισχύει) και οριακός φόρος εισοδήματος.',
+  ];
+
+  readonly explanationFormula =
+    'Καθαρά = (αποζημίωση + επίδομα) − ΕΦΚΑ − οριακός φόρος';
+
   constructor(
     private fb: FormBuilder,
     private salaryService: SalaryCalculatorService,
+    private shareSvc: ShareStateService,
   ) {
     this.form = this.fb.group({
       salaryType:           ['monthly'],       // 'monthly' | 'daily'
@@ -83,6 +95,11 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadState();
+    const qp = this.shareSvc.getQueryParams();
+    if (Object.keys(qp).length) {
+      const state = this.shareSvc.deserializeState(qp);
+      this.form.patchValue(state, { emitEvent: false });
+    }
     this.form.valueChanges.subscribe(() => this.saveState());
   }
 
@@ -224,6 +241,11 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
       totalDeductions,
       taxBreakdown:       taxOnTotal.breakdown,
     };
+  });
+
+  shareSummary = computed(() => {
+    const r = this.result();
+    return `Μη ληφθείσα άδεια Salaries.gr: καθαρά ${r.totalNet.toFixed(2)}€ (${this.form.value.unusedDays} ημέρες)`;
   });
 
   toggleTaxBreakdown(): void {

@@ -2,6 +2,7 @@ import { Component, computed, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
+import { ShareStateService } from '../../services/share-state.service';
 import { SalaryParams, BonusBreakdown } from '../../models/salary.models';
 
 const STORAGE_KEY = 'holidayBonusCalcState';
@@ -42,9 +43,20 @@ export class HolidayBonusCalculatorComponent implements OnInit {
   form: FormGroup;
   private formValues;
 
+  readonly explanationSteps = [
+    'Δώρο Χριστουγέννων = 1 μισθός (Μάι–Δεκ) + προσαύξηση 4,166%.',
+    'Δώρο Πάσχα & επίδομα αδείας = ½ μισθού (Ιαν–Απρ) + 4,166%.',
+    'Κάθε δώρο υπόκειται σε ΕΦΚΑ (13,37%) και φόρο εισοδήματος.',
+    'Για μερική απασχόληση: αναλογία εργάσιμων μηνών.',
+  ];
+
+  readonly explanationFormula =
+    'Καθαρά = Σ(μικτά δώρων) − ΕΦΚΑ − φόρος (14μηνο μοντέλο)';
+
   constructor(
     private fb: FormBuilder,
     private calc: SalaryCalculatorService,
+    private shareSvc: ShareStateService,
   ) {
     this.form = this.fb.group({
       grossMonthly:           [1500],
@@ -60,6 +72,11 @@ export class HolidayBonusCalculatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadState();
+    const qp = this.shareSvc.getQueryParams();
+    if (Object.keys(qp).length) {
+      const state = this.shareSvc.deserializeState(qp);
+      this.form.patchValue(state, { emitEvent: false });
+    }
     this.form.valueChanges.subscribe(() => this.saveState());
   }
 
@@ -108,6 +125,11 @@ export class HolidayBonusCalculatorComponent implements OnInit {
       totalEfka:  +(christmas.efka  + easter.efka  + leave.efka).toFixed(2),
       totalTax:   +(christmas.tax   + easter.tax   + leave.tax).toFixed(2),
     };
+  });
+
+  shareSummary = computed(() => {
+    const r = this.result();
+    return `Δώρα Salaries.gr: καθαρά ${r.totalNet.toFixed(2)}€ (Χριστούγεννα + Πάσχα + επίδομα αδείας)`;
   });
 
   print(): void {

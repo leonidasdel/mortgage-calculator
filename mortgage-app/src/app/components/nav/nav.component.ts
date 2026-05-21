@@ -39,6 +39,15 @@ export class NavComponent implements OnInit {
         { route: '/unused-leave',  icon: '🏖️', label: 'Μη Ληφθείσα Άδεια' },
         { route: '/holiday-bonus', icon: '🎁', label: 'Δώρα Εορτών' },
         { route: '/severance',     icon: '📄', label: 'Αποζημίωση Απόλυσης' },
+        { route: '/overtime',      icon: '⏱️', label: 'Υπερωρίες' },
+      ],
+    },
+    {
+      label: 'Φόροι & Άλλα',
+      items: [
+        { route: '/inheritance-gift', icon: '🏛️', label: 'Κληρονομιά & Δωρεά' },
+        { route: '/crypto-tax',       icon: '₿',  label: 'Φόρος Crypto' },
+        { route: '/car-cost',         icon: '🚗', label: 'Κόστος Αυτοκινήτου' },
       ],
     },
     {

@@ -1,0 +1,159 @@
+<div class="page-header">
+  <div class="page-header-icon ot-icon">⏱</div>
+  <div>
+    <h1 class="page-title">Υπολογισμός Υπερωριών</h1>
+    <p class="page-subtitle">Υπολογίστε το επιπλέον μικτό από νόμιμες υπερωρίες και 6η μέρα εργασίας</p>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="left-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9881;</div>
+        <h2>Παράμετροι Υπολογισμού</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <div class="form-group">
+          <label for="grossMonthly">Μικτός Μηνιαίος Μισθός (€)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">€</span>
+            <input type="number" id="grossMonthly" formControlName="grossMonthly"
+                   min="0" step="50" placeholder="π.χ. 1500">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="schedule">Ωράριο Εργασίας</label>
+          <div class="input-wrap">
+            <select id="schedule" formControlName="schedule" class="form-select">
+              <option value="penthimero">Πενθήμερο (40 ώρες/εβδομάδα)</option>
+              <option value="exahimero">Εξαήμερο (48 ώρες/εβδομάδα)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sec-div">
+          <div class="sec-label">Υπερωρίες</div>
+
+          <div class="form-group">
+            <label for="overtimeHoursYear">Ώρες Υπερωρίας / Έτος</label>
+            <div class="input-wrap has-sfx">
+              <input type="number" id="overtimeHoursYear" formControlName="overtimeHoursYear"
+                     min="0" max="200" step="1" placeholder="π.χ. 120">
+              <span class="sfx">ώρες</span>
+            </div>
+            <div class="ot-hint">Νόμιμο όριο: έως 150 ώρες/έτος</div>
+          </div>
+        </div>
+
+        <div class="sec-div">
+          <div class="sec-label">6η Μέρα</div>
+
+          <div class="form-group">
+            <label class="ot-check-row">
+              <input type="checkbox" formControlName="includeSixthDay">
+              <span>Συμπεριλαμβάνεται 6η μέρα εργασίας</span>
+            </label>
+          </div>
+
+          @if (form.get('includeSixthDay')?.value) {
+            <div class="form-group">
+              <label for="sixthDayHours">Ώρες 6ης Μέρας / Εβδομάδα</label>
+              <div class="input-wrap has-sfx">
+                <input type="number" id="sixthDayHours" formControlName="sixthDayHours"
+                       min="0" max="8" step="0.5" placeholder="π.χ. 4">
+                <span class="sfx">ώρες</span>
+              </div>
+              <div class="ot-hint">Μέγιστο 8 ώρες/εβδομάδα</div>
+            </div>
+          }
+        </div>
+
+        <div class="info-box blue">
+          Οι υπερωρίες πρέπει να καταχωρούνται στο ΕΡΓΑΝΗ. Ο υπολογισμός είναι ενδεικτικός βάσει Ν.5053/2023.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="card" id="ot-results">
+      <div class="card-header">
+        <div class="card-header-icon">&#128176;</div>
+        <h2>Αποτελέσματα</h2>
+      </div>
+      <div class="card-body">
+        <div class="hero-row">
+          <div class="hero-card dark">
+            <div class="hero-lbl">Ωρομίσθιο</div>
+            <div class="hero-val">{{ result().hourlyWage | euro }}</div>
+            <div class="hero-sub">{{ result().weeklyHours }} ώρες/εβδομάδα</div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-lbl">Σύνολο Επιπλέον Μικτά</div>
+            <div class="hero-val">{{ result().totalExtraGross | euro }}</div>
+            <div class="hero-sub">ανά έτος</div>
+          </div>
+        </div>
+
+        @if (result().warnings.length) {
+          @for (w of result().warnings; track w) {
+            <div class="info-box amber">{{ w }}</div>
+          }
+        }
+
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Ώρες υπερωρίας (μετά το όριο)</div>
+            <div class="sum-val">{{ result().overtimeHoursCapped }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Ώρες με +40% (έως 120)</div>
+            <div class="sum-val">{{ result().hoursAt40 }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Ώρες με +60% (121–150)</div>
+            <div class="sum-val">{{ result().hoursAt60 }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Ενεργό ωρομίσθιο +40%</div>
+            <div class="sum-val">{{ result().effectiveRate40 | euro }}/ώρα</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Ενεργό ωρομίσθιο +60%</div>
+            <div class="sum-val">{{ result().effectiveRate60 | euro }}/ώρα</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Μικτά υπερωριών</div>
+            <div class="sum-val blue">{{ result().overtimeGross | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Μικτά 6ης μέρας</div>
+            <div class="sum-val blue">{{ result().sixthDayGross | euro }}</div>
+          </div>
+          <div class="sum-item ot-total">
+            <div class="sum-lbl"><strong>Σύνολο επιπλέον μικτών / έτος</strong></div>
+            <div class="sum-val green"><strong>{{ result().totalExtraGross | euro }}</strong></div>
+          </div>
+        </div>
+
+        <app-export-row
+          sharePath="/overtime"
+          [shareState]="form.value"
+          [shareSummary]="shareSummary()"
+          printTargetId="ot-results">
+        </app-export-row>
+      </div>
+    </div>
+
+    <app-calc-explanation
+      title="Πώς υπολογίζονται οι υπερωρίες;"
+      [steps]="explanationSteps"
+      [formula]="explanationFormula">
+    </app-calc-explanation>
+  </div>
+</div>
+
+<app-law-footer route="/overtime"></app-law-footer>

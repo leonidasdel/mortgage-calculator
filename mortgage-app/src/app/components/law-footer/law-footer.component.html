@@ -1,0 +1,7 @@
+<div class="law-footer">
+  <span class="law-chip">Ενημερώθηκε: {{ meta.lastVerified }} · {{ meta.law }}</span>
+  @if (meta.sourceUrl) {
+    <a class="law-link" [href]="meta.sourceUrl" target="_blank" rel="noopener">Πηγή</a>
+  }
+  <p class="law-disclaimer">{{ meta.disclaimer }}</p>
+</div>

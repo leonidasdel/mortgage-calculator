@@ -2,6 +2,7 @@ import { Component, computed, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
+import { ShareStateService } from '../../services/share-state.service';
 import { AgeGroup } from '../../models/salary.models';
 
 const STORAGE_KEY = 'freelancerCalcState';
@@ -72,9 +73,20 @@ export class FreelancerCalculatorComponent implements OnInit {
   readonly efkaCategories = EFKA_CATEGORIES;
   readonly childrenOptions = [0, 1, 2, 3, 4, 5, 6];
 
+  readonly explanationSteps = [
+    'Αφαιρούνται επαγγελματικά έξοδα και ετήσιες εισφορές ΕΦΚΑ από τα έσοδα.',
+    'Ο φόρος εισοδήματος υπολογίζεται με προοδευτική κλίμακα ΚΦΕ.',
+    'Προστίθεται προκαταβολή φόρου 55% (ή 27,5% τα πρώτα 3 έτη).',
+    'Το καθαρό = έσοδα − έξοδα − ΕΦΚΑ − φόρος − προκαταβολή.',
+  ];
+
+  readonly explanationFormula =
+    'Καθαρά = Έσοδα − Έξοδα − ΕΦΚΑ − Φόρος − Προκαταβολή';
+
   constructor(
     private fb: FormBuilder,
     private salaryService: SalaryCalculatorService,
+    private shareSvc: ShareStateService,
   ) {
     this.form = this.fb.group({
       annualRevenue:  [30000],
@@ -89,6 +101,11 @@ export class FreelancerCalculatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadState();
+    const qp = this.shareSvc.getQueryParams();
+    if (Object.keys(qp).length) {
+      const state = this.shareSvc.deserializeState(qp);
+      this.form.patchValue(state, { emitEvent: false });
+    }
     this.form.valueChanges.subscribe(() => this.saveState());
   }
 
@@ -125,6 +142,11 @@ export class FreelancerCalculatorComponent implements OnInit {
     });
 
     return { ...calc, efkaLabel: cat.label, monthlyEfka: cat.monthly, advanceTaxRate: advanceRate * 100, efkaComparison };
+  });
+
+  shareSummary = computed(() => {
+    const r = this.result();
+    return `Ελεύθερος επαγγελματίας Salaries.gr: καθαρά ${r.netMonthly.toFixed(2)}€/μήνα (${r.netAnnual.toFixed(2)}€/έτος)`;
   });
 
   getSelectedEfkaMonthly(): number {

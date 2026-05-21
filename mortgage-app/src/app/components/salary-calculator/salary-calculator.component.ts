@@ -2,7 +2,9 @@ import { Component, computed, signal, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
-import { SalaryChange, SalaryParams } from '../../models/salary.models';
+import { ExportService } from '../../services/export.service';
+import { ShareStateService } from '../../services/share-state.service';
+import { SalaryChange, SalaryParams, PayslipLine } from '../../models/salary.models';
 
 const STORAGE_KEY = 'salaryCalcState';
 
@@ -18,6 +20,7 @@ export class SalaryCalculatorComponent implements OnInit {
   inputMode = signal<'gross' | 'net'>('gross');
   showTaxDetails = signal(false);
   hasSalaryChange = signal(false);
+  hasMultiEmployer = signal(false);
   salaryChangeMonth = signal(4);
   previousGross = signal(0);
 
@@ -26,6 +29,8 @@ export class SalaryCalculatorComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private calc: SalaryCalculatorService,
+    private exportSvc: ExportService,
+    private shareSvc: ShareStateService,
   ) {
     this.salaryForm = this.fb.group({
       grossMonthly: [1500],
@@ -36,6 +41,9 @@ export class SalaryCalculatorComponent implements OnInit {
       hasSalaryChange: [false],
       salaryChangeMonth: [4],
       previousGross: [0],
+      ftePercent: [100],
+      employer2Gross: [0],
+      employer3Gross: [0],
     });
 
     this.formValues = toSignal(this.salaryForm.valueChanges, { initialValue: this.salaryForm.value });
@@ -43,12 +51,32 @@ export class SalaryCalculatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadState();
-    // Compute initial net
+    this.loadFromUrl();
     this.syncFromGross();
     this.salaryForm.valueChanges.subscribe(() => this.saveState());
   }
 
+  private buildParams(): SalaryParams {
+    const fv = this.salaryForm.value;
+    const hasSalaryChange = !!fv.hasSalaryChange;
+    const salaryChangeMonth = Math.min(12, Math.max(1, Number(fv.salaryChangeMonth) || 4));
+    const previousGross = Math.max(0, Number(fv.previousGross) || 0);
+    const salaryChange: SalaryChange | undefined = hasSalaryChange
+      ? { effectiveMonth: salaryChangeMonth, previousGross }
+      : undefined;
+    return {
+      grossMonthly: fv.grossMonthly || 0,
+      year: fv.year || 2026,
+      ageGroup: fv.ageGroup || 'over30',
+      children: fv.children || 0,
+      annualBonus: this.annualBonus(),
+      salaryChange,
+      ftePercent: Number(fv.ftePercent) || 100,
+    };
+  }
+
   raiseDiff = computed(() => {
+    this.formValues();
     const r = this.result();
     if (!r.previousMonthly || !r.currentMonthly) return null;
     const monthly = +(r.currentMonthly.netMonthly - r.previousMonthly.netMonthly).toFixed(2);
@@ -58,22 +86,42 @@ export class SalaryCalculatorComponent implements OnInit {
 
   result = computed(() => {
     this.formValues();
+    return this.calc.calculate(this.buildParams());
+  });
+
+  fullTimeResult = computed(() => {
+    this.formValues();
     const fv = this.salaryForm.value;
-    const hasSalaryChange = !!fv.hasSalaryChange;
-    const salaryChangeMonth = Math.min(12, Math.max(1, Number(fv.salaryChangeMonth) || this.salaryChangeMonth()));
-    const previousGross = Math.max(0, Number(fv.previousGross) || this.previousGross());
-    const salaryChange: SalaryChange | undefined = hasSalaryChange
-      ? { effectiveMonth: salaryChangeMonth, previousGross }
-      : undefined;
-    const params: SalaryParams = {
-      grossMonthly: fv.grossMonthly || 0,
+    const fte = Number(fv.ftePercent) || 100;
+    if (fte >= 100) return null;
+    return this.calc.calculate({ ...this.buildParams(), ftePercent: 100 });
+  });
+
+  multiEmployerResult = computed(() => {
+    if (!this.hasMultiEmployer()) return null;
+    this.formValues();
+    const fv = this.salaryForm.value;
+    const grosses = [fv.grossMonthly, fv.employer2Gross, fv.employer3Gross]
+      .map((g: unknown) => Math.max(0, Number(g) || 0))
+      .filter((g: number) => g > 0);
+    if (grosses.length < 2) return null;
+    return this.calc.calculateMultiEmployer({
+      grossEmployers: grosses,
       year: fv.year || 2026,
       ageGroup: fv.ageGroup || 'over30',
       children: fv.children || 0,
-      annualBonus: this.annualBonus(),
-      salaryChange,
-    };
-    return this.calc.calculate(params);
+    });
+  });
+
+  shareState = computed(() => {
+    this.formValues();
+    return { ...this.salaryForm.value, annualBonus: this.annualBonus() };
+  });
+
+  shareSummary = computed(() => {
+    this.formValues();
+    const r = this.result();
+    return `Καθαρά μισθός: €${r.netMonthly.toFixed(2)}/μήνα (${this.salaryForm.value.year})`;
   });
 
   onGrossChange(): void {
@@ -97,6 +145,7 @@ export class SalaryCalculatorComponent implements OnInit {
       children: fv.children || 0,
       annualBonus: this.annualBonus(),
       salaryChange,
+      ftePercent: Number(fv.ftePercent) || 100,
     });
     this.salaryForm.patchValue({ grossMonthly: gross }, { emitEvent: false });
     // Trigger recompute
@@ -135,6 +184,42 @@ export class SalaryCalculatorComponent implements OnInit {
     this.saveState();
   }
 
+  toggleMultiEmployer(checked?: boolean): void {
+    const next = checked ?? !this.hasMultiEmployer();
+    this.hasMultiEmployer.set(next);
+    this.saveState();
+  }
+
+  exportPayslip(): void {
+    const r = this.result();
+    const lines: PayslipLine[] = [
+      { label: 'Μικτά μηνιαία', value: `€${r.grossMonthly.toFixed(2)}` },
+      { label: 'ΕΦΚΑ εργαζόμενου', value: `€${r.efkaEmployee.toFixed(2)}` },
+      { label: 'Φόρος εισοδήματος', value: `€${r.incomeTax.toFixed(2)}` },
+      { label: 'Καθαρά μηνιαία', value: `€${r.netMonthly.toFixed(2)}` },
+      { label: 'Δώρο Χριστουγέννων (καθαρά)', value: `€${r.christmasBonus.net.toFixed(2)}` },
+      { label: 'Δώρο Πάσχα (καθαρά)', value: `€${r.easterBonus.net.toFixed(2)}` },
+      { label: 'Επίδομα αδείας (καθαρά)', value: `€${r.leaveAllowance.net.toFixed(2)}` },
+      { label: 'ΕΦΚΑ εργοδότη', value: `€${r.efkaEmployer.toFixed(2)}` },
+      { label: 'Συνολικό κόστος εργοδότη/μήνα', value: `€${r.employerMonthly.toFixed(2)}` },
+    ];
+    this.exportSvc.exportPayslipPdf(lines, 'Δελτίο Αποδοχών');
+  }
+
+  print(): void {
+    this.exportSvc.printPage();
+  }
+
+  private loadFromUrl(): void {
+    const q = this.shareSvc.getQueryParams();
+    if (!Object.keys(q).length) return;
+    const state = this.shareSvc.deserializeState(q);
+    if (state['annualBonus'] != null) this.annualBonus.set(Number(state['annualBonus']));
+    delete state['annualBonus'];
+    this.salaryForm.patchValue(state, { emitEvent: false });
+    this.syncFromGross();
+  }
+
   onSalaryChangeMonthChange(value: string): void {
     const month = Math.min(12, Math.max(1, parseInt(value, 10) || 4));
     this.salaryChangeMonth.set(month);
@@ -168,6 +253,7 @@ export class SalaryCalculatorComponent implements OnInit {
         annualBonus: this.annualBonus(),
         inputMode: this.inputMode(),
         hasSalaryChange: !!fv.hasSalaryChange,
+        hasMultiEmployer: this.hasMultiEmployer(),
         salaryChangeMonth: Math.min(12, Math.max(1, Number(fv.salaryChangeMonth) || 4)),
         previousGross: Math.max(0, Number(fv.previousGross) || 0),
       };
@@ -182,6 +268,7 @@ export class SalaryCalculatorComponent implements OnInit {
       const state = JSON.parse(raw);
       if (state.inputs) this.salaryForm.patchValue(state.inputs, { emitEvent: false });
       if (state.annualBonus != null) this.annualBonus.set(state.annualBonus);
+      if (state.hasMultiEmployer != null) this.hasMultiEmployer.set(!!state.hasMultiEmployer);
       if (state.inputMode) this.inputMode.set(state.inputMode);
       const hasSalaryChange = state.inputs?.hasSalaryChange ?? state.hasSalaryChange;
       const salaryChangeMonth = state.inputs?.salaryChangeMonth ?? state.salaryChangeMonth;

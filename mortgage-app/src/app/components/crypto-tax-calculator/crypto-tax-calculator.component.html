@@ -1,0 +1,147 @@
+<div class="page-header">
+  <div class="page-header-icon ct-icon">₿</div>
+  <div>
+    <h1 class="page-title">Φόρος Κρυπτονομισμάτων</h1>
+    <p class="page-subtitle">Υπολογισμός φόρου κερδών κεφαλαίου 15% από πωλήσεις crypto (δήλωση Ε1)</p>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="left-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9881;</div>
+        <h2>Στοιχεία Συναλλαγών</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <div class="form-group">
+          <label>Τρόπος υπολογισμού</label>
+          <div class="ct-mode-toggle">
+            <button type="button" class="ct-mode-btn"
+                    [class.active]="form.get('mode')?.value === 'simple'"
+                    (click)="form.patchValue({ mode: 'simple' })">
+              Απλός (συνολικά ποσά)
+            </button>
+            <button type="button" class="ct-mode-btn"
+                    [class.active]="form.get('mode')?.value === 'fifo'"
+                    (click)="form.patchValue({ mode: 'fifo' })">
+              FIFO (πολλαπλές αγορές)
+            </button>
+          </div>
+          @if (form.get('mode')?.value === 'fifo') {
+            <div class="ct-hint">Η λειτουργία FIFO με πολλαπλές αγορές θα προστεθεί σύντομα. Προς το παρόν χρησιμοποιείται η απλή μέθοδος.</div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="totalProceeds">Έσοδα από πώληση (€)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">€</span>
+            <input type="number" id="totalProceeds" formControlName="totalProceeds"
+                   min="0" step="100" placeholder="π.χ. 10000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="totalCost">Κόστος απόκτησης (€)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">€</span>
+            <input type="number" id="totalCost" formControlName="totalCost"
+                   min="0" step="100" placeholder="π.χ. 6000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="carriedLoss">Ζημίες προηγούμενων ετών (€)</label>
+          <div class="input-wrap has-pfx">
+            <span class="pfx">€</span>
+            <input type="number" id="carriedLoss" formControlName="carriedLoss"
+                   min="0" step="100" placeholder="0">
+          </div>
+          <div class="ct-hint">Συμψηφίζονται με τα κέρδη του τρέχοντος έτους · μεταφορά έως {{ lossCarryYears }} έτη</div>
+        </div>
+
+        <div class="form-group">
+          <label class="ct-check-row">
+            <input type="checkbox" formControlName="isProfessional">
+            <span>Επαγγελματική δραστηριότητα (κλιμακωτός φόρος εισοδήματος)</span>
+          </label>
+        </div>
+
+        <div class="info-box blue">
+          Η δήλωση γίνεται στο Ε1 έως 30 Ιουνίου. Για ιδιώτες, φόρος 15% στο θετικό καθαρό κέρδος μετά τη συμψηφισμό ζημιών.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="card" id="crypto-results">
+      <div class="card-header">
+        <div class="card-header-icon">&#128176;</div>
+        <h2>Αποτέλεσμα</h2>
+      </div>
+      <div class="card-body">
+        <div class="hero-row">
+          <div class="hero-card dark">
+            <div class="hero-lbl">Φόρος πληρωτέος</div>
+            <div class="hero-val">{{ result().taxDue | euro }}</div>
+            <div class="hero-sub">
+              @if (form.get('isProfessional')?.value) {
+                ενδεικτικός υπολογισμός
+              } @else if (result().taxableGain > 0) {
+                {{ taxRatePct | number:'1.0-0' }}% επί φορολογητέου κέρδους
+              } @else {
+                χωρίς φορολογητέο κέρδος
+              }
+            </div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-lbl">Καθαρό κέρδος / ζημία</div>
+            <div class="hero-val" [class.red]="result().netGain < 0">{{ result().netGain | euro }}</div>
+            <div class="hero-sub">έσοδα − κόστος</div>
+          </div>
+        </div>
+
+        <div class="sum-grid">
+          @if (form.get('carriedLoss')?.value > 0) {
+            <div class="sum-item">
+              <div class="sum-lbl">Ζημίες προηγούμενων ετών</div>
+              <div class="sum-val">−{{ form.get('carriedLoss')?.value | euro }}</div>
+            </div>
+          }
+          <div class="sum-item">
+            <div class="sum-lbl">Φορολογητέο κέρδος</div>
+            <div class="sum-val blue">{{ result().taxableGain | euro }}</div>
+          </div>
+          @if (result().lossCarryForward > 0) {
+            <div class="sum-item">
+              <div class="sum-lbl">Ζημία για μεταφορά</div>
+              <div class="sum-val red">{{ result().lossCarryForward | euro }}</div>
+            </div>
+          }
+        </div>
+
+        @for (note of result().notes; track note) {
+          <div class="info-box amber">{{ note }}</div>
+        }
+
+        <app-export-row
+          sharePath="/crypto-tax"
+          [shareState]="form.value"
+          [shareSummary]="shareSummary()"
+          printTargetId="crypto-results">
+        </app-export-row>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-calc-explanation
+  title="Πώς υπολογίζεται ο φόρος κρυπτονομισμάτων;"
+  [steps]="explanationSteps"
+  [formula]="explanationFormula">
+</app-calc-explanation>
+
+<app-law-footer route="/crypto-tax"></app-law-footer>

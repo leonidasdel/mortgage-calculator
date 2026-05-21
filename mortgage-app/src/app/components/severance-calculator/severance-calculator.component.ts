@@ -1,6 +1,7 @@
 import { Component, computed, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ShareStateService } from '../../services/share-state.service';
 
 const STORAGE_KEY = 'severanceCalcState';
 
@@ -91,7 +92,20 @@ export class SeveranceCalculatorComponent implements OnInit {
   form: FormGroup;
   private formValues;
 
-  constructor(private fb: FormBuilder) {
+  readonly explanationSteps = [
+    'Οι μήνες αποζημίωσης καθορίζονται από τον πίνακα Ν.4808/2021.',
+    'Μισθός υπολογισμού = μηνιαίος × 14 ÷ 12 (προσαύξηση 1/6).',
+    'Με προειδοποίηση ή συναινετική λύση: αποζημίωση = ½.',
+    'Φόρος αυτοτελώς: 0% έως €60.000, 10% / 20% / 30% πάνω.',
+  ];
+
+  readonly explanationFormula =
+    'Αποζημίωση = μήνες × (μικτός × 14/12) · Καθαρά = μεικτή − φόρος';
+
+  constructor(
+    private fb: FormBuilder,
+    private shareSvc: ShareStateService,
+  ) {
     this.form = this.fb.group({
       grossMonthly:    [1500],
       yearsOfService:  [5],
@@ -103,6 +117,11 @@ export class SeveranceCalculatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadState();
+    const qp = this.shareSvc.getQueryParams();
+    if (Object.keys(qp).length) {
+      const state = this.shareSvc.deserializeState(qp);
+      this.form.patchValue(state, { emitEvent: false });
+    }
     this.form.valueChanges.subscribe(() => this.saveState());
   }
 
@@ -143,6 +162,11 @@ export class SeveranceCalculatorComponent implements OnInit {
       isCapped,
       terminationType: termType,
     };
+  });
+
+  shareSummary = computed(() => {
+    const r = this.result();
+    return `Αποζημίωση Salaries.gr: καθαρά ${r.netSeverance.toFixed(2)}€ (${r.actualMonths} μισθοί, ${r.completedYears} έτη)`;
   });
 
   print(): void {

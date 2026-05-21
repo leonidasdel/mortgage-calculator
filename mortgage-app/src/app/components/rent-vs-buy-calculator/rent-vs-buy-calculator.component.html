@@ -162,9 +162,17 @@
         </div>
 
         <div class="form-group">
-          <label for="timeHorizon">Χρονικός Ορίζοντας (έτη)</label>
+          <label for="timeHorizon">Χρονικός Ορίζοντας — Σενάριο Α (έτη)</label>
           <div class="input-wrap has-sfx">
             <input type="number" id="timeHorizon" formControlName="timeHorizon" min="1" max="40" step="1">
+            <span class="sfx">έτη</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="compareTimeHorizon">Χρονικός Ορίζοντας — Σενάριο Β (έτη)</label>
+          <div class="input-wrap has-sfx">
+            <input type="number" id="compareTimeHorizon" formControlName="compareTimeHorizon" min="1" max="40" step="1">
             <span class="sfx">έτη</span>
           </div>
         </div>
@@ -181,7 +189,7 @@
   <div class="right-panel">
 
     <!-- Verdict -->
-    <div class="card">
+    <div class="card" id="rvb-results">
       <div class="card-header">
         <div class="card-header-icon">⚖️</div>
         <h2>Αποτέλεσμα σε {{ form.value.timeHorizon }} Έτη</h2>
@@ -257,6 +265,26 @@
           </div>
         </div>
 
+        <app-export-row
+          sharePath="/rent-vs-buy"
+          [shareState]="form.value"
+          [shareSummary]="shareSummary()"
+          printTargetId="rvb-results">
+        </app-export-row>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">⚖️</div>
+        <h2>Σύγκριση Χρονικών Οριζόντων</h2>
+      </div>
+      <div class="card-body">
+        <app-compare-panel
+          labelA="Σενάριο Α"
+          labelB="Σενάριο Β"
+          [rows]="compareRows()">
+        </app-compare-panel>
       </div>
     </div>
 
@@ -322,3 +350,11 @@
 
   </div>
 </div>
+
+<app-calc-explanation
+  title="Πώς συγκρίνονται ενοίκιο και αγορά;"
+  [steps]="explanationSteps"
+  [formula]="explanationFormula">
+</app-calc-explanation>
+
+<app-law-footer route="/rent-vs-buy"></app-law-footer>
