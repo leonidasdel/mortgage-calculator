@@ -1,6 +1,8 @@
 import { Component, computed, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { CompareRow } from '../compare-panel/compare-panel.component';
+import { ShareStateService } from '../../services/share-state.service';
 
 const STORAGE_KEY = 'rentVsBuyCalcState';
 
@@ -36,7 +38,20 @@ export class RentVsBuyCalculatorComponent implements OnInit {
   form: FormGroup;
   private formValues;
 
-  constructor(private fb: FormBuilder) {
+  readonly explanationSteps = [
+    'Ο ενοικιαστής επενδύει την προκαταβολή και τα έξοδα αγοράς σε χαρτοφυλάκιο.',
+    'Κάθε μήνα επενδύεται η διαφορά δαπανών (δόση + συντήρηση − ενοίκιο).',
+    'Ο αγοραστής συσσωρεύει ίδια κεφάλαια (αξία − υπόλοιπο δανείου).',
+    'Συγκρίνονται τα τελικά ποσά στο τέλος του χρονικού ορίζοντα.',
+  ];
+
+  readonly explanationFormula =
+    'Πλούτος αγοράς = αξία ακινήτου − υπόλοιπο · Πλούτος ενοικίου = επενδύσεις';
+
+  constructor(
+    private fb: FormBuilder,
+    private shareSvc: ShareStateService,
+  ) {
     this.form = this.fb.group({
       propertyPrice: [250000],
       downPaymentMode: ['pct'],
@@ -53,12 +68,17 @@ export class RentVsBuyCalculatorComponent implements OnInit {
       investmentReturn: [5],
       annualOwnershipCostPct: [0.5],
       timeHorizon: [20],
+      compareTimeHorizon: [10],
     });
     this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
   }
 
   ngOnInit(): void {
     this.loadState();
+    const qp = this.shareSvc.getQueryParams();
+    if (Object.keys(qp).length) {
+      this.form.patchValue(this.shareSvc.deserializeState(qp), { emitEvent: false });
+    }
     this.form.valueChanges.subscribe(() => this.saveState());
   }
 
@@ -75,37 +95,72 @@ export class RentVsBuyCalculatorComponent implements OnInit {
 
   result = computed<RentVsBuyResult>(() => {
     this.formValues();
-    const fv = this.form.value;
+    const horizon = Math.min(40, Math.max(1, Number(this.form.value.timeHorizon) || 20));
+    return this.computeRentVsBuy(this.form.value, horizon);
+  });
 
-    const propertyPrice = Math.max(0, fv.propertyPrice || 0);
-    const downPaymentMode = fv.downPaymentMode === 'amount' ? 'amount' : 'pct';
-    const closingCostsMode = fv.closingCostsMode === 'amount' ? 'amount' : 'pct';
-    const downPaymentPctInput = Math.min(100, Math.max(0, fv.downPaymentPct ?? 20));
-    const closingCostsPctInput = Math.max(0, fv.closingCostsPct ?? 3);
-    const mortgageRate = Math.max(0, fv.mortgageRate ?? 3.5);
-    const mortgageTerm = Math.max(1, Math.min(40, fv.mortgageTerm || 30));
-    const monthlyRent = Math.max(0, fv.monthlyRent || 0);
-    const rentGrowthRate = fv.rentGrowthRate ?? 3;
-    const propertyGrowthRate = fv.propertyGrowthRate ?? 2;
-    const investmentReturn = Math.max(0, fv.investmentReturn ?? 5);
-    const annualOwnershipCostPct = Math.max(0, fv.annualOwnershipCostPct ?? 1);
-    const timeHorizon = Math.min(40, Math.max(1, fv.timeHorizon || 20));
+  compareResult = computed(() => {
+    this.formValues();
+    const horizon = Math.min(40, Math.max(1, Number(this.form.value.compareTimeHorizon) || 10));
+    return this.computeRentVsBuy(this.form.value, horizon);
+  });
+
+  compareRows = computed((): CompareRow[] => {
+    const a = this.result();
+    const b = this.compareResult();
+    const fmt = (n: number) => `${Math.round(n).toLocaleString('el-GR')} €`;
+    const winnerLabel = (w: 'buy' | 'rent' | 'tie') =>
+      w === 'buy' ? 'Αγορά' : w === 'rent' ? 'Ενοίκιο' : 'Ισοδύναμα';
+    const pickWealth = (va: number, vb: number, winner: 'buy' | 'rent' | 'tie'): 'a' | 'b' | undefined => {
+      if (winner === 'buy') return va >= vb ? 'a' : 'b';
+      if (winner === 'rent') return vb >= va ? 'b' : 'a';
+      return undefined;
+    };
+    const hA = Number(this.form.value.timeHorizon) || 20;
+    const hB = Number(this.form.value.compareTimeHorizon) || 10;
+    return [
+      { label: 'Χρονικός ορίζοντας', valueA: `${hA} έτη`, valueB: `${hB} έτη` },
+      { label: 'Break-even έτος', valueA: a.breakEvenYear ? `Έτος ${a.breakEvenYear}` : '—', valueB: b.breakEvenYear ? `Έτος ${b.breakEvenYear}` : '—' },
+      { label: 'Ίδια κεφάλαια (αγορά)', valueA: fmt(a.finalBuyWealth), valueB: fmt(b.finalBuyWealth), highlight: pickWealth(a.finalBuyWealth, b.finalBuyWealth, a.winner) },
+      { label: 'Χαρτοφυλάκιο (ενοίκιο)', valueA: fmt(a.finalRentWealth), valueB: fmt(b.finalRentWealth), highlight: pickWealth(a.finalRentWealth, b.finalRentWealth, a.winner === 'buy' ? 'rent' : a.winner === 'rent' ? 'buy' : 'tie') },
+      { label: 'Καλύτερη επιλογή', valueA: winnerLabel(a.winner), valueB: winnerLabel(b.winner) },
+    ];
+  });
+
+  shareSummary = computed(() => {
+    const r = this.result();
+    const w = r.winner === 'buy' ? 'Αγορά' : r.winner === 'rent' ? 'Ενοίκιο' : 'Ισοδύναμα';
+    return `Νοικιάζω ή Αγοράζω Salaries.gr: ${w} συμφέρει σε ${this.form.value.timeHorizon} έτη`;
+  });
+
+  private computeRentVsBuy(fv: Record<string, unknown>, timeHorizon: number): RentVsBuyResult {
+    const propertyPrice = Math.max(0, Number(fv['propertyPrice']) || 0);
+    const downPaymentMode = fv['downPaymentMode'] === 'amount' ? 'amount' : 'pct';
+    const closingCostsMode = fv['closingCostsMode'] === 'amount' ? 'amount' : 'pct';
+    const downPaymentPctInput = Math.min(100, Math.max(0, Number(fv['downPaymentPct']) ?? 20));
+    const closingCostsPctInput = Math.max(0, Number(fv['closingCostsPct']) ?? 3);
+    const mortgageRate = Math.max(0, Number(fv['mortgageRate']) ?? 3.5);
+    const mortgageTerm = Math.max(1, Math.min(40, Number(fv['mortgageTerm']) || 30));
+    const monthlyRent = Math.max(0, Number(fv['monthlyRent']) || 0);
+    const rentGrowthRate = Number(fv['rentGrowthRate']) ?? 3;
+    const propertyGrowthRate = Number(fv['propertyGrowthRate']) ?? 2;
+    const investmentReturn = Math.max(0, Number(fv['investmentReturn']) ?? 5);
+    const annualOwnershipCostPct = Math.max(0, Number(fv['annualOwnershipCostPct']) ?? 1);
+    const horizon = Math.min(40, Math.max(1, timeHorizon));
 
     const downPayment = downPaymentMode === 'amount'
-      ? Math.min(propertyPrice, Math.max(0, fv.downPaymentAmount || 0))
+      ? Math.min(propertyPrice, Math.max(0, Number(fv['downPaymentAmount']) || 0))
       : propertyPrice * downPaymentPctInput / 100;
     const downPaymentPct = propertyPrice > 0 ? downPayment / propertyPrice * 100 : 0;
     const loanAmount = propertyPrice - downPayment;
     const closingCosts = closingCostsMode === 'amount'
-      ? Math.max(0, fv.closingCostsAmount || 0)
+      ? Math.max(0, Number(fv['closingCostsAmount']) || 0)
       : propertyPrice * closingCostsPctInput / 100;
     const closingCostsPct = propertyPrice > 0 ? closingCosts / propertyPrice * 100 : 0;
 
-    // Mortgage params
     const n = mortgageTerm * 12;
     const r = mortgageRate / 100 / 12;
 
-    // PMT
     let monthlyPayment = 0;
     if (loanAmount > 0) {
       if (r === 0) {
@@ -119,36 +174,23 @@ export class RentVsBuyCalculatorComponent implements OnInit {
     const powN = r > 0 ? Math.pow(1 + r, n) : 1;
     const monthlyInvestRate = investmentReturn / 100 / 12;
 
-    // Renter starts by investing the down payment + closing costs (capital they didn't tie up in the house)
     let portfolio = downPayment + closingCosts;
 
     const yearlyRows: YearlyRow[] = [];
     let breakEvenYear: number | null = null;
     let prevBuyAhead = false;
 
-    for (let year = 1; year <= timeHorizon; year++) {
-      // Simulate month-by-month within this year
+    for (let year = 1; year <= horizon; year++) {
       for (let m = 0; m < 12; m++) {
         const totalMonth = (year - 1) * 12 + m + 1;
-
-        // Property value this month
         const propValMonth = propertyPrice * Math.pow(1 + propertyGrowthRate / 100, totalMonth / 12);
-
-        // Rent grows at start of each new year
         const rentThisMonth = monthlyRent * Math.pow(1 + rentGrowthRate / 100, year - 1);
-
-        // Buyer's monthly outgoings: mortgage payment (until paid off) + ownership costs
         const ownershipThisMonth = propValMonth * annualOwnershipCostPct / 100 / 12;
         const buyerMonthly = (totalMonth <= n ? monthlyPayment : 0) + ownershipThisMonth;
-
-        // Monthly delta: what buyer pays minus what renter pays → renter invests the difference
         const delta = buyerMonthly - rentThisMonth;
-
-        // Grow portfolio at investment rate and add delta (renter invests the difference)
         portfolio = portfolio * (1 + monthlyInvestRate) + delta;
       }
 
-      // Buyer equity at end of year y
       const propVal_y = propertyPrice * Math.pow(1 + propertyGrowthRate / 100, year);
       const totalMonths_y = year * 12;
       let remainingBal_y = 0;
@@ -186,7 +228,6 @@ export class RentVsBuyCalculatorComponent implements OnInit {
       winner = 'rent';
     }
 
-    // Only show break-even if buying wins at the end — otherwise the crossover is misleading
     if (winner !== 'buy') {
       breakEvenYear = null;
     }
@@ -205,7 +246,7 @@ export class RentVsBuyCalculatorComponent implements OnInit {
       winner,
       advantage: Math.abs(diff),
     };
-  });
+  }
 
   onPropertyPriceInput(): void {
     this.syncDerivedAmounts();

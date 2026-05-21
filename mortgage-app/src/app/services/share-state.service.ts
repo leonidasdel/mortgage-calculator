@@ -1,0 +1,61 @@
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+
+@Injectable({ providedIn: 'root' })
+export class ShareStateService {
+  constructor(private router: Router) {}
+
+  serializeState(state: Record<string, unknown>): string {
+    const params = new URLSearchParams();
+    for (const [k, v] of Object.entries(state)) {
+      if (v === null || v === undefined || v === '') continue;
+      if (typeof v === 'object') {
+        params.set(k, JSON.stringify(v));
+      } else {
+        params.set(k, String(v));
+      }
+    }
+    return params.toString();
+  }
+
+  deserializeState(query: Record<string, string>): Record<string, unknown> {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(query)) {
+      if (v.startsWith('{') || v.startsWith('[')) {
+        try { out[k] = JSON.parse(v); } catch { out[k] = v; }
+      } else if (v === 'true') out[k] = true;
+      else if (v === 'false') out[k] = false;
+      else if (!isNaN(Number(v)) && v !== '') out[k] = Number(v);
+      else out[k] = v;
+    }
+    return out;
+  }
+
+  buildShareUrl(path: string, state: Record<string, unknown>): string {
+    const qs = this.serializeState(state);
+    const base = window.location.origin + path;
+    return qs ? `${base}?${qs}` : base;
+  }
+
+  async copyShareLink(path: string, state: Record<string, unknown>): Promise<string> {
+    const url = this.buildShareUrl(path, state);
+    try { await navigator.clipboard.writeText(url); } catch { /* ignore */ }
+    return url;
+  }
+
+  whatsAppUrl(summary: string, url: string): string {
+    const text = encodeURIComponent(`${summary}\n\n${url}`);
+    return `https://wa.me/?text=${text}`;
+  }
+
+  getQueryParams(): Record<string, string> {
+    const params: Record<string, string> = {};
+    const search = window.location.search.replace(/^\?/, '');
+    if (!search) return params;
+    for (const part of search.split('&')) {
+      const [k, v] = part.split('=');
+      if (k) params[decodeURIComponent(k)] = decodeURIComponent(v ?? '');
+    }
+    return params;
+  }
+}

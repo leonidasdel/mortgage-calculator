@@ -97,7 +97,7 @@
   <div class="right-panel">
 
     <!-- Results hero -->
-    <div class="card">
+    <div class="card" id="interest-results">
       <div class="card-header">
         <div class="card-header-icon">&#128176;</div>
         <h2>Αποτελέσματα</h2>
@@ -141,6 +141,13 @@
             <span class="breakdown-value green">{{ result().totalAmount | euro }}</span>
           </div>
         </div>
+
+        <app-export-row
+          sharePath="/interest"
+          [shareState]="form.value"
+          [shareSummary]="shareSummary()"
+          printTargetId="interest-results">
+        </app-export-row>
       </div>
     </div>
 
@@ -196,5 +203,13 @@
       </div>
     </div>
 
+    <app-calc-explanation
+      title="Πώς υπολογίζονται οι τόκοι;"
+      [steps]="explanationSteps"
+      [formula]="explanationFormula">
+    </app-calc-explanation>
+
   </div>
 </div>
+
+<app-law-footer route="/interest"></app-law-footer>

@@ -1,0 +1,31 @@
+.calc-exp-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: var(--g50);
+  border: 1px solid var(--g200);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--g700);
+  cursor: pointer;
+  min-height: auto;
+  margin-top: 12px;
+  text-align: left;
+}
+.calc-exp-toggle:hover { background: var(--g100); }
+.calc-exp-arrow {
+  font-size: 10px;
+  transition: transform 0.2s;
+  color: var(--g400);
+}
+.calc-exp-arrow.open { transform: rotate(180deg); }
+.calc-exp-body { margin-top: 8px; }
+.calc-exp-steps {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.7;
+}

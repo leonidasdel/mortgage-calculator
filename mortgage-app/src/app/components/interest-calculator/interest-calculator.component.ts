@@ -1,6 +1,7 @@
 import { Component, computed, signal, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ShareStateService } from '../../services/share-state.service';
 
 const STORAGE_KEY = 'interestCalcState';
 const TAX_RATE = 0.15;
@@ -40,7 +41,20 @@ export class InterestCalculatorComponent implements OnInit {
   durationUnit = signal<'months' | 'years'>('years');
   showCustomEndDate = signal(false);
 
-  constructor(private fb: FormBuilder) {
+  readonly explanationSteps = [
+    'Οι τόκοι υπολογίζονται ημερησίως: κεφάλαιο × (επιτόκιο ÷ 365) × ημέρες.',
+    'Ο φόρος τόκων παρακρατείται στην πηγή με συντελεστή 15%.',
+    'Οι καθαροί τόκοι = μικτοί τόκοι − παρακρατούμενος φόρος.',
+    'Το τελικό ποσό = αρχικό κεφάλαιο + καθαροί τόκοι.',
+  ];
+
+  readonly explanationFormula =
+    'Μικτοί τόκοι = Κεφάλαιο × (Επιτόκιο / 365) × Ημέρες · Καθαροί = Μικτοί × 85%';
+
+  constructor(
+    private fb: FormBuilder,
+    private shareSvc: ShareStateService,
+  ) {
     const today = new Date();
     const oneYearLater = new Date(today);
     oneYearLater.setFullYear(today.getFullYear() + 1);
@@ -57,6 +71,11 @@ export class InterestCalculatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadState();
+    const qp = this.shareSvc.getQueryParams();
+    if (Object.keys(qp).length) {
+      const state = this.shareSvc.deserializeState(qp);
+      this.form.patchValue(state, { emitEvent: false });
+    }
     this.detectActiveDuration();
     this.form.valueChanges.subscribe(() => this.saveState());
     // Clear active pill when user manually edits dates
@@ -184,6 +203,11 @@ export class InterestCalculatorComponent implements OnInit {
       dailyInterest,
       taxRate: TAX_RATE * 100,
     };
+  });
+
+  shareSummary = computed(() => {
+    const r = this.result();
+    return `Τόκοι Salaries.gr: καθαροί ${r.netInterest.toFixed(2)}€, τελικό ποσό ${r.totalAmount.toFixed(2)}€ (${r.days} ημέρες)`;
   });
 
   private formatDate(d: Date): string {

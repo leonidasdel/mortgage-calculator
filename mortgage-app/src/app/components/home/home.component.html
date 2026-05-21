@@ -1,145 +1,82 @@
-<!-- ── HERO ───────────────────────────────────────────────── -->
 <div class="home-hero">
   <h1 class="home-title">Salaries<span class="home-title-dot">.gr</span></h1>
   <p class="home-subtitle">Οικονομικοί υπολογιστές για μισθούς, δάνεια, αποταμίευση και ακίνητα</p>
+  <div class="home-search-wrap">
+    <input type="search" class="home-search" placeholder="Τι θέλεις να υπολογίσεις;"
+           [value]="searchQuery()" (input)="onSearch($any($event.target).value)">
+  </div>
 </div>
 
-<!-- ── TOOL CATEGORIES ────────────────────────────────────── -->
 <div class="home-categories">
 
-  <!-- Δάνεια -->
-  <section class="cat-section">
-    <div class="cat-header">
-      <span class="cat-icon">🏦</span>
-      <h2 class="cat-title">Δάνεια</h2>
-      <span class="cat-count">2 εργαλεία</span>
-    </div>
-    <div class="cat-grid">
-      <a class="tool-card" routerLink="/mortgage">
-        <div class="tool-icon mortgage-gradient">🏦</div>
-        <div class="tool-text">
-          <div class="tool-name">Στεγαστικό Δάνειο</div>
-          <div class="tool-desc">Δόση, τόκοι, συνολικό κόστος — σταθερό ή κυμαινόμενο επιτόκιο</div>
-        </div>
-      </a>
-      <a class="tool-card" routerLink="/consumer-loan">
-        <div class="tool-icon consumer-loan-gradient">💳</div>
-        <div class="tool-text">
-          <div class="tool-name">Καταναλωτικό Δάνειο</div>
-          <div class="tool-desc">Μηνιαία δόση και συνολικό κόστος καταναλωτικής πίστης</div>
-        </div>
-      </a>
-    </div>
-  </section>
+  @if (!searchQuery()) {
+    <section class="cat-section home-popular">
+      <div class="cat-header">
+        <span class="cat-icon">⭐</span>
+        <h2 class="cat-title">Δημοφιλή</h2>
+      </div>
+      <div class="cat-grid">
+        @for (route of popularRoutes; track route) {
+          @if (toolByRoute(route); as tool) {
+            <a class="tool-card" [routerLink]="tool.route">
+              <div class="tool-icon" [class]="tool.gradient">{{ tool.icon }}</div>
+              <div class="tool-text">
+                <div class="tool-name">{{ tool.name }}</div>
+                <div class="tool-desc">{{ tool.desc }}</div>
+              </div>
+            </a>
+          }
+        }
+      </div>
+    </section>
 
-  <!-- Εισόδημα -->
-  <section class="cat-section">
-    <div class="cat-header">
-      <span class="cat-icon">💰</span>
-      <h2 class="cat-title">Εισόδημα</h2>
-      <span class="cat-count">6 εργαλεία</span>
-    </div>
-    <div class="cat-grid">
-      <a class="tool-card" routerLink="/salary">
-        <div class="tool-icon salary-gradient">💰</div>
-        <div class="tool-text">
-          <div class="tool-name">Υπολογισμός Μισθού</div>
-          <div class="tool-desc">Μικτά ↔ καθαρά, ΕΦΚΑ, φόρος εισοδήματος, κόστος εργοδότη</div>
-        </div>
-      </a>
-      <a class="tool-card" routerLink="/annual-bonus">
-        <div class="tool-icon annual-bonus-gradient">💸</div>
-        <div class="tool-text">
-          <div class="tool-name">Μπόνους Μισθού</div>
-          <div class="tool-desc">Καθαρό ποσό ετήσιου ή έκτακτου μπόνους μετά από ΕΦΚΑ και φόρο</div>
-        </div>
-      </a>
-      <a class="tool-card" routerLink="/freelancer">
-        <div class="tool-icon freelancer-gradient">📋</div>
-        <div class="tool-text">
-          <div class="tool-name">Ελεύθερος Επαγγελματίας</div>
-          <div class="tool-desc">Καθαρό εισόδημα μετά ΕΦΚΑ, φόρο και προκαταβολή φόρου</div>
-        </div>
-      </a>
-      <a class="tool-card" routerLink="/unused-leave">
-        <div class="tool-icon unused-leave-gradient">🏖️</div>
-        <div class="tool-text">
-          <div class="tool-name">Μη Ληφθείσα Άδεια</div>
-          <div class="tool-desc">Αποζημίωση για αχρησιμοποίητες άδειες — μεικτά &amp; καθαρά</div>
-        </div>
-      </a>
-      <a class="tool-card" routerLink="/holiday-bonus">
-        <div class="tool-icon holiday-bonus-gradient">🎁</div>
-        <div class="tool-text">
-          <div class="tool-name">Δώρα Εορτών</div>
-          <div class="tool-desc">Δώρο Χριστουγέννων, Πάσχα και επίδομα αδείας — μεικτά &amp; καθαρά</div>
-        </div>
-      </a>
-      <a class="tool-card" routerLink="/severance">
-        <div class="tool-icon severance-gradient">📄</div>
-        <div class="tool-text">
-          <div class="tool-name">Αποζημίωση Απόλυσης</div>
-          <div class="tool-desc">Αποζημίωση βάσει Ν. 4808/2021 — αφορολόγητη &amp; χωρίς ΕΦΚΑ</div>
-        </div>
-      </a>
-    </div>
-  </section>
+    <section class="cat-section">
+      <div class="cat-header">
+        <span class="cat-icon">🧭</span>
+        <h2 class="cat-title">Βάση γεγονότος</h2>
+      </div>
+      <div class="life-events">
+        @for (ev of lifeEvents; track ev.label) {
+          <div class="life-event">
+            <div class="life-event-lbl">{{ ev.label }}</div>
+            <div class="life-event-links">
+              @for (route of ev.routes; track route) {
+                @if (toolByRoute(route); as tool) {
+                  <a [routerLink]="route" class="life-link">{{ tool.name }}</a>
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
 
-  <!-- Αποταμίευση -->
-  <section class="cat-section">
-    <div class="cat-header">
-      <span class="cat-icon">🪴</span>
-      <h2 class="cat-title">Αποταμίευση</h2>
-      <span class="cat-count">2 εργαλεία</span>
-    </div>
-    <div class="cat-grid">
-      <a class="tool-card" routerLink="/interest">
-        <div class="tool-icon interest-gradient">📈</div>
-        <div class="tool-text">
-          <div class="tool-name">Υπολογισμός Τόκων</div>
-          <div class="tool-desc">Καθαρή απόδοση καταθέσεων μετά από παρακράτηση φόρου 15%</div>
+  @for (cat of ['Δάνεια', 'Εισόδημα', 'Φόροι', 'Αποταμίευση', 'Ακίνητα', 'Άλλα']; track cat) {
+    @if (filteredTools().filter(t => t.category === cat).length) {
+      <section class="cat-section">
+        <div class="cat-header">
+          <h2 class="cat-title">{{ cat }}</h2>
+          <span class="cat-count">{{ filteredTools().filter(t => t.category === cat).length }} εργαλεία</span>
         </div>
-      </a>
-      <a class="tool-card" routerLink="/savings">
-        <div class="tool-icon savings-gradient">🪴</div>
-        <div class="tool-text">
-          <div class="tool-name">Αποταμίευση</div>
-          <div class="tool-desc">Σύνθετος τόκος, μηνιαίες εισφορές, πληθωρισμός</div>
+        <div class="cat-grid">
+          @for (tool of filteredTools().filter(t => t.category === cat); track tool.route) {
+            <a class="tool-card" [routerLink]="tool.route">
+              <div class="tool-icon" [class]="tool.gradient">{{ tool.icon }}</div>
+              <div class="tool-text">
+                <div class="tool-name">{{ tool.name }}</div>
+                <div class="tool-desc">{{ tool.desc }}</div>
+              </div>
+            </a>
+          }
         </div>
-      </a>
-    </div>
-  </section>
+      </section>
+    }
+  }
 
-  <!-- Ακίνητα -->
-  <section class="cat-section">
-    <div class="cat-header">
-      <span class="cat-icon">🏠</span>
-      <h2 class="cat-title">Ακίνητα</h2>
-      <span class="cat-count">3 εργαλεία</span>
-    </div>
-    <div class="cat-grid">
-      <a class="tool-card" routerLink="/rent-vs-buy">
-        <div class="tool-icon rent-vs-buy-gradient">🏠</div>
-        <div class="tool-text">
-          <div class="tool-name">Νοικιάζω ή Αγοράζω;</div>
-          <div class="tool-desc">Μακροπρόθεσμη σύγκριση ενοικίασης έναντι αγοράς ακινήτου</div>
-        </div>
-      </a>
-      <a class="tool-card" routerLink="/rental-tax">
-        <div class="tool-icon rental-tax-gradient">🏘️</div>
-        <div class="tool-text">
-          <div class="tool-name">Φόρος Ενοικίου</div>
-          <div class="tool-desc">Φόρος από ενοίκια μακρο- ή βραχυχρόνιας μίσθωσης 2026</div>
-        </div>
-      </a>
-      <a class="tool-card" routerLink="/property-purchase">
-        <div class="tool-icon property-purchase-gradient">🏡</div>
-        <div class="tool-text">
-          <div class="tool-name">Κόστος Αγοράς Ακινήτου</div>
-          <div class="tool-desc">ΦΜΑ, συμβολαιογραφικά, κτηματολόγιο και λοιπές δαπάνες</div>
-        </div>
-      </a>
-    </div>
-  </section>
-
+  @if (filteredTools().length === 0) {
+    <div class="info-box amber">Δεν βρέθηκαν εργαλεία για «{{ searchQuery() }}»</div>
+  }
 </div>
+
+<app-law-footer route="/"></app-law-footer>

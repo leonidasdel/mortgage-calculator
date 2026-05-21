@@ -12,6 +12,29 @@ export interface SalaryParams {
   children: number;
   annualBonus?: number;
   salaryChange?: SalaryChange;
+  /** Part-time: FTE percentage (e.g. 50 = half-time) */
+  ftePercent?: number;
+}
+
+export interface MultiEmployerParams {
+  grossEmployers: number[];  // gross per employer (monthly)
+  year: number;
+  ageGroup: AgeGroup;
+  children: number;
+}
+
+export interface MultiEmployerResult {
+  employers: { gross: number; efkaEmployee: number; efkaEmployer: number; netEstimate: number }[];
+  combinedGross: number;
+  combinedEfkaEmployee: number;
+  combinedNetEstimate: number;
+  annualTax: number;
+  warnings: string[];
+}
+
+export interface PayslipLine {
+  label: string;
+  value: string;
 }
 
 export interface AnnualBonusResult {

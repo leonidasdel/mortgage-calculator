@@ -1,0 +1,77 @@
+.page-header-icon.cc-icon {
+  background: linear-gradient(135deg, #dcfce7 0%, #22c55e 100%);
+}
+
+.cc-hint {
+  font-size: 11px;
+  color: var(--g400);
+  margin-top: 4px;
+}
+
+.cc-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.cc-check-row input[type="checkbox"] {
+  accent-color: var(--blue);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.cc-total {
+  grid-column: span 2;
+}
+
+.cc-fuel-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.cc-fuel-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid var(--g300);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--g600);
+  cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+}
+
+.cc-fuel-btn.active {
+  border-color: var(--blue);
+  background: var(--blue-light);
+  color: var(--blue-dark);
+}
+
+.mt-8 { margin-top: 8px; }
+
+.sum-val-hint {
+  font-size: 11px;
+  color: var(--g500);
+  margin-top: 2px;
+}
+
+:host-context(html.dark) .cc-fuel-btn {
+  background: var(--g800);
+  border-color: var(--g600);
+  color: var(--g300);
+}
+
+:host-context(html.dark) .cc-fuel-btn.active {
+  background: rgba(37, 99, 235, 0.2);
+  border-color: var(--blue);
+  color: #93c5fd;
+}
+
+:host-context(html.dark) .page-header-icon.cc-icon {
+  background: linear-gradient(135deg, #052e16 0%, #15803d 100%);
+}

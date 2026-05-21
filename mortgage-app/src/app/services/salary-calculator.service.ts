@@ -4,6 +4,9 @@ import {
   AnnualBonusResult,
   BonusBreakdown,
   MonthlyBreakdown,
+  MultiEmployerParams,
+  MultiEmployerResult,
+  SalaryChange,
   SalaryParams,
   SalaryResult,
   TaxBracketResult,
@@ -13,92 +16,24 @@ import {
   EFKA_EMPLOYER_RATE,
   MAX_INSURABLE_EARNINGS,
 } from '../constants/payroll.constants';
+import {
+  BASE_TAX_DISCOUNTS,
+  BRACKET_LIMITS,
+  getTaxTable,
+  TaxTable,
+} from '../constants/tax-brackets.constants';
 
 const MONTHS_PER_YEAR = 14; // 12 regular + Christmas + Easter/Leave
 const LEAVE_SURCHARGE_RATE = 0.04166; // Προσαύξηση επιδόματος αδείας
 
-/**
- * Tax brackets indexed by [ageGroup][bracketIndex][childrenIndex].
- * Each row: rates for children 0..6+.
- */
-type TaxTable = Record<AgeGroup, number[][]>;
-
-// 2025: uniform brackets — age group makes no difference, children only affect discount
-// Rates per bracket [from, to, ...ratesByChildren(0..6+)]
-// Brackets: 0-10k, 10-20k, 20-30k, 30-40k, 40-60k, 60k+
-const TAX_RATES_2025: TaxTable = {
-  under25: [
-    // children:  0     1     2     3     4     5     6+
-    /* 0-10k  */ [0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09],
-    /* 10-20k */ [0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22],
-    /* 20-30k */ [0.28, 0.28, 0.28, 0.28, 0.28, 0.28, 0.28],
-    /* 30-40k */ [0.36, 0.36, 0.36, 0.36, 0.36, 0.36, 0.36],
-    /* 40-60k */ [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
-    /* 60k+   */ [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
-  ],
-  '26to30': [
-    [0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09],
-    [0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22],
-    [0.28, 0.28, 0.28, 0.28, 0.28, 0.28, 0.28],
-    [0.36, 0.36, 0.36, 0.36, 0.36, 0.36, 0.36],
-    [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
-    [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
-  ],
-  over30: [
-    [0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09],
-    [0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22],
-    [0.28, 0.28, 0.28, 0.28, 0.28, 0.28, 0.28],
-    [0.36, 0.36, 0.36, 0.36, 0.36, 0.36, 0.36],
-    [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
-    [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
-  ],
-};
-
-// 2026: age-differentiated brackets (new tax law)
-const TAX_RATES_2026: TaxTable = {
-  under25: [
-    // children:  0     1     2     3     4     5     6+
-    /* 0-10k  */ [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
-    /* 10-20k */ [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
-    /* 20-30k */ [0.26, 0.24, 0.22, 0.20, 0.18, 0.16, 0.14],
-    /* 30-40k */ [0.34, 0.34, 0.34, 0.34, 0.34, 0.34, 0.34],
-    /* 40-60k */ [0.39, 0.39, 0.39, 0.39, 0.39, 0.39, 0.39],
-    /* 60k+   */ [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
-  ],
-  '26to30': [
-    [0.09, 0.09, 0.09, 0.09, 0.00, 0.00, 0.00],
-    [0.09, 0.09, 0.09, 0.09, 0.00, 0.00, 0.00],
-    [0.26, 0.24, 0.22, 0.20, 0.18, 0.16, 0.14],
-    [0.34, 0.34, 0.34, 0.34, 0.34, 0.34, 0.34],
-    [0.39, 0.39, 0.39, 0.39, 0.39, 0.39, 0.39],
-    [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
-  ],
-  over30: [
-    [0.09, 0.09, 0.09, 0.09, 0.00, 0.00, 0.00],
-    [0.20, 0.18, 0.16, 0.09, 0.00, 0.00, 0.00],
-    [0.26, 0.24, 0.22, 0.20, 0.18, 0.16, 0.14],
-    [0.34, 0.34, 0.34, 0.34, 0.34, 0.34, 0.34],
-    [0.39, 0.39, 0.39, 0.39, 0.39, 0.39, 0.39],
-    [0.44, 0.44, 0.44, 0.44, 0.44, 0.44, 0.44],
-  ],
-};
-
-const BRACKET_LIMITS = [10000, 20000, 30000, 40000, 60000];
-
-const BASE_TAX_DISCOUNTS: Record<number, number> = {
-  0: 777,
-  1: 900,
-  2: 1120,
-  3: 1340,
-  4: 1580,
-  5: 1780,
-};
+type TaxTableLocal = TaxTable;
 
 @Injectable({ providedIn: 'root' })
 export class SalaryCalculatorService {
 
   calculate(params: SalaryParams): SalaryResult {
-    const gross = Math.max(0, params.grossMonthly);
+    const fte = Math.min(100, Math.max(1, params.ftePercent ?? 100)) / 100;
+    const gross = Math.max(0, params.grossMonthly * fte);
     const totalGrossForInsurance = Math.min(gross, MAX_INSURABLE_EARNINGS);
 
     // Employee EFKA (monthly, for current salary)
@@ -174,7 +109,7 @@ export class SalaryCalculatorService {
     // Tax calculation on 14-month base
     const taxableIncome = +(annualGross14 - annualEfka14).toFixed(2);
     const childrenIdx = Math.min(params.children, 6);
-    const taxTable = params.year <= 2025 ? TAX_RATES_2025 : TAX_RATES_2026;
+    const taxTable = getTaxTable(params.year);
     const brackets = taxTable[params.ageGroup];
     const { totalTax, breakdown } = this.calculateTax(
       taxableIncome, brackets, childrenIdx
@@ -374,7 +309,7 @@ export class SalaryCalculatorService {
     children: number,
   ): { totalTax: number; breakdown: TaxBracketResult[]; taxDiscount: number; annualTax: number } {
     const childrenIdx = Math.min(children, 6);
-    const taxTable = year <= 2025 ? TAX_RATES_2025 : TAX_RATES_2026;
+    const taxTable = getTaxTable(year);
     const brackets = taxTable[ageGroup];
     const { totalTax, breakdown } = this.calculateTax(taxableIncome, brackets, childrenIdx);
     const taxDiscount = this.getTaxDiscount(children, taxableIncome);
@@ -491,5 +426,49 @@ export class SalaryCalculatorService {
     }
 
     return +baseDiscount.toFixed(2);
+  }
+
+  calculateMultiEmployer(params: MultiEmployerParams): MultiEmployerResult {
+    const warnings: string[] = [];
+    const employers = params.grossEmployers.filter(g => g > 0).map(gross => {
+      const insurable = Math.min(gross, MAX_INSURABLE_EARNINGS);
+      const efkaEmployee = +(insurable * EFKA_EMPLOYEE_RATE).toFixed(2);
+      const efkaEmployer = +(insurable * EFKA_EMPLOYER_RATE).toFixed(2);
+      return { gross, efkaEmployee, efkaEmployer, netEstimate: 0 };
+    });
+
+    const combinedGross = +employers.reduce((s, e) => s + e.gross, 0).toFixed(2);
+    const totalInsurable = employers.reduce((s, e) => s + Math.min(e.gross, MAX_INSURABLE_EARNINGS), 0);
+    if (totalInsurable > MAX_INSURABLE_EARNINGS * employers.length) {
+      warnings.push('Το άθροισμα ασφαλιστέων αποδοχών μπορεί να επηρεάζει την ακρίβεια — επαλήθευση με ΕΦΚΑ.');
+    }
+
+    const combinedEfkaEmployee = +employers.reduce((s, e) => s + e.efkaEmployee, 0).toFixed(2);
+    const annualGross14 = +(combinedGross * MONTHS_PER_YEAR).toFixed(2);
+    const annualEfka14 = +(combinedEfkaEmployee * MONTHS_PER_YEAR).toFixed(2);
+    const taxableIncome = +(annualGross14 - annualEfka14).toFixed(2);
+    const childrenIdx = Math.min(params.children, 6);
+    const taxTable = getTaxTable(params.year);
+    const brackets = taxTable[params.ageGroup];
+    const { totalTax } = this.calculateTax(taxableIncome, brackets, childrenIdx);
+    const taxDiscount = this.getTaxDiscount(params.children, taxableIncome);
+    const annualTax = Math.max(0, +(totalTax - taxDiscount).toFixed(2));
+    const monthlyTax = +(annualTax / MONTHS_PER_YEAR).toFixed(2);
+
+    for (const e of employers) {
+      const share = combinedGross > 0 ? e.gross / combinedGross : 0;
+      e.netEstimate = +(e.gross - e.efkaEmployee - monthlyTax * share).toFixed(2);
+    }
+
+    const combinedNetEstimate = +employers.reduce((s, e) => s + e.netEstimate, 0).toFixed(2);
+
+    return {
+      employers,
+      combinedGross,
+      combinedEfkaEmployee,
+      combinedNetEstimate,
+      annualTax,
+      warnings,
+    };
   }
 }

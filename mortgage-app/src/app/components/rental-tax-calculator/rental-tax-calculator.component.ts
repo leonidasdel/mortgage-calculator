@@ -1,6 +1,7 @@
 import { Component, computed, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ShareStateService } from '../../services/share-state.service';
 
 const STORAGE_KEY = 'rentalTaxCalcState';
 
@@ -39,7 +40,20 @@ export class RentalTaxCalculatorComponent implements OnInit {
   form: FormGroup;
   private formValues;
 
-  constructor(private fb: FormBuilder) {
+  readonly explanationSteps = [
+    'Το ακαθάριστο εισόδημα από ενοίκια φορολογείται αυτοτελώς.',
+    'Αφαιρείται έκπτωση 5% (αυτόματη) ή πραγματικά έξοδα.',
+    'Ο φόρος υπολογίζεται με κλίμακα 15% / 35% / 45%.',
+    'Το καθαρό εισόδημα = ακαθάριστο − φόρος.',
+  ];
+
+  readonly explanationFormula =
+    'Φόρος = κλιμακωτός(ακαθάριστο − έκπτωση) · Καθαρό = ακαθάριστο − φόρος';
+
+  constructor(
+    private fb: FormBuilder,
+    private shareSvc: ShareStateService,
+  ) {
     this.form = this.fb.group({
       incomeMode:     ['annual'],
       annualIncome:   [12000],
@@ -53,6 +67,11 @@ export class RentalTaxCalculatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadState();
+    const qp = this.shareSvc.getQueryParams();
+    if (Object.keys(qp).length) {
+      const state = this.shareSvc.deserializeState(qp);
+      this.form.patchValue(state, { emitEvent: false });
+    }
     this.form.valueChanges.subscribe(() => this.saveState());
   }
 
@@ -91,6 +110,11 @@ export class RentalTaxCalculatorComponent implements OnInit {
     const netMonthly = netAnnual / 12;
 
     return { annualIncome, expensesDeduction, taxableIncome, bracketRows, totalTax, effectiveRate, netAnnual, netMonthly };
+  });
+
+  shareSummary = computed(() => {
+    const r = this.result();
+    return `Φόρος ενοικίου Salaries.gr: φόρος ${r.totalTax.toFixed(2)}€, καθαρά ${r.netAnnual.toFixed(2)}€/έτος`;
   });
 
   print(): void {

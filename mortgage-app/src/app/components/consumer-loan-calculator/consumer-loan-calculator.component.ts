@@ -2,6 +2,7 @@ import { Component, computed, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AmortizationRow } from '../../models/mortgage.models';
+import { ShareStateService } from '../../services/share-state.service';
 
 const STORAGE_KEY = 'consumerLoanCalcState';
 const N128_RATE = 0.006; // 0.60% per annum — Εισφορά Ν.128/1975 for consumer loans
@@ -32,7 +33,20 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
 
   readonly quickDurations = [12, 24, 36, 48, 60, 84];
 
-  constructor(private fb: FormBuilder) {
+  readonly explanationSteps = [
+    'Η μηνιαία δόση υπολογίζεται με τύπο PMT (ίσες δόσεις).',
+    'Προστίθεται εισφορά Ν.128/1975 0,60% επί του ανεξόφλητου κεφαλαίου.',
+    'Το πραγματικό επιτόκιο = ονομαστικό + 0,60% εισφορά.',
+    'Το ΣΕΠΠΕ (APR) περιλαμβάνει τόκους, εισφορά και εφάπαξ έξοδα.',
+  ];
+
+  readonly explanationFormula =
+    'Δόση = PMT(κεφάλαιο, ονομαστικό + 0,60%, μήνες) · Σύνολο = δόσεις + έξοδα';
+
+  constructor(
+    private fb: FormBuilder,
+    private shareSvc: ShareStateService,
+  ) {
     this.form = this.fb.group({
       loanAmount:   [10000],
       interestRate: [13],
@@ -44,6 +58,11 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadState();
+    const qp = this.shareSvc.getQueryParams();
+    if (Object.keys(qp).length) {
+      const state = this.shareSvc.deserializeState(qp);
+      this.form.patchValue(state, { emitEvent: false });
+    }
     this.form.valueChanges.subscribe(() => this.saveState());
   }
 
@@ -66,6 +85,11 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
     const months         = Math.max(1, Math.round(loanMonths));
     const seppe          = this.calcSEPPE(loanAmount, fees, monthlyPayment, months);
     return { loanAmount, interestRate, effectiveRate, loanMonths: months, loanFees: fees, monthlyPayment, totalPrincipal, totalInterest, totalN128, grandTotal, seppe };
+  });
+
+  shareSummary = computed(() => {
+    const s = this.summary();
+    return `Καταναλωτικό δάνειο Salaries.gr: δόση ${s.monthlyPayment.toFixed(2)}€/μήνα, σύνολο ${s.grandTotal.toFixed(2)}€`;
   });
 
   setMonths(m: number): void {

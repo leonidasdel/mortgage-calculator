@@ -1,0 +1,214 @@
+<div class="page-header">
+  <div class="page-header-icon cc-icon">🚗</div>
+  <div>
+    <h1 class="page-title">Κόστος Αυτοκινήτου</h1>
+    <p class="page-subtitle">Υπολογίστε τέλη κυκλοφορίας και συνολικό ετήσιο κόστος ιδιοκτησίας</p>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="left-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">&#9881;</div>
+        <h2>Στοιχεία Οχήματος</h2>
+      </div>
+      <div class="card-body" [formGroup]="form">
+
+        <div class="form-group">
+          <label>Ημερομηνία 1ης κυκλοφορίας</label>
+          <app-date-select formControlName="firstRegistration" [minYear]="1980"></app-date-select>
+          <div class="cc-hint">{{ eraHint() }}</div>
+        </div>
+
+        <div class="form-group">
+          <label class="cc-check-row">
+            <input type="checkbox" formControlName="isEv">
+            <span>Ηλεκτρικό / plug-in υβριδικό (μηδενικά τέλη)</span>
+          </label>
+        </div>
+
+        @if (!form.get('isEv')?.value && registrationEra() === 'cc') {
+          <div class="form-group">
+            <label for="engineCc">Κυβισμός κινητήρα</label>
+            <div class="input-wrap has-sfx">
+              <input type="number" id="engineCc" formControlName="engineCc"
+                     min="0" step="100" placeholder="π.χ. 1400">
+              <span class="sfx">cc</span>
+            </div>
+          </div>
+        }
+
+        @if (!form.get('isEv')?.value && (registrationEra() === 'co2_a' || registrationEra() === 'co2_b')) {
+          <div class="form-group">
+            <label for="co2Grams">Εκπομπές CO₂</label>
+            <div class="input-wrap has-sfx">
+              <input type="number" id="co2Grams" formControlName="co2Grams"
+                     min="0" step="1" placeholder="π.χ. 120">
+              <span class="sfx">g/km</span>
+            </div>
+          </div>
+        }
+
+        <div class="sec-div">
+          <div class="sec-label">Ετήσια Έξοδα</div>
+
+          <div class="form-group">
+            <label for="insuranceYear">Ασφάλεια / Έτος (€)</label>
+            <div class="input-wrap has-pfx">
+              <span class="pfx">€</span>
+              <input type="number" id="insuranceYear" formControlName="insuranceYear"
+                     min="0" step="50" placeholder="π.χ. 450">
+            </div>
+          </div>
+
+          @if (!form.get('isEv')?.value) {
+            <div class="form-group">
+              <label>Καύσιμα</label>
+              <div class="cc-fuel-toggle">
+                <button type="button" class="cc-fuel-btn"
+                        [class.active]="form.get('fuelMode')?.value === 'calc'"
+                        (click)="setFuelMode('calc')">
+                  Υπολογισμός
+                </button>
+                <button type="button" class="cc-fuel-btn"
+                        [class.active]="form.get('fuelMode')?.value === 'manual'"
+                        (click)="setFuelMode('manual')">
+                  Χειροκίνητα
+                </button>
+              </div>
+
+              @if (form.get('fuelMode')?.value === 'calc') {
+                <div class="form-group mt-8">
+                  <label for="kmPerYear">Χιλιόμετρα / έτος</label>
+                  <div class="input-wrap has-sfx">
+                    <input type="number" id="kmPerYear" formControlName="kmPerYear"
+                           min="0" step="1000" placeholder="π.χ. 15000">
+                    <span class="sfx">χλμ</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="litersPer100km">Κατανάλωση</label>
+                  <div class="input-wrap has-sfx">
+                    <input type="number" id="litersPer100km" formControlName="litersPer100km"
+                           min="0" step="0.1" placeholder="π.χ. 6.5">
+                    <span class="sfx">λ/100χλμ</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="pricePerLiter">Τιμή καυσίμου</label>
+                  <div class="input-wrap has-pfx">
+                    <span class="pfx">€</span>
+                    <input type="number" id="pricePerLiter" formControlName="pricePerLiter"
+                           min="0" step="0.01" placeholder="π.χ. 1.85">
+                  </div>
+                  <div class="cc-hint">/ λίτρο</div>
+                </div>
+                <div class="info-box green">
+                  Ετήσιο κόστος καυσίμων: <strong>{{ result().fuelCostYear | euro }}</strong>
+                  @if (result().fuelLitersYear != null) {
+                    · {{ result().fuelLitersYear | number:'1.0-1' }} λίτρα/έτος
+                  }
+                </div>
+              } @else {
+                <div class="form-group mt-8">
+                  <label for="fuelCostYear">Καύσιμα / έτος</label>
+                  <div class="input-wrap has-pfx">
+                    <span class="pfx">€</span>
+                    <input type="number" id="fuelCostYear" formControlName="fuelCostYear"
+                           min="0" step="50" placeholder="π.χ. 1800">
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="form-group">
+            <label for="maintenanceYear">Συντήρηση &amp; ΚΤΕΟ / Έτος (€)</label>
+            <div class="input-wrap has-pfx">
+              <span class="pfx">€</span>
+              <input type="number" id="maintenanceYear" formControlName="maintenanceYear"
+                     min="0" step="50" placeholder="π.χ. 600">
+            </div>
+          </div>
+        </div>
+
+        <div class="info-box blue">
+          Επαλήθευση τελών κυκλοφορίας στο myCar (ΑΑΔΕ). Ο υπολογισμός είναι ενδεικτικός.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="card" id="car-cost-results">
+      <div class="card-header">
+        <div class="card-header-icon">&#128176;</div>
+        <h2>Ετήσιο Κόστος</h2>
+      </div>
+      <div class="card-body">
+        <div class="hero-row">
+          <div class="hero-card dark">
+            <div class="hero-lbl">Συνολικό Ετήσιο</div>
+            <div class="hero-val">{{ result().totalAnnual | euro }}</div>
+            <div class="hero-sub">{{ result().monthlyCost | euro }}/μήνα</div>
+          </div>
+          <div class="hero-card">
+            <div class="hero-lbl">Τέλη Κυκλοφορίας</div>
+            <div class="hero-val">{{ result().circulationFee | euro }}</div>
+            <div class="hero-sub">{{ result().eraLabel }}</div>
+          </div>
+        </div>
+
+        <div class="sum-grid">
+          <div class="sum-item">
+            <div class="sum-lbl">Καθεστώς υπολογισμού</div>
+            <div class="sum-val">{{ result().eraLabel }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Τέλη κυκλοφορίας</div>
+            <div class="sum-val blue">{{ result().circulationFee | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Ασφάλεια</div>
+            <div class="sum-val">{{ result().insuranceYear | euro }}</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Καύσιμα</div>
+            <div class="sum-val">{{ result().fuelCostYear | euro }}</div>
+            @if (result().fuelLitersYear != null) {
+              <div class="sum-val-hint">{{ result().fuelLitersYear | number:'1.0-1' }} λίτρα/έτος</div>
+            }
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">Συντήρηση &amp; ΚΤΕΟ</div>
+            <div class="sum-val">{{ result().maintenanceYear | euro }}</div>
+          </div>
+          <div class="sum-item cc-total">
+            <div class="sum-lbl"><strong>Σύνολο ετήσιο κόστους</strong></div>
+            <div class="sum-val green"><strong>{{ result().totalAnnual | euro }}</strong></div>
+          </div>
+          <div class="sum-item cc-total">
+            <div class="sum-lbl"><strong>Μηνιαίο κόστος (ισομερώς)</strong></div>
+            <div class="sum-val blue"><strong>{{ result().monthlyCost | euro }}</strong></div>
+          </div>
+        </div>
+
+        <app-export-row
+          sharePath="/car-cost"
+          [shareState]="form.value"
+          [shareSummary]="shareSummary()"
+          printTargetId="car-cost-results">
+        </app-export-row>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-calc-explanation
+  title="Πώς υπολογίζεται το κόστος ιδιοκτησίας;"
+  [steps]="explanationSteps"
+  [formula]="explanationFormula">
+</app-calc-explanation>
+
+<app-law-footer route="/car-cost"></app-law-footer>

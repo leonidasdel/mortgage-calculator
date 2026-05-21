@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AnnualBonusResult, SalaryChange, SalaryParams } from '../../models/salary.models';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
+import { ShareStateService } from '../../services/share-state.service';
 
 const STORAGE_KEY = 'annualBonusCalcState';
 
@@ -40,9 +41,20 @@ export class AnnualBonusCalculatorComponent implements OnInit {
 
   private formValues;
 
+  readonly explanationSteps = [
+    'Το μπόνους προστίθεται στο ετήσιο εισόδημα για φορολογία.',
+    'Υπολογίζεται ΕΦΚΑ εργαζομένου (13,37%) στο μπόνους.',
+    'Ο φόρος = οριακή διαφορά στην ετήσια φορολογητέα βάση.',
+    'Καθαρό μπόνους = μικτό − ΕΦΚΑ − φόρος.',
+  ];
+
+  readonly explanationFormula =
+    'Καθαρό μπόνους = Μικτό − ΕΦΚΑ − οριακός φόρος';
+
   constructor(
     private fb: FormBuilder,
     private calc: SalaryCalculatorService,
+    private shareSvc: ShareStateService,
   ) {
     this.form = this.fb.group({
       grossMonthly: [1500],
@@ -60,6 +72,11 @@ export class AnnualBonusCalculatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadState();
+    const qp = this.shareSvc.getQueryParams();
+    if (Object.keys(qp).length) {
+      const state = this.shareSvc.deserializeState(qp);
+      this.form.patchValue(state, { emitEvent: false });
+    }
     this.form.valueChanges.subscribe(() => this.saveState());
   }
 
@@ -84,6 +101,11 @@ export class AnnualBonusCalculatorComponent implements OnInit {
     const bonus = this.bonus();
     if (bonus.grossBonus <= 0) return 0;
     return +((bonus.net / bonus.grossBonus) * 100).toFixed(2);
+  });
+
+  shareSummary = computed(() => {
+    const b = this.bonus();
+    return `Ετήσιο μπόνους Salaries.gr: καθαρά ${b.net.toFixed(2)}€ από ${b.grossBonus.toFixed(2)}€ μικτά`;
   });
 
   private buildParams(): SalaryParams {

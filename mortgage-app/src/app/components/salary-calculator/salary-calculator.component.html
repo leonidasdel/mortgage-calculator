@@ -21,6 +21,8 @@
           <label for="grossMonthly">
             @if (hasSalaryChange()) {
               Τρέχων Μικτός Μισθός (&#8364;)
+            } @else if ((salaryForm.get('ftePercent')?.value || 100) < 100) {
+              Μικτά πλήρους απασχόλησης (&#8364;)
             } @else {
               Μικτός Μηνιαίος Μισθός (&#8364;)
             }
@@ -94,6 +96,42 @@
               </select>
             </div>
           </div>
+
+          <!-- Part-time -->
+          <div class="form-group">
+            <label for="ftePercent">Ποσοστό απασχόλησης</label>
+            <div class="input-wrap has-sfx">
+              <input type="number" id="ftePercent" formControlName="ftePercent"
+                     min="1" max="100" step="5" (input)="onParamChange()">
+              <span class="sfx">%</span>
+            </div>
+            <div class="sal-hint">Τα μικτά αφορούν πλήρη απασχόληση · με 50% υπολογίζεται μισθός μερικής</div>
+          </div>
+        </div>
+
+        <!-- Multiple employers -->
+        <div class="sec-div">
+          <div class="sec-label">Πολλαπλοί Εργοδότες</div>
+          <label class="checkbox-label">
+            <input type="checkbox" [checked]="hasMultiEmployer()" (change)="toggleMultiEmployer($any($event.target).checked)">
+            Έχω 2+ εργοδότες (άθροιση φόρου)
+          </label>
+          @if (hasMultiEmployer()) {
+            <div class="form-group mt-8">
+              <label>Εργοδότης 2 — Μικτά (€)</label>
+              <div class="input-wrap has-pfx">
+                <span class="pfx">€</span>
+                <input type="number" formControlName="employer2Gross" min="0" step="50">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Εργοδότης 3 — Μικτά (€)</label>
+              <div class="input-wrap has-pfx">
+                <span class="pfx">€</span>
+                <input type="number" formControlName="employer3Gross" min="0" step="50">
+              </div>
+            </div>
+          }
         </div>
 
         <!-- Annual bonus -->
@@ -259,6 +297,9 @@
             <div class="salary-hero gross">
               <div class="hero-lbl">Μικτά</div>
               <div class="hero-val">{{ result().grossMonthly | euro }}</div>
+              @if ((salaryForm.get('ftePercent')?.value || 100) < 100) {
+                <div class="hero-sub">Μερικής απασχόλησης ({{ salaryForm.get('ftePercent')?.value }}%)</div>
+              }
             </div>
             <div class="salary-hero net">
               <div class="hero-lbl">Καθαρά</div>
@@ -494,10 +535,56 @@
             </table>
           </div>
 
-          <div class="disclaimer" style="margin-top:14px;">
+          <div class="disclaimer mt-14">
             <strong>Σημείωση:</strong> Οι υπολογισμοί είναι ενδεικτικοί και βασίζονται στη νομοθεσία του {{ salaryForm.get('year')?.value }}.
             Για ακριβείς υπολογισμούς, συμβουλευτείτε έναν φοροτεχνικό.
           </div>
+
+          @if (fullTimeResult(); as ft) {
+            <div class="info-box amber mt-12">
+              Ισοδύναμα πλήρους απασχόλησης: {{ ft.netMonthly | euro }}/μήνα καθαρά
+            </div>
+          }
+
+          @if (multiEmployerResult(); as me) {
+            <div class="sec-div"><div class="sec-label">Πολλαπλοί Εργοδότες</div></div>
+            <div class="sum-grid">
+              @for (e of me.employers; track $index) {
+                <div class="sum-item">
+                  <div class="sum-lbl">Εργοδότης {{ $index + 1 }}</div>
+                  <div class="sum-val">{{ e.netEstimate | euro }}/μήνα</div>
+                </div>
+              }
+              <div class="sum-item total-row">
+                <div class="sum-lbl">Συνολικά καθαρά (εκτίμηση)</div>
+                <div class="sum-val blue">{{ me.combinedNetEstimate | euro }}</div>
+              </div>
+            </div>
+            @for (w of me.warnings; track w) {
+              <div class="info-box amber">{{ w }}</div>
+            }
+          }
+
+          <app-calc-explanation
+            title="Πώς υπολογίζεται;"
+            formula="Καθαρά = Μικτά − ΕΦΚΑ (13,37%) − Φόρος/14"
+            [steps]="[
+              'Υπολογισμός ετήσιου φορολογητέου εισοδήματος (14 μισθοί)',
+              'Εφαρμογή κλιμακωτού φόρου + έκπτωση τέκνων',
+              'Κατανομή φόρου σε 14 μισθούς'
+            ]">
+          </app-calc-explanation>
+
+          <div class="export-row mt-12">
+            <button type="button" class="btn-outline" (click)="exportPayslip()">&#128196; Δελτίο Αποδοχών PDF</button>
+          </div>
+          <app-export-row
+            sharePath="/salary"
+            [shareState]="shareState()"
+            [shareSummary]="shareSummary()"
+            [showPrint]="true">
+          </app-export-row>
+          <app-law-footer route="/salary"></app-law-footer>
         </div>
       }
     </div>

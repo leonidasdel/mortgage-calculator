@@ -1,6 +1,7 @@
 import { Component, computed, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ShareStateService } from '../../services/share-state.service';
 
 const STORAGE_KEY = 'propertyPurchaseCalcState';
 
@@ -55,7 +56,20 @@ export class PropertyPurchaseCalculatorComponent implements OnInit {
   form: FormGroup;
   private formValues;
 
-  constructor(private fb: FormBuilder) {
+  readonly explanationSteps = [
+    'ΦΜΑ 3% επί του μεγαλύτερου τιμήματος ή αντικειμενικής αξίας.',
+    'Πρώτη κατοικία: απαλλαγή έως €200.000–€250.000 (+€25.000/τέκνο).',
+    'Προστίθενται συμβολαιογραφικά (~1%+ΦΠΑ), κτηματολόγιο (0,475%).',
+    'Προαιρετικά: μεσίτης (2%+ΦΠΑ) και δικηγόρος (~0,5%).',
+  ];
+
+  readonly explanationFormula =
+    'Σύνολο = Τίμημα + ΦΜΑ + συμβολαιογραφικά + κτηματολόγιο + λοιπά';
+
+  constructor(
+    private fb: FormBuilder,
+    private shareSvc: ShareStateService,
+  ) {
     this.form = this.fb.group({
       purchasePrice: [200000],
       aaotValue:     [200000],
@@ -70,6 +84,11 @@ export class PropertyPurchaseCalculatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadState();
+    const qp = this.shareSvc.getQueryParams();
+    if (Object.keys(qp).length) {
+      const state = this.shareSvc.deserializeState(qp);
+      this.form.patchValue(state, { emitEvent: false });
+    }
     this.form.valueChanges.subscribe(() => this.saveState());
   }
 
@@ -153,6 +172,11 @@ export class PropertyPurchaseCalculatorComponent implements OnInit {
       totalExtraCosts, totalAcquisitionCost, extraCostsPct,
       items, fhThreshold, firstHomeFullExempt,
     };
+  });
+
+  shareSummary = computed(() => {
+    const r = this.result();
+    return `Αγορά ακινήτου Salaries.gr: σύνολο ${r.totalAcquisitionCost.toFixed(0)}€ (+${r.extraCostsPct}% επιπλέον δαπάνες)`;
   });
 
   print(): void {
