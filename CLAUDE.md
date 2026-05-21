@@ -46,7 +46,6 @@ mortgage-app/
 | `/freelancer` | FreelancerCalculatorComponent |
 | `/savings` | SavingsCalculatorComponent |
 | `/unused-leave` | UnusedLeaveCalculatorComponent |
-| `/overtime` | OvertimeCalculatorComponent |
 | `/inheritance-gift` | InheritanceGiftCalculatorComponent |
 | `/crypto-tax` | CryptoTaxCalculatorComponent |
 | `/car-cost` | CarCostCalculatorComponent |
@@ -57,7 +56,7 @@ mortgage-app/
 
 **Nav sidebar groups** (NavComponent):
 - Δάνεια → mortgage, consumer-loan
-- Εισόδημα → salary, overtime, freelancer, unused-leave, severance, annual-bonus, holiday-bonus
+- Εισόδημα → salary, freelancer, unused-leave, severance, annual-bonus, holiday-bonus
 - Αποταμίευση → interest, savings
 - Ακίνητα → rent-vs-buy, rental-tax, property-purchase
 - Φόροι & Άλλα → inheritance-gift, crypto-tax, car-cost
@@ -91,7 +90,7 @@ LEAVE_SURCHARGE_RATE  = 0.04166
 
 **Tax brackets:** imported from `constants/tax-brackets.constants.ts` (2025/2026 tables).
 
-### OvertimeCalculatorService / InheritanceGiftCalculatorService / CryptoTaxCalculatorService / CarCostCalculatorService
+### InheritanceGiftCalculatorService / CryptoTaxCalculatorService / CarCostCalculatorService
 New Phase 1 calculator services in `services/*-calculator.service.ts`.
 
 ### ShareStateService
@@ -115,7 +114,7 @@ New Phase 1 calculator services in `services/*-calculator.service.ts`.
 
 ### Constants (`constants/`)
 - `law-metadata.ts` — per-route law/disclaimer for `app-law-footer`
-- `tax-brackets.constants.ts`, `payroll.constants.ts`, `overtime.constants.ts`, `inheritance-gift.constants.ts`, `crypto-tax.constants.ts`, `circulation-fee.constants.ts`
+- `tax-brackets.constants.ts`, `payroll.constants.ts`, `inheritance-gift.constants.ts`, `crypto-tax.constants.ts`, `circulation-fee.constants.ts`
 
 **Public SEO:** `public/sitemap.xml`, `public/robots.txt`
 
@@ -293,7 +292,6 @@ ngOnInit() {
 | `freelancerCalcState` | FreelancerCalculatorComponent | form values |
 | `rentalTaxCalcState` | RentalTaxCalculatorComponent | form values |
 | `unusedLeaveCalcState` | UnusedLeaveCalculatorComponent | form values |
-| `overtimeCalcState` | OvertimeCalculatorComponent | form values |
 | `inheritanceGiftCalcState` | InheritanceGiftCalculatorComponent | form values |
 | `cryptoTaxCalcState` | CryptoTaxCalculatorComponent | form values |
 | `carCostCalcState` | CarCostCalculatorComponent | form values |

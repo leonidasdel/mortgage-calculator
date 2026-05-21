@@ -31,13 +31,6 @@ export const LAW_METADATA: Record<string, LawMeta> = {
     lastVerified: '2026-05',
     disclaimer: 'Ενδεικτικός υπολογισμός μπόνους.',
   },
-  '/overtime': {
-    route: '/overtime',
-    law: 'Ν.5053/2023 · Π.Κ.',
-    lastVerified: '2026-05',
-    sourceUrl: 'https://www.e-forologia.gr/',
-    disclaimer: 'Ενδεικτικός υπολογισμός υπερωριών · απαιτείται καταχώρηση ΕΡΓΑΝΗ.',
-  },
   '/inheritance-gift': {
     route: '/inheritance-gift',
     law: 'Κ.Φ.Ε. άρθρα 29-30',

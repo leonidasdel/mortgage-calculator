@@ -22,8 +22,7 @@ export class HomeComponent {
   readonly tools: HomeTool[] = [
     { route: '/mortgage', name: 'Στεγαστικό Δάνειο', desc: 'Δόση, τόκοι, πρόωρες αποπληρωμές', icon: '🏦', gradient: 'mortgage-gradient', category: 'Δάνεια', keywords: 'δάνειο δανειο στεγαστικό στεγαστικο' },
     { route: '/consumer-loan', name: 'Καταναλωτικό Δάνειο', desc: 'Μηνιαία δόση καταναλωτικής πίστης', icon: '💳', gradient: 'consumer-loan-gradient', category: 'Δάνεια', keywords: 'καταναλωτικό καταναλωτικο δάνειο δανειο' },
-    { route: '/salary', name: 'Υπολογισμός Μισθού', desc: 'Μικτά ↔ καθαρά, ΕΦΚΑ, φόρος', icon: '💰', gradient: 'salary-gradient', category: 'Εισόδημα', keywords: 'μισθός καθαρά' },
-    { route: '/overtime', name: 'Υπερωρίες', desc: 'Ωρομίσθιο +40% / +60%', icon: '⏱️', gradient: 'interest-gradient', category: 'Εισόδημα', keywords: 'υπερωρίες ωρομίσθιο' },
+    { route: '/salary', name: 'Υπολογισμός Μισθού', desc: 'Μικτά ↔ καθαρά, ΕΦΚΑ, φόρος', icon: '💰', gradient: 'salary-gradient', category: 'Εισόδημα', keywords: 'μισθός καθαρά μισθος' },
     { route: '/annual-bonus', name: 'Μπόνους Μισθού', desc: 'Καθαρό ετήσιο μπόνους', icon: '💸', gradient: 'annual-bonus-gradient', category: 'Εισόδημα', keywords: 'μπόνους' },
     { route: '/freelancer', name: 'Ελεύθ. Επαγγελματίας', desc: 'Καθαρό μετά φόρων', icon: '📋', gradient: 'freelancer-gradient', category: 'Εισόδημα', keywords: 'ελεύθερος επαγγελματίας' },
     { route: '/unused-leave', name: 'Μη Ληφθείσα Άδεια', desc: 'Αποζημίωση αδειών', icon: '🏖️', gradient: 'unused-leave-gradient', category: 'Εισόδημα', keywords: 'άδεια' },
@@ -39,10 +38,10 @@ export class HomeComponent {
     { route: '/property-purchase', name: 'Κόστος Αγοράς Ακινήτου', desc: 'Μεταβίβαση, συμβολαιογράφος', icon: '🏡', gradient: 'property-purchase-gradient', category: 'Ακίνητα', keywords: 'αγορά ακινήτου' },
   ];
 
-  readonly popularRoutes = ['/salary', '/mortgage', '/severance', '/overtime'];
+  readonly popularRoutes = ['/salary', '/mortgage', '/severance', '/car-cost'];
 
   readonly lifeEvents = [
-    { label: 'Νέα δουλειά', routes: ['/salary', '/overtime'] },
+    { label: 'Νέα δουλειά', routes: ['/salary'] },
     { label: 'Αγορά αυτοκινήτου', routes: ['/car-cost', '/consumer-loan'] },
     { label: 'Κληρονομιά / Δωρεά', routes: ['/inheritance-gift'] },
     { label: 'Απόλυση', routes: ['/severance', '/unused-leave'] },
