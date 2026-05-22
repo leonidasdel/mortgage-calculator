@@ -2,7 +2,7 @@ import { Directive, EventEmitter, HostListener, Output } from '@angular/core';
 
 @Directive({
   selector: '[appChartResize]',
-  standalone: false,
+  standalone: true,
 })
 export class ChartResizeDirective {
   @Output() chartResize = new EventEmitter<void>();

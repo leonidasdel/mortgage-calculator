@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, effect, inject, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CompareRow } from '../compare-panel/compare-panel.component';
@@ -18,9 +18,19 @@ import {
 
 const STORAGE_KEY = 'savingsCalcState';
 
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { EuroPipe } from '../../pipes/euro.pipe';
+import { ChartResizeDirective } from '../../directives/chart-resize.directive';
+import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
+import { ComparePanelComponent } from '../compare-panel/compare-panel.component';
+import { ExportRowComponent } from '../export-row/export-row.component';
+import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-savings-calculator',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ReactiveFormsModule, EuroPipe, ChartResizeDirective, CalcExplanationComponent, ComparePanelComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './savings-calculator.component.html',
   styleUrl: './savings-calculator.component.scss',
 })

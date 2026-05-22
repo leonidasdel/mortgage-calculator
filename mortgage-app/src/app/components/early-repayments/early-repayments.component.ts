@@ -1,9 +1,13 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { BulkErParams, EarlyRepayment, ErMonthsSavedMap } from '../../models/mortgage.models';
 
+import { CommonModule } from '@angular/common';
+import { BulkErFormComponent } from '../bulk-er-form/bulk-er-form.component';
 @Component({
   selector: 'app-early-repayments',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, BulkErFormComponent],
   templateUrl: './early-repayments.component.html',
   styleUrl: './early-repayments.component.scss',
 })

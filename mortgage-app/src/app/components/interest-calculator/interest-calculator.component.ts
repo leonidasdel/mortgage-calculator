@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
@@ -9,9 +9,17 @@ import {
 
 const STORAGE_KEY = 'interestCalcState';
 
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { EuroPipe } from '../../pipes/euro.pipe';
+import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
+import { ExportRowComponent } from '../export-row/export-row.component';
+import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-interest-calculator',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './interest-calculator.component.html',
   styleUrl: './interest-calculator.component.scss',
 })

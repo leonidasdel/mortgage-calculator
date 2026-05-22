@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
@@ -8,9 +8,16 @@ import { SalaryChange, PayslipLine } from '../../models/salary.models';
 
 const STORAGE_KEY = 'salaryCalcState';
 
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { SalaryChangeBlockComponent } from '../salary-change-block/salary-change-block.component';
+import { SalaryPayslipPanelComponent } from '../salary-payslip-panel/salary-payslip-panel.component';
+import { SalaryTaxBreakdownComponent } from '../salary-tax-breakdown/salary-tax-breakdown.component';
 @Component({
   selector: 'app-salary-calculator',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ReactiveFormsModule, SalaryChangeBlockComponent, SalaryPayslipPanelComponent, SalaryTaxBreakdownComponent],
   templateUrl: './salary-calculator.component.html',
   styleUrl: './salary-calculator.component.scss',
 })

@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
@@ -60,9 +60,17 @@ interface FreelancerResult {
   efkaComparison: EfkaComparison[];
 }
 
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { EuroPipe } from '../../pipes/euro.pipe';
+import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
+import { ExportRowComponent } from '../export-row/export-row.component';
+import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-freelancer-calculator',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './freelancer-calculator.component.html',
   styleUrl: './freelancer-calculator.component.scss',
 })

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 export interface CompareRow {
   label: string;
@@ -7,9 +7,12 @@ export interface CompareRow {
   highlight?: 'a' | 'b';
 }
 
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-compare-panel',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule],
   templateUrl: './compare-panel.component.html',
   styleUrl: './compare-panel.component.scss',
 })

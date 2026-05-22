@@ -1,6 +1,6 @@
+import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { App } from './app';
 import { SeoService } from './services/seo.service';
 import { SwUpdateService } from './services/sw-update.service';
@@ -8,9 +8,10 @@ import { SwUpdateService } from './services/sw-update.service';
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [App],
-      imports: [RouterModule.forRoot([])],
+      imports: [App],
       providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([]),
         { provide: SeoService, useValue: { updateForRoute: () => {} } },
         {
           provide: SwUpdateService,
@@ -22,7 +23,6 @@ describe('App', () => {
           },
         },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
   });
 

@@ -8,7 +8,7 @@ Auto-loaded by Claude Code. Keep this up to date when architecture changes.
 
 **Name:** Salaries.gr
 **Purpose:** Greek financial calculator suite (mortgages, salaries, savings, taxes, real estate)
-**Stack:** Angular 16+ · NgModule (NOT standalone) · SCSS · Canvas charts · PWA
+**Stack:** Angular 21 · Standalone components · OnPush · Zoneless · SCSS · Canvas charts · PWA
 **Backend:** None — pure client-side calculations
 **Locale:** Greek throughout (labels, tax law, EFKA, date formats)
 
@@ -19,21 +19,23 @@ Auto-loaded by Claude Code. Keep this up to date when architecture changes.
 ```
 mortgage-app/
   src/
+    main.ts                  ← bootstrapApplication(App, appConfig)
     app/
-      app-module.ts          ← Shell: home, nav, lazy feature routes
-      shared/shared.module.ts ← Pipes, export-row, law-footer, calc-explanation, etc.
-      features/
-        loans/loans.module.ts       ← mortgage, consumer-loan
-        income/income.module.ts     ← salary, bonuses, freelancer, severance, unused-leave
-        property/property.module.ts ← rent-vs-buy, rental-tax, property-purchase
-        savings-tax/savings-tax.module.ts ← interest, savings, inheritance, crypto, car-cost
-      components/            ← One subfolder per component
+      app.config.ts          ← provideZonelessChangeDetection, router, service worker
+      app.routes.ts          ← root routes + lazy loadChildren
+      app.ts                 ← root shell (OnPush, standalone)
+      routes/
+        loans.routes.ts      ← lazy loadComponent: mortgage, consumer-loan
+        income.routes.ts     ← salary, bonuses, freelancer, severance, unused-leave
+        property.routes.ts   ← rent-vs-buy, rental-tax, property-purchase
+        savings-tax.routes.ts ← interest, savings, inheritance, crypto, car-cost
+      components/            ← One subfolder per standalone component
       services/              ← calculator + platform services
       constants/             ← law metadata, tax brackets, per-calculator law tables
       models/                ← mortgage, salary models
-      pipes/                 ← euro | dateDDMMYYYY
+      pipes/                 ← euro | dateDDMMYYYY (standalone)
       utils/                 ← chart-canvas.util.ts
-      directives/            ← chart-resize.directive.ts
+      directives/            ← chart-resize.directive.ts (standalone)
     styles.scss              ← Global CSS variables + all utility classes
 ```
 
@@ -164,13 +166,36 @@ New Phase 1 calculator services in `services/*-calculator.service.ts`.
 | `euro` | `{{ value \| euro }}` | `1234.56` → `€1,234.56` |
 | `dateDDMMYYYY` | `{{ date \| dateDDMMYYYY }}` | `Date` → `22/03/2026` |
 
-Both declared in `app-module.ts`.
+Both are **standalone pipes** — import `EuroPipe` / `DateDDMMYYYYPipe` directly in each component that uses them.
 
 ---
 
 ## Angular Patterns
 
 ```typescript
+// Bootstrap (main.ts)
+bootstrapApplication(App, appConfig);
+
+// app.config.ts — zoneless + router + PWA
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZonelessChangeDetection(),
+    provideRouter(routes, withComponentInputBinding()),
+    provideServiceWorker('ngsw-worker.js', { enabled: !isDevMode(), … }),
+  ],
+};
+
+// New component pattern — standalone + OnPush, explicit imports only
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ReactiveFormsModule, EuroPipe, ExportRowComponent], // template deps only
+  templateUrl: '…',
+})
+
+// Lazy route (routes/*.routes.ts)
+{ path: 'mortgage', loadComponent: () => import('…').then(m => m.MortgageCalculatorComponent) }
+
 // Reactive form → signal pipeline (used in every calculator)
 formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
 result = computed(() => {
@@ -178,9 +203,12 @@ result = computed(() => {
   return this.service.calculate(this.form.value);
 });
 
-// Additional signals for non-form state
-annualBonus = signal(0);
-hasSalaryChange = signal(false);
+// Router subscriptions — use takeUntilDestroyed()
+private router = inject(Router);
+this.router.events.pipe(
+  filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+  takeUntilDestroyed(),
+).subscribe(…);
 
 // State persistence pattern (ngOnInit)
 ngOnInit() {
@@ -190,9 +218,11 @@ ngOnInit() {
 }
 ```
 
-- All components use **NgModule** (not standalone) — declare in the appropriate feature module (`features/*/*.module.ts`) or `shared/shared.module.ts` for shared UI; pipes in `SharedModule`
+- **All components are standalone + OnPush** — no NgModules; add new routes in the appropriate `routes/*.routes.ts` file with `loadComponent`
+- **No barrel files** — each component lists only its template deps in `imports`, imported from direct source paths (duplicate `CommonModule` across files is intentional)
+- Child components using `formControlName` must receive `[formGroup]` from the parent
 - Canvas charts use `effect()` for redraws triggered by signal changes
-- `@HostListener('window:resize')` for responsive chart sizing
+- `@HostListener('window:resize')` or `ChartResizeDirective` for responsive chart sizing
 - `@ViewChild` + `ElementRef` for canvas access
 
 ---
@@ -279,7 +309,7 @@ ngOnInit() {
 
 1. **`overflow: hidden` on `.card` AND `.sum-item`** — `position: absolute` tooltips are clipped by both. Use inline sub-text (e.g., a `.sum-val-hint` div) instead of floating tooltips.
 
-2. **NgModule, not standalone** — every new component and pipe must be declared in the relevant feature module or `SharedModule`. Do not use `standalone: true`.
+2. **Standalone + OnPush + zoneless** — new components must set `standalone: true` and `changeDetection: ChangeDetectionStrategy.OnPush`; app uses `provideZonelessChangeDetection()`. Do not create NgModules or barrel re-exports.
 
 3. **`toSignal()` + `computed()` dependency** — must call `this.formValues()` inside the `computed()` body to register the reactive form as a dependency; otherwise the computed won't re-run on form changes.
 

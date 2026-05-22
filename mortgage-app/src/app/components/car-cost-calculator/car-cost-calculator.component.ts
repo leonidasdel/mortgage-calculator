@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -14,9 +14,18 @@ import { CalculatorPersistenceService } from '../../services/calculator-persiste
 
 const STORAGE_KEY = 'carCostCalcState';
 
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { EuroPipe } from '../../pipes/euro.pipe';
+import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
+import { DateSelectComponent } from '../date-select/date-select.component';
+import { ExportRowComponent } from '../export-row/export-row.component';
+import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-car-cost-calculator',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, DateSelectComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './car-cost-calculator.component.html',
   styleUrl: './car-cost-calculator.component.scss',
 })

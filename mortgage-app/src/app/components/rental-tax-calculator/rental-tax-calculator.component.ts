@@ -1,6 +1,11 @@
-import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { EuroPipe } from '../../pipes/euro.pipe';
+import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
+import { ExportRowComponent } from '../export-row/export-row.component';
+import { LawFooterComponent } from '../law-footer/law-footer.component';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 
 const STORAGE_KEY = 'rentalTaxCalcState';
@@ -32,7 +37,9 @@ interface RentalTaxResult {
 
 @Component({
   selector: 'app-rental-tax-calculator',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './rental-tax-calculator.component.html',
   styleUrl: './rental-tax-calculator.component.scss',
 })

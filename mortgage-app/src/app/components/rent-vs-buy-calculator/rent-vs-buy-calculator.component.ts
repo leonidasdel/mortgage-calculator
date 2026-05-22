@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CompareRow } from '../compare-panel/compare-panel.component';
@@ -10,9 +10,18 @@ import {
 
 const STORAGE_KEY = 'rentVsBuyCalcState';
 
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { EuroPipe } from '../../pipes/euro.pipe';
+import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
+import { ComparePanelComponent } from '../compare-panel/compare-panel.component';
+import { ExportRowComponent } from '../export-row/export-row.component';
+import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-rent-vs-buy-calculator',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, ComparePanelComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './rent-vs-buy-calculator.component.html',
   styleUrl: './rent-vs-buy-calculator.component.scss',
 })

@@ -1,20 +1,15 @@
-import { CommonModule } from '@angular/common';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
 import { AnnualBonusCalculatorComponent } from './annual-bonus-calculator.component';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
-import { EuroPipe } from '../../pipes/euro.pipe';
 
 describe('AnnualBonusCalculatorComponent', () => {
   beforeEach(async () => {
     localStorage.clear();
 
     await TestBed.configureTestingModule({
-      declarations: [AnnualBonusCalculatorComponent, EuroPipe],
-      imports: [CommonModule, ReactiveFormsModule],
-      providers: [SalaryCalculatorService],
-      schemas: [NO_ERRORS_SCHEMA],
+      imports: [AnnualBonusCalculatorComponent],
+      providers: [provideZonelessChangeDetection(), SalaryCalculatorService],
     }).compileComponents();
   });
 

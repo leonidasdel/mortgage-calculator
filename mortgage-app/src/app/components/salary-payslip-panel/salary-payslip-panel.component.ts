@@ -1,9 +1,13 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { SalaryResult } from '../../models/salary.models';
 
+import { CommonModule } from '@angular/common';
+import { EuroPipe } from '../../pipes/euro.pipe';
 @Component({
   selector: 'app-salary-payslip-panel',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, EuroPipe],
   templateUrl: './salary-payslip-panel.component.html',
   styleUrl: './salary-payslip-panel.component.scss',
 })

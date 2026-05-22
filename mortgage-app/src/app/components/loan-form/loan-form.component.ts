@@ -1,9 +1,12 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
+import { ReactiveFormsModule } from '@angular/forms';
 @Component({
   selector: 'app-loan-form',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ReactiveFormsModule],
   templateUrl: './loan-form.component.html',
   styleUrl: './loan-form.component.scss',
 })

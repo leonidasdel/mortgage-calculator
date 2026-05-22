@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AmortizationRow } from '../../models/mortgage.models';
@@ -22,9 +22,19 @@ interface ConsumerLoanSummary {
   seppe: number; // ΣΕΠΠΕ (APR) — true annualized cost including fees
 }
 
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { EuroPipe } from '../../pipes/euro.pipe';
+import { AmortizationChartComponent } from '../amortization-chart/amortization-chart.component';
+import { AmortizationTableComponent } from '../amortization-table/amortization-table.component';
+import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
+import { ExportRowComponent } from '../export-row/export-row.component';
+import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-consumer-loan-calculator',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ReactiveFormsModule, EuroPipe, AmortizationChartComponent, AmortizationTableComponent, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './consumer-loan-calculator.component.html',
   styleUrl: './consumer-loan-calculator.component.scss',
 })

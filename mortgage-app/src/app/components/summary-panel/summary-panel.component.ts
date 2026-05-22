@@ -1,9 +1,13 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { LoanParams, MortgageSummary } from '../../models/mortgage.models';
 
+import { CommonModule } from '@angular/common';
+import { EuroPipe } from '../../pipes/euro.pipe';
 @Component({
   selector: 'app-summary-panel',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, EuroPipe],
   templateUrl: './summary-panel.component.html',
   styleUrl: './summary-panel.component.scss',
 })

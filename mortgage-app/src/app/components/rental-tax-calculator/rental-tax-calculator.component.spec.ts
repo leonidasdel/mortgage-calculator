@@ -1,18 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
 import { RentalTaxCalculatorComponent } from './rental-tax-calculator.component';
-import { EuroPipe } from '../../pipes/euro.pipe';
 
 describe('RentalTaxCalculatorComponent', () => {
   beforeEach(async () => {
     localStorage.clear();
 
     await TestBed.configureTestingModule({
-      declarations: [RentalTaxCalculatorComponent, EuroPipe],
-      imports: [CommonModule, ReactiveFormsModule],
-      schemas: [NO_ERRORS_SCHEMA],
+      imports: [RentalTaxCalculatorComponent],
+      providers: [provideZonelessChangeDetection()],
     }).compileComponents();
   });
 

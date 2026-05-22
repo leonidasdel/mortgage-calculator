@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
@@ -9,9 +9,18 @@ import {
 
 const STORAGE_KEY = 'unusedLeaveCalcState';
 
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { EuroPipe } from '../../pipes/euro.pipe';
+import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
+import { LawFooterComponent } from '../law-footer/law-footer.component';
+import { UnusedLeaveCompensationComponent } from '../unused-leave-compensation/unused-leave-compensation.component';
+import { UnusedLeaveTaxBreakdownComponent } from '../unused-leave-tax-breakdown/unused-leave-tax-breakdown.component';
 @Component({
   selector: 'app-unused-leave-calculator',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, LawFooterComponent, UnusedLeaveCompensationComponent, UnusedLeaveTaxBreakdownComponent],
   templateUrl: './unused-leave-calculator.component.html',
   styleUrl: './unused-leave-calculator.component.scss',
 })

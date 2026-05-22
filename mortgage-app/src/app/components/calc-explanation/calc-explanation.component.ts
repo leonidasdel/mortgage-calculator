@@ -1,8 +1,11 @@
-import { Component, Input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, signal } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-calc-explanation',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule],
   templateUrl: './calc-explanation.component.html',
   styleUrl: './calc-explanation.component.scss',
 })

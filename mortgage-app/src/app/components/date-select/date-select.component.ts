@@ -1,14 +1,16 @@
-import { Component, Input, forwardRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, forwardRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 interface MonthOption {
   value: number;
   label: string;
 }
-
 @Component({
   selector: 'app-date-select',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule],
   templateUrl: './date-select.component.html',
   styleUrl: './date-select.component.scss',
   providers: [{

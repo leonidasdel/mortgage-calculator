@@ -1,4 +1,7 @@
-import { Component, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { LawFooterComponent } from '../law-footer/law-footer.component';
 
 export interface HomeTool {
   route: string;
@@ -12,7 +15,9 @@ export interface HomeTool {
 
 @Component({
   selector: 'app-home',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, RouterLink, LawFooterComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })

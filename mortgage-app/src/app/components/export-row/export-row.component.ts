@@ -1,10 +1,13 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ExportService } from '../../services/export.service';
 import { ShareStateService } from '../../services/share-state.service';
 
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-export-row',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule],
   templateUrl: './export-row.component.html',
   styleUrl: './export-row.component.scss',
 })

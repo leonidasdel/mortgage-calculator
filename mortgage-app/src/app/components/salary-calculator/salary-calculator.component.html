@@ -149,6 +149,7 @@
         </div>
 
         <app-salary-change-block
+          [formGroup]="salaryForm"
           [hasSalaryChange]="hasSalaryChange()"
           (salaryChangeToggle)="toggleSalaryChange($event)"
           (salaryChangeMonthChange)="onSalaryChangeMonthChange($event)"

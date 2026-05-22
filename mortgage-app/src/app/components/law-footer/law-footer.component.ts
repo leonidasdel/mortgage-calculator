@@ -1,9 +1,12 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit } from '@angular/core';
 import { getLawMeta, LawMeta } from '../../constants/law-metadata';
 
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-law-footer',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule],
   templateUrl: './law-footer.component.html',
   styleUrl: './law-footer.component.scss',
 })

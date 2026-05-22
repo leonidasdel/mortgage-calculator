@@ -1,11 +1,16 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
 import { AmortizationRow } from '../../models/mortgage.models';
 
 const PER_PAGE = 12;
 
+import { CommonModule } from '@angular/common';
+import { EuroPipe } from '../../pipes/euro.pipe';
+import { DateDDMMYYYYPipe } from '../../pipes/date-ddmmyyyy.pipe';
 @Component({
   selector: 'app-amortization-table',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, EuroPipe, DateDDMMYYYYPipe],
   templateUrl: './amortization-table.component.html',
   styleUrl: './amortization-table.component.scss',
 })

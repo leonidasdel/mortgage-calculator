@@ -1,12 +1,6 @@
-import {
-  Component,
-  ElementRef,
-  Input,
-  AfterViewInit,
-  OnChanges,
-  OnDestroy,
-  ViewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, Input, AfterViewInit, OnChanges, OnDestroy, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ChartResizeDirective } from '../../directives/chart-resize.directive';
 import { AmortizationRow } from '../../models/mortgage.models';
 import {
   AmortizationChartTheme,
@@ -41,7 +35,9 @@ interface BarHit {
 
 @Component({
   selector: 'app-amortization-chart',
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ChartResizeDirective],
   templateUrl: './amortization-chart.component.html',
   styleUrl: './amortization-chart.component.scss',
 })
