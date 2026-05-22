@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MortgageCalculatorService } from './mortgage-calculator.service';
 
 export interface YearlyRow {
@@ -42,7 +42,7 @@ export interface RentVsBuyResult {
 
 @Injectable({ providedIn: 'root' })
 export class RentVsBuyCalculatorService {
-  constructor(private mortgageService: MortgageCalculatorService) {}
+  private readonly mortgageService = inject(MortgageCalculatorService);
 
   calculate(params: RentVsBuyParams, timeHorizon: number): RentVsBuyResult {
     const propertyPrice = Math.max(0, Number(params.propertyPrice) || 0);

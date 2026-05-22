@@ -1,34 +1,34 @@
 <!-- Mobile top bar -->
 <div class="mobile-topbar">
-  <button class="hamburger" (click)="toggleMenu()" [class.open]="mobileMenuOpen" aria-label="Menu">
+  <button class="hamburger" (click)="toggleMenu()" [class.open]="mobileMenuOpen()" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
   <a class="brand" routerLink="/" (click)="closeMenu()">Salaries<span class="brand-dot">.gr</span></a>
-  <button class="mobile-dark-btn" (click)="toggleDarkMode()" [attr.aria-label]="darkMode ? 'Φωτεινό θέμα' : 'Σκοτεινό θέμα'">
-    {{ darkMode ? '☀️' : '🌙' }}
+  <button class="mobile-dark-btn" (click)="toggleDarkMode()" [attr.aria-label]="darkMode() ? 'Φωτεινό θέμα' : 'Σκοτεινό θέμα'">
+    {{ darkMode() ? '☀️' : '🌙' }}
   </button>
 </div>
 
 <!-- Backdrop (mobile overlay) -->
-@if (mobileMenuOpen) {
+@if (mobileMenuOpen()) {
   <div class="sidebar-backdrop" (click)="closeMenu()"></div>
 }
 
 <!-- Sidebar -->
-<aside class="sidebar" [class.collapsed]="collapsed" [class.mobile-open]="mobileMenuOpen">
+<aside class="sidebar" [class.collapsed]="collapsed()" [class.mobile-open]="mobileMenuOpen()">
   <div class="sidebar-header">
-    @if (!collapsed) {
+    @if (!collapsed()) {
       <a class="brand" routerLink="/" (click)="closeMenu()">Salaries<span class="brand-dot">.gr</span></a>
     }
     <button class="collapse-btn" (click)="toggleCollapse()" aria-label="Toggle sidebar">
-      @if (collapsed) { › } @else { ‹ }
+      @if (collapsed()) { › } @else { ‹ }
     </button>
   </div>
 
   <nav class="sidebar-nav">
     @for (group of navGroups; track group.label) {
       <div class="nav-group">
-        @if (!collapsed) {
+        @if (!collapsed()) {
           <div class="nav-group-label">{{ group.label }}</div>
         }
         @for (item of group.items; track item.route) {
@@ -36,10 +36,10 @@
             class="nav-link"
             [routerLink]="item.route"
             routerLinkActive="active"
-            [title]="collapsed ? item.label : ''"
+            [title]="collapsed() ? item.label : ''"
             (click)="closeMenu()">
             <span class="nav-icon">{{ item.icon }}</span>
-            @if (!collapsed) {
+            @if (!collapsed()) {
               <span class="nav-label">{{ item.label }}</span>
             }
           </a>
@@ -49,10 +49,10 @@
   </nav>
 
   <div class="sidebar-footer">
-    <button class="dark-mode-btn" (click)="toggleDarkMode()" [title]="collapsed ? (darkMode ? 'Φωτεινό θέμα' : 'Σκοτεινό θέμα') : ''">
-      <span class="nav-icon">{{ darkMode ? '☀️' : '🌙' }}</span>
-      @if (!collapsed) {
-        <span class="nav-label">{{ darkMode ? 'Φωτεινό θέμα' : 'Σκοτεινό θέμα' }}</span>
+    <button class="dark-mode-btn" (click)="toggleDarkMode()" [title]="collapsed() ? (darkMode() ? 'Φωτεινό θέμα' : 'Σκοτεινό θέμα') : ''">
+      <span class="nav-icon">{{ darkMode() ? '☀️' : '🌙' }}</span>
+      @if (!collapsed()) {
+        <span class="nav-label">{{ darkMode() ? 'Φωτεινό θέμα' : 'Σκοτεινό θέμα' }}</span>
       }
     </button>
   </div>

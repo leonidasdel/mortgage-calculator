@@ -8,7 +8,7 @@ Auto-loaded by Claude Code. Keep this up to date when architecture changes.
 
 **Name:** Salaries.gr
 **Purpose:** Greek financial calculator suite (mortgages, salaries, savings, taxes, real estate)
-**Stack:** Angular 21 · Standalone components · OnPush · Zoneless · SCSS · Canvas charts · PWA
+**Stack:** Angular 21 · Standalone components · OnPush · Zoneless · SCSS · Canvas charts · PWA · SSG (prerender)
 **Backend:** None — pure client-side calculations
 **Locale:** Greek throughout (labels, tax law, EFKA, date formats)
 
@@ -20,8 +20,12 @@ Auto-loaded by Claude Code. Keep this up to date when architecture changes.
 mortgage-app/
   src/
     main.ts                  ← bootstrapApplication(App, appConfig)
+    main.server.ts           ← SSR bootstrap (BootstrapContext)
+    server.ts                ← Express handler (outputMode static; not required for static deploy)
     app/
       app.config.ts          ← provideZonelessChangeDetection, router, service worker
+      app.config.server.ts   ← provideServerRendering(withRoutes(...))
+      app.routes.server.ts   ← RenderMode.Prerender per calculator route
       app.routes.ts          ← root routes + lazy loadChildren
       app.ts                 ← root shell (OnPush, standalone)
       routes/
@@ -113,10 +117,11 @@ New Phase 1 calculator services in `services/*-calculator.service.ts`.
 ### CalculatorPersistenceService
 `services/calculator-persistence.service.ts` · `providedIn: 'root'`
 - `saveFormState` / `loadFormState` — generic localStorage for all calculators
-- `initCalculatorForm(form, key, destroyRef, options?)` — load localStorage → URL override → auto-save via `takeUntilDestroyed`
+- `initSignalForm(model, key, destroyRef, options?)` — load localStorage → URL override → auto-save via effect (all calculators)
+- `initCalculatorForm(form, key, destroyRef, options?)` — legacy reactive-forms helper (bulk-er-form only)
 
 ### PersistenceService (mortgage)
-`services/persistence.service.ts` — mortgage extended state (`erList`, `erCounter`) via `initMortgageForm()`
+`services/persistence.service.ts` — mortgage extended state (`erList`, `erCounter`) via `initMortgageForm(model, …)`
 
 ### ExportService
 `services/export.service.ts`
@@ -189,19 +194,37 @@ export const appConfig: ApplicationConfig = {
 @Component({
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, EuroPipe, ExportRowComponent], // template deps only
+  imports: [CommonModule, FormField, EuroPipe, ExportRowComponent], // template deps only
   templateUrl: '…',
 })
 
 // Lazy route (routes/*.routes.ts)
 { path: 'mortgage', loadComponent: () => import('…').then(m => m.MortgageCalculatorComponent) }
 
-// Reactive form → signal pipeline (used in every calculator)
-formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
-result = computed(() => {
-  this.formValues(); // registers dependency
-  return this.service.calculate(this.form.value);
-});
+// Signal form model (used in every calculator)
+interface MyModel { loanAmount: number; /* never use undefined values */ }
+
+formModel = signal<MyModel>({ loanAmount: 100000 });
+formFields = form(this.formModel);
+
+constructor() {
+  this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef, {
+    onLoad: (saved) => { /* optional custom restore */ },
+    onSave: (value) => { /* optional custom save */ },
+    onApplyShareState: (state, model) => model.set({ ...model(), ...state }),
+    onAfterInit: () => { /* e.g. sync derived fields */ },
+  });
+}
+
+result = computed(() => this.service.calculate(this.formModel()));
+
+// Template bindings
+// <input type="number" [formField]="formFields.loanAmount" />
+// <select [formField]="formFields.year"> … </select>   // select fields: use string model values
+// <app-export-row [shareState]="formModel()" … />
+
+// Patch model (replaces form.patchValue)
+this.formModel.update(m => ({ ...m, loanMonths: 48 }));
 
 // Router subscriptions — use takeUntilDestroyed()
 private router = inject(Router);
@@ -209,21 +232,49 @@ this.router.events.pipe(
   filter((e): e is NavigationEnd => e instanceof NavigationEnd),
   takeUntilDestroyed(),
 ).subscribe(…);
-
-// State persistence pattern (ngOnInit)
-ngOnInit() {
-  this.loadState();           // patchValue({ emitEvent: false })
-  this.syncFromGross();
-  this.form.valueChanges.subscribe(() => this.saveState());
-}
 ```
 
 - **All components are standalone + OnPush** — no NgModules; add new routes in the appropriate `routes/*.routes.ts` file with `loadComponent`
 - **No barrel files** — each component lists only its template deps in `imports`, imported from direct source paths (duplicate `CommonModule` across files is intentional)
-- Child components using `formControlName` must receive `[formGroup]` from the parent
+- **Child form slices** — pass `FieldTree` slices from parent (e.g. `app-loan-form [formFields]="formFields"`, `app-salary-change-block [formFields]="$any(formFields)"`)
+- **`[formField]` inputs** — do not set `min`/`max`/`step` on the same element (use schema validation or accept unconstrained input)
+- **`date-select`** — still a CVA; bind via `[(ngModel)]` + `FormsModule` or manual `(ngModelChange)` against `formModel`
+- **Salary extras** — `annualBonus`, `hasSalaryChange`, `inputMode`, etc. stay as separate signals alongside `formModel`
 - Canvas charts use `effect()` for redraws triggered by signal changes
 - `@HostListener('window:resize')` or `ChartResizeDirective` for responsive chart sizing
 - `@ViewChild` + `ElementRef` for canvas access
+
+### `@defer` (below-fold heavy UI)
+
+Heavy below-fold sections use viewport deferral with card skeleton placeholders:
+
+```html
+@defer (on viewport) {
+  <div class="card">… chart or table …</div>
+} @placeholder {
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon skeleton-block"></div>
+      <h2 class="skeleton-block skeleton-title"></h2>
+    </div>
+    <div class="card-body">
+      <div class="skeleton-block skeleton-chart"></div>
+    </div>
+  </div>
+}
+```
+
+**Currently deferred:** mortgage amortization chart/table, savings chart canvas, consumer-loan chart/table.
+
+Global skeleton utilities live in `styles.scss` (`.skeleton-block`, `.skeleton-chart`, `.skeleton-table`).
+
+### SSG / prerender
+
+- `@angular/ssr` with `outputMode: "static"` in `angular.json` — build emits prerendered HTML per route under `dist/mortgage-app/browser/`
+- Route list in `app.routes.server.ts` — all 17 calculator paths use `RenderMode.Prerender`; client `**` redirect uses `RenderMode.Client`
+- Compatible with zoneless + PWA (`serviceWorker` in production build config)
+- `ng build` logs `Prerendered N static routes` on success
+- Express 5 catch-all in `server.ts` must use `/{*path}` syntax (not bare `*`)
 
 ---
 
@@ -311,13 +362,17 @@ ngOnInit() {
 
 2. **Standalone + OnPush + zoneless** — new components must set `standalone: true` and `changeDetection: ChangeDetectionStrategy.OnPush`; app uses `provideZonelessChangeDetection()`. Do not create NgModules or barrel re-exports.
 
-3. **`toSignal()` + `computed()` dependency** — must call `this.formValues()` inside the `computed()` body to register the reactive form as a dependency; otherwise the computed won't re-run on form changes.
+3. **Signal form `computed()`** — read `this.formModel()` directly inside `computed()`; no `toSignal(form.valueChanges)` bridge needed.
 
 4. **Canvas charts** — `@ViewChild` canvas may be `undefined` on first render; charts use `effect()` and check for canvas availability before drawing.
 
-5. **State loading** — always use `patchValue({ emitEvent: false })` when loading from localStorage to avoid triggering save loops.
+5. **State loading** — `initSignalForm` merges saved/URL state into the model signal; use `onLoad` / `onApplyShareState` callbacks for custom restore logic (salary, mortgage, rent-vs-buy, rental-tax).
 
 6. **Salary 14-month model** — annual totals include 14 payment units (12 months + Christmas + Easter/Leave). Monthly tax = annual tax / 14, not / 12.
+
+7. **`@defer (on viewport)`** — deferred blocks (charts/tables) are absent from initial HTML; prerendered pages still ship fast shell + summary; heavy UI loads when scrolled into view.
+
+8. **Prerender + browser APIs** — nav dark-mode, localStorage persistence, and SW update run client-side only; prerender must not depend on them for initial render.
 
 ---
 

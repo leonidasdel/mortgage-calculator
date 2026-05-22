@@ -16,7 +16,7 @@ describe('ConsumerLoanCalculatorComponent', () => {
     const fixture = TestBed.createComponent(ConsumerLoanCalculatorComponent);
     const component = fixture.componentInstance;
 
-    component.form.patchValue({
+    component.formModel.set({
       loanAmount: 10000,
       interestRate: 13,
       loanMonths: 48,

@@ -16,9 +16,10 @@ describe('SeveranceCalculatorComponent', () => {
     const fixture = TestBed.createComponent(SeveranceCalculatorComponent);
     const component = fixture.componentInstance;
 
-    component.form.patchValue({
+    component.formModel.set({
       grossMonthly: 2000,
       yearsOfService: 10,
+      monthsExtra: 0,
       terminationType: 'without_notice',
     });
 
@@ -33,9 +34,10 @@ describe('SeveranceCalculatorComponent', () => {
     const fixture = TestBed.createComponent(SeveranceCalculatorComponent);
     const component = fixture.componentInstance;
 
-    component.form.patchValue({
+    component.formModel.set({
       grossMonthly: 10000,
       yearsOfService: 20,
+      monthsExtra: 0,
       terminationType: 'without_notice',
     });
 

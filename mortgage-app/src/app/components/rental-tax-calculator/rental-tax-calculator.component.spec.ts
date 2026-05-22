@@ -18,10 +18,10 @@ describe('RentalTaxCalculatorComponent', () => {
     fixture.detectChanges();
 
     component.onIncomeModeChange('monthly');
-    component.form.patchValue({ monthlyIncome: 900 });
+    component.formModel.update(m => ({ ...m, monthlyIncome: 900 }));
     component.onMonthlyIncomeInput();
 
-    expect(component.form.get('annualIncome')?.value).toBe(10800);
+    expect(component.formModel().annualIncome).toBe(10800);
     expect(component.result().annualIncome).toBe(10800);
   });
 
@@ -31,8 +31,9 @@ describe('RentalTaxCalculatorComponent', () => {
     fixture.detectChanges();
 
     component.onIncomeModeChange('monthly');
-    component.form.patchValue({ monthlyIncome: 950 });
+    component.formModel.update(m => ({ ...m, monthlyIncome: 950 }));
     component.onMonthlyIncomeInput();
+    TestBed.flushEffects();
 
     const saved = JSON.parse(localStorage.getItem('rentalTaxCalcState') ?? '{}');
     expect(saved.incomeMode).toBe('monthly');
@@ -43,8 +44,8 @@ describe('RentalTaxCalculatorComponent', () => {
     const restored = restoredFixture.componentInstance;
     restoredFixture.detectChanges();
 
-    expect(restored.form.get('incomeMode')?.value).toBe('monthly');
-    expect(restored.form.get('monthlyIncome')?.value).toBe(950);
+    expect(restored.formModel().incomeMode).toBe('monthly');
+    expect(restored.formModel().monthlyIncome).toBe(950);
     expect(restored.result().annualIncome).toBe(11400);
   });
 });

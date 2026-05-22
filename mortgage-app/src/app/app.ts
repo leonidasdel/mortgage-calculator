@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { filter } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import { NavComponent } from './components/nav/nav.component';
 import { SeoService } from './services/seo.service';
 import { SwUpdateService } from './services/sw-update.service';
@@ -20,15 +20,18 @@ export class App {
   private readonly seo = inject(SeoService);
   readonly swUpdate = inject(SwUpdateService);
 
-  constructor() {
-    const destroyRef = inject(DestroyRef);
-    this.swUpdate.init();
-    this.seo.updateForRoute(this.router.url.split('?')[0] || '/');
+  private readonly navUrl = toSignal(
     this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-      takeUntilDestroyed(destroyRef),
-    ).subscribe(e => {
-      this.seo.updateForRoute(e.urlAfterRedirects.split('?')[0] || '/');
+      map(e => e.urlAfterRedirects.split('?')[0] || '/'),
+    ),
+    { initialValue: this.router.url.split('?')[0] || '/' },
+  );
+
+  constructor() {
+    this.swUpdate.init();
+    effect(() => {
+      this.seo.updateForRoute(this.navUrl());
     });
   }
 }

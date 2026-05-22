@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, computed, signal } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, computed, signal } from '@angular/core';
+import { form } from '@angular/forms/signals';
 import { EarlyRepayment, LoanParams } from '../../models/mortgage.models';
 import { MortgageCalculatorService } from '../../services/mortgage-calculator.service';
 import { PersistenceService } from '../../services/persistence.service';
@@ -23,13 +22,25 @@ import { SummaryPanelComponent } from '../summary-panel/summary-panel.component'
   templateUrl: './mortgage-calculator.component.html',
   styleUrl: './mortgage-calculator.component.scss',
 })
-export class MortgageCalculatorComponent implements OnInit {
+export class MortgageCalculatorComponent {
 
-  loanForm: FormGroup;
+  formModel = signal<LoanParams>({
+    loanAmount: 100000,
+    loanYears: 30,
+    fixedYears: 5,
+    fixedRate: 2.9,
+    euribor: 2.464,
+    bankMargin: 2.1,
+    gracePeriod: 0,
+    erMode: 'reducePmt',
+  });
+  formFields = form(this.formModel);
   erList = signal<EarlyRepayment[]>([]);
-  private destroyRef = inject(DestroyRef);
 
-  private formValues;
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly calc = inject(MortgageCalculatorService);
+  private readonly persistence = inject(PersistenceService);
+  private readonly exportSvc = inject(ExportService);
 
   readonly explanationSteps = [
     'Η δόση υπολογίζεται με τύπο PMT για σταθερή και κυμαινόμενη περίοδο.',
@@ -41,53 +52,27 @@ export class MortgageCalculatorComponent implements OnInit {
   readonly explanationFormula =
     'Δόση = PMT(κεφάλαιο, επιτόκιο + 0,12%, μήνες) · Σύνολο = δόσεις + εισφορά';
 
-  constructor(
-    private fb: FormBuilder,
-    private calc: MortgageCalculatorService,
-    private persistence: PersistenceService,
-    private exportSvc: ExportService,
-  ) {
-    this.loanForm = this.fb.group({
-      loanAmount:  [100000],
-      loanYears:   [30],
-      fixedYears:  [5],
-      fixedRate:   [2.9],
-      euribor:     [2.464],
-      bankMargin:  [2.1],
-      gracePeriod: [0],
-      erMode:      ['reducePmt'],
-    });
-
-    this.formValues = toSignal(this.loanForm.valueChanges, { initialValue: this.loanForm.value });
-  }
-
-  ngOnInit(): void {
-    this.persistence.initMortgageForm(this.loanForm, this.destroyRef, {
+  constructor() {
+    this.persistence.initMortgageForm(this.formModel, this.destroyRef, {
       onLoadErList: (list) => this.erList.set(list),
       onSave: () => this.persist(),
     });
   }
 
-  private get currentParams(): LoanParams {
-    return this.loanForm.value as LoanParams;
-  }
+  schedule = computed(() =>
+    this.calc.buildSchedule(this.formModel(), this.erList()),
+  );
 
-  schedule = computed(() => {
-    this.formValues();
-    return this.calc.buildSchedule(this.currentParams, this.erList());
-  });
-
-  baseSchedule = computed(() => {
-    this.formValues();
-    return this.calc.buildSchedule(this.currentParams, []);
-  });
+  baseSchedule = computed(() =>
+    this.calc.buildSchedule(this.formModel(), []),
+  );
 
   summary = computed(() =>
-    this.calc.computeSummary(this.schedule(), this.baseSchedule(), this.currentParams)
+    this.calc.computeSummary(this.schedule(), this.baseSchedule(), this.formModel()),
   );
 
   erMonthsSaved = computed(() =>
-    this.calc.computeErMonthsSaved(this.currentParams, this.erList())
+    this.calc.computeErMonthsSaved(this.formModel(), this.erList()),
   );
 
   shareSummary = computed(() => {
@@ -101,7 +86,7 @@ export class MortgageCalculatorComponent implements OnInit {
   }
 
   onErModeChange(mode: 'reducePmt' | 'reduceDur'): void {
-    this.loanForm.patchValue({ erMode: mode });
+    this.formModel.update(m => ({ ...m, erMode: mode }));
     this.persist();
   }
 
@@ -110,6 +95,6 @@ export class MortgageCalculatorComponent implements OnInit {
   }
 
   private persist(): void {
-    this.persistence.saveState(this.loanForm.value, this.erList(), 0);
+    this.persistence.saveState(this.formModel(), this.erList(), 0);
   }
 }

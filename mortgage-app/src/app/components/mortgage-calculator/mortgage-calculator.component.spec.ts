@@ -23,10 +23,10 @@ describe('MortgageCalculatorComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should initialise loanForm with default values', () => {
+  it('should initialise formModel with default values', () => {
     const fixture = TestBed.createComponent(MortgageCalculatorComponent);
     const component = fixture.componentInstance;
-    expect(component.loanForm.get('loanAmount')?.value).toBe(100000);
-    expect(component.loanForm.get('erMode')?.value).toBe('reducePmt');
+    expect(component.formModel().loanAmount).toBe(100000);
+    expect(component.formModel().erMode).toBe('reducePmt');
   });
 });

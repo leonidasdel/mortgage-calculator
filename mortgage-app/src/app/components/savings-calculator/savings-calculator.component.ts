@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, ElementRef, signal, ViewChild } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { CompareRow } from '../compare-panel/compare-panel.component';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 import {
@@ -18,8 +17,19 @@ import {
 
 const STORAGE_KEY = 'savingsCalcState';
 
+interface SavingsModel {
+  initialDeposit: number;
+  monthlyContribution: number;
+  compareMonthlyContribution: number;
+  annualReturn: number;
+  durationYears: number;
+  applyTax: boolean;
+  taxRate: number;
+  applyInflation: boolean;
+  inflationRate: number;
+}
+
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { ChartResizeDirective } from '../../directives/chart-resize.directive';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
@@ -30,14 +40,27 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   selector: 'app-savings-calculator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, EuroPipe, ChartResizeDirective, CalcExplanationComponent, ComparePanelComponent, ExportRowComponent, LawFooterComponent],
+  imports: [CommonModule, FormField, EuroPipe, ChartResizeDirective, CalcExplanationComponent, ComparePanelComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './savings-calculator.component.html',
   styleUrl: './savings-calculator.component.scss',
 })
-export class SavingsCalculatorComponent implements OnInit {
-  form: FormGroup;
-  private formValues;
-  private destroyRef = inject(DestroyRef);
+export class SavingsCalculatorComponent {
+  formModel = signal<SavingsModel>({
+    initialDeposit: 10000,
+    monthlyContribution: 200,
+    compareMonthlyContribution: 400,
+    annualReturn: 7,
+    durationYears: 20,
+    applyTax: true,
+    taxRate: 15,
+    applyInflation: false,
+    inflationRate: 2,
+  });
+  formFields = form(this.formModel);
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly calc = inject(SavingsCalculatorService);
+  private readonly persistence = inject(CalculatorPersistenceService);
 
   readonly quickDurations = [5, 10, 15, 20, 25, 30];
 
@@ -53,42 +76,19 @@ export class SavingsCalculatorComponent implements OnInit {
 
   @ViewChild('savingsChart', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  constructor(
-    private fb: FormBuilder,
-    private calc: SavingsCalculatorService,
-    private persistence: CalculatorPersistenceService,
-  ) {
+  constructor() {
     effect(() => {
       const rows = this.result().yearlyRows;
       setTimeout(() => this.drawChart(rows), 0);
     });
 
-    this.form = this.fb.group({
-      initialDeposit: [10000],
-      monthlyContribution: [200],
-      compareMonthlyContribution: [400],
-      annualReturn: [7],
-      durationYears: [20],
-      applyTax: [true],
-      taxRate: [15],
-      applyInflation: [false],
-      inflationRate: [2],
-    });
-    this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
+    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
   }
 
-  ngOnInit(): void {
-    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
-  }
-
-  result = computed<SavingsResult>(() => {
-    this.formValues();
-    return this.calc.calculate(this.form.value);
-  });
+  result = computed<SavingsResult>(() => this.calc.calculate(this.formModel()));
 
   compareResult = computed(() => {
-    this.formValues();
-    const fv = this.form.value;
+    const fv = this.formModel();
     const monthly = Math.max(0, fv.compareMonthlyContribution || 0);
     return this.calc.calculate(fv, monthly);
   });
@@ -99,8 +99,8 @@ export class SavingsCalculatorComponent implements OnInit {
     const fmt = (n: number) => `${Math.round(n).toLocaleString('el-GR')} €`;
     const pick = (va: number, vb: number): 'a' | 'b' | undefined =>
       va > vb ? 'a' : vb > va ? 'b' : undefined;
-    const monthlyA = Math.max(0, this.form.value.monthlyContribution || 0);
-    const monthlyB = Math.max(0, this.form.value.compareMonthlyContribution || 0);
+    const monthlyA = Math.max(0, this.formModel().monthlyContribution || 0);
+    const monthlyB = Math.max(0, this.formModel().compareMonthlyContribution || 0);
     return [
       { label: 'Μηνιαία εισφορά', valueA: fmt(monthlyA), valueB: fmt(monthlyB) },
       { label: 'Συνολικές εισφορές', valueA: fmt(a.totalContributed), valueB: fmt(b.totalContributed) },
@@ -111,11 +111,11 @@ export class SavingsCalculatorComponent implements OnInit {
 
   shareSummary = computed(() => {
     const r = this.result();
-    return `Αποταμίευση Salaries.gr: τελικό ${Math.round(r.finalNominal)}€ μετά ${this.form.value.durationYears} έτη`;
+    return `Αποταμίευση Salaries.gr: τελικό ${Math.round(r.finalNominal)}€ μετά ${this.formModel().durationYears} έτη`;
   });
 
   setYears(y: number): void {
-    this.form.patchValue({ durationYears: y });
+    this.formModel.update(m => ({ ...m, durationYears: y }));
   }
 
   onChartResize(): void {

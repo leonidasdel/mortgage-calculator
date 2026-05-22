@@ -1,21 +1,22 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { FieldTree, FormField } from '@angular/forms/signals';
+import { LoanParams } from '../../models/mortgage.models';
 
-import { ReactiveFormsModule } from '@angular/forms';
 @Component({
   selector: 'app-loan-form',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule],
+  imports: [FormField],
   templateUrl: './loan-form.component.html',
   styleUrl: './loan-form.component.scss',
 })
 export class LoanFormComponent {
-  @Input() form!: FormGroup;
+  formFields = input.required<FieldTree<LoanParams>>();
 
-  get varRate(): string {
-    const euribor    = this.form?.get('euribor')?.value    || 0;
-    const bankMargin = this.form?.get('bankMargin')?.value || 0;
+  varRate = computed(() => {
+    const fields = this.formFields();
+    const euribor = fields.euribor().value();
+    const bankMargin = fields.bankMargin().value();
     return (euribor + bankMargin).toFixed(2);
-  }
+  });
 }

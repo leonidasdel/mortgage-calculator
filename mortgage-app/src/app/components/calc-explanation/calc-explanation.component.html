@@ -1,15 +1,15 @@
 <button type="button" class="calc-exp-toggle" (click)="toggle()">
-  {{ title }}
+  {{ title() }}
   <span class="calc-exp-arrow" [class.open]="open()">&#9660;</span>
 </button>
 @if (open()) {
   <div class="calc-exp-body info-box blue">
-    @if (formula) {
-      <div class="info-formula">{{ formula }}</div>
+    @if (formula()) {
+      <div class="info-formula">{{ formula() }}</div>
     }
-    @if (steps.length) {
+    @if (steps().length) {
       <ol class="calc-exp-steps">
-        @for (s of steps; track s) {
+        @for (s of steps(); track s) {
           <li>{{ s }}</li>
         }
       </ol>

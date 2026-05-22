@@ -13,11 +13,11 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Στοιχεία Μεταβίβασης</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <div class="form-group">
           <label for="transferType">Τύπος Μεταβίβασης</label>
-          <select id="transferType" formControlName="transferType" class="form-select">
+          <select id="transferType" [formField]="formFields.transferType" class="form-select">
             <option value="inheritance">Κληρονομιά</option>
             <option value="gift">Δωρεά περιουσιακού στοιχείου</option>
             <option value="monetary">Χρηματική δωρεά</option>
@@ -26,7 +26,7 @@
 
         <div class="form-group">
           <label for="category">Κατηγορία Συγγένειας</label>
-          <select id="category" formControlName="category" class="form-select">
+          <select id="category" [formField]="formFields.category" class="form-select">
             <option value="A">{{ kinshipLabels.A }}</option>
             <option value="B">{{ kinshipLabels.B }}</option>
             <option value="C">{{ kinshipLabels.C }}</option>
@@ -37,8 +37,7 @@
           <label for="value">Αξία / Ποσό (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="value" formControlName="value"
-                   min="0" step="1000" placeholder="π.χ. 250000">
+            <input type="number" id="value" [formField]="formFields.value">
           </div>
         </div>
 
@@ -47,14 +46,14 @@
 
           <div class="form-group">
             <label class="ig-check-row">
-              <input type="checkbox" formControlName="hasDisability">
+              <input type="checkbox" [formField]="formFields.hasDisability">
               <span>Αναπηρία ≥67% (μείωση φόρου 10%)</span>
             </label>
           </div>
 
           <div class="form-group">
             <label class="ig-check-row">
-              <input type="checkbox" formControlName="applyPrimaryResidenceInfo">
+              <input type="checkbox" [formField]="formFields.applyPrimaryResidenceInfo">
               <span>Κύρια κατοικία (ενδέχεται απαλλαγή)</span>
             </label>
           </div>
@@ -90,7 +89,7 @@
         <div class="sum-grid">
           <div class="sum-item">
             <div class="sum-lbl">Αξία μεταβίβασης</div>
-            <div class="sum-val">{{ form.get('value')?.value | euro }}</div>
+            <div class="sum-val">{{ formModel().value | euro }}</div>
           </div>
           @if (result().exemptAmount > 0) {
             <div class="sum-item">
@@ -114,7 +113,7 @@
 
         <app-export-row
           sharePath="/inheritance-gift"
-          [shareState]="form.value"
+          [shareState]="formModel()"
           [shareSummary]="shareSummary()"
           printTargetId="inheritance-results">
         </app-export-row>

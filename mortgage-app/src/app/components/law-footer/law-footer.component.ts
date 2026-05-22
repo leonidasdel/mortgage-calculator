@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit } from '@angular/core';
-import { getLawMeta, LawMeta } from '../../constants/law-metadata';
-
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { getLawMeta } from '../../constants/law-metadata';
 import { CommonModule } from '@angular/common';
+
 @Component({
   selector: 'app-law-footer',
   standalone: true,
@@ -10,15 +10,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './law-footer.component.html',
   styleUrl: './law-footer.component.scss',
 })
-export class LawFooterComponent implements OnInit, OnChanges {
-  @Input() route = '/';
-  meta: LawMeta = getLawMeta('/');
-
-  ngOnChanges(): void {
-    this.meta = getLawMeta(this.route);
-  }
-
-  ngOnInit(): void {
-    this.meta = getLawMeta(this.route);
-  }
+export class LawFooterComponent {
+  route = input('/');
+  meta = computed(() => getLawMeta(this.route()));
 }

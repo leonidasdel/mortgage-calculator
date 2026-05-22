@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { LoanParams, MortgageSummary } from '../../models/mortgage.models';
-
 import { CommonModule } from '@angular/common';
 import { EuroPipe } from '../../pipes/euro.pipe';
+
 @Component({
   selector: 'app-summary-panel',
   standalone: true,
@@ -12,38 +12,46 @@ import { EuroPipe } from '../../pipes/euro.pipe';
   styleUrl: './summary-panel.component.scss',
 })
 export class SummaryPanelComponent {
-  @Input() summary!: MortgageSummary;
-  @Input() params!: LoanParams;
-  @Output() exportCsv = new EventEmitter<void>();
+  summary = input.required<MortgageSummary>();
+  params = input.required<LoanParams>();
+  exportCsv = output<void>();
 
   get interestPct(): string {
-    if (!this.params?.loanAmount || this.params.loanAmount <= 0) return '0';
-    return (this.summary.totalInterest / this.params.loanAmount * 100).toFixed(1);
+    const p = this.params();
+    const s = this.summary();
+    if (!p?.loanAmount || p.loanAmount <= 0) return '0';
+    return (s.totalInterest / p.loanAmount * 100).toFixed(1);
   }
 
   get fixedSubLabel(): string {
-    if (!this.params) return '';
-    const fy = this.params.fixedYears;
-    const fr = this.params.fixedRate;
-    const vr = this.summary.varRate;
+    const p = this.params();
+    const s = this.summary();
+    if (!p) return '';
+    const fy = p.fixedYears;
+    const fr = p.fixedRate;
+    const vr = s.varRate;
     return fy > 0
       ? `Σταθερή για ${fy} έτ${fy === 1 ? 'ος' : 'η'} @ ${fr.toFixed(2)}%`
       : `Κυμαινόμενο επιτόκιο @ ${vr.toFixed(2)}%`;
   }
 
   get varSubLabel(): string {
-    if (!this.params) return '';
-    return `Κυμαινόμενο Euribor + ${this.params.bankMargin}% = ${this.summary.varRate.toFixed(2)}%`;
+    const p = this.params();
+    const s = this.summary();
+    if (!p) return '';
+    return `Κυμαινόμενο Euribor + ${p.bankMargin}% = ${s.varRate.toFixed(2)}%`;
   }
 
   window_print(): void { window.print(); }
 
   get hasErSavings(): boolean {
-    return (this.summary.interestSaved ?? 0) > 0 || (this.summary.monthsSaved ?? 0) > 0;
+    const s = this.summary();
+    return (s.interestSaved ?? 0) > 0 || (s.monthsSaved ?? 0) > 0;
   }
 
   get savingsTimePart(): string {
-    const ms = this.summary.monthsSaved || 0;
+    const s = this.summary();
+    const ms = s.monthsSaved || 0;
     if (ms <= 0) return '';
     const yrs = Math.floor(ms / 12);
     const rem = ms % 12;

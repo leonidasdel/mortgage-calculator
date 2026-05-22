@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { EFKA_EMPLOYEE_RATE, MAX_INSURABLE_EARNINGS } from '../constants/payroll.constants';
 import { AgeGroup } from '../models/salary.models';
 import { SalaryCalculatorService } from './salary-calculator.service';
@@ -55,7 +55,7 @@ export interface LeaveResult {
 
 @Injectable({ providedIn: 'root' })
 export class UnusedLeaveCalculatorService {
-  constructor(private salaryService: SalaryCalculatorService) {}
+  private readonly salaryService = inject(SalaryCalculatorService);
 
   calculate(params: UnusedLeaveParams): LeaveResult {
     const salaryType       = params.salaryType as 'monthly' | 'daily';

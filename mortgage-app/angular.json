@@ -13,7 +13,8 @@
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss",
-          "standalone": true
+          "standalone": true,
+          "changeDetection": "OnPush"
         },
         "@schematics/angular:directive": {
           "standalone": true
@@ -30,6 +31,11 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
+            "server": "src/main.server.ts",
+            "ssr": {
+              "entry": "src/server.ts"
+            },
+            "outputMode": "static",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [

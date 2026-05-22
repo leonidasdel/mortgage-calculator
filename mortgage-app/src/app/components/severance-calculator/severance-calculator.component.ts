@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 import {
   SeveranceCalculatorService,
@@ -9,8 +8,14 @@ import {
 
 const STORAGE_KEY = 'severanceCalcState';
 
+interface SeveranceModel {
+  grossMonthly: number;
+  yearsOfService: number;
+  monthsExtra: number;
+  terminationType: 'without_notice' | 'with_notice' | 'mutual';
+}
+
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { ExportRowComponent } from '../export-row/export-row.component';
@@ -19,14 +24,22 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   selector: 'app-severance-calculator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './severance-calculator.component.html',
   styleUrl: './severance-calculator.component.scss',
 })
-export class SeveranceCalculatorComponent implements OnInit {
-  form: FormGroup;
-  private formValues;
-  private destroyRef = inject(DestroyRef);
+export class SeveranceCalculatorComponent {
+  formModel = signal<SeveranceModel>({
+    grossMonthly: 1500,
+    yearsOfService: 5,
+    monthsExtra: 0,
+    terminationType: 'without_notice',
+  });
+  formFields = form(this.formModel);
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly calc = inject(SeveranceCalculatorService);
+  private readonly persistence = inject(CalculatorPersistenceService);
 
   readonly explanationSteps = [
     'Οι μήνες αποζημίωσης καθορίζονται από τον πίνακα Ν.4808/2021.',
@@ -38,33 +51,20 @@ export class SeveranceCalculatorComponent implements OnInit {
   readonly explanationFormula =
     'Αποζημίωση = μήνες × (μικτός × 14/12) · Καθαρά = μεικτή − φόρος';
 
-  constructor(
-    private fb: FormBuilder,
-    private calc: SeveranceCalculatorService,
-    private persistence: CalculatorPersistenceService,
-  ) {
-    this.form = this.fb.group({
-      grossMonthly:    [1500],
-      yearsOfService:  [5],
-      monthsExtra:     [0],
-      terminationType: ['without_notice'],
-    });
-    this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
+  constructor() {
+    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
   }
 
-  ngOnInit(): void {
-    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
-  }
-
-  result = computed<SeveranceResult>(() => {
-    this.formValues();
-    return this.calc.calculate(this.form.value);
-  });
+  result = computed<SeveranceResult>(() => this.calc.calculate(this.formModel()));
 
   shareSummary = computed(() => {
     const r = this.result();
     return `Αποζημίωση Salaries.gr: καθαρά ${r.netSeverance.toFixed(2)}€ (${r.actualMonths} μισθοί, ${r.completedYears} έτη)`;
   });
+
+  setTerminationType(type: SeveranceModel['terminationType']): void {
+    this.formModel.update(m => ({ ...m, terminationType: type }));
+  }
 
   print(): void {
     window.print();

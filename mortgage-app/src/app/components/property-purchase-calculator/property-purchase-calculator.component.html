@@ -17,14 +17,13 @@
         <div class="card-header-icon">🏠</div>
         <h2>Στοιχεία Ακινήτου</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <div class="form-group">
           <label for="purchasePrice">Τίμημα Αγοράς (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="purchasePrice" formControlName="purchasePrice"
-                   min="0" step="5000" placeholder="π.χ. 200000">
+            <input type="number" id="purchasePrice" [formField]="formFields.purchasePrice">
           </div>
         </div>
 
@@ -32,8 +31,7 @@
           <label for="aaotValue">Αντικειμενική Αξία / ΑΑΟΤ (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="aaotValue" formControlName="aaotValue"
-                   min="0" step="5000" placeholder="π.χ. 200000">
+            <input type="number" id="aaotValue" [formField]="formFields.aaotValue">
           </div>
           <div class="pp-hint">
             Ο ΦΜΑ υπολογίζεται στο <strong>μεγαλύτερο</strong> από τιμήμα &amp; αντικειμενική αξία.
@@ -41,7 +39,7 @@
           </div>
         </div>
 
-        @if (result().taxBase > (form.get('purchasePrice')?.value || 0)) {
+        @if (result().taxBase > (formModel().purchasePrice || 0)) {
           <div class="info-box amber" style="margin-bottom:0;">
             ⚠️ Η αντικειμενική αξία (<strong>{{ result().taxBase | euro:0 }}</strong>) υπερβαίνει το τίμημα — ο ΦΜΑ υπολογίζεται επί της αντικειμενικής αξίας.
           </div>
@@ -56,20 +54,20 @@
         <div class="card-header-icon">&#128203;</div>
         <h2>Παράμετροι</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <!-- Πρώτη κατοικία -->
         <div class="form-group">
           <label class="pp-check-row">
-            <input type="checkbox" formControlName="isFirstHome">
+            <input type="checkbox" [formField]="formFields.isFirstHome">
             <span>Αγορά Πρώτης Κατοικίας (απαλλαγή ΦΜΑ)</span>
           </label>
         </div>
 
-        @if (form.get('isFirstHome')?.value) {
+        @if (formModel().isFirstHome) {
           <div class="form-group">
             <label class="pp-check-row">
-              <input type="checkbox" formControlName="isMarried">
+              <input type="checkbox" [formField]="formFields.isMarried">
               <span>Έγγαμος / Έγγαμη</span>
             </label>
           </div>
@@ -77,18 +75,17 @@
           <div class="form-group">
             <label for="children">Εξαρτώμενα Τέκνα</label>
             <div class="input-wrap">
-              <input type="number" id="children" formControlName="children"
-                     min="0" max="10" step="1">
+              <input type="number" id="children" [formField]="formFields.children">
             </div>
           </div>
 
           <div class="info-box blue">
             🏠 Όριο απαλλαγής πρώτης κατοικίας:
             <strong>{{ result().fhThreshold | euro:0 }}</strong>
-            @if (form.get('isMarried')?.value) {
-              (€250.000 + {{ form.get('children')?.value }} × €25.000)
+            @if (formModel().isMarried) {
+              (€250.000 + {{ formModel().children }} × €25.000)
             } @else {
-              (€200.000 + {{ form.get('children')?.value }} × €25.000)
+              (€200.000 + {{ formModel().children }} × €25.000)
             }
           </div>
         }
@@ -99,14 +96,14 @@
 
         <div class="form-group" style="margin-top:10px;">
           <label class="pp-check-row">
-            <input type="checkbox" formControlName="includeAgent">
+            <input type="checkbox" [formField]="formFields.includeAgent">
             <span>Αμοιβή Μεσίτη (2% + ΦΠΑ)</span>
           </label>
         </div>
 
         <div class="form-group">
           <label class="pp-check-row">
-            <input type="checkbox" formControlName="includeLawyer">
+            <input type="checkbox" [formField]="formFields.includeLawyer">
             <span>Αμοιβή Δικηγόρου (~0,5%)</span>
           </label>
         </div>
@@ -203,7 +200,7 @@
         <div class="export-row">
           <app-export-row
             sharePath="/property-purchase"
-            [shareState]="form.value"
+            [shareState]="formModel()"
             [shareSummary]="shareSummary()"
             printTargetId="pp-results">
           </app-export-row>
@@ -213,7 +210,7 @@
     </div>
 
     <!-- Ανάλυση ΦΜΑ -->
-    @if (form.get('isFirstHome')?.value) {
+    @if (formModel().isFirstHome) {
       <div class="card">
         <div class="card-header">
           <div class="card-header-icon">🏛️</div>

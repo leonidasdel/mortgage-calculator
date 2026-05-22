@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { BulkErParams, EarlyRepayment, ErMonthsSavedMap } from '../../models/mortgage.models';
-
 import { CommonModule } from '@angular/common';
 import { BulkErFormComponent } from '../bulk-er-form/bulk-er-form.component';
+
 @Component({
   selector: 'app-early-repayments',
   standalone: true,
@@ -12,30 +12,31 @@ import { BulkErFormComponent } from '../bulk-er-form/bulk-er-form.component';
   styleUrl: './early-repayments.component.scss',
 })
 export class EarlyRepaymentsComponent {
-  @Input() erList:        EarlyRepayment[]  = [];
-  @Input() erMonthsSaved: ErMonthsSavedMap  = {};
-  @Input() scheduleLength = 0;
-  @Input() erMode: 'reducePmt' | 'reduceDur' = 'reducePmt';
+  erList = input<EarlyRepayment[]>([]);
+  erMonthsSaved = input<ErMonthsSavedMap>({});
+  scheduleLength = input(0);
+  erMode = input<'reducePmt' | 'reduceDur'>('reducePmt');
 
-  @Output() erListChange = new EventEmitter<EarlyRepayment[]>();
-  @Output() erModeChange = new EventEmitter<'reducePmt' | 'reduceDur'>();
+  erListChange = output<EarlyRepayment[]>();
+  erModeChange = output<'reducePmt' | 'reduceDur'>();
 
   showBulk = false;
 
   addER(): void {
-    const next = [...this.erList, { id: this.nextId(), month: 12, amount: 0 }];
+    const list = this.erList();
+    const next = [...list, { id: this.nextId(), month: 12, amount: 0 }];
     this.erListChange.emit(next);
   }
 
   removeER(id: number): void {
-    this.erListChange.emit(this.erList.filter(e => e.id !== id));
+    this.erListChange.emit(this.erList().filter(e => e.id !== id));
   }
 
   updateERField(id: number, field: 'month' | 'amount', raw: string): void {
     const val = field === 'month'
       ? Math.max(1, Math.round(parseFloat(raw) || 1))
       : Math.max(0, parseFloat(raw) || 0);
-    this.erListChange.emit(this.erList.map(e => e.id === id ? { ...e, [field]: val } : e));
+    this.erListChange.emit(this.erList().map(e => e.id === id ? { ...e, [field]: val } : e));
   }
 
   clearAll(): void {
@@ -43,22 +44,24 @@ export class EarlyRepaymentsComponent {
   }
 
   onBulkAdd(params: BulkErParams): void {
+    const list = this.erList();
     const added: EarlyRepayment[] = [];
     let id = this.nextId();
     for (let i = 0; i < params.count; i++) {
       added.push({ id: id++, month: params.startMonth + i * params.every, amount: params.amount });
     }
-    const merged = [...this.erList, ...added].sort((a, b) => a.month - b.month);
+    const merged = [...list, ...added].sort((a, b) => a.month - b.month);
     this.erListChange.emit(merged);
     this.showBulk = false;
   }
 
   isInactive(er: EarlyRepayment): boolean {
-    return this.scheduleLength > 0 && er.month > this.scheduleLength;
+    const len = this.scheduleLength();
+    return len > 0 && er.month > len;
   }
 
   monthsSavedLabel(er: EarlyRepayment): string {
-    const ms = this.erMonthsSaved[er.id] || 0;
+    const ms = this.erMonthsSaved()[er.id] || 0;
     if (ms <= 0 || this.isInactive(er)) return '';
     const yrs = Math.floor(ms / 12);
     const mos = ms % 12;
@@ -73,6 +76,7 @@ export class EarlyRepaymentsComponent {
   }
 
   private nextId(): number {
-    return this.erList.length > 0 ? Math.max(...this.erList.map(e => e.id)) + 1 : 1;
+    const list = this.erList();
+    return list.length > 0 ? Math.max(...list.map(e => e.id)) + 1 : 1;
   }
 }

@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { AmortizationRow } from '../../models/mortgage.models';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 import { MortgageCalculatorService } from '../../services/mortgage-calculator.service';
@@ -19,11 +18,17 @@ interface ConsumerLoanSummary {
   totalInterest: number;
   totalN128: number;
   grandTotal: number;
-  seppe: number; // ΣΕΠΠΕ (APR) — true annualized cost including fees
+  seppe: number;
+}
+
+interface ConsumerLoanModel {
+  loanAmount: number;
+  interestRate: number;
+  loanMonths: number;
+  loanFees: number;
 }
 
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { AmortizationChartComponent } from '../amortization-chart/amortization-chart.component';
 import { AmortizationTableComponent } from '../amortization-table/amortization-table.component';
@@ -34,14 +39,22 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   selector: 'app-consumer-loan-calculator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, EuroPipe, AmortizationChartComponent, AmortizationTableComponent, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [CommonModule, FormField, EuroPipe, AmortizationChartComponent, AmortizationTableComponent, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './consumer-loan-calculator.component.html',
   styleUrl: './consumer-loan-calculator.component.scss',
 })
-export class ConsumerLoanCalculatorComponent implements OnInit {
-  form: FormGroup;
-  private formValues;
-  private destroyRef = inject(DestroyRef);
+export class ConsumerLoanCalculatorComponent {
+  formModel = signal<ConsumerLoanModel>({
+    loanAmount: 10000,
+    interestRate: 13,
+    loanMonths: 48,
+    loanFees: 0,
+  });
+  formFields = form(this.formModel);
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly persistence = inject(CalculatorPersistenceService);
+  private readonly calc = inject(MortgageCalculatorService);
 
   readonly quickDurations = [12, 24, 36, 48, 60, 84];
 
@@ -55,33 +68,18 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
   readonly explanationFormula =
     'Δόση = PMT(κεφάλαιο, ονομαστικό + 0,60%, μήνες) · Σύνολο = δόσεις + έξοδα';
 
-  constructor(
-    private fb: FormBuilder,
-    private persistence: CalculatorPersistenceService,
-    private calc: MortgageCalculatorService,
-  ) {
-    this.form = this.fb.group({
-      loanAmount:   [10000],
-      interestRate: [13],
-      loanMonths:   [48],
-      loanFees:     [0],
-    });
-    this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
-  }
-
-  ngOnInit(): void {
-    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
+  constructor() {
+    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
   }
 
   schedule = computed<AmortizationRow[]>(() => {
-    this.formValues();
-    const { loanAmount, interestRate, loanMonths } = this.form.value;
+    const { loanAmount, interestRate, loanMonths } = this.formModel();
     return this.buildSchedule(loanAmount, interestRate, Math.max(1, Math.round(loanMonths)));
   });
 
   summary = computed<ConsumerLoanSummary>(() => {
     const rows = this.schedule();
-    const { loanAmount, interestRate, loanMonths, loanFees } = this.form.value;
+    const { loanAmount, interestRate, loanMonths, loanFees } = this.formModel();
     const effectiveRate  = interestRate + N128_RATE * 100;
     const totalPrincipal = rows.reduce((s, r) => s + r.principal, 0);
     const totalInterest  = rows.reduce((s, r) => s + r.interest, 0);
@@ -100,7 +98,7 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
   });
 
   setMonths(m: number): void {
-    this.form.patchValue({ loanMonths: m });
+    this.formModel.update(v => ({ ...v, loanMonths: m }));
   }
 
   print(): void {
@@ -109,10 +107,10 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
 
   private buildSchedule(loanAmount: number, interestRate: number, months: number): AmortizationRow[] {
     if (loanAmount <= 0 || months <= 0) return [];
-    const effectiveRate = interestRate + N128_RATE * 100; // nominal + 0.60% levy
+    const effectiveRate = interestRate + N128_RATE * 100;
     const monthly = this.calc.pmt(loanAmount, effectiveRate, months);
     const mRate   = interestRate / 100 / 12;
-    const mN128   = N128_RATE / 12; // monthly levy rate on declining balance
+    const mN128   = N128_RATE / 12;
     const today   = new Date();
     let balance   = loanAmount;
     const rows: AmortizationRow[] = [];
@@ -130,17 +128,11 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
     return rows;
   }
 
-  /** ΣΕΠΠΕ (APR) — Συνολικό Ετήσιο Πραγματικό Ποσοστό Επιβάρυνσης.
-   *  Solves for the annual rate r such that:
-   *    netProceeds = Σ payment / (1 + r/12)^i   for i = 1..months
-   *  where netProceeds = loanAmount − upfrontFees.
-   *  Uses Newton-Raphson iteration. */
   private calcSEPPE(loanAmount: number, fees: number, payment: number, months: number): number {
     if (loanAmount <= 0 || payment <= 0 || months <= 0) return 0;
-    const net = loanAmount - fees; // net amount received by borrower
+    const net = loanAmount - fees;
     if (net <= 0) return 0;
 
-    // Initial guess: effective monthly rate from PMT formula inverted
     let r = payment > 0 ? (payment / net - 1 / months) * 2 : 0.01;
     if (r <= 0) r = 0.01;
 
@@ -159,6 +151,6 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
       if (r <= 0) r = 0.0001;
       if (Math.abs(step) < 1e-10) break;
     }
-    return (Math.pow(1 + r, 12) - 1) * 100; // effective annual APR
+    return (Math.pow(1 + r, 12) - 1) * 100;
   }
 }

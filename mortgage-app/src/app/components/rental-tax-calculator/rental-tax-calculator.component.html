@@ -14,32 +14,32 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Παράμετροι</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <div class="form-group">
           <label>Εισόδημα Ενοικίων</label>
           <div class="rt-income-toggle">
             <button type="button"
                     class="rt-income-pill"
-                    [class.active]="form.get('incomeMode')?.value === 'monthly'"
+                    [class.active]="formModel().incomeMode === 'monthly'"
                     (click)="onIncomeModeChange('monthly')">
               Μηνιαίο
             </button>
             <button type="button"
                     class="rt-income-pill"
-                    [class.active]="form.get('incomeMode')?.value === 'annual'"
+                    [class.active]="formModel().incomeMode === 'annual'"
                     (click)="onIncomeModeChange('annual')">
               Ετήσιο
             </button>
           </div>
         </div>
 
-        @if (form.get('incomeMode')?.value === 'monthly') {
+        @if (formModel().incomeMode === 'monthly') {
           <div class="form-group">
             <label for="monthlyIncome">Μηνιαίο Εισόδημα Ενοικίων (&#8364;)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">&#8364;</span>
-              <input type="number" id="monthlyIncome" formControlName="monthlyIncome" min="0" step="50" (input)="onMonthlyIncomeInput()">
+              <input type="number" id="monthlyIncome" [formField]="formFields.monthlyIncome" (input)="onMonthlyIncomeInput()">
             </div>
             <div class="rt-hint">Ετήσιο ισοδύναμο: <strong>{{ result().annualIncome | euro }}</strong></div>
           </div>
@@ -48,7 +48,7 @@
             <label for="annualIncome">Ετήσιο Εισόδημα Ενοικίων (&#8364;)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">&#8364;</span>
-              <input type="number" id="annualIncome" formControlName="annualIncome" min="0" step="500" (input)="onAnnualIncomeInput()">
+              <input type="number" id="annualIncome" [formField]="formFields.annualIncome" (input)="onAnnualIncomeInput()">
             </div>
             <div class="rt-hint">Μηνιαίο ισοδύναμο: <strong>{{ result().annualIncome / 12 | euro }}</strong></div>
           </div>
@@ -64,7 +64,7 @@
 
         <div class="form-group">
           <label for="rentalType">Τύπος Ενοικίασης</label>
-          <select id="rentalType" formControlName="rentalType" class="form-select">
+          <select id="rentalType" [formField]="formFields.rentalType" class="form-select">
             <option value="long-term">Μακροχρόνια Μίσθωση</option>
             <option value="short-term">Βραχυχρόνια Μίσθωση (Airbnb κ.λπ.)</option>
           </select>
@@ -79,11 +79,11 @@
           <label>Μέθοδος Εκπτώσεων</label>
           <div class="rt-radio-row">
             <label class="rt-radio">
-              <input type="radio" formControlName="expenseMethod" value="automatic">
+              <input type="radio" [formField]="formFields.expenseMethod" value="automatic">
               <span>Αυτόματη 5%</span>
             </label>
             <label class="rt-radio">
-              <input type="radio" formControlName="expenseMethod" value="actual">
+              <input type="radio" [formField]="formFields.expenseMethod" value="actual">
               <span>Πραγματικά Έξοδα</span>
             </label>
           </div>
@@ -93,12 +93,12 @@
           </div>
         </div>
 
-        @if (form.get('expenseMethod')?.value === 'actual') {
+        @if (formModel().expenseMethod === 'actual') {
           <div class="form-group">
             <label for="actualExpenses">Πραγματικά Έξοδα (&#8364;)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">&#8364;</span>
-              <input type="number" id="actualExpenses" formControlName="actualExpenses" min="0" step="100">
+              <input type="number" id="actualExpenses" [formField]="formFields.actualExpenses">
             </div>
             <div class="rt-hint">Επισκευές, ασφάλεια, κοινόχρηστα ιδιοκτήτη κ.λπ.</div>
           </div>
@@ -179,7 +179,7 @@
         <div class="export-row">
           <app-export-row
             sharePath="/rental-tax"
-            [shareState]="form.value"
+            [shareState]="formModel()"
             [shareSummary]="shareSummary()"
             printTargetId="rt-results">
           </app-export-row>

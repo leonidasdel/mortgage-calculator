@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 import {
   PropertyPurchaseCalculatorService,
@@ -9,8 +8,17 @@ import {
 
 const STORAGE_KEY = 'propertyPurchaseCalcState';
 
+interface PropertyPurchaseModel {
+  purchasePrice: number;
+  aaotValue: number;
+  isFirstHome: boolean;
+  isMarried: boolean;
+  children: number;
+  includeAgent: boolean;
+  includeLawyer: boolean;
+}
+
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { ExportRowComponent } from '../export-row/export-row.component';
@@ -19,14 +27,25 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   selector: 'app-property-purchase-calculator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './property-purchase-calculator.component.html',
   styleUrl: './property-purchase-calculator.component.scss',
 })
-export class PropertyPurchaseCalculatorComponent implements OnInit {
-  form: FormGroup;
-  private formValues;
-  private destroyRef = inject(DestroyRef);
+export class PropertyPurchaseCalculatorComponent {
+  formModel = signal<PropertyPurchaseModel>({
+    purchasePrice: 200000,
+    aaotValue: 200000,
+    isFirstHome: true,
+    isMarried: false,
+    children: 0,
+    includeAgent: true,
+    includeLawyer: true,
+  });
+  formFields = form(this.formModel);
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly calc = inject(PropertyPurchaseCalculatorService);
+  private readonly persistence = inject(CalculatorPersistenceService);
 
   readonly explanationSteps = [
     'ΦΜΑ 3% επί του μεγαλύτερου τιμήματος ή αντικειμενικής αξίας.',
@@ -38,31 +57,11 @@ export class PropertyPurchaseCalculatorComponent implements OnInit {
   readonly explanationFormula =
     'Σύνολο = Τίμημα + ΦΜΑ + συμβολαιογραφικά + κτηματολόγιο + λοιπά';
 
-  constructor(
-    private fb: FormBuilder,
-    private calc: PropertyPurchaseCalculatorService,
-    private persistence: CalculatorPersistenceService,
-  ) {
-    this.form = this.fb.group({
-      purchasePrice: [200000],
-      aaotValue:     [200000],
-      isFirstHome:   [true],
-      isMarried:     [false],
-      children:      [0],
-      includeAgent:  [true],
-      includeLawyer: [true],
-    });
-    this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
+  constructor() {
+    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
   }
 
-  ngOnInit(): void {
-    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
-  }
-
-  result = computed<PropertyPurchaseResult>(() => {
-    this.formValues();
-    return this.calc.calculate(this.form.value);
-  });
+  result = computed<PropertyPurchaseResult>(() => this.calc.calculate(this.formModel()));
 
   shareSummary = computed(() => {
     const r = this.result();

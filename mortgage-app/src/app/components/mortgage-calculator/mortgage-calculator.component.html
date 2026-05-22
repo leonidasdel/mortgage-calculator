@@ -15,7 +15,7 @@
         <h2>Παράμετροι Δανείου</h2>
       </div>
       <div class="card-body">
-        <app-loan-form [form]="loanForm"></app-loan-form>
+        <app-loan-form [formFields]="formFields"></app-loan-form>
 
         <div class="sec-div">
           <div class="sec-label">Πρόωρες Αποπληρωμές</div>
@@ -23,7 +23,7 @@
             [erList]="erList()"
             [erMonthsSaved]="erMonthsSaved()"
             [scheduleLength]="schedule().length"
-            [erMode]="loanForm.get('erMode')?.value"
+            [erMode]="formModel().erMode"
             (erListChange)="onErListChange($event)"
             (erModeChange)="onErModeChange($event)">
           </app-early-repayments>
@@ -52,54 +52,78 @@
       <div class="card-body">
         <app-summary-panel
           [summary]="summary()"
-          [params]="loanForm.value"
+          [params]="formModel()"
           (exportCsv)="onExportCsv()">
         </app-summary-panel>
 
         <app-export-row
           sharePath="/mortgage"
-          [shareState]="loanForm.value"
+          [shareState]="formModel()"
           [shareSummary]="shareSummary()"
           printTargetId="mortgage-results">
         </app-export-row>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <div class="card-header-icon">&#128200;</div>
-        <h2>Ετήσια Ανάλυση Πληρωμών</h2>
-      </div>
-      <div class="card-body">
-        <div class="hero-row mb-12">
-          <div class="stat-card blue">
-            <div class="stat-lbl">Συνολικό Κεφάλαιο</div>
-            <div class="stat-val">{{ summary().totalPrincipal | euro }}</div>
+    @defer (on viewport) {
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon">&#128200;</div>
+          <h2>Ετήσια Ανάλυση Πληρωμών</h2>
+        </div>
+        <div class="card-body">
+          <div class="hero-row mb-12">
+            <div class="stat-card blue">
+              <div class="stat-lbl">Συνολικό Κεφάλαιο</div>
+              <div class="stat-val">{{ summary().totalPrincipal | euro }}</div>
+            </div>
+            <div class="stat-card red">
+              <div class="stat-lbl">Συνολικοί Τόκοι</div>
+              <div class="stat-val">{{ summary().totalInterest | euro }}</div>
+            </div>
           </div>
-          <div class="stat-card red">
-            <div class="stat-lbl">Συνολικοί Τόκοι</div>
-            <div class="stat-val">{{ summary().totalInterest | euro }}</div>
+          <div style="overflow-x:auto;">
+            <app-amortization-chart [schedule]="schedule()"></app-amortization-chart>
+          </div>
+          <div class="chart-legend">
+            <div class="leg-item"><div class="leg-dot blue"></div><span>Κεφάλαιο</span></div>
+            <div class="leg-item"><div class="leg-dot red"></div><span>Τόκοι</span></div>
           </div>
         </div>
-        <div style="overflow-x:auto;">
-          <app-amortization-chart [schedule]="schedule()"></app-amortization-chart>
+      </div>
+    } @placeholder {
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon skeleton-block"></div>
+          <h2 class="skeleton-block skeleton-title"></h2>
         </div>
-        <div class="chart-legend">
-          <div class="leg-item"><div class="leg-dot blue"></div><span>Κεφάλαιο</span></div>
-          <div class="leg-item"><div class="leg-dot red"></div><span>Τόκοι</span></div>
+        <div class="card-body">
+          <div class="skeleton-block skeleton-chart"></div>
         </div>
       </div>
-    </div>
+    }
 
-    <div class="card">
-      <div class="card-header">
-        <div class="card-header-icon">&#128203;</div>
-        <h2>Πίνακας Αποπληρωμής</h2>
+    @defer (on viewport) {
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon">&#128203;</div>
+          <h2>Πίνακας Αποπληρωμής</h2>
+        </div>
+        <div class="card-body">
+          <app-amortization-table [schedule]="schedule()"></app-amortization-table>
+        </div>
       </div>
-      <div class="card-body">
-        <app-amortization-table [schedule]="schedule()"></app-amortization-table>
+    } @placeholder {
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon skeleton-block"></div>
+          <h2 class="skeleton-block skeleton-title"></h2>
+        </div>
+        <div class="card-body">
+          <div class="skeleton-block skeleton-table"></div>
+        </div>
       </div>
-    </div>
+    }
   </div>
 </div>
 

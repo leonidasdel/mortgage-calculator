@@ -14,13 +14,13 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Παράμετροι</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <div class="form-group">
           <label for="annualRevenue">Ετήσια Ακαθάριστα Έσοδα (&#8364;)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="annualRevenue" formControlName="annualRevenue" min="0" step="1000">
+            <input type="number" id="annualRevenue" [formField]="formFields.annualRevenue">
           </div>
         </div>
 
@@ -28,7 +28,7 @@
           <label for="annualExpenses">Ετήσια Επαγγελματικά Έξοδα (&#8364;)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="annualExpenses" formControlName="annualExpenses" min="0" step="500">
+            <input type="number" id="annualExpenses" [formField]="formFields.annualExpenses">
           </div>
           <div class="fl-hint">Ενοίκιο γραφείου, εξοπλισμός, λοιπά αναγνωρισμένα έξοδα</div>
         </div>
@@ -39,12 +39,12 @@
 
         <div class="form-group">
           <label for="efkaCategory">Κατηγορία ΕΦΚΑ</label>
-          <select id="efkaCategory" formControlName="efkaCategory" class="fl-select">
+          <select id="efkaCategory" [formField]="formFields.efkaCategory" class="fl-select">
             @for (cat of efkaCategories; track cat.id) {
               <option [value]="cat.id">{{ cat.label }} — €{{ cat.monthly.toFixed(2) }}/μήνα</option>
             }
           </select>
-          <div class="fl-hint">Μηνιαία εισφορά: <strong>€{{ getSelectedEfkaMonthly().toFixed(2) }}</strong> · Ετήσια: <strong>€{{ (getSelectedEfkaMonthly() * 12).toFixed(2) }}</strong><br>Περιλαμβάνει: Σύνταξη + Υγεία (παροχές σε χρήμα & είδος) + ΟΑΕΔ €10</div>
+          <div class="fl-hint">Μηνιαία εισφορά: <strong>€{{ selectedEfkaMonthly().toFixed(2) }}</strong> · Ετήσια: <strong>€{{ (selectedEfkaMonthly() * 12).toFixed(2) }}</strong><br>Περιλαμβάνει: Σύνταξη + Υγεία (παροχές σε χρήμα & είδος) + ΟΑΕΔ €10</div>
         </div>
 
         <div class="sec-div">
@@ -53,7 +53,7 @@
 
         <div class="form-group">
           <label for="yearsActive">Έτη Δραστηριότητας</label>
-          <select id="yearsActive" formControlName="yearsActive" class="fl-select">
+          <select id="yearsActive" [formField]="formFields.yearsActive" class="fl-select">
             <option value="under3">≤ 3 έτη (προκαταβολή 27,5%)</option>
             <option value="over3">&gt; 3 έτη (προκαταβολή 55%)</option>
           </select>
@@ -62,7 +62,7 @@
 
         <div class="form-group">
           <label for="ageGroup">Ηλικιακή Ομάδα</label>
-          <select id="ageGroup" formControlName="ageGroup" class="fl-select">
+          <select id="ageGroup" [formField]="formFields.ageGroup" class="fl-select">
             <option value="under25">Έως 25 ετών (αφορολόγητο €20.000)</option>
             <option value="26to30">26–30 ετών (9% έως €20.000)</option>
             <option value="over30">Άνω των 30 ετών (κανονική κλίμακα)</option>
@@ -72,7 +72,7 @@
 
         <div class="form-group">
           <label for="children">Αριθμός Τέκνων</label>
-          <select id="children" formControlName="children" class="fl-select">
+          <select id="children" [formField]="formFields.children" class="fl-select">
             @for (n of childrenOptions; track n) {
               <option [value]="n">{{ n === 0 ? 'Χωρίς τέκνα' : n + (n === 1 ? ' τέκνο' : ' τέκνα') }}</option>
             }
@@ -195,7 +195,7 @@
         <div class="export-row">
           <app-export-row
             sharePath="/freelancer"
-            [shareState]="form.value"
+            [shareState]="formModel()"
             [shareSummary]="shareSummary()"
             printTargetId="fl-results">
           </app-export-row>
@@ -239,7 +239,7 @@
               </tr>
               @if (result().taxDiscount > 0) {
                 <tr>
-                  <td colspan="3"><strong>Έκπτωση φόρου ({{ form.get('children')?.value }} τέκνα)</strong></td>
+                  <td colspan="3"><strong>Έκπτωση φόρου ({{ formModel().children }} τέκνα)</strong></td>
                   <td style="color:#059669;font-weight:600;">−{{ result().taxDiscount | euro }}</td>
                 </tr>
               }

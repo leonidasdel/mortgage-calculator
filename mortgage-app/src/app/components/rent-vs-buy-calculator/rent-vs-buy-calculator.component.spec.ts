@@ -17,12 +17,12 @@ describe('RentVsBuyCalculatorComponent', () => {
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
-    component.form.patchValue({ propertyPrice: 198000 });
+    component.formModel.update(m => ({ ...m, propertyPrice: 198000 }));
     component.onDownPaymentModeChange('amount');
-    component.form.patchValue({ downPaymentAmount: 17820 });
+    component.formModel.update(m => ({ ...m, downPaymentAmount: 17820 }));
     component.onDownPaymentAmountInput();
     component.onClosingCostsModeChange('amount');
-    component.form.patchValue({ closingCostsAmount: 11880 });
+    component.formModel.update(m => ({ ...m, closingCostsAmount: 11880 }));
     component.onClosingCostsAmountInput();
 
     const result = component.result();
@@ -37,13 +37,14 @@ describe('RentVsBuyCalculatorComponent', () => {
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
-    component.form.patchValue({ propertyPrice: 198000 });
+    component.formModel.update(m => ({ ...m, propertyPrice: 198000 }));
     component.onDownPaymentModeChange('amount');
-    component.form.patchValue({ downPaymentAmount: 17820 });
+    component.formModel.update(m => ({ ...m, downPaymentAmount: 17820 }));
     component.onDownPaymentAmountInput();
     component.onClosingCostsModeChange('amount');
-    component.form.patchValue({ closingCostsAmount: 11880 });
+    component.formModel.update(m => ({ ...m, closingCostsAmount: 11880 }));
     component.onClosingCostsAmountInput();
+    TestBed.flushEffects();
 
     const saved = JSON.parse(localStorage.getItem('rentVsBuyCalcState') ?? '{}');
     expect(saved.downPaymentMode).toBe('amount');
@@ -57,11 +58,11 @@ describe('RentVsBuyCalculatorComponent', () => {
     const restored = restoredFixture.componentInstance;
     restoredFixture.detectChanges();
 
-    expect(restored.form.get('downPaymentMode')?.value).toBe('amount');
-    expect(restored.form.get('downPaymentAmount')?.value).toBe(17820);
+    expect(restored.formModel().downPaymentMode).toBe('amount');
+    expect(restored.formModel().downPaymentAmount).toBe(17820);
     expect(restored.result().downPayment).toBe(17820);
-    expect(restored.form.get('closingCostsMode')?.value).toBe('amount');
-    expect(restored.form.get('closingCostsAmount')?.value).toBe(11880);
+    expect(restored.formModel().closingCostsMode).toBe('amount');
+    expect(restored.formModel().closingCostsAmount).toBe(11880);
     expect(restored.result().closingCosts).toBe(11880);
   });
 });

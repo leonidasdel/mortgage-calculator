@@ -18,8 +18,8 @@ describe('AnnualBonusCalculatorComponent', () => {
     const component = fixture.componentInstance;
 
     expect(component).toBeTruthy();
-    expect(component.form.get('grossMonthly')?.value).toBe(1500);
-    expect(component.form.get('annualBonus')?.value).toBe(1000);
+    expect(component.formModel().grossMonthly).toBe(1500);
+    expect(component.formModel().annualBonus).toBe(1000);
   });
 
   it('should pass salary change details into the salary calculation', () => {
@@ -28,12 +28,15 @@ describe('AnnualBonusCalculatorComponent', () => {
     const service = TestBed.inject(SalaryCalculatorService);
     const calculateSpy = vi.spyOn(service, 'calculate');
 
-    component.form.patchValue({
+    component.formModel.set({
       grossMonthly: 2200,
       annualBonus: 1000,
+      year: '2026',
+      ageGroup: 'over30',
+      children: '0',
       hasSalaryChange: true,
       previousGross: 1800,
-      salaryChangeMonth: 7,
+      salaryChangeMonth: '7',
     });
 
     component.result();
@@ -52,7 +55,7 @@ describe('AnnualBonusCalculatorComponent', () => {
     const fixture = TestBed.createComponent(AnnualBonusCalculatorComponent);
     const component = fixture.componentInstance;
 
-    component.form.patchValue({ annualBonus: 0 });
+    component.formModel.update(m => ({ ...m, annualBonus: 0 }));
 
     expect(component.bonus()).toEqual({
       grossBonus: 0,

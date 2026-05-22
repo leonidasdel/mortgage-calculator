@@ -37,8 +37,11 @@ describe('SalaryCalculatorComponent', () => {
         ageGroup: 'over30',
         children: 0,
         hasSalaryChange: true,
-        salaryChangeMonth: 9,
+        salaryChangeMonth: '9',
         previousGross: 2850,
+        ftePercent: 100,
+        employer2Gross: 0,
+        employer3Gross: 0,
       },
       annualBonus: 0,
       inputMode: 'gross',
@@ -50,7 +53,7 @@ describe('SalaryCalculatorComponent', () => {
 
     expect(component.hasSalaryChange()).toBe(true);
     expect(component.salaryChangeMonth()).toBe(9);
-    expect(component.salaryForm.get('salaryChangeMonth')?.value).toBe(9);
+    expect(component.formModel().salaryChangeMonth).toBe('9');
     expect(component.result().previousMonthly?.grossMonthly).toBe(2850);
   });
 });

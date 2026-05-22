@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Input, AfterViewInit, OnChanges, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, AfterViewInit, OnDestroy, ViewChild, effect, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartResizeDirective } from '../../directives/chart-resize.directive';
 import { AmortizationRow } from '../../models/mortgage.models';
@@ -41,8 +41,8 @@ interface BarHit {
   templateUrl: './amortization-chart.component.html',
   styleUrl: './amortization-chart.component.scss',
 })
-export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnDestroy {
-  @Input() schedule: AmortizationRow[] = [];
+export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
+  schedule = input<AmortizationRow[]>([]);
   @ViewChild('chartCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
 
   viewMode: 'monthly' | 'yearly' = 'yearly';
@@ -62,17 +62,20 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
   private readonly chartH = 300;
   private readonly pad = { l: 56, r: 16, t: 20, b: 36 };
 
-  get monthlyAllowed(): boolean {
-    return this.schedule.length <= MAX_MONTHLY_BUCKETS;
+  constructor() {
+    effect(() => {
+      this.schedule();
+      if (!this.userOverride) {
+        this.viewMode = this.monthlyAllowed ? 'monthly' : 'yearly';
+      } else if (this.viewMode === 'monthly' && !this.monthlyAllowed) {
+        this.viewMode = 'yearly';
+      }
+      this.draw();
+    });
   }
 
-  ngOnChanges(): void {
-    if (!this.userOverride) {
-      this.viewMode = this.monthlyAllowed ? 'monthly' : 'yearly';
-    } else if (this.viewMode === 'monthly' && !this.monthlyAllowed) {
-      this.viewMode = 'yearly';
-    }
-    this.draw();
+  get monthlyAllowed(): boolean {
+    return this.schedule().length <= MAX_MONTHLY_BUCKETS;
   }
 
   ngAfterViewInit(): void {
@@ -360,7 +363,7 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
   private buildBuckets(): ChartBucket[] {
     const buckets: Record<number, ChartBucket> = {};
 
-    for (const row of this.schedule) {
+    for (const row of this.schedule()) {
       const key = this.viewMode === 'monthly' ? row.month : Math.ceil(row.month / 12);
       if (!buckets[key]) buckets[key] = { key, principal: 0, interest: 0 };
       buckets[key].principal += row.principal + row.earlyAmt;

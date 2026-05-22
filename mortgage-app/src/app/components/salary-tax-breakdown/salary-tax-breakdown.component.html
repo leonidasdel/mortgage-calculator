@@ -2,22 +2,22 @@
   <div class="card-header clickable" (click)="toggleDetails.emit()">
     <div class="card-header-icon">&#128209;</div>
     <h2>Φορολογικές Κλίμακες & Πληροφορίες Υπολογισμού</h2>
-    <span class="toggle-arrow" [class.open]="showTaxDetails">&#9660;</span>
+    <span class="toggle-arrow" [class.open]="showTaxDetails()">&#9660;</span>
   </div>
-  @if (showTaxDetails) {
+  @if (showTaxDetails()) {
     <div class="card-body">
       <div class="info-box blue" style="margin-bottom:14px;">
-        <h3 style="font-size:13px; font-weight:600; margin-bottom:8px;">Βασικά Στοιχεία Υπολογισμού {{ year }}</h3>
+        <h3 style="font-size:13px; font-weight:600; margin-bottom:8px;">Βασικά Στοιχεία Υπολογισμού {{ year() }}</h3>
         <p style="font-size:13px; line-height:1.6; margin-bottom:8px;">Ο υπολογισμός του τελικού μισθού περιλαμβάνει:</p>
         <ul style="padding-left:18px; font-size:13px; line-height:1.7;">
           <li><strong>14 μισθοί</strong> ετησίως (12 μηνιαίοι + δώρο Χριστουγέννων + δώρο Πάσχα/επίδομα αδείας)</li>
-          <li><strong>Ασφαλιστικές εισφορές εργαζομένου (ΕΦΚΑ):</strong> {{ result.efkaEmployeeRate | number:'1.2-2' }}%</li>
+          <li><strong>Ασφαλιστικές εισφορές εργαζομένου (ΕΦΚΑ):</strong> {{ result().efkaEmployeeRate | number:'1.2-2' }}%</li>
           <li><strong>Εργοδοτικές εισφορές:</strong> 21,79%</li>
           <li><strong>Ανώτατο όριο ασφαλιστέων αποδοχών:</strong> 7.573 &#8364;</li>
         </ul>
       </div>
 
-      <h3 class="section-title">Ανάλυση Φόρου{{ year > 2025 ? ' (' + ageGroupLabel + ')' : '' }}</h3>
+      <h3 class="section-title">Ανάλυση Φόρου{{ year() > 2025 ? ' (' + ageGroupLabel() + ')' : '' }}</h3>
       <div class="tax-table-wrap">
         <table class="tax-table">
           <thead>
@@ -29,7 +29,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (b of result.taxBreakdown; track b.from) {
+            @for (b of result().taxBreakdown; track b.from) {
               <tr>
                 <td>{{ b.from | number:'1.0-0' }}&#8364; — {{ b.to !== null ? (b.to | number:'1.0-0') + '€' : '...' }}</td>
                 <td>{{ b.rate | number:'1.0-0' }}%</td>
@@ -41,28 +41,28 @@
           <tfoot>
             <tr>
               <td colspan="3">Έκπτωση φόρου</td>
-              <td class="green">-{{ result.taxDiscount | euro }}</td>
+              <td class="green">-{{ result().taxDiscount | euro }}</td>
             </tr>
             <tr class="total-row">
               <td colspan="3">Ετήσιος Φόρος</td>
-              <td>{{ result.annualTax | euro }}</td>
+              <td>{{ result().annualTax | euro }}</td>
             </tr>
           </tfoot>
         </table>
       </div>
 
       <div class="disclaimer mt-14">
-        <strong>Σημείωση:</strong> Οι υπολογισμοί είναι ενδεικτικοί και βασίζονται στη νομοθεσία του {{ year }}.
+        <strong>Σημείωση:</strong> Οι υπολογισμοί είναι ενδεικτικοί και βασίζονται στη νομοθεσία του {{ year() }}.
         Για ακριβείς υπολογισμούς, συμβουλευτείτε έναν φοροτεχνικό.
       </div>
 
-      @if (fullTimeResult; as ft) {
+      @if (fullTimeResult(); as ft) {
         <div class="info-box amber mt-12">
           Ισοδύναμα πλήρους απασχόλησης: {{ ft.netMonthly | euro }}/μήνα καθαρά
         </div>
       }
 
-      @if (multiEmployerResult; as me) {
+      @if (multiEmployerResult(); as me) {
         <div class="sec-div"><div class="sec-label">Πολλαπλοί Εργοδότες</div></div>
         <div class="sum-grid">
           @for (e of me.employers; track $index) {
@@ -96,8 +96,8 @@
       </div>
       <app-export-row
         sharePath="/salary"
-        [shareState]="shareState"
-        [shareSummary]="shareSummary"
+        [shareState]="shareState()"
+        [shareSummary]="shareSummary()"
         [showPrint]="true">
       </app-export-row>
       <app-law-footer route="/salary"></app-law-footer>

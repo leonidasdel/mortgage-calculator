@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -22,9 +22,9 @@ interface NavGroup {
   styleUrl: './nav.component.scss',
 })
 export class NavComponent implements OnInit {
-  mobileMenuOpen = false;
-  collapsed = false;
-  darkMode = false;
+  mobileMenuOpen = signal(false);
+  collapsed = signal(false);
+  darkMode = signal(false);
 
   readonly navGroups: NavGroup[] = [
     {
@@ -73,32 +73,32 @@ export class NavComponent implements OnInit {
   ngOnInit(): void {
     const saved = localStorage.getItem('darkMode');
     if (saved !== null) {
-      this.darkMode = saved === 'true';
+      this.darkMode.set(saved === 'true');
     } else {
-      this.darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      this.darkMode.set(window.matchMedia('(prefers-color-scheme: dark)').matches);
     }
-    document.documentElement.classList.toggle('dark', this.darkMode);
+    document.documentElement.classList.toggle('dark', this.darkMode());
   }
 
   toggleMenu(): void {
-    this.mobileMenuOpen = !this.mobileMenuOpen;
-    document.body.style.overflow = this.mobileMenuOpen ? 'hidden' : '';
+    this.mobileMenuOpen.update(v => !v);
+    document.body.style.overflow = this.mobileMenuOpen() ? 'hidden' : '';
   }
 
   closeMenu(): void {
-    this.mobileMenuOpen = false;
+    this.mobileMenuOpen.set(false);
     document.body.style.overflow = '';
   }
 
   toggleCollapse(): void {
-    this.collapsed = !this.collapsed;
-    document.body.classList.toggle('sidebar-collapsed', this.collapsed);
+    this.collapsed.update(v => !v);
+    document.body.classList.toggle('sidebar-collapsed', this.collapsed());
   }
 
   toggleDarkMode(): void {
-    this.darkMode = !this.darkMode;
-    localStorage.setItem('darkMode', String(this.darkMode));
-    document.documentElement.classList.toggle('dark', this.darkMode);
+    this.darkMode.update(v => !v);
+    localStorage.setItem('darkMode', String(this.darkMode()));
+    document.documentElement.classList.toggle('dark', this.darkMode());
     window.dispatchEvent(new Event('themechange'));
   }
 }

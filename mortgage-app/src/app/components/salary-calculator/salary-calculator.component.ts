@@ -1,15 +1,27 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
 import { ExportService } from '../../services/export.service';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
-import { SalaryChange, PayslipLine } from '../../models/salary.models';
+import { AgeGroup, PayslipLine, SalaryChange } from '../../models/salary.models';
 
 const STORAGE_KEY = 'salaryCalcState';
 
+interface SalaryModel {
+  grossMonthly: number;
+  netMonthly: number;
+  year: string;
+  ageGroup: AgeGroup;
+  children: string;
+  hasSalaryChange: boolean;
+  salaryChangeMonth: string;
+  previousGross: number;
+  ftePercent: number;
+  employer2Gross: number;
+  employer3Gross: number;
+}
+
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
 import { SalaryChangeBlockComponent } from '../salary-change-block/salary-change-block.component';
 import { SalaryPayslipPanelComponent } from '../salary-payslip-panel/salary-payslip-panel.component';
 import { SalaryTaxBreakdownComponent } from '../salary-tax-breakdown/salary-tax-breakdown.component';
@@ -17,12 +29,26 @@ import { SalaryTaxBreakdownComponent } from '../salary-tax-breakdown/salary-tax-
   selector: 'app-salary-calculator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, SalaryChangeBlockComponent, SalaryPayslipPanelComponent, SalaryTaxBreakdownComponent],
+  imports: [CommonModule, FormField, SalaryChangeBlockComponent, SalaryPayslipPanelComponent, SalaryTaxBreakdownComponent],
   templateUrl: './salary-calculator.component.html',
   styleUrl: './salary-calculator.component.scss',
 })
-export class SalaryCalculatorComponent implements OnInit {
-  salaryForm: FormGroup;
+export class SalaryCalculatorComponent {
+  formModel = signal<SalaryModel>({
+    grossMonthly: 1500,
+    netMonthly: 0,
+    year: '2026',
+    ageGroup: 'over30',
+    children: '0',
+    hasSalaryChange: false,
+    salaryChangeMonth: '4',
+    previousGross: 0,
+    ftePercent: 100,
+    employer2Gross: 0,
+    employer3Gross: 0,
+  });
+  formFields = form(this.formModel);
+
   annualBonus = signal(0);
   inputMode = signal<'gross' | 'net'>('gross');
   showTaxDetails = signal(false);
@@ -31,40 +57,19 @@ export class SalaryCalculatorComponent implements OnInit {
   salaryChangeMonth = signal(4);
   previousGross = signal(0);
 
-  private formValues;
-  private destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly calc = inject(SalaryCalculatorService);
+  private readonly exportSvc = inject(ExportService);
+  private readonly persistence = inject(CalculatorPersistenceService);
 
-  constructor(
-    private fb: FormBuilder,
-    private calc: SalaryCalculatorService,
-    private exportSvc: ExportService,
-    private persistence: CalculatorPersistenceService,
-  ) {
-    this.salaryForm = this.fb.group({
-      grossMonthly: [1500],
-      netMonthly: [0],
-      year: [2026],
-      ageGroup: ['over30'],
-      children: [0],
-      hasSalaryChange: [false],
-      salaryChangeMonth: [4],
-      previousGross: [0],
-      ftePercent: [100],
-      employer2Gross: [0],
-      employer3Gross: [0],
-    });
-
-    this.formValues = toSignal(this.salaryForm.valueChanges, { initialValue: this.salaryForm.value });
-  }
-
-  ngOnInit(): void {
-    this.persistence.initCalculatorForm(this.salaryForm, STORAGE_KEY, this.destroyRef, {
+  constructor() {
+    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef, {
       onLoad: (saved) => this.applySavedState(saved),
-      onSave: () => this.saveState(),
-      onApplyShareState: (state, form) => {
+      onSave: (value) => this.saveState(value),
+      onApplyShareState: (state, model) => {
         if (state['annualBonus'] != null) this.annualBonus.set(Number(state['annualBonus']));
         delete state['annualBonus'];
-        form.patchValue(state, { emitEvent: false });
+        model.set({ ...model(), ...state } as SalaryModel);
         this.syncFromGross();
       },
       onAfterInit: () => this.syncFromGross(),
@@ -72,11 +77,10 @@ export class SalaryCalculatorComponent implements OnInit {
   }
 
   private buildParams() {
-    return this.calc.buildSalaryParams(this.salaryForm.value, { annualBonus: this.annualBonus() });
+    return this.calc.buildSalaryParams(this.formModel(), { annualBonus: this.annualBonus() });
   }
 
   raiseDiff = computed(() => {
-    this.formValues();
     const r = this.result();
     if (!r.previousMonthly || !r.currentMonthly) return null;
     const monthly = +(r.currentMonthly.netMonthly - r.previousMonthly.netMonthly).toFixed(2);
@@ -84,14 +88,10 @@ export class SalaryCalculatorComponent implements OnInit {
     return { monthly, annual };
   });
 
-  result = computed(() => {
-    this.formValues();
-    return this.calc.calculate(this.buildParams());
-  });
+  result = computed(() => this.calc.calculate(this.buildParams()));
 
   fullTimeResult = computed(() => {
-    this.formValues();
-    const fv = this.salaryForm.value;
+    const fv = this.formModel();
     const fte = Number(fv.ftePercent) || 100;
     if (fte >= 100) return null;
     return this.calc.calculate({ ...this.buildParams(), ftePercent: 100 });
@@ -99,29 +99,27 @@ export class SalaryCalculatorComponent implements OnInit {
 
   multiEmployerResult = computed(() => {
     if (!this.hasMultiEmployer()) return null;
-    this.formValues();
-    const fv = this.salaryForm.value;
+    const fv = this.formModel();
     const grosses = [fv.grossMonthly, fv.employer2Gross, fv.employer3Gross]
-      .map((g: unknown) => Math.max(0, Number(g) || 0))
-      .filter((g: number) => g > 0);
+      .map((g) => Math.max(0, Number(g) || 0))
+      .filter((g) => g > 0);
     if (grosses.length < 2) return null;
     return this.calc.calculateMultiEmployer({
       grossEmployers: grosses,
-      year: fv.year || 2026,
+      year: Number(fv.year) || 2026,
       ageGroup: fv.ageGroup || 'over30',
-      children: fv.children || 0,
+      children: Math.max(0, Number(fv.children) || 0),
     });
   });
 
-  shareState = computed(() => {
-    this.formValues();
-    return { ...this.salaryForm.value, annualBonus: this.annualBonus() };
-  });
+  shareState = computed(() => ({
+    ...this.formModel(),
+    annualBonus: this.annualBonus(),
+  }));
 
   shareSummary = computed(() => {
-    this.formValues();
     const r = this.result();
-    return `Καθαρά μισθός: €${r.netMonthly.toFixed(2)}/μήνα (${this.salaryForm.value.year})`;
+    return `Καθαρά μισθός: €${r.netMonthly.toFixed(2)}/μήνα (${this.formModel().year})`;
   });
 
   onGrossChange(): void {
@@ -131,25 +129,24 @@ export class SalaryCalculatorComponent implements OnInit {
 
   onNetChange(): void {
     this.inputMode.set('net');
-    const netTarget = this.salaryForm.get('netMonthly')?.value || 0;
-    const fv = this.salaryForm.value;
-    const salaryChangeMonth = Math.min(12, Math.max(1, Number(fv.salaryChangeMonth) || this.salaryChangeMonth()));
+    const fv = this.formModel();
+    const netTarget = fv.netMonthly || 0;
+    const salaryChangeMonth = Math.min(12, Math.max(1, Number(fv.salaryChangeMonth) || Number(this.salaryChangeMonth()) || 4));
     const previousGross = Math.max(0, Number(fv.previousGross) || this.previousGross());
     const hasSalaryChange = !!fv.hasSalaryChange;
     const salaryChange: SalaryChange | undefined = hasSalaryChange
       ? { effectiveMonth: salaryChangeMonth, previousGross }
       : undefined;
     const gross = this.calc.reverseCalculate(netTarget, {
-      year: fv.year || 2026,
+      year: Number(fv.year) || 2026,
       ageGroup: fv.ageGroup || 'over30',
-      children: fv.children || 0,
+      children: Math.max(0, Number(fv.children) || 0),
       annualBonus: this.annualBonus(),
       salaryChange,
       ftePercent: Number(fv.ftePercent) || 100,
     });
-    this.salaryForm.patchValue({ grossMonthly: gross }, { emitEvent: false });
-    // Trigger recompute
-    this.salaryForm.updateValueAndValidity();
+    this.formModel.update(m => ({ ...m, grossMonthly: gross }));
+    this.syncFromGross();
   }
 
   onParamChange(): void {
@@ -163,13 +160,13 @@ export class SalaryCalculatorComponent implements OnInit {
   private syncFromGross(): void {
     const r = this.result();
     const net = r.currentMonthly ? r.currentMonthly.netMonthly : r.netMonthly;
-    this.salaryForm.patchValue({ netMonthly: net }, { emitEvent: false });
+    this.formModel.update(m => ({ ...m, netMonthly: net }));
   }
 
   onAnnualBonusChange(value: string): void {
     this.annualBonus.set(Math.max(0, parseFloat(value) || 0));
     this.onParamChange();
-    this.saveState();
+    this.saveState(this.formModel());
   }
 
   toggleTaxDetails(): void {
@@ -179,15 +176,15 @@ export class SalaryCalculatorComponent implements OnInit {
   toggleSalaryChange(checked?: boolean): void {
     const next = checked ?? !this.hasSalaryChange();
     this.hasSalaryChange.set(next);
-    this.salaryForm.patchValue({ hasSalaryChange: next }, { emitEvent: false });
+    this.formModel.update(m => ({ ...m, hasSalaryChange: next }));
     this.onParamChange();
-    this.saveState();
+    this.saveState(this.formModel());
   }
 
   toggleMultiEmployer(checked?: boolean): void {
     const next = checked ?? !this.hasMultiEmployer();
     this.hasMultiEmployer.set(next);
-    this.saveState();
+    this.saveState(this.formModel());
   }
 
   exportPayslip(): void {
@@ -213,39 +210,44 @@ export class SalaryCalculatorComponent implements OnInit {
   onSalaryChangeMonthChange(value: string): void {
     const month = Math.min(12, Math.max(1, parseInt(value, 10) || 4));
     this.salaryChangeMonth.set(month);
-    this.salaryForm.patchValue({ salaryChangeMonth: month }, { emitEvent: false });
+    this.formModel.update(m => ({ ...m, salaryChangeMonth: String(month) }));
     this.onParamChange();
-    this.saveState();
+    this.saveState(this.formModel());
   }
 
   onPreviousGrossChange(value: string): void {
-    const previousGross = Math.max(0, parseFloat(value) || 0);
-    this.previousGross.set(previousGross);
-    this.salaryForm.patchValue({ previousGross }, { emitEvent: false });
+    const prev = Math.max(0, parseFloat(value) || 0);
+    this.previousGross.set(prev);
+    this.formModel.update(m => ({ ...m, previousGross: prev }));
     this.onParamChange();
-    this.saveState();
+    this.saveState(this.formModel());
   }
 
-  get ageGroupLabel(): string {
-    const ag = this.salaryForm.get('ageGroup')?.value;
+  ageGroupLabel = computed(() => {
+    const ag = this.formModel().ageGroup;
     switch (ag) {
       case 'under25': return 'Έως 25 ετών';
       case '26to30': return '26-30 ετών';
       default: return 'Άνω των 30';
     }
-  }
+  });
 
-  private saveState(): void {
+  private saveState(fv: SalaryModel): void {
     try {
-      const fv = this.salaryForm.value;
+      const salaryChangeMonth = Math.min(12, Math.max(1, Number(fv.salaryChangeMonth) || 4));
+      const previousGross = Math.max(0, Number(fv.previousGross) || 0);
       const state = {
-        inputs: fv,
+        inputs: {
+          ...fv,
+          salaryChangeMonth,
+          previousGross,
+        },
         annualBonus: this.annualBonus(),
         inputMode: this.inputMode(),
         hasSalaryChange: !!fv.hasSalaryChange,
         hasMultiEmployer: this.hasMultiEmployer(),
-        salaryChangeMonth: Math.min(12, Math.max(1, Number(fv.salaryChangeMonth) || 4)),
-        previousGross: Math.max(0, Number(fv.previousGross) || 0),
+        salaryChangeMonth,
+        previousGross,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch { /* storage unavailable */ }
@@ -253,7 +255,9 @@ export class SalaryCalculatorComponent implements OnInit {
 
   private applySavedState(state: Record<string, unknown>): void {
     const inputs = state['inputs'] as Record<string, unknown> | undefined;
-    if (inputs) this.salaryForm.patchValue(inputs, { emitEvent: false });
+    if (inputs) {
+      this.formModel.set({ ...this.formModel(), ...inputs } as SalaryModel);
+    }
     if (state['annualBonus'] != null) this.annualBonus.set(Number(state['annualBonus']));
     if (state['hasMultiEmployer'] != null) this.hasMultiEmployer.set(!!state['hasMultiEmployer']);
     if (state['inputMode']) this.inputMode.set(state['inputMode'] as 'gross' | 'net');
@@ -262,17 +266,17 @@ export class SalaryCalculatorComponent implements OnInit {
     const previousGross = inputs?.['previousGross'] ?? state['previousGross'];
     if (hasSalaryChange != null) {
       this.hasSalaryChange.set(!!hasSalaryChange);
-      this.salaryForm.patchValue({ hasSalaryChange: !!hasSalaryChange }, { emitEvent: false });
+      this.formModel.update(m => ({ ...m, hasSalaryChange: !!hasSalaryChange }));
     }
     if (salaryChangeMonth != null) {
       const month = Math.min(12, Math.max(1, Number(salaryChangeMonth) || 4));
       this.salaryChangeMonth.set(month);
-      this.salaryForm.patchValue({ salaryChangeMonth: month }, { emitEvent: false });
+      this.formModel.update(m => ({ ...m, salaryChangeMonth: String(month) }));
     }
     if (previousGross != null) {
       const gross = Math.max(0, Number(previousGross) || 0);
       this.previousGross.set(gross);
-      this.salaryForm.patchValue({ previousGross: gross }, { emitEvent: false });
+      this.formModel.update(m => ({ ...m, previousGross: gross }));
     }
   }
 }

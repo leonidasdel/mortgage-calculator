@@ -4,13 +4,13 @@
   <div class="er-mode-options">
     <label class="er-mode-option">
       <input type="radio" name="erMode" value="reducePmt"
-        [checked]="erMode === 'reducePmt'"
+        [checked]="erMode() === 'reducePmt'"
         (change)="onErModeChange('reducePmt')">
       <span>Μείωση μηνιαίας δόσης</span>
     </label>
     <label class="er-mode-option">
       <input type="radio" name="erMode" value="reduceDur"
-        [checked]="erMode === 'reduceDur'"
+        [checked]="erMode() === 'reduceDur'"
         (change)="onErModeChange('reduceDur')">
       <span>Μείωση διάρκειας δανείου</span>
     </label>
@@ -18,17 +18,17 @@
 </div>
 
 <!-- ER list -->
-@if (erList.length === 0) {
+@if (erList().length === 0) {
   <div class="empty-state">
     Δεν έχουν προστεθεί πρόωρες αποπληρωμές. Κάντε κλικ παρακάτω για να μειώσετε το δάνειό σας γρηγορότερα.
   </div>
 } @else {
   <div class="er-header">
-    <span>{{ erList.length }} πρόωρ{{ erList.length === 1 ? 'η' : 'ες' }} αποπληρωμή{{ erList.length === 1 ? '' : 'ές' }}</span>
+    <span>{{ erList().length }} πρόωρ{{ erList().length === 1 ? 'η' : 'ες' }} αποπληρωμή{{ erList().length === 1 ? '' : 'ές' }}</span>
     <button class="btn-danger" (click)="clearAll()">✕ Διαγραφή Όλων</button>
   </div>
 
-  @for (er of erList; track er.id) {
+  @for (er of erList(); track er.id) {
     <div class="er-item" [class.er-item--inactive]="isInactive(er)">
       <div class="input-wrap er-month-wrap">
         <input type="number" min="1" [value]="er.month"
@@ -45,7 +45,7 @@
         <span class="er-months-saved">{{ monthsSavedLabel(er) }}</span>
       }
       @if (isInactive(er)) {
-        <span class="er-inactive-note">⚠ Δεν εφαρμόζεται — το δάνειο λήγει στον μήνα {{ scheduleLength }}</span>
+        <span class="er-inactive-note">⚠ Δεν εφαρμόζεται — το δάνειο λήγει στον μήνα {{ scheduleLength() }}</span>
       }
     </div>
   }

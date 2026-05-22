@@ -17,51 +17,49 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Αποδοχές &amp; Άδεια</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <!-- Τύπος αμοιβής -->
         <div class="form-group">
           <label>Τύπος Αμοιβής</label>
           <div class="seg-group">
             <button type="button" class="seg-btn"
-                    [class.active]="form.get('salaryType')?.value === 'monthly'"
-                    (click)="form.patchValue({ salaryType: 'monthly' })">
+                    [class.active]="formModel().salaryType === 'monthly'"
+                    (click)="patchModel({ salaryType: 'monthly' })">
               Μηνιαίος Μισθός
             </button>
             <button type="button" class="seg-btn"
-                    [class.active]="form.get('salaryType')?.value === 'daily'"
-                    (click)="form.patchValue({ salaryType: 'daily' })">
+                    [class.active]="formModel().salaryType === 'daily'"
+                    (click)="patchModel({ salaryType: 'daily' })">
               Ημερομίσθιο
             </button>
           </div>
         </div>
 
-        @if (form.get('salaryType')?.value === 'monthly') {
+        @if (formModel().salaryType === 'monthly') {
           <div class="form-group">
             <label for="grossMonthly">Μεικτός Μηνιαίος Μισθός (€)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="grossMonthly" formControlName="grossMonthly"
-                     min="0" step="50" placeholder="π.χ. 1500">
+              <input type="number" id="grossMonthly" [formField]="formFields.grossMonthly">
             </div>
             <div class="lv-hint">
               Ημερομίσθιο: <strong>{{ result().dailyWage | euro }}</strong>
-              (÷ {{ form.get('workWeek')?.value === '5day' ? '25' : '26' }})
+              (÷ {{ formModel().workWeek === '5day' ? '25' : '26' }})
             </div>
           </div>
         }
 
-        @if (form.get('salaryType')?.value === 'daily') {
+        @if (formModel().salaryType === 'daily') {
           <div class="form-group">
             <label for="dailyWage">Ημερομίσθιο (€)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="dailyWage" formControlName="dailyWage"
-                     min="0" step="1" placeholder="π.χ. 69.23">
+              <input type="number" id="dailyWage" [formField]="formFields.dailyWage">
             </div>
             <div class="lv-hint">
               Μηνιαίο ισοδύναμο: <strong>{{ result().monthlyEquiv | euro }}</strong>
-              (× {{ form.get('workWeek')?.value === '5day' ? '25' : '26' }})
+              (× {{ formModel().workWeek === '5day' ? '25' : '26' }})
             </div>
           </div>
         }
@@ -70,13 +68,13 @@
           <label>Εβδομαδιαία Εργασία</label>
           <div class="seg-group">
             <button type="button" class="seg-btn"
-                    [class.active]="form.get('workWeek')?.value === '5day'"
-                    (click)="form.patchValue({ workWeek: '5day' })">
+                    [class.active]="formModel().workWeek === '5day'"
+                    (click)="patchModel({ workWeek: '5day' })">
               Πενθήμερο (÷25)
             </button>
             <button type="button" class="seg-btn"
-                    [class.active]="form.get('workWeek')?.value === '6day'"
-                    (click)="form.patchValue({ workWeek: '6day' })">
+                    [class.active]="formModel().workWeek === '6day'"
+                    (click)="patchModel({ workWeek: '6day' })">
               Εξαήμερο (÷26)
             </button>
           </div>
@@ -85,8 +83,7 @@
         <div class="form-group">
           <label for="unusedDays">Ημέρες Μη Ληφθείσας Άδειας</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="unusedDays" formControlName="unusedDays"
-                   min="0" max="365" step="1" placeholder="π.χ. 10">
+            <input type="number" id="unusedDays" [formField]="formFields.unusedDays">
             <span class="sfx">ημ.</span>
           </div>
           <div class="lv-hint">
@@ -97,13 +94,13 @@
 
         <div class="form-group">
           <label class="lv-check-row">
-            <input type="checkbox" formControlName="includeHolidayBonus">
+            <input type="checkbox" [formField]="formFields.includeHolidayBonus">
             <span>Συμπερίληψη Επιδόματος Αδείας</span>
           </label>
-          @if (form.get('includeHolidayBonus')?.value) {
+          @if (formModel().includeHolidayBonus) {
             <div class="lv-hint">
               = ίσο με αποδοχές αδείας (Ν. 4504/1966) —
-              μέγιστο {{ form.get('salaryType')?.value === 'daily' ? '13 ημερομίσθια' : '½ μηνιαίος μισθός' }}
+              μέγιστο {{ formModel().salaryType === 'daily' ? '13 ημερομίσθια' : '½ μηνιαίος μισθός' }}
               @if (result().holidayBonusCapped) {
                 <span class="badge-warn">Ανώτατο όριο εφαρμόζεται</span>
               }
@@ -115,17 +112,17 @@
           <label>Κατάσταση Εργασιακής Σχέσης</label>
           <div class="seg-group">
             <button type="button" class="seg-btn"
-                    [class.active]="form.get('situation')?.value === 'termination'"
-                    (click)="form.patchValue({ situation: 'termination' })">
+                    [class.active]="formModel().situation === 'termination'"
+                    (click)="patchModel({ situation: 'termination' })">
               Λύση Σύμβασης
             </button>
             <button type="button" class="seg-btn"
-                    [class.active]="form.get('situation')?.value === 'during_employment'"
-                    (click)="form.patchValue({ situation: 'during_employment' })">
+                    [class.active]="formModel().situation === 'during_employment'"
+                    (click)="patchModel({ situation: 'during_employment' })">
               Εν ενεργεία
             </button>
           </div>
-          @if (form.get('situation')?.value === 'termination') {
+          @if (formModel().situation === 'termination') {
             <div class="lv-hint">
               Η αποζημίωση λόγω λύσης <strong>ΔΕΝ</strong> υπόκειται σε ΕΦΚΑ.
               Το επίδομα αδείας <strong>υπόκειται</strong> σε ΕΦΚΑ.
@@ -146,35 +143,35 @@
         <div class="card-header-icon">&#128203;</div>
         <h2>Φορολογικά Στοιχεία</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <div class="form-group">
           <label>Φορολογικό Έτος</label>
           <div class="seg-group">
             <button type="button" class="seg-btn"
-                    [class.active]="form.get('taxYear')?.value === '2025'"
-                    (click)="form.patchValue({ taxYear: '2025' })">
+                    [class.active]="formModel().taxYear === '2025'"
+                    (click)="patchModel({ taxYear: '2025' })">
               2025
             </button>
             <button type="button" class="seg-btn"
-                    [class.active]="form.get('taxYear')?.value === '2026'"
-                    (click)="form.patchValue({ taxYear: '2026' })">
+                    [class.active]="formModel().taxYear === '2026'"
+                    (click)="patchModel({ taxYear: '2026' })">
               2026
             </button>
           </div>
-          @if (form.get('taxYear')?.value === '2026') {
+          @if (formModel().taxYear === '2026') {
             <div class="lv-hint">Νέες κλίμακες Ν. 5246/2025: μειωμένοι συντελεστές &amp; αφορολόγητο νέων.</div>
           }
         </div>
 
         <div class="form-group">
           <label for="ageGroup">Ηλικιακή Ομάδα</label>
-          <select id="ageGroup" formControlName="ageGroup" class="lv-select">
+          <select id="ageGroup" [formField]="formFields.ageGroup" class="lv-select">
             <option value="over30">Άνω των 30 ετών</option>
             <option value="26to30">26–30 ετών</option>
             <option value="under25">Έως 25 ετών</option>
           </select>
-          @if (form.get('taxYear')?.value === '2025') {
+          @if (formModel().taxYear === '2025') {
             <div class="lv-hint">Στο 2025 οι συντελεστές είναι ίδιοι για όλες τις ηλικίες.</div>
           }
         </div>
@@ -182,8 +179,7 @@
         <div class="form-group">
           <label for="children">Εξαρτώμενα Τέκνα</label>
           <div class="input-wrap">
-            <input type="number" id="children" formControlName="children"
-                   min="0" max="10" step="1">
+            <input type="number" id="children" [formField]="formFields.children">
           </div>
         </div>
 
@@ -193,12 +189,12 @@
 
         <div class="form-group">
           <label class="lv-check-row">
-            <input type="checkbox" formControlName="useCustomAnnualIncome">
+            <input type="checkbox" [formField]="formFields.useCustomAnnualIncome">
             <span>Εισαγωγή πραγματικού ετήσιου εισοδήματος</span>
           </label>
         </div>
 
-        @if (!form.get('useCustomAnnualIncome')?.value) {
+        @if (!formModel().useCustomAnnualIncome) {
           <div class="info-box blue">
             💡 Χρησιμοποιείται το εκτιμώμενο ετήσιο εισόδημα
             <strong>{{ result().annualBaseGross | euro:0 }}</strong>
@@ -206,13 +202,12 @@
           </div>
         }
 
-        @if (form.get('useCustomAnnualIncome')?.value) {
+        @if (formModel().useCustomAnnualIncome) {
           <div class="form-group">
             <label for="customAnnualGross">Μεικτό Ετήσιο Εισόδημα Έτους (€)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="customAnnualGross" formControlName="customAnnualGross"
-                     min="0" step="500">
+              <input type="number" id="customAnnualGross" [formField]="formFields.customAnnualGross">
             </div>
             <div class="lv-hint">
               Συμπεριλάβετε μισθούς, δώρα &amp; επίδομα αδείας του τρέχοντος έτους (χωρίς την παρούσα αποζημίωση).
@@ -230,19 +225,19 @@
 
     <app-unused-leave-compensation
       [result]="result()"
-      [workWeek]="form.get('workWeek')?.value"
-      [unusedDays]="form.get('unusedDays')?.value"
-      [includeHolidayBonus]="form.get('includeHolidayBonus')?.value">
+      [workWeek]="formModel().workWeek"
+      [unusedDays]="formModel().unusedDays"
+      [includeHolidayBonus]="formModel().includeHolidayBonus">
     </app-unused-leave-compensation>
 
     <app-unused-leave-tax-breakdown
       [result]="result()"
-      [situation]="form.get('situation')?.value"
-      [includeHolidayBonus]="form.get('includeHolidayBonus')?.value"
-      [taxYear]="form.get('taxYear')?.value"
-      [unusedDays]="form.get('unusedDays')?.value"
+      [situation]="formModel().situation"
+      [includeHolidayBonus]="formModel().includeHolidayBonus"
+      [taxYear]="formModel().taxYear"
+      [unusedDays]="formModel().unusedDays"
       [showTaxBreakdown]="showTaxBreakdown"
-      [shareState]="form.value"
+      [shareState]="formModel()"
       [shareSummary]="shareSummary()"
       (toggleBreakdown)="toggleTaxBreakdown()">
     </app-unused-leave-tax-breakdown>

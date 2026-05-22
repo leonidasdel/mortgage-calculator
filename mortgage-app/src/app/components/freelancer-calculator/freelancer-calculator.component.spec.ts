@@ -16,13 +16,13 @@ describe('FreelancerCalculatorComponent', () => {
     const fixture = TestBed.createComponent(FreelancerCalculatorComponent);
     const component = fixture.componentInstance;
 
-    component.form.patchValue({
+    component.formModel.set({
       annualRevenue: 30000,
       annualExpenses: 5000,
       efkaCategory: 'cat1',
       yearsActive: 'over3',
       ageGroup: 'over30',
-      children: 0,
+      children: '0',
     });
 
     const result = component.result();

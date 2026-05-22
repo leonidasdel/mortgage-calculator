@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
 export interface SeoConfig {
@@ -54,7 +54,8 @@ export const SEO_CONFIG: Record<string, SeoConfig> = {
 
 @Injectable({ providedIn: 'root' })
 export class SeoService {
-  constructor(private title: Title, private meta: Meta) {}
+  private readonly title = inject(Title);
+  private readonly meta = inject(Meta);
 
   updateForRoute(path: string): void {
     const cfg = SEO_CONFIG[path] ?? SEO_CONFIG['/'];

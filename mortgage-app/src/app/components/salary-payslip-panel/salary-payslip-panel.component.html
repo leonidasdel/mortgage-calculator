@@ -6,34 +6,35 @@
   </div>
   <div class="card-body">
 
-    @if (result.previousMonthly && result.currentMonthly) {
+    @if (result(); as r) {
+    @if (r.previousMonthly && r.currentMonthly) {
       <h3 class="section-title">Πριν την αλλαγή</h3>
       <div class="hero-row">
         <div class="salary-hero gross">
           <div class="hero-lbl">Μικτά</div>
-          <div class="hero-val">{{ result.previousMonthly.grossMonthly | euro }}</div>
+          <div class="hero-val">{{ r.previousMonthly.grossMonthly | euro }}</div>
         </div>
         <div class="salary-hero net">
           <div class="hero-lbl">Καθαρά</div>
-          <div class="hero-val">{{ result.previousMonthly.netMonthly | euro }}</div>
+          <div class="hero-val">{{ r.previousMonthly.netMonthly | euro }}</div>
         </div>
       </div>
       <div class="salary-breakdown">
         <div class="breakdown-row">
           <span class="breakdown-label">Μικτός Μισθός</span>
-          <span class="breakdown-value">{{ result.previousMonthly.grossMonthly | euro }}</span>
+          <span class="breakdown-value">{{ r.previousMonthly.grossMonthly | euro }}</span>
         </div>
         <div class="breakdown-row deduction">
-          <span class="breakdown-label">ΕΦΚΑ ({{ result.efkaEmployeeRate | number:'1.2-2' }}%)</span>
-          <span class="breakdown-value red">-{{ result.previousMonthly.efkaEmployee | euro }}</span>
+          <span class="breakdown-label">ΕΦΚΑ ({{ r.efkaEmployeeRate | number:'1.2-2' }}%)</span>
+          <span class="breakdown-value red">-{{ r.previousMonthly.efkaEmployee | euro }}</span>
         </div>
         <div class="breakdown-row deduction">
           <span class="breakdown-label">Φόρος Εισοδήματος</span>
-          <span class="breakdown-value red">-{{ result.previousMonthly.incomeTax | euro }}</span>
+          <span class="breakdown-value red">-{{ r.previousMonthly.incomeTax | euro }}</span>
         </div>
         <div class="breakdown-row total">
           <span class="breakdown-label">Καθαρός Μισθός</span>
-          <span class="breakdown-value green">{{ result.previousMonthly.netMonthly | euro }}</span>
+          <span class="breakdown-value green">{{ r.previousMonthly.netMonthly | euro }}</span>
         </div>
       </div>
 
@@ -41,32 +42,32 @@
       <div class="hero-row">
         <div class="salary-hero gross">
           <div class="hero-lbl">Μικτά</div>
-          <div class="hero-val">{{ result.currentMonthly.grossMonthly | euro }}</div>
+          <div class="hero-val">{{ r.currentMonthly.grossMonthly | euro }}</div>
         </div>
         <div class="salary-hero net">
           <div class="hero-lbl">Καθαρά</div>
-          <div class="hero-val">{{ result.currentMonthly.netMonthly | euro }}</div>
+          <div class="hero-val">{{ r.currentMonthly.netMonthly | euro }}</div>
         </div>
       </div>
       <div class="salary-breakdown">
         <div class="breakdown-row">
           <span class="breakdown-label">Μικτός Μισθός</span>
-          <span class="breakdown-value">{{ result.currentMonthly.grossMonthly | euro }}</span>
+          <span class="breakdown-value">{{ r.currentMonthly.grossMonthly | euro }}</span>
         </div>
         <div class="breakdown-row deduction">
-          <span class="breakdown-label">ΕΦΚΑ ({{ result.efkaEmployeeRate | number:'1.2-2' }}%)</span>
-          <span class="breakdown-value red">-{{ result.currentMonthly.efkaEmployee | euro }}</span>
+          <span class="breakdown-label">ΕΦΚΑ ({{ r.efkaEmployeeRate | number:'1.2-2' }}%)</span>
+          <span class="breakdown-value red">-{{ r.currentMonthly.efkaEmployee | euro }}</span>
         </div>
         <div class="breakdown-row deduction">
           <span class="breakdown-label">Φόρος Εισοδήματος</span>
-          <span class="breakdown-value red">-{{ result.currentMonthly.incomeTax | euro }}</span>
+          <span class="breakdown-value red">-{{ r.currentMonthly.incomeTax | euro }}</span>
         </div>
         <div class="breakdown-row total">
           <span class="breakdown-label">Καθαρός Μισθός</span>
-          <span class="breakdown-value green">{{ result.currentMonthly.netMonthly | euro }}</span>
+          <span class="breakdown-value green">{{ r.currentMonthly.netMonthly | euro }}</span>
         </div>
       </div>
-      @if (raiseDiff; as diff) {
+      @if (raiseDiff(); as diff) {
         <div class="raise-diff-box">
           <div class="raise-diff-header">📈 Διαφορά Αύξησης</div>
           <div class="raise-diff-items">
@@ -89,35 +90,36 @@
       <div class="hero-row">
         <div class="salary-hero gross">
           <div class="hero-lbl">Μικτά</div>
-          <div class="hero-val">{{ result.grossMonthly | euro }}</div>
-          @if (ftePercent < 100) {
-            <div class="hero-sub">Μερικής απασχόλησης ({{ ftePercent }}%)</div>
+          <div class="hero-val">{{ r.grossMonthly | euro }}</div>
+          @if (ftePercent() < 100) {
+            <div class="hero-sub">Μερικής απασχόλησης ({{ ftePercent() }}%)</div>
           }
         </div>
         <div class="salary-hero net">
           <div class="hero-lbl">Καθαρά</div>
-          <div class="hero-val">{{ result.netMonthly | euro }}</div>
+          <div class="hero-val">{{ r.netMonthly | euro }}</div>
         </div>
       </div>
 
       <div class="salary-breakdown">
         <div class="breakdown-row">
           <span class="breakdown-label">Μικτός Μισθός</span>
-          <span class="breakdown-value">{{ result.grossMonthly | euro }}</span>
+          <span class="breakdown-value">{{ r.grossMonthly | euro }}</span>
         </div>
         <div class="breakdown-row deduction">
-          <span class="breakdown-label">ΕΦΚΑ ({{ result.efkaEmployeeRate | number:'1.2-2' }}%)</span>
-          <span class="breakdown-value red">-{{ result.efkaEmployee | euro }}</span>
+          <span class="breakdown-label">ΕΦΚΑ ({{ r.efkaEmployeeRate | number:'1.2-2' }}%)</span>
+          <span class="breakdown-value red">-{{ r.efkaEmployee | euro }}</span>
         </div>
         <div class="breakdown-row deduction">
           <span class="breakdown-label">Φόρος Εισοδήματος</span>
-          <span class="breakdown-value red">-{{ result.incomeTax | euro }}</span>
+          <span class="breakdown-value red">-{{ r.incomeTax | euro }}</span>
         </div>
         <div class="breakdown-row total">
           <span class="breakdown-label">Καθαρός Μισθός</span>
-          <span class="breakdown-value green">{{ result.netMonthly | euro }}</span>
+          <span class="breakdown-value green">{{ r.netMonthly | euro }}</span>
         </div>
       </div>
+    }
     }
   </div>
 </div>
@@ -129,35 +131,36 @@
     <h2>Ετήσια Σύνοψη</h2>
   </div>
   <div class="card-body">
+    @if (result(); as r) {
     <div class="sum-grid">
       <div class="sum-item">
-        <div class="sum-lbl">Ετήσια Μικτά{{ result.bonusResult ? ' (χωρίς μπόνους)' : '' }}</div>
-        <div class="sum-val">{{ result.annualGrossBase | euro }}</div>
+        <div class="sum-lbl">Ετήσια Μικτά{{ r.bonusResult ? ' (χωρίς μπόνους)' : '' }}</div>
+        <div class="sum-val">{{ r.annualGrossBase | euro }}</div>
       </div>
-      @if (result.bonusResult) {
+      @if (r.bonusResult) {
         <div class="sum-item">
           <div class="sum-lbl">Ετήσια Μικτά (με μπόνους)</div>
-          <div class="sum-val">{{ result.annualGross | euro }}</div>
+          <div class="sum-val">{{ r.annualGross | euro }}</div>
         </div>
       }
       <div class="sum-item">
         <div class="sum-lbl">Ετήσια ΕΦΚΑ</div>
-        <div class="sum-val red">-{{ result.annualEfka | euro }}</div>
+        <div class="sum-val red">-{{ r.annualEfka | euro }}</div>
       </div>
       <div class="sum-item">
         <div class="sum-lbl">Ετήσιος Φόρος</div>
-        <div class="sum-val red">-{{ result.annualTax | euro }}</div>
+        <div class="sum-val red">-{{ r.annualTax | euro }}</div>
       </div>
       <div class="sum-item">
-        <div class="sum-lbl">Ετήσια Καθαρά{{ result.bonusResult ? ' (χωρίς μπόνους)' : '' }}</div>
-        <div class="sum-val green">{{ result.annualNetBase | euro }}</div>
-        <div class="sum-val-hint">×12: {{ result.annualNetBase / 12 | euro }} &nbsp;·&nbsp; ×14: {{ result.annualNetBase / 14 | euro }}</div>
+        <div class="sum-lbl">Ετήσια Καθαρά{{ r.bonusResult ? ' (χωρίς μπόνους)' : '' }}</div>
+        <div class="sum-val green">{{ r.annualNetBase | euro }}</div>
+        <div class="sum-val-hint">×12: {{ r.annualNetBase / 12 | euro }} &nbsp;·&nbsp; ×14: {{ r.annualNetBase / 14 | euro }}</div>
       </div>
-      @if (result.bonusResult) {
+      @if (r.bonusResult) {
         <div class="sum-item">
           <div class="sum-lbl">Ετήσια Καθαρά (με μπόνους)</div>
-          <div class="sum-val green">{{ result.annualNet | euro }}</div>
-          <div class="sum-val-hint">×12: {{ result.annualNet / 12 | euro }} &nbsp;·&nbsp; ×14: {{ result.annualNet / 14 | euro }}</div>
+          <div class="sum-val green">{{ r.annualNet | euro }}</div>
+          <div class="sum-val-hint">×12: {{ r.annualNet / 12 | euro }} &nbsp;·&nbsp; ×14: {{ r.annualNet / 14 | euro }}</div>
         </div>
       }
     </div>
@@ -166,23 +169,23 @@
     <div class="sum-grid">
       <div class="sum-item">
         <div class="sum-lbl">Μικτό</div>
-        <div class="sum-val">{{ result.christmasBonus.grossBase | euro }}</div>
+        <div class="sum-val">{{ r.christmasBonus.grossBase | euro }}</div>
       </div>
       <div class="sum-item">
         <div class="sum-lbl">Προσαύξηση Αδείας (4,166%)</div>
-        <div class="sum-val">{{ result.christmasBonus.leaveSurcharge | euro }}</div>
+        <div class="sum-val">{{ r.christmasBonus.leaveSurcharge | euro }}</div>
       </div>
       <div class="sum-item">
-        <div class="sum-lbl">ΕΦΚΑ ({{ result.efkaEmployeeRate | number:'1.2-2' }}%)</div>
-        <div class="sum-val red">-{{ result.christmasBonus.efka | euro }}</div>
+        <div class="sum-lbl">ΕΦΚΑ ({{ r.efkaEmployeeRate | number:'1.2-2' }}%)</div>
+        <div class="sum-val red">-{{ r.christmasBonus.efka | euro }}</div>
       </div>
       <div class="sum-item">
         <div class="sum-lbl">Φόρος</div>
-        <div class="sum-val red">-{{ result.christmasBonus.tax | euro }}</div>
+        <div class="sum-val red">-{{ r.christmasBonus.tax | euro }}</div>
       </div>
       <div class="sum-item total-row">
         <div class="sum-lbl">Καθαρό Δώρο Χριστουγέννων</div>
-        <div class="sum-val green">{{ result.christmasBonus.net | euro }}</div>
+        <div class="sum-val green">{{ r.christmasBonus.net | euro }}</div>
       </div>
     </div>
 
@@ -190,23 +193,23 @@
     <div class="sum-grid">
       <div class="sum-item">
         <div class="sum-lbl">Μικτό</div>
-        <div class="sum-val">{{ result.easterBonus.grossBase | euro }}</div>
+        <div class="sum-val">{{ r.easterBonus.grossBase | euro }}</div>
       </div>
       <div class="sum-item">
         <div class="sum-lbl">Προσαύξηση Αδείας (4,166%)</div>
-        <div class="sum-val">{{ result.easterBonus.leaveSurcharge | euro }}</div>
+        <div class="sum-val">{{ r.easterBonus.leaveSurcharge | euro }}</div>
       </div>
       <div class="sum-item">
-        <div class="sum-lbl">ΕΦΚΑ ({{ result.efkaEmployeeRate | number:'1.2-2' }}%)</div>
-        <div class="sum-val red">-{{ result.easterBonus.efka | euro }}</div>
+        <div class="sum-lbl">ΕΦΚΑ ({{ r.efkaEmployeeRate | number:'1.2-2' }}%)</div>
+        <div class="sum-val red">-{{ r.easterBonus.efka | euro }}</div>
       </div>
       <div class="sum-item">
         <div class="sum-lbl">Φόρος</div>
-        <div class="sum-val red">-{{ result.easterBonus.tax | euro }}</div>
+        <div class="sum-val red">-{{ r.easterBonus.tax | euro }}</div>
       </div>
       <div class="sum-item total-row">
         <div class="sum-lbl">Καθαρό Δώρο Πάσχα</div>
-        <div class="sum-val green">{{ result.easterBonus.net | euro }}</div>
+        <div class="sum-val green">{{ r.easterBonus.net | euro }}</div>
       </div>
     </div>
 
@@ -214,23 +217,23 @@
     <div class="sum-grid">
       <div class="sum-item">
         <div class="sum-lbl">Μικτό</div>
-        <div class="sum-val">{{ result.leaveAllowance.grossBase | euro }}</div>
+        <div class="sum-val">{{ r.leaveAllowance.grossBase | euro }}</div>
       </div>
       <div class="sum-item">
-        <div class="sum-lbl">ΕΦΚΑ ({{ result.efkaEmployeeRate | number:'1.2-2' }}%)</div>
-        <div class="sum-val red">-{{ result.leaveAllowance.efka | euro }}</div>
+        <div class="sum-lbl">ΕΦΚΑ ({{ r.efkaEmployeeRate | number:'1.2-2' }}%)</div>
+        <div class="sum-val red">-{{ r.leaveAllowance.efka | euro }}</div>
       </div>
       <div class="sum-item">
         <div class="sum-lbl">Φόρος</div>
-        <div class="sum-val red">-{{ result.leaveAllowance.tax | euro }}</div>
+        <div class="sum-val red">-{{ r.leaveAllowance.tax | euro }}</div>
       </div>
       <div class="sum-item">
         <div class="sum-lbl">Καθαρό Επίδομα Αδείας</div>
-        <div class="sum-val green">{{ result.leaveAllowance.net | euro }}</div>
+        <div class="sum-val green">{{ r.leaveAllowance.net | euro }}</div>
       </div>
     </div>
 
-    @if (result.bonusResult; as bonus) {
+    @if (r.bonusResult; as bonus) {
       <h3 class="section-title">Μπόνους</h3>
       <div class="sum-grid">
         <div class="sum-item">
@@ -238,7 +241,7 @@
           <div class="sum-val">{{ bonus.grossBonus | euro }}</div>
         </div>
         <div class="sum-item">
-          <div class="sum-lbl">ΕΦΚΑ ({{ result.efkaEmployeeRate | number:'1.2-2' }}%)</div>
+          <div class="sum-lbl">ΕΦΚΑ ({{ r.efkaEmployeeRate | number:'1.2-2' }}%)</div>
           <div class="sum-val red">-{{ bonus.efkaEmployee | euro }}</div>
         </div>
         <div class="sum-item">
@@ -256,16 +259,17 @@
     <div class="sum-grid">
       <div class="sum-item">
         <div class="sum-lbl">Μηνιαίο</div>
-        <div class="sum-val">{{ result.employerMonthly | euro }}</div>
+        <div class="sum-val">{{ r.employerMonthly | euro }}</div>
       </div>
       <div class="sum-item">
         <div class="sum-lbl">ΕΦΚΑ Εργοδότη</div>
-        <div class="sum-val">{{ result.efkaEmployer | euro }}</div>
+        <div class="sum-val">{{ r.efkaEmployer | euro }}</div>
       </div>
       <div class="sum-item total-row">
         <div class="sum-lbl">Ετήσιο Σύνολο</div>
-        <div class="sum-val blue">{{ result.employerAnnual | euro }}</div>
+        <div class="sum-val blue">{{ r.employerAnnual | euro }}</div>
       </div>
     </div>
+    }
   </div>
 </div>

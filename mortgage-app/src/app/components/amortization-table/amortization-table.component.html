@@ -1,9 +1,9 @@
 <div class="tbl-controls">
   <span class="tbl-info">
     @if (showAll) {
-      Εμφάνιση όλων ({{ schedule.length }} δόσεις)
+      Εμφάνιση όλων ({{ schedule().length }} δόσεις)
     } @else {
-      Δόσεις {{ rangeStart }}–{{ rangeEnd }} από {{ schedule.length }}
+      Δόσεις {{ rangeStart }}–{{ rangeEnd }} από {{ schedule().length }}
     }
   </span>
   <button class="btn-outline" (click)="toggleShowAll()">

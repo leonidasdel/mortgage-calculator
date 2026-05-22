@@ -16,15 +16,14 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Στοιχεία Εργαζομένου</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <!-- Μισθός -->
         <div class="form-group">
           <label for="grossMonthly">Μεικτός Μηνιαίος Μισθός (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="grossMonthly" formControlName="grossMonthly"
-                   min="0" step="50" placeholder="π.χ. 1500">
+            <input type="number" id="grossMonthly" [formField]="formFields.grossMonthly">
           </div>
         </div>
 
@@ -33,13 +32,13 @@
           <label>Φορολογικό Έτος</label>
           <div class="seg-group">
             <button type="button" class="seg-btn"
-                    [class.active]="form.get('year')?.value === 2025"
-                    (click)="form.patchValue({ year: 2025 })">
+                    [class.active]="formModel().year === 2025"
+                    (click)="formModel.update(m => ({ ...m, year: 2025 }))">
               2025
             </button>
             <button type="button" class="seg-btn"
-                    [class.active]="form.get('year')?.value === 2026"
-                    (click)="form.patchValue({ year: 2026 })">
+                    [class.active]="formModel().year === 2026"
+                    (click)="formModel.update(m => ({ ...m, year: 2026 }))">
               2026
             </button>
           </div>
@@ -48,7 +47,7 @@
         <!-- Ηλικιακή ομάδα -->
         <div class="form-group">
           <label for="ageGroup">Ηλικιακή Ομάδα</label>
-          <select id="ageGroup" formControlName="ageGroup" class="hb-select">
+          <select id="ageGroup" [formField]="formFields.ageGroup" class="hb-select">
             <option value="over30">Άνω των 30 ετών</option>
             <option value="26to30">26–30 ετών</option>
             <option value="under25">Έως 25 ετών</option>
@@ -59,8 +58,7 @@
         <div class="form-group">
           <label for="children">Εξαρτώμενα Τέκνα</label>
           <div class="input-wrap">
-            <input type="number" id="children" formControlName="children"
-                   min="0" max="10" step="1">
+            <input type="number" id="children" [formField]="formFields.children">
           </div>
         </div>
 
@@ -71,12 +69,12 @@
 
         <div class="form-group">
           <label class="hb-check-row">
-            <input type="checkbox" formControlName="partialEnabled">
+            <input type="checkbox" [formField]="formFields.partialEnabled">
             <span>Δεν εργάστηκα ολόκληρη την περίοδο</span>
           </label>
         </div>
 
-        @if (form.get('partialEnabled')?.value) {
+        @if (formModel().partialEnabled) {
           <div class="info-box amber" style="margin-bottom:14px;">
             💡 Τα δώρα υπολογίζονται αναλογικά βάσει των μηνών απασχόλησης στην αντίστοιχη περίοδο. Ο φόρος είναι εκτίμηση (γραμμική αναλογία).
           </div>
@@ -88,8 +86,7 @@
             </label>
             <div class="input-wrap has-sfx">
               <input type="number" id="christmasMonthsWorked"
-                     formControlName="christmasMonthsWorked"
-                     min="0" max="8" step="1">
+                     [formField]="formFields.christmasMonthsWorked">
               <span class="sfx">/ 8 μήνες</span>
             </div>
             <div class="hb-hint">Παράγοντας: {{ (result().christmasFactor * 100).toFixed(0) }}%</div>
@@ -102,8 +99,7 @@
             </label>
             <div class="input-wrap has-sfx">
               <input type="number" id="easterMonthsWorked"
-                     formControlName="easterMonthsWorked"
-                     min="0" max="4" step="1">
+                     [formField]="formFields.easterMonthsWorked">
               <span class="sfx">/ 4 μήνες</span>
             </div>
             <div class="hb-hint">Παράγοντας: {{ (result().easterFactor * 100).toFixed(0) }}%</div>
@@ -158,7 +154,7 @@
         <div class="export-row">
           <app-export-row
             sharePath="/holiday-bonus"
-            [shareState]="form.value"
+            [shareState]="formModel()"
             [shareSummary]="shareSummary()"
             printTargetId="hb-results">
           </app-export-row>
@@ -172,7 +168,7 @@
       <div class="card-header hb-christmas">
         <div class="card-header-icon">🎅</div>
         <h2>Δώρο Χριστουγέννων</h2>
-        @if (form.get('partialEnabled')?.value && result().christmasFactor < 1) {
+        @if (formModel().partialEnabled && result().christmasFactor < 1) {
           <span class="hb-factor-badge">{{ (result().christmasFactor * 100).toFixed(0) }}%</span>
         }
       </div>
@@ -214,7 +210,7 @@
       <div class="card-header hb-easter">
         <div class="card-header-icon">🐣</div>
         <h2>Δώρο Πάσχα</h2>
-        @if (form.get('partialEnabled')?.value && result().easterFactor < 1) {
+        @if (formModel().partialEnabled && result().easterFactor < 1) {
           <span class="hb-factor-badge">{{ (result().easterFactor * 100).toFixed(0) }}%</span>
         }
       </div>
@@ -256,7 +252,7 @@
       <div class="card-header hb-leave">
         <div class="card-header-icon">🏖️</div>
         <h2>Επίδομα Αδείας (Δώρο Καλοκαιριού)</h2>
-        @if (form.get('partialEnabled')?.value && result().easterFactor < 1) {
+        @if (formModel().partialEnabled && result().easterFactor < 1) {
           <span class="hb-factor-badge">{{ (result().easterFactor * 100).toFixed(0) }}%</span>
         }
       </div>

@@ -14,20 +14,20 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Παράμετροι Δανείου</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <div class="form-group">
           <label for="loanAmount">Ποσό Δανείου (&#8364;)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="loanAmount" formControlName="loanAmount" min="0" step="100">
+            <input type="number" id="loanAmount" [formField]="formFields.loanAmount">
           </div>
         </div>
 
         <div class="form-group">
           <label for="interestRate">Ετήσιο Επιτόκιο (%)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="interestRate" formControlName="interestRate" min="0" step="0.1">
+            <input type="number" id="interestRate" [formField]="formFields.interestRate">
             <span class="sfx">%</span>
           </div>
         </div>
@@ -38,7 +38,7 @@
             @for (d of quickDurations; track d) {
               <button type="button"
                       class="cl-pill"
-                      [class.active]="form.get('loanMonths')?.value === d"
+                      [class.active]="formModel().loanMonths === d"
                       (click)="setMonths(d)">
                 {{ d / 12 >= 1 && d % 12 === 0 ? (d / 12) + ' έτη' : d + ' μήν.' }}
               </button>
@@ -46,7 +46,7 @@
           </div>
           <div class="cl-months-row">
             <div class="input-wrap">
-              <input type="number" id="loanMonths" formControlName="loanMonths" min="1" max="360" step="1">
+              <input type="number" id="loanMonths" [formField]="formFields.loanMonths">
             </div>
             <span class="cl-months-lbl">μήνες</span>
           </div>
@@ -60,7 +60,7 @@
           <label for="loanFees">Έξοδα / Προμήθεια (&#8364;)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="loanFees" formControlName="loanFees" min="0" step="10">
+            <input type="number" id="loanFees" [formField]="formFields.loanFees">
           </div>
           <div class="cl-hint">Εφάπαξ έξοδα εκταμίευσης, προμήθειες διαχείρισης κ.λπ.</div>
         </div>
@@ -164,7 +164,7 @@
         <div class="export-row">
           <app-export-row
             sharePath="/consumer-loan"
-            [shareState]="form.value"
+            [shareState]="formModel()"
             [shareSummary]="shareSummary()"
             printTargetId="cl-results">
           </app-export-row>
@@ -173,42 +173,66 @@
     </div>
 
     <!-- Chart card -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-header-icon">&#128200;</div>
-        <h2>Ετήσια Ανάλυση Πληρωμών</h2>
-      </div>
-      <div class="card-body">
-        <div class="hero-row mb-12">
-          <div class="stat-card blue">
-            <div class="stat-lbl">Συνολικό Κεφάλαιο</div>
-            <div class="stat-val">{{ summary().totalPrincipal | euro }}</div>
+    @defer (on viewport) {
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon">&#128200;</div>
+          <h2>Ετήσια Ανάλυση Πληρωμών</h2>
+        </div>
+        <div class="card-body">
+          <div class="hero-row mb-12">
+            <div class="stat-card blue">
+              <div class="stat-lbl">Συνολικό Κεφάλαιο</div>
+              <div class="stat-val">{{ summary().totalPrincipal | euro }}</div>
+            </div>
+            <div class="stat-card red">
+              <div class="stat-lbl">Συνολικοί Τόκοι</div>
+              <div class="stat-val">{{ summary().totalInterest | euro }}</div>
+            </div>
           </div>
-          <div class="stat-card red">
-            <div class="stat-lbl">Συνολικοί Τόκοι</div>
-            <div class="stat-val">{{ summary().totalInterest | euro }}</div>
+          <div style="overflow-x:auto;">
+            <app-amortization-chart [schedule]="schedule()"></app-amortization-chart>
+          </div>
+          <div class="chart-legend">
+            <div class="leg-item"><div class="leg-dot blue"></div><span>Κεφάλαιο</span></div>
+            <div class="leg-item"><div class="leg-dot red"></div><span>Τόκοι</span></div>
           </div>
         </div>
-        <div style="overflow-x:auto;">
-          <app-amortization-chart [schedule]="schedule()"></app-amortization-chart>
+      </div>
+    } @placeholder {
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon skeleton-block"></div>
+          <h2 class="skeleton-block skeleton-title"></h2>
         </div>
-        <div class="chart-legend">
-          <div class="leg-item"><div class="leg-dot blue"></div><span>Κεφάλαιο</span></div>
-          <div class="leg-item"><div class="leg-dot red"></div><span>Τόκοι</span></div>
+        <div class="card-body">
+          <div class="skeleton-block skeleton-chart"></div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- Table card -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-header-icon">&#128203;</div>
-        <h2>Πίνακας Αποπληρωμής</h2>
+    @defer (on viewport) {
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon">&#128203;</div>
+          <h2>Πίνακας Αποπληρωμής</h2>
+        </div>
+        <div class="card-body">
+          <app-amortization-table [schedule]="schedule()"></app-amortization-table>
+        </div>
       </div>
-      <div class="card-body">
-        <app-amortization-table [schedule]="schedule()"></app-amortization-table>
+    } @placeholder {
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon skeleton-block"></div>
+          <h2 class="skeleton-block skeleton-title"></h2>
+        </div>
+        <div class="card-body">
+          <div class="skeleton-block skeleton-table"></div>
+        </div>
       </div>
-    </div>
+    }
 
     <app-calc-explanation
       title="Πώς υπολογίζεται το καταναλωτικό δάνειο;"

@@ -1,22 +1,19 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 import { AgeGroup } from '../../models/salary.models';
 
 const STORAGE_KEY = 'freelancerCalcState';
 
-// EFKA monthly contributions 2026 (e-EFKA circular 6/2026, FEK B' 318/29-1-2026)
-// Total = Pension + Health (cash + in-kind) + OAED (€10)
 const EFKA_CATEGORIES = [
-  { id: 'special', label: 'Ειδική (νέοι, πρώτα 5 έτη)', monthly: 160.46 },  // 111.06 pension + 3.58 health-cash + 35.82 health-kind + 10 OAED
-  { id: 'cat1',    label: 'Κατηγορία 1',                 monthly: 260.77 },  // 185.09 + 5.97 + 59.71 + 10
-  { id: 'cat2',    label: 'Κατηγορία 2',                 monthly: 310.93 },  // 222.12 + 7.16 + 71.65 + 10
-  { id: 'cat3',    label: 'Κατηγορία 3',                 monthly: 370.63 },  // 281.82 + 7.16 + 71.65 + 10
-  { id: 'cat4',    label: 'Κατηγορία 4',                 monthly: 443.47 },  // 354.66 + 7.16 + 71.65 + 10
-  { id: 'cat5',    label: 'Κατηγορία 5',                 monthly: 529.45 },  // 440.64 + 7.16 + 71.65 + 10
-  { id: 'cat6',    label: 'Κατηγορία 6',                 monthly: 685.87 },  // 597.06 + 7.16 + 71.65 + 10
+  { id: 'special', label: 'Ειδική (νέοι, πρώτα 5 έτη)', monthly: 160.46 },
+  { id: 'cat1',    label: 'Κατηγορία 1',                 monthly: 260.77 },
+  { id: 'cat2',    label: 'Κατηγορία 2',                 monthly: 310.93 },
+  { id: 'cat3',    label: 'Κατηγορία 3',                 monthly: 370.63 },
+  { id: 'cat4',    label: 'Κατηγορία 4',                 monthly: 443.47 },
+  { id: 'cat5',    label: 'Κατηγορία 5',                 monthly: 529.45 },
+  { id: 'cat6',    label: 'Κατηγορία 6',                 monthly: 685.87 },
 ];
 
 interface TaxBracketRow {
@@ -60,8 +57,16 @@ interface FreelancerResult {
   efkaComparison: EfkaComparison[];
 }
 
+interface FreelancerModel {
+  annualRevenue: number;
+  annualExpenses: number;
+  efkaCategory: string;
+  yearsActive: string;
+  ageGroup: AgeGroup;
+  children: string;
+}
+
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { ExportRowComponent } from '../export-row/export-row.component';
@@ -70,14 +75,24 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   selector: 'app-freelancer-calculator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './freelancer-calculator.component.html',
   styleUrl: './freelancer-calculator.component.scss',
 })
-export class FreelancerCalculatorComponent implements OnInit {
-  form: FormGroup;
-  private formValues;
-  private destroyRef = inject(DestroyRef);
+export class FreelancerCalculatorComponent {
+  formModel = signal<FreelancerModel>({
+    annualRevenue: 30000,
+    annualExpenses: 5000,
+    efkaCategory: 'cat1',
+    yearsActive: 'over3',
+    ageGroup: 'over30',
+    children: '0',
+  });
+  formFields = form(this.formModel);
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly salaryService = inject(SalaryCalculatorService);
+  private readonly persistence = inject(CalculatorPersistenceService);
 
   readonly efkaCategories = EFKA_CATEGORIES;
   readonly childrenOptions = [0, 1, 2, 3, 4, 5, 6];
@@ -92,42 +107,24 @@ export class FreelancerCalculatorComponent implements OnInit {
   readonly explanationFormula =
     'Καθαρά = Έσοδα − Έξοδα − ΕΦΚΑ − Φόρος − Προκαταβολή';
 
-  constructor(
-    private fb: FormBuilder,
-    private salaryService: SalaryCalculatorService,
-    private persistence: CalculatorPersistenceService,
-  ) {
-    this.form = this.fb.group({
-      annualRevenue:  [30000],
-      annualExpenses: [5000],
-      efkaCategory:   ['cat1'],
-      yearsActive:    ['over3'],
-      ageGroup:       ['over30' as AgeGroup],
-      children:       [0],
-    });
-    this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
-  }
-
-  ngOnInit(): void {
-    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
+  constructor() {
+    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
   }
 
   result = computed<FreelancerResult>(() => {
-    this.formValues();
-    const fv = this.form.value;
+    const fv = this.formModel();
     const revenue = Math.max(0, fv.annualRevenue || 0);
     const expenses = Math.max(0, fv.annualExpenses || 0);
     const catId = fv.efkaCategory || 'cat1';
     const yearsActive = fv.yearsActive || 'over3';
     const ageGroup: AgeGroup = fv.ageGroup || 'over30';
-    const children = Math.min(Math.max(0, fv.children || 0), 6);
+    const children = Math.min(Math.max(0, Number(fv.children) || 0), 6);
 
     const cat = EFKA_CATEGORIES.find(c => c.id === catId) || EFKA_CATEGORIES[1];
     const advanceRate = yearsActive === 'under3' ? 0.275 : 0.55;
 
     const calc = this.calcForCategory(cat, revenue, expenses, children, advanceRate, ageGroup);
 
-    // Build comparison for all EFKA categories
     const efkaComparison: EfkaComparison[] = EFKA_CATEGORIES.map(c => {
       const r = this.calcForCategory(c, revenue, expenses, children, advanceRate, ageGroup);
       return {
@@ -152,11 +149,11 @@ export class FreelancerCalculatorComponent implements OnInit {
     return `Ελεύθερος επαγγελματίας Salaries.gr: καθαρά ${r.netMonthly.toFixed(2)}€/μήνα (${r.netAnnual.toFixed(2)}€/έτος)`;
   });
 
-  getSelectedEfkaMonthly(): number {
-    const catId = this.form.get('efkaCategory')?.value;
+  selectedEfkaMonthly = computed(() => {
+    const catId = this.formModel().efkaCategory;
     const cat = EFKA_CATEGORIES.find(c => c.id === catId);
     return cat ? cat.monthly : 0;
-  }
+  });
 
   print(): void {
     window.print();
@@ -175,7 +172,7 @@ export class FreelancerCalculatorComponent implements OnInit {
 
     const taxResult = this.salaryService.calculateTaxOnly(taxableIncome, 2026, ageGroup, children);
     const grossTax = taxResult.totalTax;
-    const taxDiscount = 0; // άρθρο 16 ΚΦΕ — μόνο για μισθωτούς, όχι ελεύθερους επαγγελματίες
+    const taxDiscount = 0;
     const incomeTax = grossTax;
     const bracketRows: TaxBracketRow[] = taxResult.breakdown.map(b => ({
       from: b.from,

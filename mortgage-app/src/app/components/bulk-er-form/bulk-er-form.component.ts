@@ -1,9 +1,8 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BulkErParams } from '../../models/mortgage.models';
-
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+
 @Component({
   selector: 'app-bulk-er-form',
   standalone: true,
@@ -12,26 +11,31 @@ import { ReactiveFormsModule } from '@angular/forms';
   templateUrl: './bulk-er-form.component.html',
   styleUrl: './bulk-er-form.component.scss',
 })
-export class BulkErFormComponent implements OnChanges {
-  @Input()  visible = false;
-  @Output() addBulk = new EventEmitter<BulkErParams>();
-  @Output() cancelled = new EventEmitter<void>();
+export class BulkErFormComponent {
+  visible = input(false);
+  addBulk = output<BulkErParams>();
+  cancelled = output<void>();
 
   form: FormGroup;
+  private prevVisible = false;
 
-  constructor(private fb: FormBuilder) {
+  private readonly fb = inject(FormBuilder);
+
+  constructor() {
     this.form = this.fb.group({
       startMonth: [12, [Validators.required, Validators.min(1)]],
       amount:     [3000, [Validators.required, Validators.min(0)]],
       every:      [12, [Validators.required, Validators.min(1)]],
       count:      [12, [Validators.required, Validators.min(1)]],
     });
-  }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['visible']?.currentValue === true && changes['visible'].previousValue === false) {
-      this.form.reset({ startMonth: 12, amount: 3000, every: 12, count: 12 });
-    }
+    effect(() => {
+      const v = this.visible();
+      if (v && !this.prevVisible) {
+        this.form.reset({ startMonth: 12, amount: 3000, every: 12, count: 12 });
+      }
+      this.prevVisible = v;
+    });
   }
 
   get preview(): string {

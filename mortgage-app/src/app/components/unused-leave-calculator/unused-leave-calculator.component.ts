@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 import {
   LeaveResult,
@@ -9,8 +8,22 @@ import {
 
 const STORAGE_KEY = 'unusedLeaveCalcState';
 
+interface UnusedLeaveModel {
+  salaryType: 'monthly' | 'daily';
+  grossMonthly: number;
+  dailyWage: number;
+  workWeek: '5day' | '6day';
+  unusedDays: number;
+  includeHolidayBonus: boolean;
+  situation: 'termination' | 'during_employment';
+  taxYear: '2025' | '2026';
+  ageGroup: string;
+  children: number;
+  useCustomAnnualIncome: boolean;
+  customAnnualGross: number;
+}
+
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { LawFooterComponent } from '../law-footer/law-footer.component';
@@ -20,14 +33,30 @@ import { UnusedLeaveTaxBreakdownComponent } from '../unused-leave-tax-breakdown/
   selector: 'app-unused-leave-calculator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, LawFooterComponent, UnusedLeaveCompensationComponent, UnusedLeaveTaxBreakdownComponent],
+  imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, LawFooterComponent, UnusedLeaveCompensationComponent, UnusedLeaveTaxBreakdownComponent],
   templateUrl: './unused-leave-calculator.component.html',
   styleUrl: './unused-leave-calculator.component.scss',
 })
-export class UnusedLeaveCalculatorComponent implements OnInit {
-  form: FormGroup;
-  private formValues;
-  private destroyRef = inject(DestroyRef);
+export class UnusedLeaveCalculatorComponent {
+  formModel = signal<UnusedLeaveModel>({
+    salaryType: 'monthly',
+    grossMonthly: 1500,
+    dailyWage: 69.23,
+    workWeek: '5day',
+    unusedDays: 10,
+    includeHolidayBonus: true,
+    situation: 'termination',
+    taxYear: '2025',
+    ageGroup: 'over30',
+    children: 0,
+    useCustomAnnualIncome: false,
+    customAnnualGross: 21000,
+  });
+  formFields = form(this.formModel);
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly calc = inject(UnusedLeaveCalculatorService);
+  private readonly persistence = inject(CalculatorPersistenceService);
 
   showTaxBreakdown = false;
 
@@ -41,41 +70,20 @@ export class UnusedLeaveCalculatorComponent implements OnInit {
   readonly explanationFormula =
     'Καθαρά = (αποζημίωση + επίδομα) − ΕΦΚΑ − οριακός φόρος';
 
-  constructor(
-    private fb: FormBuilder,
-    private calc: UnusedLeaveCalculatorService,
-    private persistence: CalculatorPersistenceService,
-  ) {
-    this.form = this.fb.group({
-      salaryType:           ['monthly'],
-      grossMonthly:         [1500],
-      dailyWage:            [69.23],
-      workWeek:             ['5day'],
-      unusedDays:           [10],
-      includeHolidayBonus:  [true],
-      situation:            ['termination'],
-      taxYear:              ['2025'],
-      ageGroup:             ['over30'],
-      children:             [0],
-      useCustomAnnualIncome: [false],
-      customAnnualGross:    [21000],
-    });
-    this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
+  constructor() {
+    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
   }
 
-  ngOnInit(): void {
-    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
-  }
-
-  result = computed<LeaveResult>(() => {
-    this.formValues();
-    return this.calc.calculate(this.form.value);
-  });
+  result = computed<LeaveResult>(() => this.calc.calculate(this.formModel()));
 
   shareSummary = computed(() => {
     const r = this.result();
-    return `Μη ληφθείσα άδεια Salaries.gr: καθαρά ${r.totalNet.toFixed(2)}€ (${this.form.value.unusedDays} ημέρες)`;
+    return `Μη ληφθείσα άδεια Salaries.gr: καθαρά ${r.totalNet.toFixed(2)}€ (${this.formModel().unusedDays} ημέρες)`;
   });
+
+  patchModel(partial: Partial<UnusedLeaveModel>): void {
+    this.formModel.update(m => ({ ...m, ...partial }));
+  }
 
   toggleTaxBreakdown(): void {
     this.showTaxBreakdown = !this.showTaxBreakdown;

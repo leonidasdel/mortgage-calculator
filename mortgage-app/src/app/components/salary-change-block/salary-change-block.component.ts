@@ -1,19 +1,24 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FieldTree, FormField } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-salary-change-block',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, FormField],
   templateUrl: './salary-change-block.component.html',
 })
 export class SalaryChangeBlockComponent {
-  @Input({ required: true }) formGroup!: FormGroup;
-  @Input() hasSalaryChange = false;
+  // Subset of parent salary form fields — passed from parent FieldTree
+  formFields = input.required<FieldTree<{
+    hasSalaryChange: boolean;
+    salaryChangeMonth: string;
+    previousGross: number;
+  }>>();
+  hasSalaryChange = input(false);
 
-  @Output() salaryChangeToggle = new EventEmitter<boolean>();
-  @Output() salaryChangeMonthChange = new EventEmitter<string>();
-  @Output() previousGrossChange = new EventEmitter<string>();
+  salaryChangeToggle = output<boolean>();
+  salaryChangeMonthChange = output<string>();
+  previousGrossChange = output<string>();
 }

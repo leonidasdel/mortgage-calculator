@@ -16,15 +16,14 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Στοιχεία Εργαζομένου</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <!-- Μισθός -->
         <div class="form-group">
           <label for="grossMonthly">Μεικτός Μηνιαίος Μισθός (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="grossMonthly" formControlName="grossMonthly"
-                   min="0" step="50" placeholder="π.χ. 1500">
+            <input type="number" id="grossMonthly" [formField]="formFields.grossMonthly">
           </div>
         </div>
 
@@ -32,8 +31,7 @@
         <div class="form-group">
           <label for="yearsOfService">Έτη Προϋπηρεσίας</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="yearsOfService" formControlName="yearsOfService"
-                   min="0" max="50" step="1" placeholder="π.χ. 5">
+            <input type="number" id="yearsOfService" [formField]="formFields.yearsOfService">
             <span class="sfx">έτη</span>
           </div>
         </div>
@@ -42,8 +40,7 @@
         <div class="form-group">
           <label for="monthsExtra">Επιπλέον Μήνες</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="monthsExtra" formControlName="monthsExtra"
-                   min="0" max="11" step="1" placeholder="0–11">
+            <input type="number" id="monthsExtra" [formField]="formFields.monthsExtra">
             <span class="sfx">μήνες</span>
           </div>
           <div class="sv-hint">
@@ -57,34 +54,34 @@
           <label>Τύπος Λύσης Σύμβασης</label>
           <div class="seg-group seg-stack-sm">
             <button type="button" class="seg-btn"
-                    [class.active]="form.get('terminationType')?.value === 'without_notice'"
-                    (click)="form.patchValue({ terminationType: 'without_notice' })">
+                    [class.active]="formModel().terminationType === 'without_notice'"
+                    (click)="setTerminationType('without_notice')">
               Χωρίς Προειδοποίηση
             </button>
             <button type="button" class="seg-btn"
-                    [class.active]="form.get('terminationType')?.value === 'with_notice'"
-                    (click)="form.patchValue({ terminationType: 'with_notice' })">
+                    [class.active]="formModel().terminationType === 'with_notice'"
+                    (click)="setTerminationType('with_notice')">
               Με Προειδοποίηση
             </button>
             <button type="button" class="seg-btn"
-                    [class.active]="form.get('terminationType')?.value === 'mutual'"
-                    (click)="form.patchValue({ terminationType: 'mutual' })">
+                    [class.active]="formModel().terminationType === 'mutual'"
+                    (click)="setTerminationType('mutual')">
               Συναινετική
             </button>
           </div>
         </div>
 
-        @if (form.get('terminationType')?.value === 'without_notice') {
+        @if (formModel().terminationType === 'without_notice') {
           <div class="info-box blue">
             ✅ Ο εργοδότης απολύει άμεσα. Καταβάλλεται <strong>πλήρης αποζημίωση</strong> ({{ result().fullSeveranceMonths }} μισθοί).
           </div>
         }
-        @if (form.get('terminationType')?.value === 'with_notice') {
+        @if (formModel().terminationType === 'with_notice') {
           <div class="info-box blue">
             📢 Απαιτείται προειδοποίηση <strong>{{ result().noticePeriod }} {{ result().noticePeriod === 1 ? 'μήνα' : 'μήνες' }}</strong> πριν την απόλυση. Αποζημίωση = <strong>½ × {{ result().fullSeveranceMonths }} = {{ result().fullSeveranceMonths / 2 }} μισθοί</strong>.
           </div>
         }
-        @if (form.get('terminationType')?.value === 'mutual') {
+        @if (formModel().terminationType === 'mutual') {
           <div class="info-box blue">
             🤝 Αμοιβαία συμφωνία. Αποζημίωση = <strong>½ της αποζημίωσης απόλυσης</strong> = {{ result().fullSeveranceMonths / 2 }} μισθοί. Δεν απαιτείται προειδοποίηση.
           </div>
@@ -192,7 +189,7 @@
         <div class="export-row mt-12">
           <app-export-row
             sharePath="/severance"
-            [shareState]="form.value"
+            [shareState]="formModel()"
             [shareSummary]="shareSummary()"
             printTargetId="sv-results">
           </app-export-row>

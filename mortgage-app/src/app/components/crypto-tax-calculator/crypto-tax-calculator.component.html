@@ -13,23 +13,23 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Στοιχεία Συναλλαγών</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <div class="form-group">
           <label>Τρόπος υπολογισμού</label>
           <div class="ct-mode-toggle">
             <button type="button" class="ct-mode-btn"
-                    [class.active]="form.get('mode')?.value === 'simple'"
-                    (click)="form.patchValue({ mode: 'simple' })">
+                    [class.active]="formModel().mode === 'simple'"
+                    (click)="setMode('simple')">
               Απλός (συνολικά ποσά)
             </button>
             <button type="button" class="ct-mode-btn"
-                    [class.active]="form.get('mode')?.value === 'fifo'"
-                    (click)="form.patchValue({ mode: 'fifo' })">
+                    [class.active]="formModel().mode === 'fifo'"
+                    (click)="setMode('fifo')">
               FIFO (πολλαπλές αγορές)
             </button>
           </div>
-          @if (form.get('mode')?.value === 'fifo') {
+          @if (formModel().mode === 'fifo') {
             <div class="ct-hint">Η λειτουργία FIFO με πολλαπλές αγορές θα προστεθεί σύντομα. Προς το παρόν χρησιμοποιείται η απλή μέθοδος.</div>
           }
         </div>
@@ -38,8 +38,7 @@
           <label for="totalProceeds">Έσοδα από πώληση (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="totalProceeds" formControlName="totalProceeds"
-                   min="0" step="100" placeholder="π.χ. 10000">
+            <input type="number" id="totalProceeds" [formField]="formFields.totalProceeds">
           </div>
         </div>
 
@@ -47,8 +46,7 @@
           <label for="totalCost">Κόστος απόκτησης (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="totalCost" formControlName="totalCost"
-                   min="0" step="100" placeholder="π.χ. 6000">
+            <input type="number" id="totalCost" [formField]="formFields.totalCost">
           </div>
         </div>
 
@@ -56,15 +54,14 @@
           <label for="carriedLoss">Ζημίες προηγούμενων ετών (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="carriedLoss" formControlName="carriedLoss"
-                   min="0" step="100" placeholder="0">
+            <input type="number" id="carriedLoss" [formField]="formFields.carriedLoss">
           </div>
           <div class="ct-hint">Συμψηφίζονται με τα κέρδη του τρέχοντος έτους · μεταφορά έως {{ lossCarryYears }} έτη</div>
         </div>
 
         <div class="form-group">
           <label class="ct-check-row">
-            <input type="checkbox" formControlName="isProfessional">
+            <input type="checkbox" [formField]="formFields.isProfessional">
             <span>Επαγγελματική δραστηριότητα (κλιμακωτός φόρος εισοδήματος)</span>
           </label>
         </div>
@@ -88,7 +85,7 @@
             <div class="hero-lbl">Φόρος πληρωτέος</div>
             <div class="hero-val">{{ result().taxDue | euro }}</div>
             <div class="hero-sub">
-              @if (form.get('isProfessional')?.value) {
+              @if (formModel().isProfessional) {
                 ενδεικτικός υπολογισμός
               } @else if (result().taxableGain > 0) {
                 {{ taxRatePct | number:'1.0-0' }}% επί φορολογητέου κέρδους
@@ -105,10 +102,10 @@
         </div>
 
         <div class="sum-grid">
-          @if (form.get('carriedLoss')?.value > 0) {
+          @if (formModel().carriedLoss > 0) {
             <div class="sum-item">
               <div class="sum-lbl">Ζημίες προηγούμενων ετών</div>
-              <div class="sum-val">−{{ form.get('carriedLoss')?.value | euro }}</div>
+              <div class="sum-val">−{{ formModel().carriedLoss | euro }}</div>
             </div>
           }
           <div class="sum-item">
@@ -129,7 +126,7 @@
 
         <app-export-row
           sharePath="/crypto-tax"
-          [shareState]="form.value"
+          [shareState]="formModel()"
           [shareSummary]="shareSummary()"
           printTargetId="crypto-results">
         </app-export-row>

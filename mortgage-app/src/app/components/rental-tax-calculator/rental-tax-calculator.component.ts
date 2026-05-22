@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { form, FormField } from '@angular/forms/signals';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { ExportRowComponent } from '../export-row/export-row.component';
@@ -35,18 +34,36 @@ interface RentalTaxResult {
   netMonthly: number;
 }
 
+interface RentalTaxModel {
+  incomeMode: string;
+  annualIncome: number;
+  monthlyIncome: number;
+  rentalType: string;
+  expenseMethod: string;
+  actualExpenses: number;
+}
+
 @Component({
   selector: 'app-rental-tax-calculator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './rental-tax-calculator.component.html',
   styleUrl: './rental-tax-calculator.component.scss',
 })
-export class RentalTaxCalculatorComponent implements OnInit {
-  form: FormGroup;
-  private formValues;
-  private destroyRef = inject(DestroyRef);
+export class RentalTaxCalculatorComponent {
+  formModel = signal<RentalTaxModel>({
+    incomeMode: 'annual',
+    annualIncome: 12000,
+    monthlyIncome: 1000,
+    rentalType: 'long-term',
+    expenseMethod: 'automatic',
+    actualExpenses: 0,
+  });
+  formFields = form(this.formModel);
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly persistence = inject(CalculatorPersistenceService);
 
   readonly explanationSteps = [
     'Το ακαθάριστο εισόδημα από ενοίκια φορολογείται αυτοτελώς.',
@@ -58,31 +75,15 @@ export class RentalTaxCalculatorComponent implements OnInit {
   readonly explanationFormula =
     'Φόρος = κλιμακωτός(ακαθάριστο − έκπτωση) · Καθαρό = ακαθάριστο − φόρος';
 
-  constructor(
-    private fb: FormBuilder,
-    private persistence: CalculatorPersistenceService,
-  ) {
-    this.form = this.fb.group({
-      incomeMode:     ['annual'],
-      annualIncome:   [12000],
-      monthlyIncome:  [1000],
-      rentalType:     ['long-term'],
-      expenseMethod:  ['automatic'],
-      actualExpenses: [0],
-    });
-    this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
-  }
-
-  ngOnInit(): void {
-    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef, {
+  constructor() {
+    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef, {
       onLoad: (state) => this.patchLoadedState(state),
-      onApplyShareState: (state) => this.patchLoadedState(state),
+      onApplyShareState: (state, model) => this.patchLoadedState(state, model),
     });
   }
 
   result = computed<RentalTaxResult>(() => {
-    this.formValues();
-    const fv = this.form.value;
+    const fv = this.formModel();
     const incomeMode = fv.incomeMode === 'monthly' ? 'monthly' : 'annual';
     const annualIncome = incomeMode === 'monthly'
       ? +(Math.max(0, fv.monthlyIncome || 0) * 12).toFixed(2)
@@ -127,26 +128,32 @@ export class RentalTaxCalculatorComponent implements OnInit {
   }
 
   onIncomeModeChange(mode: 'annual' | 'monthly'): void {
-    this.form.patchValue({ incomeMode: mode });
+    this.formModel.update(m => ({ ...m, incomeMode: mode }));
   }
 
   onAnnualIncomeInput(): void {
-    const annualIncome = Math.max(0, Number(this.form.get('annualIncome')?.value) || 0);
-    this.form.patchValue({ monthlyIncome: +(annualIncome / 12).toFixed(2) }, { emitEvent: false });
-    this.persistence.saveFormState(STORAGE_KEY, this.form.value);
+    const annualIncome = Math.max(0, Number(this.formModel().annualIncome) || 0);
+    this.formModel.update(m => ({
+      ...m,
+      annualIncome,
+      monthlyIncome: +(annualIncome / 12).toFixed(2),
+    }));
   }
 
   onMonthlyIncomeInput(): void {
-    const monthlyIncome = Math.max(0, Number(this.form.get('monthlyIncome')?.value) || 0);
-    this.form.patchValue({ annualIncome: +(monthlyIncome * 12).toFixed(2) }, { emitEvent: false });
-    this.persistence.saveFormState(STORAGE_KEY, this.form.value);
+    const monthlyIncome = Math.max(0, Number(this.formModel().monthlyIncome) || 0);
+    this.formModel.update(m => ({
+      ...m,
+      monthlyIncome,
+      annualIncome: +(monthlyIncome * 12).toFixed(2),
+    }));
   }
 
-  private patchLoadedState(state: Record<string, unknown>): void {
+  private patchLoadedState(state: Record<string, unknown>, model = this.formModel): void {
     if (state['incomeMode'] == null) state['incomeMode'] = 'annual';
     if (state['monthlyIncome'] == null) {
       state['monthlyIncome'] = +(Math.max(0, Number(state['annualIncome']) || 0) / 12).toFixed(2);
     }
-    this.form.patchValue(state, { emitEvent: false });
+    model.set({ ...model(), ...state } as RentalTaxModel);
   }
 }

@@ -8,12 +8,12 @@
     <div class="hero-row">
       <div class="hero-card dark">
         <div class="hero-lbl">Καθαρό Ποσό</div>
-        <div class="hero-val">{{ result.totalNet | euro }}</div>
+        <div class="hero-val">{{ result().totalNet | euro }}</div>
         <div class="hero-sub">που λαμβάνετε στο χέρι</div>
       </div>
       <div class="hero-card">
         <div class="hero-lbl">Μεικτό Ποσό</div>
-        <div class="hero-val">{{ result.totalGross | euro }}</div>
+        <div class="hero-val">{{ result().totalGross | euro }}</div>
         <div class="hero-sub">πριν κρατήσεις</div>
       </div>
     </div>
@@ -23,32 +23,32 @@
       <div class="sum-item">
         <div class="sum-lbl">
           Ημερομίσθιο
-          <span class="sum-badge">÷{{ workWeek === '5day' ? '25' : '26' }}</span>
+          <span class="sum-badge">÷{{ workWeek() === '5day' ? '25' : '26' }}</span>
         </div>
-        <div class="sum-val">{{ result.dailyWage | euro }}</div>
+        <div class="sum-val">{{ result().dailyWage | euro }}</div>
       </div>
       <div class="sum-item">
         <div class="sum-lbl">Ημέρες μη ληφθείσας άδειας</div>
-        <div class="sum-val">{{ unusedDays }} ημ.</div>
+        <div class="sum-val">{{ unusedDays() }} ημ.</div>
       </div>
       <div class="sum-item highlight-blue">
         <div class="sum-lbl">Αποζημίωση μη ληφθείσας άδειας</div>
-        <div class="sum-val blue">{{ result.leaveCompensation | euro }}</div>
+        <div class="sum-val blue">{{ result().leaveCompensation | euro }}</div>
       </div>
-      @if (includeHolidayBonus) {
+      @if (includeHolidayBonus()) {
         <div class="sum-item highlight-blue">
           <div class="sum-lbl">
             Επίδομα αδείας
-            @if (result.holidayBonusCapped) {
+            @if (result().holidayBonusCapped) {
               <span class="badge-warn">Ανώτατο όριο</span>
             }
           </div>
-          <div class="sum-val blue">{{ result.holidayBonus | euro }}</div>
+          <div class="sum-val blue">{{ result().holidayBonus | euro }}</div>
         </div>
       }
       <div class="sum-item total-row">
         <div class="sum-lbl"><strong>Σύνολο Μεικτό</strong></div>
-        <div class="sum-val"><strong>{{ result.totalGross | euro }}</strong></div>
+        <div class="sum-val"><strong>{{ result().totalGross | euro }}</strong></div>
       </div>
     </div>
 

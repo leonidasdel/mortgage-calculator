@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter } from 'rxjs/operators';
 
@@ -8,26 +9,41 @@ const CHECK_INTERVAL_MS = 30 * 60 * 1000;
 export class SwUpdateService {
   readonly updateAvailable = signal(false);
 
-  constructor(private swUpdate: SwUpdate) {}
+  private readonly swUpdate = inject(SwUpdate);
 
   init(): void {
     if (!this.swUpdate.isEnabled) return;
 
-    this.swUpdate.versionUpdates.pipe(
-      filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY'),
-    ).subscribe(() => this.updateAvailable.set(true));
+    const destroyRef = inject(DestroyRef);
 
-    this.swUpdate.unrecoverable.subscribe(() => {
-      this.updateAvailable.set(true);
+    const versionReady = toSignal(
+      this.swUpdate.versionUpdates.pipe(
+        filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY'),
+      ),
+      { initialValue: null },
+    );
+
+    const unrecoverable = toSignal(this.swUpdate.unrecoverable, { initialValue: null });
+
+    effect(() => {
+      if (versionReady() || unrecoverable()) {
+        this.updateAvailable.set(true);
+      }
     });
 
     this.checkForUpdates();
-    setInterval(() => this.checkForUpdates(), CHECK_INTERVAL_MS);
+    const intervalId = setInterval(() => this.checkForUpdates(), CHECK_INTERVAL_MS);
 
-    document.addEventListener('visibilitychange', () => {
+    const onVisible = (): void => {
       if (document.visibilityState === 'visible') {
         this.checkForUpdates();
       }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+
+    destroyRef.onDestroy(() => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisible);
     });
   }
 

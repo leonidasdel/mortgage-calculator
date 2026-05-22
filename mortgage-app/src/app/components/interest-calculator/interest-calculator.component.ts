@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 import {
   InterestCalculatorService,
@@ -9,8 +8,14 @@ import {
 
 const STORAGE_KEY = 'interestCalcState';
 
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+interface InterestModel {
+  capital: number;
+  rate: number;
+  startDate: string;
+  endDate: string;
+}
+
+import { DecimalPipe } from '@angular/common';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { ExportRowComponent } from '../export-row/export-row.component';
@@ -19,14 +24,17 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   selector: 'app-interest-calculator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [DecimalPipe, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './interest-calculator.component.html',
   styleUrl: './interest-calculator.component.scss',
 })
-export class InterestCalculatorComponent implements OnInit {
-  form: FormGroup;
-  private formValues;
-  private destroyRef = inject(DestroyRef);
+export class InterestCalculatorComponent {
+  formModel = signal<InterestModel>(this.createDefaultModel());
+  formFields = form(this.formModel);
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly calc = inject(InterestCalculatorService);
+  private readonly persistence = inject(CalculatorPersistenceService);
 
   readonly quickPicks = [
     { label: '3μ', months: 3 },
@@ -51,30 +59,15 @@ export class InterestCalculatorComponent implements OnInit {
   readonly explanationFormula =
     'Μικτοί τόκοι = Κεφάλαιο × (Επιτόκιο / 365) × Ημέρες · Καθαροί = Μικτοί × 85%';
 
-  constructor(
-    private fb: FormBuilder,
-    private calc: InterestCalculatorService,
-    private persistence: CalculatorPersistenceService,
-  ) {
-    const today = new Date();
-    const oneYearLater = new Date(today);
-    oneYearLater.setFullYear(today.getFullYear() + 1);
-
-    this.form = this.fb.group({
-      capital: [10000],
-      rate: [3.5],
-      startDate: [this.formatDate(today)],
-      endDate: [this.formatDate(oneYearLater)],
+  constructor() {
+    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef, {
+      onAfterInit: () => this.detectActiveDuration(),
     });
 
-    this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
-  }
-
-  ngOnInit(): void {
-    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
-    this.detectActiveDuration();
-    this.form.get('startDate')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.detectActiveDuration());
-    this.form.get('endDate')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.detectActiveDuration());
+    effect(() => {
+      this.formModel();
+      this.detectActiveDuration();
+    });
   }
 
   pickDuration(months: number): void {
@@ -98,30 +91,29 @@ export class InterestCalculatorComponent implements OnInit {
     const unit = this.durationUnit();
     if (!val || val <= 0) return;
     const totalMonths = unit === 'years' ? val * 12 : val;
-    // For fractional months, use days (30.44 days/month average)
     const wholeMonths = Math.floor(totalMonths);
     const fractionalDays = Math.round((totalMonths - wholeMonths) * 30.44);
-    const start = new Date(this.form.value.startDate);
+    const start = new Date(this.formModel().startDate);
     if (isNaN(start.getTime())) return;
     const end = new Date(start);
     end.setMonth(end.getMonth() + wholeMonths);
     end.setDate(end.getDate() + fractionalDays);
-    this.form.patchValue({ endDate: this.formatDate(end) });
-    // Check if this matches a quick pick
+    this.formModel.update(m => ({ ...m, endDate: this.formatDate(end) }));
     this.detectActiveDuration();
   }
 
   private applyMonths(months: number): void {
-    const start = new Date(this.form.value.startDate);
+    const start = new Date(this.formModel().startDate);
     if (isNaN(start.getTime())) return;
     const end = new Date(start);
     end.setMonth(end.getMonth() + months);
-    this.form.patchValue({ endDate: this.formatDate(end) });
+    this.formModel.update(m => ({ ...m, endDate: this.formatDate(end) }));
   }
 
   private detectActiveDuration(): void {
-    const start = new Date(this.form.value.startDate);
-    const end = new Date(this.form.value.endDate);
+    const { startDate, endDate } = this.formModel();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       this.activeDuration.set(null);
       return;
@@ -136,7 +128,6 @@ export class InterestCalculatorComponent implements OnInit {
       }
     }
     this.activeDuration.set(null);
-    // Best-effort sync for non-standard durations
     const diffMs = end.getTime() - start.getTime();
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
     const approxMonths = diffDays / 30.44;
@@ -160,22 +151,30 @@ export class InterestCalculatorComponent implements OnInit {
   }
 
   endDateFormatted = computed(() => {
-    this.formValues();
-    const val = this.form.value.endDate;
+    const val = this.formModel().endDate;
     if (!val) return '';
     const [y, m, d] = val.split('-');
     return `${d}/${m}/${y}`;
   });
 
-  result = computed<InterestResult>(() => {
-    this.formValues();
-    return this.calc.calculate(this.form.value);
-  });
+  result = computed<InterestResult>(() => this.calc.calculate(this.formModel()));
 
   shareSummary = computed(() => {
     const r = this.result();
     return `Τόκοι Salaries.gr: καθαροί ${r.netInterest.toFixed(2)}€, τελικό ποσό ${r.totalAmount.toFixed(2)}€ (${r.days} ημέρες)`;
   });
+
+  private createDefaultModel(): InterestModel {
+    const today = new Date();
+    const oneYearLater = new Date(today);
+    oneYearLater.setFullYear(today.getFullYear() + 1);
+    return {
+      capital: 10000,
+      rate: 3.5,
+      startDate: this.formatDate(today),
+      endDate: this.formatDate(oneYearLater),
+    };
+  }
 
   private formatDate(d: Date): string {
     return d.toISOString().split('T')[0];

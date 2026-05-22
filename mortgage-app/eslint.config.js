@@ -31,7 +31,7 @@ module.exports = defineConfig([
           style: 'kebab-case',
         },
       ],
-      '@angular-eslint/prefer-inject': 'off',
+      '@angular-eslint/prefer-inject': 'error',
       '@angular-eslint/prefer-standalone': 'error',
       '@angular-eslint/prefer-on-push-component-change-detection': 'error',
       '@typescript-eslint/no-empty-function': 'off',

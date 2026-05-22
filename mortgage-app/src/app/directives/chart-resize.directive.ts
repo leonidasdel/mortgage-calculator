@@ -1,14 +1,16 @@
-import { Directive, EventEmitter, HostListener, Output } from '@angular/core';
+import { Directive, output } from '@angular/core';
 
 @Directive({
   selector: '[appChartResize]',
   standalone: true,
+  host: {
+    '(window:resize)': 'onResize()',
+    '(window:themechange)': 'onResize()',
+  },
 })
 export class ChartResizeDirective {
-  @Output() chartResize = new EventEmitter<void>();
+  chartResize = output<void>();
 
-  @HostListener('window:resize')
-  @HostListener('window:themechange')
   onResize(): void {
     this.chartResize.emit();
   }

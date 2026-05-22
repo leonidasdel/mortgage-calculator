@@ -1,18 +1,18 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { SalaryResult } from '../../models/salary.models';
-
-import { CommonModule } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { EuroPipe } from '../../pipes/euro.pipe';
+
 @Component({
   selector: 'app-salary-payslip-panel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, EuroPipe],
+  imports: [DecimalPipe, EuroPipe],
   templateUrl: './salary-payslip-panel.component.html',
   styleUrl: './salary-payslip-panel.component.scss',
 })
 export class SalaryPayslipPanelComponent {
-  @Input({ required: true }) result!: SalaryResult;
-  @Input() ftePercent = 100;
-  @Input() raiseDiff: { monthly: number; annual: number } | null = null;
+  result = input.required<SalaryResult>();
+  ftePercent = input(100);
+  raiseDiff = input<{ monthly: number; annual: number } | null>(null);
 }

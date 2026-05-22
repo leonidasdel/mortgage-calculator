@@ -13,14 +13,13 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Παράμετροι Υπολογισμού</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <div class="form-group">
           <label for="grossMonthly">Τρέχων Μικτός Μηνιαίος Μισθός (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="grossMonthly" formControlName="grossMonthly"
-                   min="0" step="50" placeholder="π.χ. 1500">
+            <input type="number" id="grossMonthly" [formField]="formFields.grossMonthly">
           </div>
         </div>
 
@@ -28,8 +27,7 @@
           <label for="annualBonus">Μικτό Ποσό Μπόνους (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="annualBonus" formControlName="annualBonus"
-                   min="0" step="100" placeholder="π.χ. 1000">
+            <input type="number" id="annualBonus" [formField]="formFields.annualBonus">
           </div>
         </div>
 
@@ -39,7 +37,7 @@
           <div class="form-group">
             <label for="year">Φορολογικό Έτος</label>
             <div class="input-wrap">
-              <select id="year" formControlName="year" class="form-select">
+              <select id="year" [formField]="formFields.year" class="form-select">
                 <option [value]="2026">2026</option>
                 <option [value]="2025">2025</option>
               </select>
@@ -49,7 +47,7 @@
           <div class="form-group">
             <label for="ageGroup">Ηλικιακή Ομάδα</label>
             <div class="input-wrap">
-              <select id="ageGroup" formControlName="ageGroup" class="form-select">
+              <select id="ageGroup" [formField]="formFields.ageGroup" class="form-select">
                 <option value="over30">Άνω των 30 ετών</option>
                 <option value="26to30">26-30 ετών</option>
                 <option value="under25">Έως 25 ετών</option>
@@ -60,7 +58,7 @@
           <div class="form-group">
             <label for="children">Παιδιά</label>
             <div class="input-wrap">
-              <select id="children" formControlName="children" class="form-select">
+              <select id="children" [formField]="formFields.children" class="form-select">
                 <option [value]="0">0</option>
                 <option [value]="1">1</option>
                 <option [value]="2">2</option>
@@ -78,25 +76,24 @@
 
           <div class="form-group">
             <label class="ab-check-row">
-              <input type="checkbox" formControlName="hasSalaryChange">
+              <input type="checkbox" [formField]="formFields.hasSalaryChange">
               <span>Άλλαξα μισθό μέσα στο έτος</span>
             </label>
           </div>
 
-          @if (form.get('hasSalaryChange')?.value) {
+          @if (formModel().hasSalaryChange) {
             <div class="form-group">
               <label for="previousGross">Προηγούμενος Μικτός Μισθός (€)</label>
               <div class="input-wrap has-pfx">
                 <span class="pfx">€</span>
-                <input type="number" id="previousGross" formControlName="previousGross"
-                       min="0" step="50" placeholder="π.χ. 1300">
+                <input type="number" id="previousGross" [formField]="formFields.previousGross">
               </div>
             </div>
 
             <div class="form-group">
               <label for="salaryChangeMonth">Μήνας Αλλαγής</label>
               <div class="input-wrap">
-                <select id="salaryChangeMonth" formControlName="salaryChangeMonth" class="form-select">
+                <select id="salaryChangeMonth" [formField]="formFields.salaryChangeMonth" class="form-select">
                   @for (month of months; track month.value) {
                     <option [value]="month.value">{{ month.label }}</option>
                   }
@@ -162,7 +159,7 @@
 
         <app-export-row
           sharePath="/annual-bonus"
-          [shareState]="form.value"
+          [shareState]="formModel()"
           [shareSummary]="shareSummary()"
           printTargetId="ab-results">
         </app-export-row>

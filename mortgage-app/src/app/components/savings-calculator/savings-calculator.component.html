@@ -14,13 +14,13 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Παράμετροι</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <div class="form-group">
           <label for="initialDeposit">Αρχικό Κεφάλαιο (&#8364;)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="initialDeposit" formControlName="initialDeposit" min="0" step="1000">
+            <input type="number" id="initialDeposit" [formField]="formFields.initialDeposit">
           </div>
         </div>
 
@@ -28,7 +28,7 @@
           <label for="monthlyContribution">Μηνιαία Αποταμίευση (&#8364;) — Σενάριο Α</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="monthlyContribution" formControlName="monthlyContribution" min="0" step="50">
+            <input type="number" id="monthlyContribution" [formField]="formFields.monthlyContribution">
           </div>
         </div>
 
@@ -36,14 +36,14 @@
           <label for="compareMonthlyContribution">Μηνιαία Αποταμίευση (&#8364;) — Σενάριο Β</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="compareMonthlyContribution" formControlName="compareMonthlyContribution" min="0" step="50">
+            <input type="number" id="compareMonthlyContribution" [formField]="formFields.compareMonthlyContribution">
           </div>
         </div>
 
         <div class="form-group">
           <label for="annualReturn">Ετήσια Απόδοση (%)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="annualReturn" formControlName="annualReturn" min="0" step="0.5">
+            <input type="number" id="annualReturn" [formField]="formFields.annualReturn">
             <span class="sfx">%</span>
           </div>
         </div>
@@ -54,7 +54,7 @@
             @for (d of quickDurations; track d) {
               <button type="button"
                       class="sv-pill"
-                      [class.active]="form.get('durationYears')?.value === d"
+                      [class.active]="formModel().durationYears === d"
                       (click)="setYears(d)">
                 {{ d }} έτη
               </button>
@@ -62,7 +62,7 @@
           </div>
           <div class="sv-years-row">
             <div class="input-wrap">
-              <input type="number" id="durationYears" formControlName="durationYears" min="1" max="50" step="1">
+              <input type="number" id="durationYears" [formField]="formFields.durationYears">
             </div>
             <span class="sv-years-lbl">έτη</span>
           </div>
@@ -74,12 +74,12 @@
 
         <div class="form-group">
           <label class="sv-check-row">
-            <input type="checkbox" formControlName="applyTax">
+            <input type="checkbox" [formField]="formFields.applyTax">
             <span>Παρακράτηση φόρου τόκων</span>
           </label>
-          @if (form.get('applyTax')?.value) {
+          @if (formModel().applyTax) {
             <div class="input-wrap has-sfx" style="margin-top:6px;">
-              <input type="number" id="taxRate" formControlName="taxRate" min="0" max="100" step="1">
+              <input type="number" id="taxRate" [formField]="formFields.taxRate">
               <span class="sfx">%</span>
             </div>
             <div class="sv-hint">Ο φόρος τόκων στην Ελλάδα είναι 15%</div>
@@ -88,12 +88,12 @@
 
         <div class="form-group">
           <label class="sv-check-row">
-            <input type="checkbox" formControlName="applyInflation">
+            <input type="checkbox" [formField]="formFields.applyInflation">
             <span>Προσαρμογή πληθωρισμού</span>
           </label>
-          @if (form.get('applyInflation')?.value) {
+          @if (formModel().applyInflation) {
             <div class="input-wrap has-sfx" style="margin-top:6px;">
-              <input type="number" id="inflationRate" formControlName="inflationRate" min="0" max="100" step="0.5">
+              <input type="number" id="inflationRate" [formField]="formFields.inflationRate">
               <span class="sfx">%</span>
             </div>
           }
@@ -122,7 +122,7 @@
           <div class="hero-card">
             <div class="hero-lbl">Τελικό Κεφάλαιο</div>
             <div class="hero-val">{{ result().finalNominal | euro:0 }}</div>
-            <div class="hero-sub">μετά {{ form.get('durationYears')?.value }} έτη</div>
+            <div class="hero-sub">μετά {{ formModel().durationYears }} έτη</div>
           </div>
           <div class="hero-card dark">
             <div class="hero-lbl">Καθαρά Κέρδη</div>
@@ -144,7 +144,7 @@
         <div class="sum-grid">
           <div class="sum-item">
             <div class="sum-lbl">Αρχικό Κεφάλαιο</div>
-            <div class="sum-val">{{ form.get('initialDeposit')?.value | euro }}</div>
+            <div class="sum-val">{{ formModel().initialDeposit | euro }}</div>
           </div>
           <div class="sum-item">
             <div class="sum-lbl">Συνολικές Εισφορές</div>
@@ -179,7 +179,7 @@
         <div class="export-row">
           <app-export-row
             sharePath="/savings"
-            [shareState]="form.value"
+            [shareState]="formModel()"
             [shareSummary]="shareSummary()"
             printTargetId="savings-results">
           </app-export-row>
@@ -202,21 +202,33 @@
     </div>
 
     <!-- Chart card -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-header-icon">&#128200;</div>
-        <h2>Εξέλιξη Κεφαλαίου</h2>
-      </div>
-      <div class="card-body">
-        <div style="overflow-x:auto;" appChartResize (chartResize)="onChartResize()">
-          <canvas #savingsChart></canvas>
+    @defer (on viewport) {
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon">&#128200;</div>
+          <h2>Εξέλιξη Κεφαλαίου</h2>
         </div>
-        <div class="chart-legend">
-          <div class="leg-item"><div class="leg-dot blue"></div><span>Εισφορές</span></div>
-          <div class="leg-item"><div class="leg-dot green"></div><span>Κέρδη</span></div>
+        <div class="card-body">
+          <div style="overflow-x:auto;" appChartResize (chartResize)="onChartResize()">
+            <canvas #savingsChart></canvas>
+          </div>
+          <div class="chart-legend">
+            <div class="leg-item"><div class="leg-dot blue"></div><span>Εισφορές</span></div>
+            <div class="leg-item"><div class="leg-dot green"></div><span>Κέρδη</span></div>
+          </div>
         </div>
       </div>
-    </div>
+    } @placeholder {
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon skeleton-block"></div>
+          <h2 class="skeleton-block skeleton-title"></h2>
+        </div>
+        <div class="card-body">
+          <div class="skeleton-block skeleton-chart"></div>
+        </div>
+      </div>
+    }
 
     <!-- Table card -->
     <div class="card">

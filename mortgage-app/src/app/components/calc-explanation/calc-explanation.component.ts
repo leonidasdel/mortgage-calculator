@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, Input, signal } from '@angular/core';
-
+import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 @Component({
   selector: 'app-calc-explanation',
   standalone: true,
@@ -10,9 +10,9 @@ import { CommonModule } from '@angular/common';
   styleUrl: './calc-explanation.component.scss',
 })
 export class CalcExplanationComponent {
-  @Input() title = 'Πώς υπολογίζεται;';
-  @Input() steps: string[] = [];
-  @Input() formula = '';
+  title = input('Πώς υπολογίζεται;');
+  steps = input<string[]>([]);
+  formula = input('');
   open = signal(false);
 
   toggle(): void {

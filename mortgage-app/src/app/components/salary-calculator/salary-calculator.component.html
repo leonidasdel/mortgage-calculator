@@ -14,14 +14,14 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Παράμετροι Υπολογισμού</h2>
       </div>
-      <div class="card-body" [formGroup]="salaryForm">
+      <div class="card-body">
 
         <!-- Gross salary -->
         <div class="form-group">
           <label for="grossMonthly">
             @if (hasSalaryChange()) {
               Τρέχων Μικτός Μισθός (&#8364;)
-            } @else if ((salaryForm.get('ftePercent')?.value || 100) < 100) {
+            } @else if ((formModel().ftePercent || 100) < 100) {
               Μικτά πλήρους απασχόλησης (&#8364;)
             } @else {
               Μικτός Μηνιαίος Μισθός (&#8364;)
@@ -29,8 +29,7 @@
           </label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="grossMonthly" formControlName="grossMonthly"
-                   min="0" step="50" (input)="onGrossChange()">
+            <input type="number" id="grossMonthly" [formField]="formFields.grossMonthly" (input)="onGrossChange()">
           </div>
         </div>
 
@@ -45,8 +44,7 @@
           </label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="netMonthly" formControlName="netMonthly"
-                   min="0" step="50" (input)="onNetChange()">
+            <input type="number" id="netMonthly" [formField]="formFields.netMonthly" (input)="onNetChange()">
           </div>
         </div>
 
@@ -60,18 +58,18 @@
           <div class="form-group">
             <label for="year">Έτος</label>
             <div class="input-wrap">
-              <select id="year" formControlName="year" class="form-select" (change)="onParamChange()">
+              <select id="year" [formField]="formFields.year" class="form-select" (change)="onParamChange()">
                 <option [value]="2026">2026</option>
                 <option [value]="2025">2025</option>
               </select>
             </div>
           </div>
 
-          @if (salaryForm.get('year')?.value > 2025) {
+          @if (+formModel().year > 2025) {
             <div class="form-group">
               <label for="ageGroup">Ηλικιακή Ομάδα</label>
               <div class="input-wrap">
-                <select id="ageGroup" formControlName="ageGroup" class="form-select" (change)="onParamChange()">
+                <select id="ageGroup" [formField]="formFields.ageGroup" class="form-select" (change)="onParamChange()">
                   <option value="under25">Έως 25 ετών</option>
                   <option value="26to30">26-30 ετών</option>
                   <option value="over30">Άνω των 30 ετών</option>
@@ -83,7 +81,7 @@
           <div class="form-group">
             <label for="children">Παιδιά</label>
             <div class="input-wrap">
-              <select id="children" formControlName="children" class="form-select" (change)="onParamChange()">
+              <select id="children" [formField]="formFields.children" class="form-select" (change)="onParamChange()">
                 <option [value]="0">0</option>
                 <option [value]="1">1</option>
                 <option [value]="2">2</option>
@@ -98,8 +96,7 @@
           <div class="form-group">
             <label for="ftePercent">Ποσοστό απασχόλησης</label>
             <div class="input-wrap has-sfx">
-              <input type="number" id="ftePercent" formControlName="ftePercent"
-                     min="1" max="100" step="5" (input)="onParamChange()">
+              <input type="number" id="ftePercent" [formField]="formFields.ftePercent" (input)="onParamChange()">
               <span class="sfx">%</span>
             </div>
             <div class="sal-hint">Τα μικτά αφορούν πλήρη απασχόληση · με 50% υπολογίζεται μισθός μερικής</div>
@@ -118,14 +115,14 @@
               <label>Εργοδότης 2 — Μικτά (€)</label>
               <div class="input-wrap has-pfx">
                 <span class="pfx">€</span>
-                <input type="number" formControlName="employer2Gross" min="0" step="50">
+                <input type="number" [formField]="formFields.employer2Gross">
               </div>
             </div>
             <div class="form-group">
               <label>Εργοδότης 3 — Μικτά (€)</label>
               <div class="input-wrap has-pfx">
                 <span class="pfx">€</span>
-                <input type="number" formControlName="employer3Gross" min="0" step="50">
+                <input type="number" [formField]="formFields.employer3Gross">
               </div>
             </div>
           }
@@ -149,7 +146,7 @@
         </div>
 
         <app-salary-change-block
-          [formGroup]="salaryForm"
+          [formFields]="$any(formFields)"
           [hasSalaryChange]="hasSalaryChange()"
           (salaryChangeToggle)="toggleSalaryChange($event)"
           (salaryChangeMonthChange)="onSalaryChangeMonthChange($event)"
@@ -165,14 +162,14 @@
 
     <app-salary-payslip-panel
       [result]="result()"
-      [ftePercent]="salaryForm.get('ftePercent')?.value || 100"
+      [ftePercent]="formModel().ftePercent || 100"
       [raiseDiff]="raiseDiff()">
     </app-salary-payslip-panel>
 
     <app-salary-tax-breakdown
       [result]="result()"
-      [year]="salaryForm.get('year')?.value"
-      [ageGroupLabel]="ageGroupLabel"
+      [year]="+formModel().year"
+      [ageGroupLabel]="ageGroupLabel()"
       [showTaxDetails]="showTaxDetails()"
       [fullTimeResult]="fullTimeResult()"
       [multiEmployerResult]="multiEmployerResult()"

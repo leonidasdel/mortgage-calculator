@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { AnnualBonusResult } from '../../models/salary.models';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
@@ -15,8 +14,18 @@ const ZERO_BONUS: AnnualBonusResult = {
   net: 0,
 };
 
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+interface AnnualBonusModel {
+  grossMonthly: number;
+  annualBonus: number;
+  year: string;
+  ageGroup: string;
+  children: string;
+  hasSalaryChange: boolean;
+  salaryChangeMonth: string;
+  previousGross: number;
+}
+
+import { DecimalPipe } from '@angular/common';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { ExportRowComponent } from '../export-row/export-row.component';
@@ -25,13 +34,26 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   selector: 'app-annual-bonus-calculator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [DecimalPipe, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './annual-bonus-calculator.component.html',
   styleUrl: './annual-bonus-calculator.component.scss',
 })
-export class AnnualBonusCalculatorComponent implements OnInit {
-  form: FormGroup;
-  private destroyRef = inject(DestroyRef);
+export class AnnualBonusCalculatorComponent {
+  formModel = signal<AnnualBonusModel>({
+    grossMonthly: 1500,
+    annualBonus: 1000,
+    year: '2026',
+    ageGroup: 'over30',
+    children: '0',
+    hasSalaryChange: false,
+    salaryChangeMonth: '4',
+    previousGross: 0,
+  });
+  formFields = form(this.formModel);
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly calc = inject(SalaryCalculatorService);
+  private readonly persistence = inject(CalculatorPersistenceService);
 
   readonly months = [
     { value: 1, label: 'Ιανουάριος' },
@@ -48,8 +70,6 @@ export class AnnualBonusCalculatorComponent implements OnInit {
     { value: 12, label: 'Δεκέμβριος' },
   ];
 
-  private formValues;
-
   readonly explanationSteps = [
     'Το μπόνους προστίθεται στο ετήσιο εισόδημα για φορολογία.',
     'Υπολογίζεται ΕΦΚΑ εργαζομένου (13,37%) στο μπόνους.',
@@ -60,33 +80,11 @@ export class AnnualBonusCalculatorComponent implements OnInit {
   readonly explanationFormula =
     'Καθαρό μπόνους = Μικτό − ΕΦΚΑ − οριακός φόρος';
 
-  constructor(
-    private fb: FormBuilder,
-    private calc: SalaryCalculatorService,
-    private persistence: CalculatorPersistenceService,
-  ) {
-    this.form = this.fb.group({
-      grossMonthly: [1500],
-      annualBonus: [1000],
-      year: [2026],
-      ageGroup: ['over30'],
-      children: [0],
-      hasSalaryChange: [false],
-      salaryChangeMonth: [4],
-      previousGross: [0],
-    });
-
-    this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
+  constructor() {
+    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
   }
 
-  ngOnInit(): void {
-    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
-  }
-
-  result = computed(() => {
-    this.formValues();
-    return this.calc.calculate(this.calc.buildSalaryParams(this.form.value));
-  });
+  result = computed(() => this.calc.calculate(this.calc.buildSalaryParams(this.formModel())));
 
   bonus = computed<AnnualBonusResult>(() => this.result().bonusResult ?? ZERO_BONUS);
 
@@ -110,8 +108,4 @@ export class AnnualBonusCalculatorComponent implements OnInit {
     const b = this.bonus();
     return `Ετήσιο μπόνους Salaries.gr: καθαρά ${b.net.toFixed(2)}€ από ${b.grossBonus.toFixed(2)}€ μικτά`;
   });
-
-  private buildParams() {
-    return this.calc.buildSalaryParams(this.form.value);
-  }
 }

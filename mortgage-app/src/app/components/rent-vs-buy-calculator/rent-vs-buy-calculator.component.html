@@ -14,13 +14,13 @@
         <div class="card-header-icon">🏗️</div>
         <h2>Ακίνητο &amp; Αγορά</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <div class="form-group">
           <label for="propertyPrice">Αξία Ακινήτου</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="propertyPrice" formControlName="propertyPrice" min="0" step="10000" (input)="onPropertyPriceInput()">
+            <input type="number" id="propertyPrice" [formField]="formFields.propertyPrice" (input)="onPropertyPriceInput()">
           </div>
         </div>
 
@@ -29,22 +29,22 @@
           <div class="rvb-mode-toggle">
             <button type="button"
                     class="rvb-mode-pill"
-                    [class.active]="form.get('downPaymentMode')?.value === 'pct'"
+                    [class.active]="formModel().downPaymentMode === 'pct'"
                     (click)="onDownPaymentModeChange('pct')">Ποσοστό</button>
             <button type="button"
                     class="rvb-mode-pill"
-                    [class.active]="form.get('downPaymentMode')?.value === 'amount'"
+                    [class.active]="formModel().downPaymentMode === 'amount'"
                     (click)="onDownPaymentModeChange('amount')">Ποσό</button>
           </div>
-          @if (form.get('downPaymentMode')?.value === 'amount') {
+          @if (formModel().downPaymentMode === 'amount') {
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="downPaymentAmount" formControlName="downPaymentAmount" min="0" step="1000" (input)="onDownPaymentAmountInput()">
+              <input type="number" id="downPaymentAmount" [formField]="formFields.downPaymentAmount" (input)="onDownPaymentAmountInput()">
             </div>
             <div class="field-hint">= {{ result().downPaymentPct | number:'1.1-2' }}% της αξίας</div>
           } @else {
             <div class="input-wrap has-sfx">
-              <input type="number" id="downPaymentPct" formControlName="downPaymentPct" min="0" max="100" step="1" (input)="onDownPaymentPctInput()">
+              <input type="number" id="downPaymentPct" [formField]="formFields.downPaymentPct" (input)="onDownPaymentPctInput()">
               <span class="sfx">%</span>
             </div>
             <div class="field-hint">= {{ result().downPayment | euro:0 }}</div>
@@ -56,22 +56,22 @@
           <div class="rvb-mode-toggle">
             <button type="button"
                     class="rvb-mode-pill"
-                    [class.active]="form.get('closingCostsMode')?.value === 'pct'"
+                    [class.active]="formModel().closingCostsMode === 'pct'"
                     (click)="onClosingCostsModeChange('pct')">Ποσοστό</button>
             <button type="button"
                     class="rvb-mode-pill"
-                    [class.active]="form.get('closingCostsMode')?.value === 'amount'"
+                    [class.active]="formModel().closingCostsMode === 'amount'"
                     (click)="onClosingCostsModeChange('amount')">Ποσό</button>
           </div>
-          @if (form.get('closingCostsMode')?.value === 'amount') {
+          @if (formModel().closingCostsMode === 'amount') {
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="closingCostsAmount" formControlName="closingCostsAmount" min="0" step="500" (input)="onClosingCostsAmountInput()">
+              <input type="number" id="closingCostsAmount" [formField]="formFields.closingCostsAmount" (input)="onClosingCostsAmountInput()">
             </div>
             <div class="field-hint">= {{ result().closingCostsPct | number:'1.1-2' }}% της αξίας</div>
           } @else {
             <div class="input-wrap has-sfx">
-              <input type="number" id="closingCostsPct" formControlName="closingCostsPct" min="0" step="0.5" (input)="onClosingCostsPctInput()">
+              <input type="number" id="closingCostsPct" [formField]="formFields.closingCostsPct" (input)="onClosingCostsPctInput()">
               <span class="sfx">%</span>
             </div>
             <div class="field-hint">= {{ result().closingCosts | euro:0 }}</div>
@@ -85,7 +85,7 @@
         <div class="form-group">
           <label for="mortgageRate">Επιτόκιο Δανείου (%)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="mortgageRate" formControlName="mortgageRate" min="0" step="0.1">
+            <input type="number" id="mortgageRate" [formField]="formFields.mortgageRate">
             <span class="sfx">%</span>
           </div>
         </div>
@@ -93,7 +93,7 @@
         <div class="form-group">
           <label for="mortgageTerm">Διάρκεια Δανείου (έτη)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="mortgageTerm" formControlName="mortgageTerm" min="1" max="40" step="1">
+            <input type="number" id="mortgageTerm" [formField]="formFields.mortgageTerm">
             <span class="sfx">έτη</span>
           </div>
         </div>
@@ -106,17 +106,17 @@
           <label for="monthlyRent">Μηνιαίο Ενοίκιο</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="monthlyRent" formControlName="monthlyRent" min="0" step="50">
+            <input type="number" id="monthlyRent" [formField]="formFields.monthlyRent">
           </div>
         </div>
 
         <div class="form-group">
           <label for="rentGrowthRate">Ετήσια Αύξηση Ενοικίου (%)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="rentGrowthRate" formControlName="rentGrowthRate" step="0.5">
+            <input type="number" id="rentGrowthRate" [formField]="formFields.rentGrowthRate">
             <span class="sfx">%</span>
           </div>
-          @if (form.value.monthlyRent > 0 && form.value.rentGrowthRate > 0) {
+          @if (formModel().monthlyRent > 0 && formModel().rentGrowthRate > 0) {
             <div class="field-hint">
               Αυτό σημαίνει ότι το ενοίκιο σε
               @for (p of rentProjections(); track p.years) {
@@ -133,7 +133,7 @@
         <div class="form-group">
           <label for="propertyGrowthRate">Ετήσια Αύξηση Αξίας Ακινήτου (%)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="propertyGrowthRate" formControlName="propertyGrowthRate" step="0.5">
+            <input type="number" id="propertyGrowthRate" [formField]="formFields.propertyGrowthRate">
             <span class="sfx">%</span>
           </div>
           <div class="field-hint">Ο αναμενόμενος ετήσιος ρυθμός ανόδου της αξίας του ακινήτου. Ιστορικά στην Ελλάδα κυμαίνεται μεταξύ 1–4%.</div>
@@ -142,7 +142,7 @@
         <div class="form-group">
           <label for="investmentReturn">Απόδοση Επένδυσης Προκαταβολής (%/έτος)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="investmentReturn" formControlName="investmentReturn" min="0" step="0.5">
+            <input type="number" id="investmentReturn" [formField]="formFields.investmentReturn">
             <span class="sfx">%</span>
           </div>
           <div class="field-hint">Αν δεν αγοράζατε, η προκαταβολή θα επενδυόταν στις αγορές. Εκφράζει το κόστος ευκαιρίας των χρημάτων σας — τι θα κέρδιζαν αλλού.</div>
@@ -151,7 +151,7 @@
         <div class="form-group">
           <label for="annualOwnershipCostPct">Ετήσια Κόστη Ιδιοκτησίας (% αξίας)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="annualOwnershipCostPct" formControlName="annualOwnershipCostPct" min="0" step="0.1">
+            <input type="number" id="annualOwnershipCostPct" [formField]="formFields.annualOwnershipCostPct">
             <span class="sfx">%</span>
           </div>
           <div class="field-hint">Συνολικό ετήσιο κόστος ιδιοκτησίας: ΕΝΦΙΑ, συντήρηση, ασφάλεια, κ.λπ. Συνήθως κυμαίνεται στο 0.5–2% της αξίας του ακινήτου.</div>
@@ -164,7 +164,7 @@
         <div class="form-group">
           <label for="timeHorizon">Χρονικός Ορίζοντας — Σενάριο Α (έτη)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="timeHorizon" formControlName="timeHorizon" min="1" max="40" step="1">
+            <input type="number" id="timeHorizon" [formField]="formFields.timeHorizon">
             <span class="sfx">έτη</span>
           </div>
         </div>
@@ -172,7 +172,7 @@
         <div class="form-group">
           <label for="compareTimeHorizon">Χρονικός Ορίζοντας — Σενάριο Β (έτη)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="compareTimeHorizon" formControlName="compareTimeHorizon" min="1" max="40" step="1">
+            <input type="number" id="compareTimeHorizon" [formField]="formFields.compareTimeHorizon">
             <span class="sfx">έτη</span>
           </div>
         </div>
@@ -192,7 +192,7 @@
     <div class="card" id="rvb-results">
       <div class="card-header">
         <div class="card-header-icon">⚖️</div>
-        <h2>Αποτέλεσμα σε {{ form.value.timeHorizon }} Έτη</h2>
+        <h2>Αποτέλεσμα σε {{ formModel().timeHorizon }} Έτη</h2>
       </div>
       <div class="card-body">
 
@@ -205,13 +205,13 @@
             <span class="verdict-icon">🏠</span>
             <div>
               <div class="verdict-title">Η Αγορά Συμφέρει</div>
-              <div class="verdict-sub">κατά {{ result().advantage | euro:0 }} σε {{ form.value.timeHorizon }} έτη</div>
+              <div class="verdict-sub">κατά {{ result().advantage | euro:0 }} σε {{ formModel().timeHorizon }} έτη</div>
             </div>
           } @else if (result().winner === 'rent') {
             <span class="verdict-icon">🔑</span>
             <div>
               <div class="verdict-title">Η Ενοικίαση Συμφέρει</div>
-              <div class="verdict-sub">κατά {{ result().advantage | euro:0 }} σε {{ form.value.timeHorizon }} έτη</div>
+              <div class="verdict-sub">κατά {{ result().advantage | euro:0 }} σε {{ formModel().timeHorizon }} έτη</div>
             </div>
           } @else {
             <span class="verdict-icon">⚖️</span>
@@ -236,7 +236,7 @@
               <div class="hero-sub">Η αγορά υπερτερεί μετά {{ result().breakEvenYear }} χρόνια</div>
             } @else {
               <div class="hero-val">—</div>
-              <div class="hero-sub">Δεν ξεπερνά εντός {{ form.value.timeHorizon }} ετών</div>
+              <div class="hero-sub">Δεν ξεπερνά εντός {{ formModel().timeHorizon }} ετών</div>
             }
           </div>
         </div>
@@ -267,7 +267,7 @@
 
         <app-export-row
           sharePath="/rent-vs-buy"
-          [shareState]="form.value"
+          [shareState]="formModel()"
           [shareSummary]="shareSummary()"
           printTargetId="rvb-results">
         </app-export-row>

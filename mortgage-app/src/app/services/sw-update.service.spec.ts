@@ -1,3 +1,4 @@
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { Subject } from 'rxjs';
@@ -27,26 +28,31 @@ describe('SwUpdateService', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [{ provide: SwUpdate, useValue: swUpdateMock }],
+      providers: [
+        provideZonelessChangeDetection(),
+        { provide: SwUpdate, useValue: swUpdateMock },
+      ],
     });
     service = TestBed.inject(SwUpdateService);
   });
 
   it('should set updateAvailable on VERSION_READY', () => {
-    service.init();
+    TestBed.runInInjectionContext(() => service.init());
     expect(service.updateAvailable()).toBe(false);
     versionUpdates$.next({ type: 'VERSION_READY' } as VersionReadyEvent);
+    TestBed.flushEffects();
     expect(service.updateAvailable()).toBe(true);
   });
 
   it('should set updateAvailable on unrecoverable error', () => {
-    service.init();
+    TestBed.runInInjectionContext(() => service.init());
     unrecoverable$.next({ reason: 'cache bust' });
+    TestBed.flushEffects();
     expect(service.updateAvailable()).toBe(true);
   });
 
   it('should check for updates on init', () => {
-    service.init();
+    TestBed.runInInjectionContext(() => service.init());
     expect(swUpdateMock.checkForUpdate).toHaveBeenCalled();
   });
 
@@ -58,7 +64,7 @@ describe('SwUpdateService', () => {
 
   it('should no-op when service worker disabled', () => {
     swUpdateMock.isEnabled = false;
-    service.init();
+    TestBed.runInInjectionContext(() => service.init());
     service.checkForUpdates();
     expect(swUpdateMock.checkForUpdate).not.toHaveBeenCalled();
   });

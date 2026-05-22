@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { CRYPTO_GAINS_TAX_RATE, CRYPTO_LOSS_CARRY_YEARS } from '../../constants/crypto-tax.constants';
 import {
   CryptoTaxCalculatorService,
@@ -10,8 +9,15 @@ import { CalculatorPersistenceService } from '../../services/calculator-persiste
 
 const STORAGE_KEY = 'cryptoTaxCalcState';
 
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+interface CryptoTaxModel {
+  mode: string;
+  totalProceeds: number;
+  totalCost: number;
+  carriedLoss: number;
+  isProfessional: boolean;
+}
+
+import { DecimalPipe } from '@angular/common';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { ExportRowComponent } from '../export-row/export-row.component';
@@ -20,14 +26,23 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   selector: 'app-crypto-tax-calculator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [DecimalPipe, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './crypto-tax-calculator.component.html',
   styleUrl: './crypto-tax-calculator.component.scss',
 })
-export class CryptoTaxCalculatorComponent implements OnInit {
-  form: FormGroup;
-  private formValues;
-  private destroyRef = inject(DestroyRef);
+export class CryptoTaxCalculatorComponent {
+  formModel = signal<CryptoTaxModel>({
+    mode: 'simple',
+    totalProceeds: 10000,
+    totalCost: 6000,
+    carriedLoss: 0,
+    isProfessional: false,
+  });
+  formFields = form(this.formModel);
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly calc = inject(CryptoTaxCalculatorService);
+  private readonly persistence = inject(CalculatorPersistenceService);
 
   readonly taxRatePct = CRYPTO_GAINS_TAX_RATE * 100;
   readonly lossCarryYears = CRYPTO_LOSS_CARRY_YEARS;
@@ -41,38 +56,23 @@ export class CryptoTaxCalculatorComponent implements OnInit {
 
   readonly explanationFormula = 'Φόρος = max(0, κέρδος − ζημίες) × 15%';
 
-  constructor(
-    private fb: FormBuilder,
-    private calc: CryptoTaxCalculatorService,
-    private persistence: CalculatorPersistenceService,
-  ) {
-    this.form = this.fb.group({
-      mode: ['simple'],
-      totalProceeds: [10000],
-      totalCost: [6000],
-      carriedLoss: [0],
-      isProfessional: [false],
-    });
-
-    this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
+  constructor() {
+    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
   }
 
-  ngOnInit(): void {
-    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
-  }
-
-  result = computed(() => {
-    this.formValues();
-    return this.calc.calculate(this.buildParams());
-  });
+  result = computed(() => this.calc.calculate(this.buildParams()));
 
   shareSummary = computed(() => {
     const r = this.result();
     return `Φόρος κρυπτονομισμάτων Salaries.gr: ${r.taxDue.toFixed(2)}€ φόρος επί κέρδους ${r.taxableGain.toFixed(2)}€`;
   });
 
+  setMode(mode: string): void {
+    this.formModel.update(m => ({ ...m, mode }));
+  }
+
   private buildParams(): CryptoTaxParams {
-    const fv = this.form.value;
+    const fv = this.formModel();
     return {
       mode: fv.mode === 'fifo' ? 'fifo' : 'simple',
       totalProceeds: this.toAmount(fv.totalProceeds),

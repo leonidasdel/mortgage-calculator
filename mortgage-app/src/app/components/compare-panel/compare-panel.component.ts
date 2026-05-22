@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 export interface CompareRow {
   label: string;
@@ -7,7 +8,6 @@ export interface CompareRow {
   highlight?: 'a' | 'b';
 }
 
-import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-compare-panel',
   standalone: true,
@@ -17,7 +17,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './compare-panel.component.scss',
 })
 export class ComparePanelComponent {
-  @Input() labelA = 'Σενάριο Α';
-  @Input() labelB = 'Σενάριο Β';
-  @Input() rows: CompareRow[] = [];
+  labelA = input('Σενάριο Α');
+  labelB = input('Σενάριο Β');
+  rows = input<CompareRow[]>([]);
 }

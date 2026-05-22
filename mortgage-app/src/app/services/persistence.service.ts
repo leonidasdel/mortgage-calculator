@@ -1,5 +1,4 @@
-import { DestroyRef, Injectable } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { DestroyRef, Injectable, inject, WritableSignal } from '@angular/core';
 import { EarlyRepayment, LoanParams } from '../models/mortgage.models';
 import { CalculatorPersistenceService } from './calculator-persistence.service';
 
@@ -13,7 +12,7 @@ const STORAGE_KEY = 'mortgageCalcState';
 
 @Injectable({ providedIn: 'root' })
 export class PersistenceService {
-  constructor(private persistence: CalculatorPersistenceService) {}
+  private readonly persistence = inject(CalculatorPersistenceService);
 
   saveState(inputs: Partial<LoanParams>, erList: EarlyRepayment[], erCounter: number): void {
     const state: PersistedState = { inputs, erList, erCounter };
@@ -25,23 +24,23 @@ export class PersistenceService {
   }
 
   initMortgageForm(
-    form: FormGroup,
+    model: WritableSignal<LoanParams>,
     destroyRef: DestroyRef,
     handlers: {
       onLoadErList: (erList: EarlyRepayment[]) => void;
       onSave: () => void;
     },
   ): void {
-    this.persistence.initCalculatorForm(form, STORAGE_KEY, destroyRef, {
+    this.persistence.initSignalForm(model, STORAGE_KEY, destroyRef, {
       onLoad: (saved) => {
         if (saved['inputs']) {
-          form.patchValue(saved['inputs'] as Record<string, unknown>, { emitEvent: false });
+          model.set({ ...model(), ...(saved['inputs'] as Partial<LoanParams>) });
         }
         if (Array.isArray(saved['erList'])) {
           handlers.onLoadErList(saved['erList'] as EarlyRepayment[]);
         }
       },
-      onSave: handlers.onSave,
+      onSave: () => handlers.onSave(),
     });
   }
 }

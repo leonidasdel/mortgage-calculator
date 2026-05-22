@@ -1,14 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class ShareStateService {
-  constructor(private router: Router) {}
+  private readonly router = inject(Router);
 
-  serializeState(state: Record<string, unknown>): string {
+  serializeState(state: object): string {
     const params = new URLSearchParams();
-    for (const [k, v] of Object.entries(state)) {
+    for (const [k, v] of Object.entries(state as Record<string, unknown>)) {
       if (v === null || v === undefined || v === '') continue;
       if (typeof v === 'object') {
         params.set(k, JSON.stringify(v));
@@ -32,13 +32,13 @@ export class ShareStateService {
     return out;
   }
 
-  buildShareUrl(path: string, state: Record<string, unknown>): string {
+  buildShareUrl(path: string, state: object): string {
     const qs = this.serializeState(state);
     const base = window.location.origin + path;
     return qs ? `${base}?${qs}` : base;
   }
 
-  async copyShareLink(path: string, state: Record<string, unknown>): Promise<string> {
+  async copyShareLink(path: string, state: object): Promise<string> {
     const url = this.buildShareUrl(path, state);
     try { await navigator.clipboard.writeText(url); } catch { /* ignore */ }
     return url;

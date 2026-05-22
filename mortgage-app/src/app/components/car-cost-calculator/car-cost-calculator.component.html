@@ -13,38 +13,39 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Στοιχεία Οχήματος</h2>
       </div>
-      <div class="card-body" [formGroup]="form">
+      <div class="card-body" >
 
         <div class="form-group">
           <label>Ημερομηνία 1ης κυκλοφορίας</label>
-          <app-date-select formControlName="firstRegistration" [minYear]="1980"></app-date-select>
+          <app-date-select
+            [ngModel]="formModel().firstRegistration"
+            (ngModelChange)="onFirstRegistrationChange($event)"
+            [minYear]="1980"></app-date-select>
           <div class="cc-hint">{{ eraHint() }}</div>
         </div>
 
         <div class="form-group">
           <label class="cc-check-row">
-            <input type="checkbox" formControlName="isEv">
+            <input type="checkbox" [formField]="formFields.isEv">
             <span>Ηλεκτρικό / plug-in υβριδικό (μηδενικά τέλη)</span>
           </label>
         </div>
 
-        @if (!form.get('isEv')?.value && registrationEra() === 'cc') {
+        @if (!formModel().isEv && registrationEra() === 'cc') {
           <div class="form-group">
             <label for="engineCc">Κυβισμός κινητήρα</label>
             <div class="input-wrap has-sfx">
-              <input type="number" id="engineCc" formControlName="engineCc"
-                     min="0" step="100" placeholder="π.χ. 1400">
+              <input type="number" id="engineCc" [formField]="formFields.engineCc">
               <span class="sfx">cc</span>
             </div>
           </div>
         }
 
-        @if (!form.get('isEv')?.value && (registrationEra() === 'co2_a' || registrationEra() === 'co2_b')) {
+        @if (!formModel().isEv && (registrationEra() === 'co2_a' || registrationEra() === 'co2_b')) {
           <div class="form-group">
             <label for="co2Grams">Εκπομπές CO₂</label>
             <div class="input-wrap has-sfx">
-              <input type="number" id="co2Grams" formControlName="co2Grams"
-                     min="0" step="1" placeholder="π.χ. 120">
+              <input type="number" id="co2Grams" [formField]="formFields.co2Grams">
               <span class="sfx">g/km</span>
             </div>
           </div>
@@ -57,41 +58,38 @@
             <label for="insuranceYear">Ασφάλεια / Έτος (€)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="insuranceYear" formControlName="insuranceYear"
-                     min="0" step="50" placeholder="π.χ. 450">
+              <input type="number" id="insuranceYear" [formField]="formFields.insuranceYear">
             </div>
           </div>
 
-          @if (!form.get('isEv')?.value) {
+          @if (!formModel().isEv) {
             <div class="form-group">
               <label>Καύσιμα</label>
               <div class="cc-fuel-toggle">
                 <button type="button" class="cc-fuel-btn"
-                        [class.active]="form.get('fuelMode')?.value === 'calc'"
+                        [class.active]="formModel().fuelMode === 'calc'"
                         (click)="setFuelMode('calc')">
                   Υπολογισμός
                 </button>
                 <button type="button" class="cc-fuel-btn"
-                        [class.active]="form.get('fuelMode')?.value === 'manual'"
+                        [class.active]="formModel().fuelMode === 'manual'"
                         (click)="setFuelMode('manual')">
                   Χειροκίνητα
                 </button>
               </div>
 
-              @if (form.get('fuelMode')?.value === 'calc') {
+              @if (formModel().fuelMode === 'calc') {
                 <div class="form-group mt-8">
                   <label for="kmPerYear">Χιλιόμετρα / έτος</label>
                   <div class="input-wrap has-sfx">
-                    <input type="number" id="kmPerYear" formControlName="kmPerYear"
-                           min="0" step="1000" placeholder="π.χ. 15000">
+                    <input type="number" id="kmPerYear" [formField]="formFields.kmPerYear">
                     <span class="sfx">χλμ</span>
                   </div>
                 </div>
                 <div class="form-group">
                   <label for="litersPer100km">Κατανάλωση</label>
                   <div class="input-wrap has-sfx">
-                    <input type="number" id="litersPer100km" formControlName="litersPer100km"
-                           min="0" step="0.1" placeholder="π.χ. 6.5">
+                    <input type="number" id="litersPer100km" [formField]="formFields.litersPer100km">
                     <span class="sfx">λ/100χλμ</span>
                   </div>
                 </div>
@@ -99,8 +97,7 @@
                   <label for="pricePerLiter">Τιμή καυσίμου</label>
                   <div class="input-wrap has-pfx">
                     <span class="pfx">€</span>
-                    <input type="number" id="pricePerLiter" formControlName="pricePerLiter"
-                           min="0" step="0.01" placeholder="π.χ. 1.85">
+                    <input type="number" id="pricePerLiter" [formField]="formFields.pricePerLiter">
                   </div>
                   <div class="cc-hint">/ λίτρο</div>
                 </div>
@@ -115,8 +112,7 @@
                   <label for="fuelCostYear">Καύσιμα / έτος</label>
                   <div class="input-wrap has-pfx">
                     <span class="pfx">€</span>
-                    <input type="number" id="fuelCostYear" formControlName="fuelCostYear"
-                           min="0" step="50" placeholder="π.χ. 1800">
+                    <input type="number" id="fuelCostYear" [formField]="formFields.fuelCostYear">
                   </div>
                 </div>
               }
@@ -127,8 +123,7 @@
             <label for="maintenanceYear">Συντήρηση &amp; ΚΤΕΟ / Έτος (€)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="maintenanceYear" formControlName="maintenanceYear"
-                     min="0" step="50" placeholder="π.χ. 600">
+              <input type="number" id="maintenanceYear" [formField]="formFields.maintenanceYear">
             </div>
           </div>
         </div>
@@ -196,7 +191,7 @@
 
         <app-export-row
           sharePath="/car-cost"
-          [shareState]="form.value"
+          [shareState]="formModel()"
           [shareSummary]="shareSummary()"
           printTargetId="car-cost-results">
         </app-export-row>

@@ -322,6 +322,29 @@ body.sidebar-collapsed .main-content { margin-left: var(--sidebar-collapsed-w); 
 .card-header h2 { font-size: 14px; font-weight: 700; color: var(--g800); }
 .card-body { padding: 18px; }
 
+/* Defer placeholders */
+.skeleton-block {
+  background: var(--g100);
+  border-radius: 6px;
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+.skeleton-title {
+  width: 180px;
+  height: 16px;
+}
+.skeleton-chart {
+  width: 100%;
+  height: 220px;
+}
+.skeleton-table {
+  width: 100%;
+  height: 280px;
+}
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
 @media (max-width: 480px) {
   .card-header { padding: 12px 14px; }
   .card-body   { padding: 14px; }

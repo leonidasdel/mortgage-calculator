@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { KINSHIP_LABELS, KinshipCategory, TransferType } from '../../constants/inheritance-gift.constants';
 import {
   InheritanceGiftCalculatorService,
@@ -10,8 +9,15 @@ import { CalculatorPersistenceService } from '../../services/calculator-persiste
 
 const STORAGE_KEY = 'inheritanceGiftCalcState';
 
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+interface InheritanceGiftModel {
+  transferType: string;
+  category: string;
+  value: number;
+  hasDisability: boolean;
+  applyPrimaryResidenceInfo: boolean;
+}
+
+import { DecimalPipe } from '@angular/common';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { ExportRowComponent } from '../export-row/export-row.component';
@@ -20,14 +26,23 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   selector: 'app-inheritance-gift-calculator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [DecimalPipe, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './inheritance-gift-calculator.component.html',
   styleUrl: './inheritance-gift-calculator.component.scss',
 })
-export class InheritanceGiftCalculatorComponent implements OnInit {
-  form: FormGroup;
-  private formValues;
-  private destroyRef = inject(DestroyRef);
+export class InheritanceGiftCalculatorComponent {
+  formModel = signal<InheritanceGiftModel>({
+    transferType: 'inheritance',
+    category: 'A',
+    value: 250000,
+    hasDisability: false,
+    applyPrimaryResidenceInfo: false,
+  });
+  formFields = form(this.formModel);
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly calc = inject(InheritanceGiftCalculatorService);
+  private readonly persistence = inject(CalculatorPersistenceService);
 
   readonly kinshipLabels = KINSHIP_LABELS;
 
@@ -40,30 +55,11 @@ export class InheritanceGiftCalculatorComponent implements OnInit {
 
   readonly explanationFormula = 'Φόρος = κλιμακωτός υπολογισμός επί φορολογητέας βάσης';
 
-  constructor(
-    private fb: FormBuilder,
-    private calc: InheritanceGiftCalculatorService,
-    private persistence: CalculatorPersistenceService,
-  ) {
-    this.form = this.fb.group({
-      transferType: ['inheritance'],
-      category: ['A'],
-      value: [250000],
-      hasDisability: [false],
-      applyPrimaryResidenceInfo: [false],
-    });
-
-    this.formValues = toSignal(this.form.valueChanges, { initialValue: this.form.value });
+  constructor() {
+    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
   }
 
-  ngOnInit(): void {
-    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
-  }
-
-  result = computed(() => {
-    this.formValues();
-    return this.calc.calculate(this.buildParams());
-  });
+  result = computed(() => this.calc.calculate(this.buildParams()));
 
   shareSummary = computed(() => {
     const r = this.result();
@@ -71,7 +67,7 @@ export class InheritanceGiftCalculatorComponent implements OnInit {
   });
 
   transferTypeLabel = computed(() => {
-    const t = this.formValues()?.transferType ?? 'inheritance';
+    const t = this.formModel().transferType ?? 'inheritance';
     const labels: Record<TransferType, string> = {
       inheritance: 'Κληρονομιά',
       gift: 'Δωρεά περιουσιακού στοιχείου',
@@ -80,8 +76,16 @@ export class InheritanceGiftCalculatorComponent implements OnInit {
     return labels[t as TransferType] ?? labels.inheritance;
   });
 
+  setTransferType(type: string): void {
+    this.formModel.update(m => ({ ...m, transferType: type }));
+  }
+
+  setCategory(category: string): void {
+    this.formModel.update(m => ({ ...m, category }));
+  }
+
   private buildParams(): InheritanceGiftParams {
-    const fv = this.form.value;
+    const fv = this.formModel();
     return {
       transferType: (fv.transferType || 'inheritance') as TransferType,
       category: (fv.category || 'A') as KinshipCategory,

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, forwardRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, forwardRef, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -20,8 +20,8 @@ interface MonthOption {
   }],
 })
 export class DateSelectComponent implements ControlValueAccessor {
-  @Input() minYear = 1980;
-  @Input() maxYear = new Date().getFullYear();
+  minYear = input(1980);
+  maxYear = input(new Date().getFullYear());
 
   day = 1;
   month = 6;
@@ -46,8 +46,10 @@ export class DateSelectComponent implements ControlValueAccessor {
   private onTouched: () => void = () => {};
 
   get years(): number[] {
-    const from = Math.min(this.minYear, this.maxYear);
-    const to = Math.max(this.minYear, this.maxYear);
+    const min = this.minYear();
+    const max = this.maxYear();
+    const from = Math.min(min, max);
+    const to = Math.max(min, max);
     return Array.from({ length: to - from + 1 }, (_, i) => to - i);
   }
 
