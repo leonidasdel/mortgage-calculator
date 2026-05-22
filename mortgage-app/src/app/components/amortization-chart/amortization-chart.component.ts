@@ -1,7 +1,6 @@
 import {
   Component,
   ElementRef,
-  HostListener,
   Input,
   AfterViewInit,
   OnChanges,
@@ -9,6 +8,20 @@ import {
   ViewChild,
 } from '@angular/core';
 import { AmortizationRow } from '../../models/mortgage.models';
+import {
+  AmortizationChartTheme,
+  drawHorizontalGrid,
+  formatAxisEuro,
+  getChartTheme,
+  isDarkTheme,
+  niceMax,
+  setupCanvas,
+} from '../../utils/chart-canvas.util';
+
+/** Monthly bar view only makes sense for short loans */
+const MAX_MONTHLY_BUCKETS = 60;
+/** Beyond this, stacked area renders instead of bars */
+const BAR_MODE_MAX_BUCKETS = 48;
 
 interface ChartBucket {
   key: number;
@@ -25,23 +38,6 @@ interface BarHit {
   principal: number;
   interest: number;
 }
-
-interface ChartTheme {
-  grid: string;
-  axis: string;
-  label: string;
-  principal: string;
-  interest: string;
-  principalFill: string;
-  interestFill: string;
-  principalHover: string;
-  interestHover: string;
-}
-
-/** Monthly bar view only makes sense for short loans */
-const MAX_MONTHLY_BUCKETS = 60;
-/** Beyond this, stacked area renders instead of bars */
-const BAR_MODE_MAX_BUCKETS = 48;
 
 @Component({
   selector: 'app-amortization-chart',
@@ -96,13 +92,7 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
     this.resizeObserver?.disconnect();
   }
 
-  @HostListener('window:resize')
-  onResize(): void {
-    this.draw();
-  }
-
-  @HostListener('window:themechange')
-  onThemeChange(): void {
+  onChartResize(): void {
     this.draw();
   }
 
@@ -192,16 +182,8 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
 
     const W = canvas.parentElement?.clientWidth || 600;
     const H = this.chartH;
-    const dpr = window.devicePixelRatio || 1;
-
-    canvas.width = Math.round(W * dpr);
-    canvas.height = Math.round(H * dpr);
-    canvas.style.width = `${W}px`;
-    canvas.style.height = `${H}px`;
-
-    const ctx = canvas.getContext('2d');
+    const ctx = setupCanvas(canvas, W, H, true);
     if (!ctx) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
 
     const buckets = this.buildBuckets();
@@ -210,15 +192,15 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
       return;
     }
 
-    const maxVal = this.niceMax(Math.max(...buckets.map(b => b.principal + b.interest)));
-    const theme = this.getTheme();
+    const maxVal = niceMax(Math.max(...buckets.map(b => b.principal + b.interest)));
+    const theme = getChartTheme(isDarkTheme());
     const { l, r, t, b } = this.pad;
     const cW = W - l - r;
     const cH = H - t - b;
     const slotW = cW / buckets.length;
 
     this.barHits = [];
-    this.drawGrid(ctx, W, H, maxVal, theme);
+    drawHorizontalGrid(ctx, W, H, maxVal, this.pad, theme.grid, theme.label, formatAxisEuro);
 
     if (buckets.length > BAR_MODE_MAX_BUCKETS) {
       this.drawAreaChart(ctx, buckets, W, H, maxVal, theme, slotW, cH);
@@ -233,11 +215,11 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
     W: number,
     H: number,
     maxVal: number,
-    theme: ChartTheme,
+    theme: AmortizationChartTheme,
     slotW: number,
     cH: number,
   ): void {
-    const { l, t, b } = this.pad;
+    const { l, t } = this.pad;
     const bW = Math.max(2, Math.min(28, slotW * 0.72));
     const keys = buckets.map(bk => bk.key);
 
@@ -288,11 +270,11 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
     W: number,
     H: number,
     maxVal: number,
-    theme: ChartTheme,
+    theme: AmortizationChartTheme,
     slotW: number,
     cH: number,
   ): void {
-    const { l, t, b } = this.pad;
+    const { l, t } = this.pad;
     const baseY = t + cH;
     const keys = buckets.map(bk => bk.key);
 
@@ -392,35 +374,6 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
     return Object.values(buckets).sort((a, b) => a.key - b.key);
   }
 
-  private drawGrid(
-    ctx: CanvasRenderingContext2D,
-    W: number,
-    H: number,
-    maxVal: number,
-    theme: ChartTheme,
-  ): void {
-    const { l, r, t, b } = this.pad;
-    const cH = H - t - b;
-    const steps = 4;
-
-    for (let i = 0; i <= steps; i++) {
-      const y = t + cH * (1 - i / steps);
-      const val = (maxVal * i) / steps;
-
-      ctx.strokeStyle = theme.grid;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(l, y);
-      ctx.lineTo(W - r, y);
-      ctx.stroke();
-
-      ctx.fillStyle = theme.label;
-      ctx.font = '11px Inter, system-ui, sans-serif';
-      ctx.textAlign = 'right';
-      ctx.fillText(this.formatAxis(val), l - 8, y + 4);
-    }
-  }
-
   private fillBar(
     ctx: CanvasRenderingContext2D,
     x: number,
@@ -456,47 +409,6 @@ export class AmortizationChartComponent implements OnChanges, AfterViewInit, OnD
     }
     if (key % every === 0) return true;
     return keys[index + 1] !== undefined && keys[index + 1] - key > every;
-  }
-
-  private getTheme(): ChartTheme {
-    const dark = document.documentElement.classList.contains('dark');
-    return dark
-      ? {
-          grid: '#334155',
-          axis: '#e2e8f0',
-          label: '#94a3b8',
-          principal: '#60a5fa',
-          interest: '#f87171',
-          principalFill: 'rgba(59, 130, 246, 0.35)',
-          interestFill: 'rgba(248, 113, 113, 0.35)',
-          principalHover: '#93c5fd',
-          interestHover: '#fca5a5',
-        }
-      : {
-          grid: '#e2e8f0',
-          axis: '#475569',
-          label: '#94a3b8',
-          principal: '#2563eb',
-          interest: '#dc2626',
-          principalFill: 'rgba(37, 99, 235, 0.25)',
-          interestFill: 'rgba(220, 38, 38, 0.22)',
-          principalHover: '#1d4ed8',
-          interestHover: '#b91c1c',
-        };
-  }
-
-  private niceMax(value: number): number {
-    if (value <= 0) return 1;
-    const exp = Math.floor(Math.log10(value));
-    const magnitude = Math.pow(10, exp);
-    const norm = value / magnitude;
-    const nice = norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10;
-    return nice * magnitude;
-  }
-
-  private formatAxis(value: number): string {
-    if (value >= 1000) return `€${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}k`;
-    return `€${Math.round(value)}`;
   }
 
   private formatEuro(value: number): string {

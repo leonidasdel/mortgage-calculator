@@ -1,8 +1,8 @@
-import { Component, computed, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
-import { ShareStateService } from '../../services/share-state.service';
+import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 import { AgeGroup } from '../../models/salary.models';
 
 const STORAGE_KEY = 'freelancerCalcState';
@@ -69,6 +69,7 @@ interface FreelancerResult {
 export class FreelancerCalculatorComponent implements OnInit {
   form: FormGroup;
   private formValues;
+  private destroyRef = inject(DestroyRef);
 
   readonly efkaCategories = EFKA_CATEGORIES;
   readonly childrenOptions = [0, 1, 2, 3, 4, 5, 6];
@@ -86,7 +87,7 @@ export class FreelancerCalculatorComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private salaryService: SalaryCalculatorService,
-    private shareSvc: ShareStateService,
+    private persistence: CalculatorPersistenceService,
   ) {
     this.form = this.fb.group({
       annualRevenue:  [30000],
@@ -100,13 +101,7 @@ export class FreelancerCalculatorComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadState();
-    const qp = this.shareSvc.getQueryParams();
-    if (Object.keys(qp).length) {
-      const state = this.shareSvc.deserializeState(qp);
-      this.form.patchValue(state, { emitEvent: false });
-    }
-    this.form.valueChanges.subscribe(() => this.saveState());
+    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
   }
 
   result = computed<FreelancerResult>(() => {
@@ -202,18 +197,5 @@ export class FreelancerCalculatorComponent implements OnInit {
       netMonthly,
       effectiveRate,
     };
-  }
-
-  private saveState(): void {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.form.value)); } catch { /* ignore */ }
-  }
-
-  private loadState(): void {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const state = JSON.parse(raw);
-      if (state) this.form.patchValue(state, { emitEvent: false });
-    } catch { /* ignore */ }
   }
 }

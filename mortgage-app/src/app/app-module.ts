@@ -1,61 +1,31 @@
 import { NgModule, provideBrowserGlobalErrorListeners, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { App } from './app';
 import { NavComponent } from './components/nav/nav.component';
 import { HomeComponent } from './components/home/home.component';
-import { MortgageCalculatorComponent } from './components/mortgage-calculator/mortgage-calculator.component';
-import { SalaryCalculatorComponent } from './components/salary-calculator/salary-calculator.component';
-import { AnnualBonusCalculatorComponent } from './components/annual-bonus-calculator/annual-bonus-calculator.component';
-import { InterestCalculatorComponent } from './components/interest-calculator/interest-calculator.component';
-import { ConsumerLoanCalculatorComponent } from './components/consumer-loan-calculator/consumer-loan-calculator.component';
-import { RentVsBuyCalculatorComponent } from './components/rent-vs-buy-calculator/rent-vs-buy-calculator.component';
-import { RentalTaxCalculatorComponent } from './components/rental-tax-calculator/rental-tax-calculator.component';
-import { FreelancerCalculatorComponent } from './components/freelancer-calculator/freelancer-calculator.component';
-import { SavingsCalculatorComponent } from './components/savings-calculator/savings-calculator.component';
-import { UnusedLeaveCalculatorComponent } from './components/unused-leave-calculator/unused-leave-calculator.component';
-import { HolidayBonusCalculatorComponent } from './components/holiday-bonus-calculator/holiday-bonus-calculator.component';
-import { SeveranceCalculatorComponent } from './components/severance-calculator/severance-calculator.component';
-import { PropertyPurchaseCalculatorComponent } from './components/property-purchase-calculator/property-purchase-calculator.component';
-import { InheritanceGiftCalculatorComponent } from './components/inheritance-gift-calculator/inheritance-gift-calculator.component';
-import { CryptoTaxCalculatorComponent } from './components/crypto-tax-calculator/crypto-tax-calculator.component';
-import { CarCostCalculatorComponent } from './components/car-cost-calculator/car-cost-calculator.component';
-import { CalcExplanationComponent } from './components/calc-explanation/calc-explanation.component';
-import { ExportRowComponent } from './components/export-row/export-row.component';
-import { LawFooterComponent } from './components/law-footer/law-footer.component';
-import { ComparePanelComponent } from './components/compare-panel/compare-panel.component';
-import { DateSelectComponent } from './components/date-select/date-select.component';
-import { LoanFormComponent } from './components/loan-form/loan-form.component';
-import { EarlyRepaymentsComponent } from './components/early-repayments/early-repayments.component';
-import { BulkErFormComponent } from './components/bulk-er-form/bulk-er-form.component';
-import { SummaryPanelComponent } from './components/summary-panel/summary-panel.component';
-import { AmortizationChartComponent } from './components/amortization-chart/amortization-chart.component';
-import { AmortizationTableComponent } from './components/amortization-table/amortization-table.component';
-import { EuroPipe } from './pipes/euro.pipe';
-import { DateDDMMYYYYPipe } from './pipes/date-ddmmyyyy.pipe';
+import { SharedModule } from './shared/shared.module';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'mortgage', component: MortgageCalculatorComponent },
-  { path: 'salary', component: SalaryCalculatorComponent },
-  { path: 'annual-bonus', component: AnnualBonusCalculatorComponent },
-  { path: 'interest', component: InterestCalculatorComponent },
-  { path: 'consumer-loan', component: ConsumerLoanCalculatorComponent },
-  { path: 'rent-vs-buy', component: RentVsBuyCalculatorComponent },
-  { path: 'rental-tax', component: RentalTaxCalculatorComponent },
-  { path: 'freelancer', component: FreelancerCalculatorComponent },
-  { path: 'savings', component: SavingsCalculatorComponent },
-  { path: 'unused-leave', component: UnusedLeaveCalculatorComponent },
-  { path: 'holiday-bonus', component: HolidayBonusCalculatorComponent },
-  { path: 'severance', component: SeveranceCalculatorComponent },
-  { path: 'property-purchase', component: PropertyPurchaseCalculatorComponent },
-  { path: 'inheritance-gift', component: InheritanceGiftCalculatorComponent },
-  { path: 'crypto-tax', component: CryptoTaxCalculatorComponent },
-  { path: 'car-cost', component: CarCostCalculatorComponent },
+  {
+    path: '',
+    loadChildren: () => import('./features/loans/loans.module').then(m => m.LoansModule),
+  },
+  {
+    path: '',
+    loadChildren: () => import('./features/income/income.module').then(m => m.IncomeModule),
+  },
+  {
+    path: '',
+    loadChildren: () => import('./features/property/property.module').then(m => m.PropertyModule),
+  },
+  {
+    path: '',
+    loadChildren: () => import('./features/savings-tax/savings-tax.module').then(m => m.SavingsTaxModule),
+  },
   { path: '**', redirectTo: '' },
 ];
 
@@ -64,40 +34,10 @@ const routes: Routes = [
     App,
     NavComponent,
     HomeComponent,
-    MortgageCalculatorComponent,
-    SalaryCalculatorComponent,
-    AnnualBonusCalculatorComponent,
-    InterestCalculatorComponent,
-    ConsumerLoanCalculatorComponent,
-    RentVsBuyCalculatorComponent,
-    RentalTaxCalculatorComponent,
-    FreelancerCalculatorComponent,
-    SavingsCalculatorComponent,
-    UnusedLeaveCalculatorComponent,
-    HolidayBonusCalculatorComponent,
-    SeveranceCalculatorComponent,
-    PropertyPurchaseCalculatorComponent,
-    InheritanceGiftCalculatorComponent,
-    CryptoTaxCalculatorComponent,
-    CarCostCalculatorComponent,
-    CalcExplanationComponent,
-    ExportRowComponent,
-    LawFooterComponent,
-    ComparePanelComponent,
-    DateSelectComponent,
-    LoanFormComponent,
-    EarlyRepaymentsComponent,
-    BulkErFormComponent,
-    SummaryPanelComponent,
-    AmortizationChartComponent,
-    AmortizationTableComponent,
-    EuroPipe,
-    DateDDMMYYYYPipe,
   ],
   imports: [
     BrowserModule,
-    CommonModule,
-    ReactiveFormsModule,
+    SharedModule,
     RouterModule.forRoot(routes),
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),

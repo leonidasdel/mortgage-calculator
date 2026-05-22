@@ -1,4 +1,4 @@
-import { Component, computed, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -10,7 +10,7 @@ import {
   normalizeRegistrationDate,
   RegistrationEra,
 } from '../../constants/circulation-fee.constants';
-import { ShareStateService } from '../../services/share-state.service';
+import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 
 const STORAGE_KEY = 'carCostCalcState';
 
@@ -23,6 +23,7 @@ const STORAGE_KEY = 'carCostCalcState';
 export class CarCostCalculatorComponent implements OnInit {
   form: FormGroup;
   private formValues;
+  private destroyRef = inject(DestroyRef);
 
   readonly explanationSteps = [
     'Τα τέλη κυκλοφορίας υπολογίζονται από cc (πριν 2010) ή CO₂ (μετά).',
@@ -37,7 +38,7 @@ export class CarCostCalculatorComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private calc: CarCostCalculatorService,
-    private shareSvc: ShareStateService,
+    private persistence: CalculatorPersistenceService,
   ) {
     this.form = this.fb.group({
       firstRegistration: ['2015-06-01'],
@@ -57,16 +58,14 @@ export class CarCostCalculatorComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadState();
-    const qp = this.shareSvc.getQueryParams();
-    if (Object.keys(qp).length) {
-      const state = this.shareSvc.deserializeState(qp);
-      if (state['firstRegistration']) {
-        state['firstRegistration'] = normalizeRegistrationDate(String(state['firstRegistration']));
-      }
-      this.form.patchValue(state, { emitEvent: false });
-    }
-    this.form.valueChanges.subscribe(() => this.saveState());
+    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef, {
+      onApplyShareState: (state, form) => {
+        if (state['firstRegistration']) {
+          state['firstRegistration'] = normalizeRegistrationDate(String(state['firstRegistration']));
+        }
+        form.patchValue(state, { emitEvent: false });
+      },
+    });
   }
 
   result = computed(() => {
@@ -119,26 +118,5 @@ export class CarCostCalculatorComponent implements OnInit {
 
   private toAmount(value: unknown): number {
     return Math.max(0, Number(value) || 0);
-  }
-
-  private saveState(): void {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.form.value));
-    } catch { /* storage unavailable */ }
-  }
-
-  private loadState(): void {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const state = JSON.parse(raw);
-      if (state?.firstRegistration) {
-        state.firstRegistration = normalizeRegistrationDate(state.firstRegistration);
-      }
-      if (state && state.fuelMode == null) {
-        state.fuelMode = 'manual';
-      }
-      if (state) this.form.patchValue(state, { emitEvent: false });
-    } catch { /* ignore invalid storage */ }
   }
 }

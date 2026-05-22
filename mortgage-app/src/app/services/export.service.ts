@@ -7,9 +7,17 @@ export class ExportService {
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   exportCSV(headers: string[], rows: (string | number)[][], filename: string): void {
-    const body = rows.map(r => r.map(c => String(c)));
-    const csv = [headers, ...body].map(row => row.join(',')).join('\n');
+    const csv = [headers, ...rows]
+      .map(row => row.map(c => this.escapeCsvCell(String(c))).join(','))
+      .join('\n');
     this.downloadBlob('\ufeff' + csv, 'text/csv;charset=utf-8;', filename);
+  }
+
+  escapeCsvCell(value: string): string {
+    if (/[",\n\r]/.test(value)) {
+      return `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
   }
 
   exportAmortizationCSV(schedule: AmortizationRow[]): void {
@@ -26,11 +34,6 @@ export class ExportService {
       r.earlyAmt.toFixed(2),
     ]);
     this.exportCSV(headers, rows, 'amortization_schedule.csv');
-  }
-
-  /** @deprecated use exportAmortizationCSV */
-  exportCSV_legacy(schedule: AmortizationRow[]): void {
-    this.exportAmortizationCSV(schedule);
   }
 
   printPage(): void {

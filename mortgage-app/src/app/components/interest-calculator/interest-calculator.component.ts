@@ -1,22 +1,13 @@
-import { Component, computed, signal, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ShareStateService } from '../../services/share-state.service';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
+import {
+  InterestCalculatorService,
+  InterestResult,
+} from '../../services/interest-calculator.service';
 
 const STORAGE_KEY = 'interestCalcState';
-const TAX_RATE = 0.15;
-
-interface InterestResult {
-  days: number;
-  capital: number;
-  grossInterest: number;
-  tax: number;
-  netInterest: number;
-  totalAmount: number;
-  effectiveRate: number;
-  dailyInterest: number;
-  taxRate: number;
-}
 
 @Component({
   selector: 'app-interest-calculator',
@@ -27,6 +18,7 @@ interface InterestResult {
 export class InterestCalculatorComponent implements OnInit {
   form: FormGroup;
   private formValues;
+  private destroyRef = inject(DestroyRef);
 
   readonly quickPicks = [
     { label: '3μ', months: 3 },
@@ -53,7 +45,8 @@ export class InterestCalculatorComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private shareSvc: ShareStateService,
+    private calc: InterestCalculatorService,
+    private persistence: CalculatorPersistenceService,
   ) {
     const today = new Date();
     const oneYearLater = new Date(today);
@@ -70,17 +63,10 @@ export class InterestCalculatorComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadState();
-    const qp = this.shareSvc.getQueryParams();
-    if (Object.keys(qp).length) {
-      const state = this.shareSvc.deserializeState(qp);
-      this.form.patchValue(state, { emitEvent: false });
-    }
+    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
     this.detectActiveDuration();
-    this.form.valueChanges.subscribe(() => this.saveState());
-    // Clear active pill when user manually edits dates
-    this.form.get('startDate')!.valueChanges.subscribe(() => this.detectActiveDuration());
-    this.form.get('endDate')!.valueChanges.subscribe(() => this.detectActiveDuration());
+    this.form.get('startDate')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.detectActiveDuration());
+    this.form.get('endDate')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.detectActiveDuration());
   }
 
   pickDuration(months: number): void {
@@ -175,34 +161,7 @@ export class InterestCalculatorComponent implements OnInit {
 
   result = computed<InterestResult>(() => {
     this.formValues();
-    const fv = this.form.value;
-    const capital = Math.max(0, fv.capital || 0);
-    const rate = Math.max(0, fv.rate || 0) / 100;
-
-    const start = new Date(fv.startDate);
-    const end = new Date(fv.endDate);
-    const days = Math.max(0, Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
-
-    const grossInterest = +(capital * (rate / 365) * days).toFixed(2);
-    const tax = +(grossInterest * TAX_RATE).toFixed(2);
-    const netInterest = +(grossInterest - tax).toFixed(2);
-    const totalAmount = +(capital + netInterest).toFixed(2);
-    const effectiveRate = days > 0 && capital > 0
-      ? +((netInterest / capital) * (365 / days) * 100).toFixed(2)
-      : 0;
-    const dailyInterest = days > 0 ? +(grossInterest / days).toFixed(4) : 0;
-
-    return {
-      days,
-      capital,
-      grossInterest,
-      tax,
-      netInterest,
-      totalAmount,
-      effectiveRate,
-      dailyInterest,
-      taxRate: TAX_RATE * 100,
-    };
+    return this.calc.calculate(this.form.value);
   });
 
   shareSummary = computed(() => {
@@ -212,20 +171,5 @@ export class InterestCalculatorComponent implements OnInit {
 
   private formatDate(d: Date): string {
     return d.toISOString().split('T')[0];
-  }
-
-  private saveState(): void {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.form.value));
-    } catch { /* storage unavailable */ }
-  }
-
-  private loadState(): void {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const state = JSON.parse(raw);
-      if (state) this.form.patchValue(state, { emitEvent: false });
-    } catch { /* ignore */ }
   }
 }

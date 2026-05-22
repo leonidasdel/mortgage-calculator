@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CRYPTO_GAINS_TAX_RATE, CRYPTO_LOSS_CARRY_YEARS } from '../constants/crypto-tax.constants';
+import { CRYPTO_GAINS_TAX_RATE } from '../constants/crypto-tax.constants';
 
 export interface CryptoLot {
   date: string;

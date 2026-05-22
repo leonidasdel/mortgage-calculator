@@ -20,13 +20,20 @@ Auto-loaded by Claude Code. Keep this up to date when architecture changes.
 mortgage-app/
   src/
     app/
-      app-module.ts          ← NgModule declaration + RouterModule.forRoot() (routes live here)
-      app.ts                 ← Root component (sidebar layout + router-outlet)
+      app-module.ts          ← Shell: home, nav, lazy feature routes
+      shared/shared.module.ts ← Pipes, export-row, law-footer, calc-explanation, etc.
+      features/
+        loans/loans.module.ts       ← mortgage, consumer-loan
+        income/income.module.ts     ← salary, bonuses, freelancer, severance, unused-leave
+        property/property.module.ts ← rent-vs-buy, rental-tax, property-purchase
+        savings-tax/savings-tax.module.ts ← interest, savings, inheritance, crypto, car-cost
       components/            ← One subfolder per component
       services/              ← calculator + platform services
       constants/             ← law metadata, tax brackets, per-calculator law tables
       models/                ← mortgage, salary models
       pipes/                 ← euro | dateDDMMYYYY
+      utils/                 ← chart-canvas.util.ts
+      directives/            ← chart-resize.directive.ts
     styles.scss              ← Global CSS variables + all utility classes
 ```
 
@@ -77,6 +84,8 @@ mortgage-app/
 ### SalaryCalculatorService
 `services/salary-calculator.service.ts` · `providedIn: 'root'`
 - `calculate(params: SalaryParams): SalaryResult` — EFKA, progressive tax (age-dependent brackets), 14-month model, Christmas/Easter/Leave bonuses, annual bonus (marginal tax), salary change mid-year pro-rata
+- `buildSalaryParams(formSlice, extras?)` — shared form → `SalaryParams` mapping for salary / annual-bonus routes
+- `calculateWithPartialBonuses(params)` — holiday-bonus route with partial-month scaling
 - `reverseCalculate(netTarget, params): number` — binary search gross from net
 
 **Key constants:**
@@ -94,15 +103,18 @@ LEAVE_SURCHARGE_RATE  = 0.04166
 New Phase 1 calculator services in `services/*-calculator.service.ts`.
 
 ### ShareStateService
-`services/share-state.service.ts` — serialize/deserialize form state ↔ URL query params (LZString if URL > 2000 chars); copy share link + WhatsApp.
+`services/share-state.service.ts` — serialize/deserialize form state ↔ URL query params via `URLSearchParams`; `loadShareStateIntoForm()` for URL restore; copy share link + WhatsApp.
 
 ### SeoService
 `services/seo.service.ts` — per-route Title/Meta/OG + FAQ JSON-LD via `SEO_CONFIG`; wired on router `NavigationEnd` in `app.ts`.
 
-### PersistenceService
-`services/persistence.service.ts` · mortgage-only
-- `saveState(inputs, erList, erCounter)` → `localStorage['mortgageCalcState']`
-- `loadState(): PersistedState | null`
+### CalculatorPersistenceService
+`services/calculator-persistence.service.ts` · `providedIn: 'root'`
+- `saveFormState` / `loadFormState` — generic localStorage for all calculators
+- `initCalculatorForm(form, key, destroyRef, options?)` — load localStorage → URL override → auto-save via `takeUntilDestroyed`
+
+### PersistenceService (mortgage)
+`services/persistence.service.ts` — mortgage extended state (`erList`, `erCounter`) via `initMortgageForm()`
 
 ### ExportService
 `services/export.service.ts`
@@ -178,7 +190,7 @@ ngOnInit() {
 }
 ```
 
-- All components use **NgModule** (not standalone) — new components must be added to `declarations` in `app-module.ts`; pipes too
+- All components use **NgModule** (not standalone) — declare in the appropriate feature module (`features/*/*.module.ts`) or `shared/shared.module.ts` for shared UI; pipes in `SharedModule`
 - Canvas charts use `effect()` for redraws triggered by signal changes
 - `@HostListener('window:resize')` for responsive chart sizing
 - `@ViewChild` + `ElementRef` for canvas access
@@ -267,7 +279,7 @@ ngOnInit() {
 
 1. **`overflow: hidden` on `.card` AND `.sum-item`** — `position: absolute` tooltips are clipped by both. Use inline sub-text (e.g., a `.sum-val-hint` div) instead of floating tooltips.
 
-2. **NgModule, not standalone** — every new component and pipe must be declared in `app-module.ts`. Do not use `standalone: true`.
+2. **NgModule, not standalone** — every new component and pipe must be declared in the relevant feature module or `SharedModule`. Do not use `standalone: true`.
 
 3. **`toSignal()` + `computed()` dependency** — must call `this.formValues()` inside the `computed()` body to register the reactive form as a dependency; otherwise the computed won't re-run on form changes.
 

@@ -1,0 +1,44 @@
+<div class="sec-div">
+  <div class="sec-label">Αλλαγή Μισθού</div>
+  <div class="form-group">
+    <label class="checkbox-label">
+      <input type="checkbox" formControlName="hasSalaryChange"
+             (change)="salaryChangeToggle.emit($any($event.target).checked)">
+      Αλλαγή μισθού μέσα στο έτος
+    </label>
+  </div>
+
+  @if (hasSalaryChange) {
+    <div class="form-group">
+      <label for="salaryChangeMonth">Μήνας αλλαγής</label>
+      <div class="input-wrap">
+        <select id="salaryChangeMonth" class="form-select"
+                formControlName="salaryChangeMonth"
+                (change)="salaryChangeMonthChange.emit($any($event.target).value)">
+          <option [value]="1">Ιανουάριος</option>
+          <option [value]="2">Φεβρουάριος</option>
+          <option [value]="3">Μάρτιος</option>
+          <option [value]="4">Απρίλιος</option>
+          <option [value]="5">Μάιος</option>
+          <option [value]="6">Ιούνιος</option>
+          <option [value]="7">Ιούλιος</option>
+          <option [value]="8">Αύγουστος</option>
+          <option [value]="9">Σεπτέμβριος</option>
+          <option [value]="10">Οκτώβριος</option>
+          <option [value]="11">Νοέμβριος</option>
+          <option [value]="12">Δεκέμβριος</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="previousGross">Προηγούμενος Μικτός Μισθός (&#8364;)</label>
+      <div class="input-wrap has-pfx">
+        <span class="pfx">&#8364;</span>
+        <input type="number" id="previousGross" min="0" step="50"
+               formControlName="previousGross"
+               (input)="previousGrossChange.emit($any($event.target).value)">
+      </div>
+    </div>
+  }
+</div>

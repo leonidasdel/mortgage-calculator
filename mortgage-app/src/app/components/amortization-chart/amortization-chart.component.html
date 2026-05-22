@@ -15,7 +15,7 @@
     </div>
   </div>
 }
-<div class="chart-wrap">
+<div class="chart-wrap" appChartResize (chartResize)="onChartResize()">
   <canvas
     #chartCanvas
     (mousemove)="onMouseMove($event)"

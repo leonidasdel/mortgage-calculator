@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
@@ -50,12 +51,17 @@ export class ShareStateService {
 
   getQueryParams(): Record<string, string> {
     const params: Record<string, string> = {};
-    const search = window.location.search.replace(/^\?/, '');
-    if (!search) return params;
-    for (const part of search.split('&')) {
-      const [k, v] = part.split('=');
-      if (k) params[decodeURIComponent(k)] = decodeURIComponent(v ?? '');
-    }
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.forEach((value, key) => {
+      params[key] = value;
+    });
     return params;
+  }
+
+  loadShareStateIntoForm(form: FormGroup, options?: { emitEvent?: boolean }): boolean {
+    const qp = this.getQueryParams();
+    if (!Object.keys(qp).length) return false;
+    form.patchValue(this.deserializeState(qp), { emitEvent: options?.emitEvent ?? false });
+    return true;
   }
 }

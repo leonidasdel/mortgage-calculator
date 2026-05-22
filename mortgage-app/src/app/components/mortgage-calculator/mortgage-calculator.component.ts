@@ -1,11 +1,10 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, computed, signal } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { EarlyRepayment, LoanParams } from '../../models/mortgage.models';
 import { MortgageCalculatorService } from '../../services/mortgage-calculator.service';
 import { PersistenceService } from '../../services/persistence.service';
 import { ExportService } from '../../services/export.service';
-import { ShareStateService } from '../../services/share-state.service';
 
 @Component({
   selector: 'app-mortgage-calculator',
@@ -17,6 +16,7 @@ export class MortgageCalculatorComponent implements OnInit {
 
   loanForm: FormGroup;
   erList = signal<EarlyRepayment[]>([]);
+  private destroyRef = inject(DestroyRef);
 
   private formValues;
 
@@ -35,7 +35,6 @@ export class MortgageCalculatorComponent implements OnInit {
     private calc: MortgageCalculatorService,
     private persistence: PersistenceService,
     private exportSvc: ExportService,
-    private shareSvc: ShareStateService,
   ) {
     this.loanForm = this.fb.group({
       loanAmount:  [100000],
@@ -52,18 +51,10 @@ export class MortgageCalculatorComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const saved = this.persistence.loadState();
-    if (saved) {
-      if (saved.inputs) this.loanForm.patchValue(saved.inputs);
-      if (Array.isArray(saved.erList)) this.erList.set(saved.erList);
-    }
-    const qp = this.shareSvc.getQueryParams();
-    if (Object.keys(qp).length) {
-      const state = this.shareSvc.deserializeState(qp);
-      this.loanForm.patchValue(state, { emitEvent: false });
-    }
-
-    this.loanForm.valueChanges.subscribe(() => this.persist());
+    this.persistence.initMortgageForm(this.loanForm, this.destroyRef, {
+      onLoadErList: (list) => this.erList.set(list),
+      onSave: () => this.persist(),
+    });
   }
 
   private get currentParams(): LoanParams {

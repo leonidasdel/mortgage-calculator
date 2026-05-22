@@ -11,7 +11,7 @@ import { BulkErParams } from '../../models/mortgage.models';
 export class BulkErFormComponent implements OnChanges {
   @Input()  visible = false;
   @Output() addBulk = new EventEmitter<BulkErParams>();
-  @Output() cancel  = new EventEmitter<void>();
+  @Output() cancelled = new EventEmitter<void>();
 
   form: FormGroup;
 

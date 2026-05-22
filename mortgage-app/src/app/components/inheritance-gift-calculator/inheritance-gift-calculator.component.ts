@@ -1,4 +1,4 @@
-import { Component, computed, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { KINSHIP_LABELS, KinshipCategory, TransferType } from '../../constants/inheritance-gift.constants';
@@ -6,7 +6,7 @@ import {
   InheritanceGiftCalculatorService,
   InheritanceGiftParams,
 } from '../../services/inheritance-gift-calculator.service';
-import { ShareStateService } from '../../services/share-state.service';
+import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 
 const STORAGE_KEY = 'inheritanceGiftCalcState';
 
@@ -19,6 +19,7 @@ const STORAGE_KEY = 'inheritanceGiftCalcState';
 export class InheritanceGiftCalculatorComponent implements OnInit {
   form: FormGroup;
   private formValues;
+  private destroyRef = inject(DestroyRef);
 
   readonly kinshipLabels = KINSHIP_LABELS;
 
@@ -34,7 +35,7 @@ export class InheritanceGiftCalculatorComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private calc: InheritanceGiftCalculatorService,
-    private shareSvc: ShareStateService,
+    private persistence: CalculatorPersistenceService,
   ) {
     this.form = this.fb.group({
       transferType: ['inheritance'],
@@ -48,12 +49,7 @@ export class InheritanceGiftCalculatorComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadState();
-    const qp = this.shareSvc.getQueryParams();
-    if (Object.keys(qp).length) {
-      this.form.patchValue(this.shareSvc.deserializeState(qp), { emitEvent: false });
-    }
-    this.form.valueChanges.subscribe(() => this.saveState());
+    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
   }
 
   result = computed(() => {
@@ -93,20 +89,5 @@ export class InheritanceGiftCalculatorComponent implements OnInit {
 
   private toAmount(value: unknown): number {
     return Math.max(0, Number(value) || 0);
-  }
-
-  private saveState(): void {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.form.value));
-    } catch { /* storage unavailable */ }
-  }
-
-  private loadState(): void {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const state = JSON.parse(raw);
-      if (state) this.form.patchValue(state, { emitEvent: false });
-    } catch { /* ignore invalid storage */ }
   }
 }

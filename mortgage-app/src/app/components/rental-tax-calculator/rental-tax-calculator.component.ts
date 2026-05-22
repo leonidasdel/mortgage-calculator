@@ -1,7 +1,7 @@
-import { Component, computed, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ShareStateService } from '../../services/share-state.service';
+import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 
 const STORAGE_KEY = 'rentalTaxCalcState';
 
@@ -39,6 +39,7 @@ interface RentalTaxResult {
 export class RentalTaxCalculatorComponent implements OnInit {
   form: FormGroup;
   private formValues;
+  private destroyRef = inject(DestroyRef);
 
   readonly explanationSteps = [
     'Το ακαθάριστο εισόδημα από ενοίκια φορολογείται αυτοτελώς.',
@@ -52,7 +53,7 @@ export class RentalTaxCalculatorComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private shareSvc: ShareStateService,
+    private persistence: CalculatorPersistenceService,
   ) {
     this.form = this.fb.group({
       incomeMode:     ['annual'],
@@ -66,13 +67,10 @@ export class RentalTaxCalculatorComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadState();
-    const qp = this.shareSvc.getQueryParams();
-    if (Object.keys(qp).length) {
-      const state = this.shareSvc.deserializeState(qp);
-      this.form.patchValue(state, { emitEvent: false });
-    }
-    this.form.valueChanges.subscribe(() => this.saveState());
+    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef, {
+      onLoad: (state) => this.patchLoadedState(state),
+      onApplyShareState: (state) => this.patchLoadedState(state),
+    });
   }
 
   result = computed<RentalTaxResult>(() => {
@@ -123,36 +121,25 @@ export class RentalTaxCalculatorComponent implements OnInit {
 
   onIncomeModeChange(mode: 'annual' | 'monthly'): void {
     this.form.patchValue({ incomeMode: mode });
-    this.saveState();
   }
 
   onAnnualIncomeInput(): void {
     const annualIncome = Math.max(0, Number(this.form.get('annualIncome')?.value) || 0);
     this.form.patchValue({ monthlyIncome: +(annualIncome / 12).toFixed(2) }, { emitEvent: false });
-    this.saveState();
+    this.persistence.saveFormState(STORAGE_KEY, this.form.value);
   }
 
   onMonthlyIncomeInput(): void {
     const monthlyIncome = Math.max(0, Number(this.form.get('monthlyIncome')?.value) || 0);
     this.form.patchValue({ annualIncome: +(monthlyIncome * 12).toFixed(2) }, { emitEvent: false });
-    this.saveState();
+    this.persistence.saveFormState(STORAGE_KEY, this.form.value);
   }
 
-  private saveState(): void {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.form.value)); } catch { /* ignore */ }
-  }
-
-  private loadState(): void {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const state = JSON.parse(raw);
-      if (!state) return;
-      if (state.incomeMode == null) state.incomeMode = 'annual';
-      if (state.monthlyIncome == null) {
-        state.monthlyIncome = +(Math.max(0, Number(state.annualIncome) || 0) / 12).toFixed(2);
-      }
-      this.form.patchValue(state, { emitEvent: false });
-    } catch { /* ignore */ }
+  private patchLoadedState(state: Record<string, unknown>): void {
+    if (state['incomeMode'] == null) state['incomeMode'] = 'annual';
+    if (state['monthlyIncome'] == null) {
+      state['monthlyIncome'] = +(Math.max(0, Number(state['annualIncome']) || 0) / 12).toFixed(2);
+    }
+    this.form.patchValue(state, { emitEvent: false });
   }
 }

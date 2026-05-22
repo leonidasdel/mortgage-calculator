@@ -208,7 +208,7 @@
         <h2>Εξέλιξη Κεφαλαίου</h2>
       </div>
       <div class="card-body">
-        <div style="overflow-x:auto;">
+        <div style="overflow-x:auto;" appChartResize (chartResize)="onChartResize()">
           <canvas #savingsChart></canvas>
         </div>
         <div class="chart-legend">

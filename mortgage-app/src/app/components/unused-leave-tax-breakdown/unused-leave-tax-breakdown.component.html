@@ -1,0 +1,160 @@
+<div class="card">
+  <div class="card-header">
+    <div class="card-header-icon">&#128176;</div>
+    <h2>Κρατήσεις &amp; Καθαρό Ποσό</h2>
+  </div>
+  <div class="card-body">
+    <div class="lv-section-title">Κρατήσεις</div>
+    <div class="sum-grid">
+
+      @if (situation === 'termination') {
+        <div class="sum-item">
+          <div class="sum-lbl">
+            ΕΦΚΑ επί αποζημίωσης
+            <span class="badge-green">Απαλλαγή</span>
+          </div>
+          <div class="sum-val">€0,00</div>
+        </div>
+        @if (includeHolidayBonus) {
+          <div class="sum-item">
+            <div class="sum-lbl">ΕΦΚΑ επί επιδόματος ({{ (0.1332 * 100).toFixed(2) }}%)</div>
+            <div class="sum-val red">−{{ result.efkaOnHolidayBonus | euro }}</div>
+          </div>
+        }
+      } @else {
+        <div class="sum-item">
+          <div class="sum-lbl">ΕΦΚΑ επί αποζημίωσης ({{ (0.1332 * 100).toFixed(2) }}%)</div>
+          <div class="sum-val red">−{{ result.efkaOnLeaveComp | euro }}</div>
+        </div>
+        @if (includeHolidayBonus) {
+          <div class="sum-item">
+            <div class="sum-lbl">ΕΦΚΑ επί επιδόματος ({{ (0.1332 * 100).toFixed(2) }}%)</div>
+            <div class="sum-val red">−{{ result.efkaOnHolidayBonus | euro }}</div>
+          </div>
+        }
+      }
+
+      <div class="sum-item">
+        <div class="sum-lbl"><strong>Σύνολο ΕΦΚΑ</strong></div>
+        <div class="sum-val red"><strong>−{{ result.totalEfka | euro }}</strong></div>
+      </div>
+
+      <div class="sum-item">
+        <div class="sum-lbl">Φορολογητέο ποσό αποζημίωσης</div>
+        <div class="sum-val">{{ result.taxableLeaveComp | euro }}</div>
+      </div>
+
+      <div class="sum-item">
+        <div class="sum-lbl">
+          Οριακός φόρος εισοδήματος
+          <span class="sum-badge">{{ result.effectiveTaxRate }}%</span>
+        </div>
+        <div class="sum-val red">−{{ result.marginalTax | euro }}</div>
+      </div>
+
+      <div class="sum-item total-row">
+        <div class="sum-lbl"><strong>Σύνολο Κρατήσεων</strong></div>
+        <div class="sum-val red"><strong>−{{ result.totalDeductions | euro }}</strong></div>
+      </div>
+    </div>
+
+    <div class="lv-net-box">
+      <div class="lv-net-lbl">ΚΑΘΑΡΟ ΠΟΣΟ ΣΤΟ ΧΕΡΙ</div>
+      <div class="lv-net-val">{{ result.totalNet | euro }}</div>
+      <div class="lv-net-sub">
+        Αποζημίωση {{ unusedDays }} ημερών μη ληφθείσας άδειας
+      </div>
+    </div>
+
+    <div class="export-row">
+      <app-export-row
+        sharePath="/unused-leave"
+        [shareState]="shareState"
+        [shareSummary]="shareSummary"
+        printTargetId="ul-results">
+      </app-export-row>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header" style="cursor:pointer;" (click)="toggleBreakdown.emit()">
+    <div class="card-header-icon">&#128269;</div>
+    <h2>Ανάλυση Φόρου Εισοδήματος</h2>
+    <span class="lv-toggle-arrow" [class.open]="showTaxBreakdown">&#9660;</span>
+  </div>
+  @if (showTaxBreakdown) {
+    <div class="card-body">
+      <div class="info-box blue" style="margin-bottom:12px;">
+        💡 Ο φόρος υπολογίζεται στο <strong>ετήσιο φορολογητέο εισόδημα</strong>.
+        Ο οριακός φόρος είναι η επιπλέον επιβάρυνση λόγω της αποζημίωσης.
+      </div>
+
+      <div class="lv-tax-compare">
+        <div class="lv-tax-col">
+          <div class="lv-tax-col-title">Χωρίς αποζημίωση</div>
+          <div class="lv-tax-col-val">{{ result.annualBaseTaxable | euro:0 }}</div>
+          <div class="lv-tax-col-sub">φορολογητέο εισόδημα</div>
+          <div class="lv-tax-col-tax">Φόρος: {{ result.taxOnBase | euro }}</div>
+        </div>
+        <div class="lv-tax-arrow">→</div>
+        <div class="lv-tax-col active">
+          <div class="lv-tax-col-title">Με αποζημίωση</div>
+          <div class="lv-tax-col-val">{{ (result.annualBaseTaxable + result.taxableLeaveComp) | euro:0 }}</div>
+          <div class="lv-tax-col-sub">φορολογητέο εισόδημα</div>
+          <div class="lv-tax-col-tax">Φόρος: {{ result.taxOnTotal | euro }}</div>
+        </div>
+      </div>
+
+      <div class="lv-marginal-box">
+        Οριακός Φόρος = <strong>{{ result.taxOnTotal | euro }}</strong> − <strong>{{ result.taxOnBase | euro }}</strong> = <strong class="blue">{{ result.marginalTax | euro }}</strong>
+      </div>
+
+      <div class="lv-section-title" style="margin-top:16px;">Κλιμάκια Φόρου {{ taxYear }}</div>
+      <div class="tbl-scroll-hint">← Σύρτε οριζόντια για να δείτε όλες τις στήλες →</div>
+      <div class="lv-table-wrap tbl-wrap">
+        <table class="lv-table">
+          <thead>
+            <tr>
+              <th>Κλιμάκιο</th>
+              <th class="num">Συντελεστής</th>
+              <th class="num">Φορολογητέο</th>
+              <th class="num">Φόρος</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (b of result.taxBreakdown; track b.from) {
+              <tr>
+                <td>
+                  {{ b.from | euro:0 }} –
+                  {{ b.to !== null ? (b.to | euro:0) : '∞' }}
+                </td>
+                <td class="num">{{ b.rate.toFixed(0) }}%</td>
+                <td class="num">{{ b.taxableAmount | euro }}</td>
+                <td class="num tax-cell">{{ b.tax | euro }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">Σύνολο φόρου κλιμακίων (πριν μείωση)</td>
+              <td></td>
+              <td class="num">{{ result.taxOnTotalGross | euro }}</td>
+            </tr>
+            <tr>
+              <td colspan="2">Μείωση φόρου (άρθρο 16 ΚΦΕ)</td>
+              <td></td>
+              <td class="num">− {{ result.taxDiscountAmount | euro }}</td>
+            </tr>
+            <tr>
+              <td colspan="2"><strong>Φόρος εισοδήματος (μετά μείωση)</strong></td>
+              <td></td>
+              <td class="num"><strong>{{ result.taxOnTotal | euro }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+    </div>
+  }
+</div>

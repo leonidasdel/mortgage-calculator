@@ -20,13 +20,55 @@ import {
   BASE_TAX_DISCOUNTS,
   BRACKET_LIMITS,
   getTaxTable,
-  TaxTable,
 } from '../constants/tax-brackets.constants';
 
 const MONTHS_PER_YEAR = 14; // 12 regular + Christmas + Easter/Leave
 const LEAVE_SURCHARGE_RATE = 0.04166; // Προσαύξηση επιδόματος αδείας
+const CHRISTMAS_BONUS_MONTHS = 8;
+const EASTER_BONUS_MONTHS = 4;
 
-type TaxTableLocal = TaxTable;
+export interface SalaryFormSlice {
+  grossMonthly?: unknown;
+  year?: unknown;
+  ageGroup?: unknown;
+  children?: unknown;
+  hasSalaryChange?: unknown;
+  salaryChangeMonth?: unknown;
+  previousGross?: unknown;
+  annualBonus?: unknown;
+  ftePercent?: unknown;
+}
+
+export interface PartialBonusParams {
+  grossMonthly: number;
+  year: number;
+  ageGroup: AgeGroup;
+  children: number;
+  partialEnabled: boolean;
+  christmasMonthsWorked: number;
+  easterMonthsWorked: number;
+}
+
+export interface AdjustedBonus {
+  grossBase: number;
+  leaveSurcharge: number;
+  grossTotal: number;
+  efka: number;
+  tax: number;
+  net: number;
+}
+
+export interface HolidayBonusResult {
+  christmas: AdjustedBonus;
+  easter: AdjustedBonus;
+  leave: AdjustedBonus;
+  christmasFactor: number;
+  easterFactor: number;
+  totalNet: number;
+  totalGross: number;
+  totalEfka: number;
+  totalTax: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class SalaryCalculatorService {
@@ -470,5 +512,74 @@ export class SalaryCalculatorService {
       annualTax,
       warnings,
     };
+  }
+
+  buildSalaryParams(form: SalaryFormSlice, extras?: { annualBonus?: number }): SalaryParams {
+    const hasSalaryChange = !!form.hasSalaryChange;
+    const salaryChange: SalaryChange | undefined = hasSalaryChange
+      ? {
+          effectiveMonth: this.clampMonth(form.salaryChangeMonth),
+          previousGross: this.toAmount(form.previousGross),
+        }
+      : undefined;
+
+    return {
+      grossMonthly: this.toAmount(form.grossMonthly),
+      year: Number(form.year) || 2026,
+      ageGroup: (form.ageGroup || 'over30') as AgeGroup,
+      children: Math.max(0, Number(form.children) || 0),
+      annualBonus: extras?.annualBonus ?? this.toAmount(form.annualBonus),
+      salaryChange,
+      ftePercent: form.ftePercent != null ? Number(form.ftePercent) || 100 : undefined,
+    };
+  }
+
+  calculateWithPartialBonuses(params: PartialBonusParams): HolidayBonusResult {
+    const base = this.calculate({
+      grossMonthly: Math.max(0, params.grossMonthly),
+      year: params.year,
+      ageGroup: params.ageGroup,
+      children: Math.max(0, params.children),
+    });
+
+    const cFactor = params.partialEnabled
+      ? Math.min(1, Math.max(0, params.christmasMonthsWorked / CHRISTMAS_BONUS_MONTHS))
+      : 1;
+    const eFactor = params.partialEnabled
+      ? Math.min(1, Math.max(0, params.easterMonthsWorked / EASTER_BONUS_MONTHS))
+      : 1;
+
+    const applyFactor = (b: BonusBreakdown, f: number): AdjustedBonus => ({
+      grossBase: +((b.grossBase * f).toFixed(2)),
+      leaveSurcharge: +((b.leaveSurcharge * f).toFixed(2)),
+      grossTotal: +((b.grossTotal * f).toFixed(2)),
+      efka: +((b.efka * f).toFixed(2)),
+      tax: +((b.tax * f).toFixed(2)),
+      net: +((b.net * f).toFixed(2)),
+    });
+
+    const christmas = applyFactor(base.christmasBonus, cFactor);
+    const easter = applyFactor(base.easterBonus, eFactor);
+    const leave = applyFactor(base.leaveAllowance, eFactor);
+
+    return {
+      christmas,
+      easter,
+      leave,
+      christmasFactor: cFactor,
+      easterFactor: eFactor,
+      totalNet: +(christmas.net + easter.net + leave.net).toFixed(2),
+      totalGross: +(christmas.grossTotal + easter.grossTotal + leave.grossTotal).toFixed(2),
+      totalEfka: +(christmas.efka + easter.efka + leave.efka).toFixed(2),
+      totalTax: +(christmas.tax + easter.tax + leave.tax).toFixed(2),
+    };
+  }
+
+  private toAmount(value: unknown): number {
+    return Math.max(0, Number(value) || 0);
+  }
+
+  private clampMonth(value: unknown): number {
+    return Math.min(12, Math.max(1, Number(value) || 4));
   }
 }

@@ -1,8 +1,9 @@
-import { Component, computed, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AmortizationRow } from '../../models/mortgage.models';
-import { ShareStateService } from '../../services/share-state.service';
+import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
+import { MortgageCalculatorService } from '../../services/mortgage-calculator.service';
 
 const STORAGE_KEY = 'consumerLoanCalcState';
 const N128_RATE = 0.006; // 0.60% per annum — Εισφορά Ν.128/1975 for consumer loans
@@ -30,6 +31,7 @@ interface ConsumerLoanSummary {
 export class ConsumerLoanCalculatorComponent implements OnInit {
   form: FormGroup;
   private formValues;
+  private destroyRef = inject(DestroyRef);
 
   readonly quickDurations = [12, 24, 36, 48, 60, 84];
 
@@ -45,7 +47,8 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private shareSvc: ShareStateService,
+    private persistence: CalculatorPersistenceService,
+    private calc: MortgageCalculatorService,
   ) {
     this.form = this.fb.group({
       loanAmount:   [10000],
@@ -57,13 +60,7 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadState();
-    const qp = this.shareSvc.getQueryParams();
-    if (Object.keys(qp).length) {
-      const state = this.shareSvc.deserializeState(qp);
-      this.form.patchValue(state, { emitEvent: false });
-    }
-    this.form.valueChanges.subscribe(() => this.saveState());
+    this.persistence.initCalculatorForm(this.form, STORAGE_KEY, this.destroyRef);
   }
 
   schedule = computed<AmortizationRow[]>(() => {
@@ -100,18 +97,10 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
     window.print();
   }
 
-  private pmt(principal: number, annualRate: number, months: number): number {
-    if (principal <= 0 || months <= 0) return 0;
-    if (annualRate === 0) return principal / months;
-    const r = annualRate / 100 / 12;
-    const f = Math.pow(1 + r, months);
-    return principal * r * f / (f - 1);
-  }
-
   private buildSchedule(loanAmount: number, interestRate: number, months: number): AmortizationRow[] {
     if (loanAmount <= 0 || months <= 0) return [];
     const effectiveRate = interestRate + N128_RATE * 100; // nominal + 0.60% levy
-    const monthly = this.pmt(loanAmount, effectiveRate, months);
+    const monthly = this.calc.pmt(loanAmount, effectiveRate, months);
     const mRate   = interestRate / 100 / 12;
     const mN128   = N128_RATE / 12; // monthly levy rate on declining balance
     const today   = new Date();
@@ -161,18 +150,5 @@ export class ConsumerLoanCalculatorComponent implements OnInit {
       if (Math.abs(step) < 1e-10) break;
     }
     return (Math.pow(1 + r, 12) - 1) * 100; // effective annual APR
-  }
-
-  private saveState(): void {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.form.value)); } catch { /* ignore */ }
-  }
-
-  private loadState(): void {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const state = JSON.parse(raw);
-      if (state) this.form.patchValue(state, { emitEvent: false });
-    } catch { /* ignore */ }
   }
 }
