@@ -20,7 +20,7 @@ describe('HolidayBonusService (via SalaryCalculatorService)', () => {
       easterMonthsWorked: 4,
     });
 
-    expect(result.totalGross).toBeCloseTo(3093.74, 1);
-    expect(result.totalNet).toBeCloseTo(2410.79, 0);
+    expect(result.totalGross).toBe(3093.74);
+    expect(result.totalNet).toBe(2410.79);
   });
 });

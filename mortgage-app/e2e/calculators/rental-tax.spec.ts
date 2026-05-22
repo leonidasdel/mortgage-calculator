@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { CalculatorPage } from '../helpers/calculator.page';
+import { golden } from '../helpers/golden';
+import { formatEuro } from '../helpers/money';
 import { RentalTax } from '../helpers/test-ids';
 
 test.describe('Rental tax calculator', () => {
@@ -10,6 +12,9 @@ test.describe('Rental tax calculator', () => {
     await page.getByTestId(RentalTax.incomeMonthlyPill).click();
     await calc.fill(RentalTax.inputMonthlyIncome, 900);
 
-    await expect(page.getByTestId(RentalTax.annualIncome)).toContainText('€10,800', { timeout: 5000 });
+    await expect(page.getByTestId(RentalTax.annualIncome)).toContainText(
+      formatEuro(golden.rentalTax.monthly900.annualIncome),
+      { timeout: 5000 },
+    );
   });
 });

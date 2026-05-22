@@ -1,6 +1,7 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ConsumerLoanCalculatorComponent } from './consumer-loan-calculator.component';
+import { roundEuro } from '../../utils/money.util';
 
 describe('ConsumerLoanCalculatorComponent', () => {
   beforeEach(async () => {
@@ -12,7 +13,7 @@ describe('ConsumerLoanCalculatorComponent', () => {
     }).compileComponents();
   });
 
-  it('should report SEPPE as effective annual APR rather than nominal annual rate', () => {
+  it('should compute exact monthly payment and SEPPE for default loan', () => {
     const fixture = TestBed.createComponent(ConsumerLoanCalculatorComponent);
     const component = fixture.componentInstance;
 
@@ -24,9 +25,9 @@ describe('ConsumerLoanCalculatorComponent', () => {
     });
 
     const summary = component.summary();
-    const expectedEffectiveApr = (Math.pow(1 + summary.effectiveRate / 100 / 12, 12) - 1) * 100;
 
+    expect(roundEuro(summary.monthlyPayment)).toBe(271.26);
+    expect(roundEuro(summary.seppe)).toBe(14.48);
     expect(summary.seppe).toBeGreaterThan(summary.effectiveRate);
-    expect(summary.seppe).toBeCloseTo(expectedEffectiveApr, 2);
   });
 });

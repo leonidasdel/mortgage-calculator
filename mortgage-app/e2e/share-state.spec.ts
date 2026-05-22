@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { CalculatorPage } from './helpers/calculator.page';
+import { golden } from './helpers/golden';
+import { formatEuro } from './helpers/money';
 import { ConsumerLoan, ExportRow, Mortgage, Salary } from './helpers/test-ids';
 
 test.describe('Share URL round-trip', () => {
@@ -7,7 +9,7 @@ test.describe('Share URL round-trip', () => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   });
 
-  test('consumer loan restores loan amount from share link', async ({ page, context }) => {
+  test('consumer loan restores loan amount from share link', async ({ page }) => {
     const calc = new CalculatorPage(page);
     await page.goto('/consumer-loan');
 
@@ -19,6 +21,9 @@ test.describe('Share URL round-trip', () => {
 
     await page.goto(shareUrl);
     await expect(calc.get(ConsumerLoan.inputLoanAmount)).toHaveValue('7500');
+    await expect(calc.hero(ConsumerLoan.heroPayment)).toContainText(
+      formatEuro(golden.shareState.consumerLoan7500.monthlyPayment),
+    );
   });
 
   test('salary restores gross monthly from share link', async ({ page }) => {
@@ -35,6 +40,9 @@ test.describe('Share URL round-trip', () => {
 
     await page.goto(shareUrl);
     await expect(calc.get(Salary.inputGrossMonthly)).toHaveValue('2200');
+    await expect(calc.hero(Salary.heroNet)).toContainText(
+      formatEuro(golden.shareState.salaryGross2200.netMonthly),
+    );
   });
 
   test('mortgage restores loan amount from share link', async ({ page }) => {

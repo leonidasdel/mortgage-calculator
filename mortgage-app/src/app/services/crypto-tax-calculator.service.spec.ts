@@ -23,7 +23,7 @@ describe('CryptoTaxCalculatorService', () => {
 
     expect(result.netGain).toBe(5000);
     expect(result.taxableGain).toBe(5000);
-    expect(result.taxDue).toBeCloseTo(5000 * CRYPTO_GAINS_TAX_RATE, 2);
+    expect(result.taxDue).toBe(750);
   });
 
   it('should deduct carried loss before taxing gain', () => {
@@ -39,7 +39,7 @@ describe('CryptoTaxCalculatorService', () => {
 
     expect(result.netGain).toBe(5000);
     expect(result.taxableGain).toBe(2000);
-    expect(result.taxDue).toBeCloseTo(2000 * CRYPTO_GAINS_TAX_RATE, 2);
+    expect(result.taxDue).toBe(300);
     expect(result.lossCarryForward).toBe(0);
   });
 

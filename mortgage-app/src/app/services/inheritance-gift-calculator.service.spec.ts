@@ -35,7 +35,7 @@ describe('InheritanceGiftCalculatorService', () => {
     });
 
     expect(result.taxableBase).toBe(200000);
-    expect(result.taxDue).toBeGreaterThan(0);
+    expect(result.taxDue).toBe(4000);
     expect(result.exemptAmount).toBe(0);
   });
 });

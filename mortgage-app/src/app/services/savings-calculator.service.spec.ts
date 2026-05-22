@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { SavingsCalculatorService } from './savings-calculator.service';
+import { roundEuro } from '../utils/money.util';
 
 describe('SavingsCalculatorService', () => {
   let service: SavingsCalculatorService;
@@ -19,7 +20,7 @@ describe('SavingsCalculatorService', () => {
       applyInflation: false,
     });
 
-    expect(result.finalNominal).toBeCloseTo(1647.01, 0);
-    expect(result.netGains).toBeCloseTo(647.01, 0);
+    expect(roundEuro(result.finalNominal)).toBe(1647.01);
+    expect(roundEuro(result.netGains)).toBe(647.01);
   });
 });

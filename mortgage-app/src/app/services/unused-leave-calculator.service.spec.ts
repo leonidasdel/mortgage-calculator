@@ -23,7 +23,24 @@ describe('UnusedLeaveCalculatorService', () => {
       useCustomAnnualIncome: false,
     });
 
-    expect(result.leaveCompensation).toBeCloseTo(600, 0);
-    expect(result.totalNet).toBeCloseTo(468, 0);
+    expect(result.leaveCompensation).toBe(600);
+    expect(result.totalNet).toBe(468);
+  });
+
+  it('should calculate net compensation for 5 unused days with holiday bonus', () => {
+    const result = service.calculate({
+      salaryType: 'monthly',
+      grossMonthly: 1500,
+      workWeek: '5day',
+      unusedDays: 5,
+      includeHolidayBonus: true,
+      situation: 'termination',
+      taxYear: '2025',
+      ageGroup: 'over30',
+      children: 0,
+      useCustomAnnualIncome: false,
+    });
+
+    expect(result.totalNet).toBe(425.53);
   });
 });

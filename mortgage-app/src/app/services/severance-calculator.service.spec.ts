@@ -20,20 +20,22 @@ describe('SeveranceCalculatorService', () => {
     expect(result.completedYears).toBe(5);
     expect(result.fullSeveranceMonths).toBe(3);
     expect(result.actualMonths).toBe(3);
-    expect(result.baseSalaryCalculation).toBeCloseTo(1750, 2);
-    expect(result.grossSeverance).toBeCloseTo(5250, 2);
+    expect(result.baseSalaryCalculation).toBe(1750);
+    expect(result.grossSeverance).toBe(5250);
+    expect(result.severanceTax).toBe(0);
+    expect(result.netSeverance).toBe(5250);
   });
 
-  it('should apply 0% tax bracket for severance under 60k', () => {
+  it('should calculate tax-free severance for 10 years at 2000 gross', () => {
     const result = service.calculate({
-      grossMonthly: 1500,
-      yearsOfService: 5,
+      grossMonthly: 2000,
+      yearsOfService: 10,
       monthsExtra: 0,
       terminationType: 'without_notice',
     });
 
-    expect(result.grossSeverance).toBeLessThan(60000);
+    expect(result.grossSeverance).toBe(13999.98);
     expect(result.severanceTax).toBe(0);
-    expect(result.netSeverance).toBe(result.grossSeverance);
+    expect(result.netSeverance).toBe(13999.98);
   });
 });

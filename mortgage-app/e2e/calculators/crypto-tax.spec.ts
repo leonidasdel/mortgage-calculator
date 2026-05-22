@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { CalculatorPage } from '../helpers/calculator.page';
+import { golden } from '../helpers/golden';
+import { formatEuro } from '../helpers/money';
 import { CryptoTax } from '../helpers/test-ids';
 
 test.describe('Crypto tax calculator', () => {
@@ -11,6 +13,9 @@ test.describe('Crypto tax calculator', () => {
     await calc.fill(CryptoTax.inputTotalCost, 10_000);
     await calc.fill(CryptoTax.inputCarriedLoss, 0);
 
-    await expect(calc.hero(CryptoTax.heroTaxDue)).toContainText('€750.00', { timeout: 5000 });
+    await expect(calc.hero(CryptoTax.heroTaxDue)).toContainText(
+      formatEuro(golden.cryptoTax.simple5kGain.taxDue),
+      { timeout: 5000 },
+    );
   });
 });

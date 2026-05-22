@@ -27,10 +27,25 @@ describe('FreelancerCalculatorComponent', () => {
 
     const result = component.result();
 
-    expect(result.netAnnual).toBeCloseTo(
+    expect(result.netAnnual).toBe(
       result.annualRevenue - result.annualExpenses - result.totalObligations,
-      2,
     );
-    expect(result.netMonthly).toBeCloseTo(result.netAnnual / 12, 2);
+    expect(result.netMonthly).toBe(result.netAnnual / 12);
+  });
+
+  it('should compute exact net monthly for 60000 revenue', () => {
+    const fixture = TestBed.createComponent(FreelancerCalculatorComponent);
+    const component = fixture.componentInstance;
+
+    component.formModel.set({
+      annualRevenue: 60_000,
+      annualExpenses: 5000,
+      efkaCategory: 'cat1',
+      yearsActive: 'over3',
+      ageGroup: 'over30',
+      children: '0',
+    });
+
+    expect(component.result().netMonthly).toBe(2574.99);
   });
 });

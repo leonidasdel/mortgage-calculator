@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { CalculatorPage } from '../helpers/calculator.page';
+import { golden } from '../helpers/golden';
+import { formatEuro } from '../helpers/money';
 import { Savings } from '../helpers/test-ids';
 
 test.describe('Savings calculator', () => {
@@ -13,6 +15,10 @@ test.describe('Savings calculator', () => {
     await calc.fill(Savings.inputDurationYears, 10);
     await calc.get(Savings.inputApplyTax).uncheck();
 
-    await expect(calc.hero(Savings.heroFinalBalance)).toContainText('€1,647', { timeout: 5000 });
+    const { finalBalance, decimals } = golden.savings.lumpSum10y;
+    await expect(calc.hero(Savings.heroFinalBalance)).toContainText(
+      formatEuro(finalBalance, decimals),
+      { timeout: 5000 },
+    );
   });
 });

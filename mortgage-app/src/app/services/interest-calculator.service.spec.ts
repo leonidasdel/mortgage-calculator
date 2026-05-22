@@ -18,7 +18,7 @@ describe('InterestCalculatorService', () => {
     });
 
     expect(result.days).toBe(365);
-    expect(result.grossInterest).toBeCloseTo(350, 2);
+    expect(result.grossInterest).toBe(350);
   });
 
   it('should withhold 15% tax on gross interest', () => {
@@ -30,8 +30,8 @@ describe('InterestCalculatorService', () => {
     });
 
     expect(result.taxRate).toBe(15);
-    expect(result.tax).toBeCloseTo(52.5, 2);
-    expect(result.netInterest).toBeCloseTo(297.5, 2);
-    expect(result.totalAmount).toBeCloseTo(10297.5, 2);
+    expect(result.tax).toBe(52.5);
+    expect(result.netInterest).toBe(297.5);
+    expect(result.totalAmount).toBe(10297.5);
   });
 });

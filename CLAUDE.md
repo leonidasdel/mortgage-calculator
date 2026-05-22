@@ -292,9 +292,11 @@ Browsers install to `node_modules` via `PLAYWRIGHT_BROWSERS_PATH=0` (set in npm 
 
 **CI:** GitHub Actions `deploy.yml` runs unit tests → build → `playwright install --with-deps chromium` → E2E against `dist/mortgage-app/browser/` (SPA fallback `-s`). Uploads `playwright-report/` artifact on failure.
 
-**Helpers:** `e2e/helpers/routes.ts`, `e2e/helpers/test-ids.ts` (central registry), `e2e/helpers/calculator.page.ts` (`fill`, `get`, `hero`, `scrollToDeferred`).
+**Helpers:** `e2e/helpers/routes.ts`, `e2e/helpers/test-ids.ts` (central registry), `e2e/helpers/golden.ts` (cent-exact expected values), `e2e/helpers/money.ts` (`formatEuro`), `e2e/helpers/calculator.page.ts` (`fill`, `get`, `hero`, `scrollToDeferred`).
 
 **Locator policy:** Use **`data-testid` only** in E2E specs — `page.getByTestId()` via registry constants. Do not use `#id`, `.class`, or CSS selectors in new specs. Keep `#id` on inputs for labels/a11y; add matching `data-testid` alongside.
+
+**Exact money assertions:** Calculator E2E specs must assert **cent-exact** euro amounts — never regex patterns like `/€[\d,]+\.\d{2}/`, `toBeGreaterThan`, or “value changed” alone. Source expected numbers from service unit tests; store them in `e2e/helpers/golden.ts` and format with `formatEuro()` (mirrors `EuroPipe`). Use `toContainText(formatEuro(golden…))` on hero locators. Unit tests use `expect(value).toBe(cents)` or `roundEuro()` — not `toBeCloseTo(_, 0)` for user-visible money.
 
 **TestId pattern:** `{scope}-{role}-{name}` — e.g. `mortgage-input-loanAmount`, `salary-hero-net`, `nav-link-mortgage`. See `e2e/helpers/test-ids.ts`.
 

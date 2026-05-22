@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { CalculatorPage } from '../helpers/calculator.page';
+import { golden } from '../helpers/golden';
+import { formatEuro } from '../helpers/money';
 import { PropertyPurchase } from '../helpers/test-ids';
 
 test.describe('Property purchase calculator', () => {
@@ -7,6 +9,10 @@ test.describe('Property purchase calculator', () => {
     const calc = new CalculatorPage(page);
     await page.goto('/property-purchase');
 
-    await expect(calc.hero(PropertyPurchase.heroTotalCost)).toContainText('€209,890', { timeout: 5000 });
+    const { totalAcquisitionCost, decimals } = golden.propertyPurchase.default;
+    await expect(calc.hero(PropertyPurchase.heroTotalCost)).toContainText(
+      formatEuro(totalAcquisitionCost, decimals),
+      { timeout: 5000 },
+    );
   });
 });

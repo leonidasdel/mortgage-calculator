@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { CalculatorPage } from '../helpers/calculator.page';
+import { golden } from '../helpers/golden';
+import { formatEuro } from '../helpers/money';
 import { Severance } from '../helpers/test-ids';
 
 test.describe('Severance calculator', () => {
@@ -11,6 +13,9 @@ test.describe('Severance calculator', () => {
     await calc.fill(Severance.inputYearsOfService, 10);
     await calc.fill(Severance.inputMonthsExtra, 0);
 
-    await expect(calc.hero(Severance.heroNet)).toContainText('€13,999.98', { timeout: 5000 });
+    await expect(calc.hero(Severance.heroNet)).toContainText(
+      formatEuro(golden.severance.gross2000_10y.netSeverance),
+      { timeout: 5000 },
+    );
   });
 });

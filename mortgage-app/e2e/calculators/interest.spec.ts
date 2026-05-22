@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { CalculatorPage } from '../helpers/calculator.page';
+import { golden } from '../helpers/golden';
+import { formatEuro } from '../helpers/money';
 import { Interest } from '../helpers/test-ids';
 
 test.describe('Interest calculator', () => {
@@ -11,6 +13,9 @@ test.describe('Interest calculator', () => {
     await calc.fill(Interest.inputRate, 3.5);
     await page.getByTestId(Interest.pillDuration(12)).click();
 
-    await expect(calc.hero(Interest.heroNetInterest)).toContainText('297.50', { timeout: 5000 });
+    await expect(calc.hero(Interest.heroNetInterest)).toContainText(
+      formatEuro(golden.interest.capital10k_rate3_5_12mo.netInterest),
+      { timeout: 5000 },
+    );
   });
 });

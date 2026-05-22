@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { CalculatorPage } from '../helpers/calculator.page';
+import { golden } from '../helpers/golden';
+import { formatEuro } from '../helpers/money';
 import { Salary } from '../helpers/test-ids';
 
 test.describe('Salary calculator', () => {
@@ -8,10 +10,10 @@ test.describe('Salary calculator', () => {
     await page.goto('/salary');
 
     const netHero = calc.hero(Salary.heroNet);
-    const netBefore = await netHero.textContent();
+    await expect(netHero).toContainText(formatEuro(golden.salary.default.netMonthly));
+
     await calc.fill(Salary.inputGrossMonthly, 2000);
 
-    await expect(netHero).not.toHaveText(netBefore ?? '');
-    await expect(netHero).toContainText(/€[\d,]+\.\d{2}/);
+    await expect(netHero).toContainText(formatEuro(golden.salary.gross2000.netMonthly));
   });
 });

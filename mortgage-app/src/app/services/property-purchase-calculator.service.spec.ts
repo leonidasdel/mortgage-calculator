@@ -21,7 +21,7 @@ describe('PropertyPurchaseCalculatorService', () => {
     });
 
     expect(result.fma).toBe(0);
-    expect(result.totalExtraCosts).toBeCloseTo(9890, 0);
-    expect(result.totalAcquisitionCost).toBeCloseTo(209890, 0);
+    expect(result.totalExtraCosts).toBe(9890);
+    expect(result.totalAcquisitionCost).toBe(209890);
   });
 });

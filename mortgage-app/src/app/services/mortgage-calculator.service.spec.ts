@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MortgageCalculatorService } from './mortgage-calculator.service';
 import { LoanParams, EarlyRepayment } from '../models/mortgage.models';
+import { roundEuro } from '../utils/money.util';
 
 const BASE_PARAMS: LoanParams = {
   loanAmount: 100000,
@@ -32,12 +33,11 @@ describe('MortgageCalculatorService', () => {
     });
 
     it('should return principal / months for zero rate', () => {
-      expect(service.pmt(12000, 0, 12)).toBeCloseTo(1000, 2);
+      expect(service.pmt(12000, 0, 12)).toBe(1000);
     });
 
     it('should calculate monthly payment for 100k at 5% over 30yr correctly', () => {
-      // Standard PMT: ≈ €536.82
-      expect(service.pmt(100000, 5, 360)).toBeCloseTo(536.82, 0);
+      expect(roundEuro(service.pmt(100000, 5, 360))).toBe(536.82);
     });
   });
 
@@ -50,13 +50,14 @@ describe('MortgageCalculatorService', () => {
 
     it('should produce balance ≈ 0 at the end', () => {
       const s = service.buildSchedule(BASE_PARAMS, []);
-      expect(s[s.length - 1].balance).toBeLessThan(1);
+      // Float amortization — terminal balance within 1 cent of zero
+      expect(s[s.length - 1].balance).toBeLessThan(0.01);
     });
 
-    it('should sum principal + earlyAmt ≈ loanAmount', () => {
+    it('should sum principal + earlyAmt to loanAmount', () => {
       const s = service.buildSchedule(BASE_PARAMS, []);
       const total = s.reduce((sum, r) => sum + r.principal + r.earlyAmt, 0);
-      expect(total).toBeCloseTo(BASE_PARAMS.loanAmount, 0);
+      expect(roundEuro(total)).toBe(BASE_PARAMS.loanAmount);
     });
 
     it('should mark fixed period rows isFixed=true', () => {
@@ -98,9 +99,10 @@ describe('MortgageCalculatorService', () => {
       const er: EarlyRepayment[] = [{ id: 1, month: 12, amount: 10000 }];
       const withER  = service.buildSchedule({ ...BASE_PARAMS, erMode: 'reducePmt' }, er);
       const without = service.buildSchedule(BASE_PARAMS, []);
-      // Payment after ER should be lower than without
-      const pmtAfterER  = withER[12].payment;
-      const pmtNoER     = without[12].payment;
+      const pmtAfterER  = roundEuro(withER[13].payment);
+      const pmtNoER     = roundEuro(without[13].payment);
+      expect(pmtAfterER).toBe(379.52);
+      expect(pmtNoER).toBe(422.68);
       expect(pmtAfterER).toBeLessThan(pmtNoER);
     });
 
@@ -113,8 +115,8 @@ describe('MortgageCalculatorService', () => {
       const month12 = schedule.find(r => r.month === 12);
       const totalEarly = schedule.reduce((sum, r) => sum + r.earlyAmt, 0);
 
-      expect(month12?.earlyAmt).toBeCloseTo(15000, 2);
-      expect(totalEarly).toBeCloseTo(15000, 2);
+      expect(month12?.earlyAmt).toBe(15000);
+      expect(totalEarly).toBe(15000);
     });
 
     it('should still fully amortize after a reducePmt early repayment during grace period', () => {
@@ -131,8 +133,8 @@ describe('MortgageCalculatorService', () => {
       const schedule = service.buildSchedule(params, [{ id: 1, month: 1, amount: 10000 }]);
       const totalPrincipal = schedule.reduce((sum, r) => sum + r.principal + r.earlyAmt, 0);
 
-      expect(schedule[schedule.length - 1].balance).toBeLessThan(1);
-      expect(totalPrincipal).toBeCloseTo(params.loanAmount, 0);
+      expect(schedule[schedule.length - 1].balance).toBeLessThan(0.01);
+      expect(roundEuro(totalPrincipal)).toBe(params.loanAmount);
     });
 
     it('should not reduce payment in reduceDur mode with ER', () => {
@@ -141,7 +143,7 @@ describe('MortgageCalculatorService', () => {
       const without = service.buildSchedule(BASE_PARAMS, []);
       // The total monthly payment (pmtFixed) must be unchanged in reduceDur mode.
       // pmtFixed is never recalculated after an ER in reduceDur mode.
-      expect(withER[12].payment).toBeCloseTo(without[12].payment, 0);
+      expect(roundEuro(withER[12].payment)).toBe(roundEuro(without[12].payment));
     });
   });
 
@@ -153,19 +155,25 @@ describe('MortgageCalculatorService', () => {
       expect(summary.grandTotal).toBe(0);
     });
 
+    it('should compute exact fixedPayment for default BASE_PARAMS', () => {
+      const s = service.buildSchedule(BASE_PARAMS, []);
+      const summary = service.computeSummary(s, s, BASE_PARAMS);
+      expect(roundEuro(summary.fixedPayment)).toBe(422.68);
+    });
+
     it('should sum grand total correctly', () => {
       const s = service.buildSchedule(BASE_PARAMS, []);
       const summary = service.computeSummary(s, s, BASE_PARAMS);
       const expected = summary.totalPrincipal + summary.totalInterest + summary.totalN128;
-      expect(summary.grandTotal).toBeCloseTo(expected, 2);
+      expect(roundEuro(summary.grandTotal)).toBe(roundEuro(expected));
     });
 
-    it('should report interestSaved when ERs present', () => {
+    it('should report exact interestSaved when ERs present', () => {
       const er: EarlyRepayment[] = [{ id: 1, month: 12, amount: 10000 }];
       const schedule     = service.buildSchedule(BASE_PARAMS, er);
       const baseSchedule = service.buildSchedule(BASE_PARAMS, []);
       const summary = service.computeSummary(schedule, baseSchedule, BASE_PARAMS);
-      expect(summary.interestSaved).toBeGreaterThan(0);
+      expect(roundEuro(summary.interestSaved!)).toBe(7295.11);
     });
   });
 
@@ -175,11 +183,11 @@ describe('MortgageCalculatorService', () => {
       expect(service.computeErMonthsSaved(BASE_PARAMS, [])).toEqual({});
     });
 
-    it('should return positive months saved for a single ER in reduceDur mode', () => {
+    it('should return exact months saved for a single ER in reduceDur mode', () => {
       const params: LoanParams = { ...BASE_PARAMS, erMode: 'reduceDur' };
       const er: EarlyRepayment[] = [{ id: 1, month: 12, amount: 10000 }];
       const map = service.computeErMonthsSaved(params, er);
-      expect(map[1]).toBeGreaterThan(0);
+      expect(map[1]).toBe(63);
     });
   });
 });

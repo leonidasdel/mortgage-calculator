@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { CalculatorPage } from '../helpers/calculator.page';
+import { golden } from '../helpers/golden';
+import { formatEuro } from '../helpers/money';
 import { Mortgage } from '../helpers/test-ids';
 
 test.describe('Mortgage calculator', () => {
@@ -7,12 +9,15 @@ test.describe('Mortgage calculator', () => {
     const calc = new CalculatorPage(page);
     await page.goto('/mortgage');
 
-    await expect(calc.hero(Mortgage.heroPayment)).toContainText(/€[\d,]+\.\d{2}/);
+    await expect(calc.hero(Mortgage.heroPayment)).toContainText(
+      formatEuro(golden.mortgage.default.fixedPayment),
+    );
 
-    const paymentBefore = await calc.hero(Mortgage.heroPayment).textContent();
     await calc.fill(Mortgage.inputLoanAmount, 200_000);
     await calc.fill(Mortgage.inputLoanYears, 20);
 
-    await expect(calc.hero(Mortgage.heroPayment)).not.toHaveText(paymentBefore ?? '');
+    await expect(calc.hero(Mortgage.heroPayment)).toContainText(
+      formatEuro(golden.mortgage.loan200k_20y.fixedPayment),
+    );
   });
 });

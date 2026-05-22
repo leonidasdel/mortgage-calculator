@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { CalculatorPage } from '../helpers/calculator.page';
+import { golden } from '../helpers/golden';
+import { formatEuro } from '../helpers/money';
 import { HolidayBonus } from '../helpers/test-ids';
 
 test.describe('Holiday bonus calculator', () => {
@@ -9,7 +11,9 @@ test.describe('Holiday bonus calculator', () => {
 
     await calc.fill(HolidayBonus.inputGrossMonthly, 1500);
 
-    const hero = calc.hero(HolidayBonus.heroNetTotal);
-    await expect(hero).toContainText('€2,410.79', { timeout: 5000 });
+    await expect(calc.hero(HolidayBonus.heroNetTotal)).toContainText(
+      formatEuro(golden.holidayBonus.gross1500.totalNet),
+      { timeout: 5000 },
+    );
   });
 });

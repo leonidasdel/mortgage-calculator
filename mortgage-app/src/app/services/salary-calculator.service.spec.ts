@@ -12,12 +12,12 @@ describe('SalaryCalculatorService', () => {
     service = TestBed.inject(SalaryCalculatorService);
   });
 
-  it('should return annual bonus details when annual bonus is provided', () => {
+  it('should return exact annual bonus net for gross 1500 and bonus 1000', () => {
     const result = service.calculate(baseParams({ annualBonus: 1000 }));
 
     expect(result.bonusResult).toBeTruthy();
     expect(result.bonusResult?.grossBonus).toBe(1000);
-    expect(result.bonusResult?.net).toBeGreaterThan(0);
+    expect(result.bonusResult?.net).toBe(675.71);
   });
 
   it('should insure a bonus below the cap as a separate payment', () => {
@@ -32,15 +32,16 @@ describe('SalaryCalculatorService', () => {
   it('should cap EFKA contributions at MAX_INSURABLE_EARNINGS', () => {
     const result = service.calculate(baseParams({ grossMonthly: 10000 }));
 
-    expect(result.efkaEmployee).toBeCloseTo(
+    expect(result.efkaEmployee).toBe(
       +(MAX_INSURABLE_EARNINGS * 0.1337).toFixed(2),
-      2,
     );
   });
 
   it('should reverse-calculate gross from target net monthly', () => {
     const params = baseParams({ grossMonthly: 2000 });
     const forward = service.calculate(params);
+    expect(forward.netMonthly).toBe(1484.4);
+
     const gross = service.reverseCalculate(forward.netMonthly, {
       annualBonus: params.annualBonus,
       year: params.year,
@@ -48,9 +49,8 @@ describe('SalaryCalculatorService', () => {
       children: params.children,
     });
 
-    expect(gross).toBeCloseTo(2000, 1);
-    expect(service.calculate({ ...params, grossMonthly: gross }).netMonthly)
-      .toBeCloseTo(forward.netMonthly, 1);
+    expect(gross).toBe(1999.99);
+    expect(service.calculate({ ...params, grossMonthly: gross }).netMonthly).toBe(1484.39);
   });
 
   it('should apply children discount in calculateTaxOnly', () => {
@@ -59,6 +59,8 @@ describe('SalaryCalculatorService', () => {
     const withoutChildren = service.calculateTaxOnly(taxableIncome, 2026, 'over30', 0);
 
     expect(withChildren.taxDiscount).toBe(BASE_TAX_DISCOUNTS[2]);
+    expect(withChildren.annualTax).toBe(0);
+    expect(withoutChildren.annualTax).toBe(123);
     expect(withChildren.annualTax).toBeLessThan(withoutChildren.annualTax);
   });
 
@@ -66,12 +68,15 @@ describe('SalaryCalculatorService', () => {
     const grossMonthly = 1500;
     const result = service.calculate(baseParams({ grossMonthly }));
 
-    expect(result.taxableIncome).toBeCloseTo(grossMonthly * 14 - result.efkaEmployee * 14, 0);
-    expect(result.incomeTax * 14).toBeCloseTo(result.annualTax, 0);
-    expect(result.annualNetBase).toBeCloseTo(
-      result.annualGrossBase - result.annualEfka - result.annualTax,
-      2,
-    );
+    expect(result.netMonthly).toBe(1164.79);
+    expect(result.taxableIncome).toBe(18192.3);
+    expect(result.annualTax).toBe(1885.31);
+    expect(result.annualNetBase).toBe(16388.2);
+  });
+
+  it('should compute exact net monthly for gross 2000', () => {
+    const result = service.calculate(baseParams({ grossMonthly: 2000 }));
+    expect(result.netMonthly).toBe(1484.4);
   });
 
   it('should build salary params from form slice', () => {
@@ -114,6 +119,8 @@ describe('SalaryCalculatorService', () => {
 
     expect(full.christmasFactor).toBe(1);
     expect(partial.christmasFactor).toBe(0.5);
+    expect(full.totalNet).toBe(2410.79);
+    expect(partial.totalNet).toBe(1205.4);
     expect(partial.totalNet).toBeLessThan(full.totalNet);
   });
 });
