@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-icon interest-icon">📈</div>
   <div>
-    <h1 class="page-title">Υπολογισμός Τόκων</h1>
+    <h1 class="page-title" data-testid="interest-page-title">Υπολογισμός Τόκων</h1>
     <p class="page-subtitle">Υπολογίστε την απόδοση των καταθέσεών σας μετά από φόρο τόκων 15%</p>
   </div>
 </div>
@@ -20,14 +20,14 @@
           <label for="capital">Ποσό Κεφαλαίου (&#8364;)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="capital" [formField]="formFields.capital">
+            <input type="number" id="capital" data-testid="interest-input-capital" [formField]="formFields.capital">
           </div>
         </div>
 
         <div class="form-group">
           <label for="rate">Ετήσιο Επιτόκιο (%)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="rate" [formField]="formFields.rate">
+            <input type="number" id="rate" data-testid="interest-input-rate" [formField]="formFields.rate">
             <span class="sfx">%</span>
           </div>
         </div>
@@ -45,6 +45,7 @@
             @for (d of quickPicks; track d.months) {
               <button type="button"
                       class="duration-pill"
+                      [attr.data-testid]="'interest-pill-duration-' + d.months"
                       [class.active]="activeDuration() === d.months"
                       (click)="pickDuration(d.months)">
                 {{ d.label }}
@@ -97,7 +98,7 @@
   <div class="right-panel">
 
     <!-- Results hero -->
-    <div class="card" id="interest-results">
+    <div class="card" id="interest-results" data-testid="interest-results">
       <div class="card-header">
         <div class="card-header-icon">&#128176;</div>
         <h2>Αποτελέσματα</h2>
@@ -106,7 +107,7 @@
         <div class="hero-row">
           <div class="interest-hero net">
             <div class="hero-lbl">Καθαροί Τόκοι</div>
-            <div class="hero-val">{{ result().netInterest | euro }}</div>
+            <div class="hero-val" data-testid="interest-hero-netInterest">{{ result().netInterest | euro }}</div>
           </div>
           <div class="interest-hero total">
             <div class="hero-lbl">Συνολικό Ποσό</div>

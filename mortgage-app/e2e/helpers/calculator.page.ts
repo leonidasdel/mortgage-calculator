@@ -3,21 +3,27 @@ import { Locator, Page } from '@playwright/test';
 export class CalculatorPage {
   constructor(readonly page: Page) {}
 
-  async fillNumber(id: string, value: string | number): Promise<void> {
-    const input = this.page.locator(`#${id}`);
+  get(testId: string): Locator {
+    return this.page.getByTestId(testId);
+  }
+
+  async fill(testId: string, value: string | number): Promise<void> {
+    const input = this.get(testId);
     await input.fill(String(value));
     await input.blur();
   }
 
-  firstHeroVal(): Locator {
-    return this.page.locator('.hero-val').first();
+  hero(testId: string): Locator {
+    return this.get(testId);
   }
 
-  heroValIn(containerId: string): Locator {
-    return this.page.locator(`#${containerId} .hero-val`).first();
-  }
-
-  async scrollToDefer(): Promise<void> {
-    await this.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  async scrollToDeferred(testId: string): Promise<void> {
+    for (let i = 0; i < 20; i++) {
+      if (await this.get(testId).count()) break;
+      await this.page.mouse.wheel(0, 600);
+      await this.page.waitForTimeout(150);
+    }
+    await this.get(testId).waitFor({ state: 'visible', timeout: 15_000 });
+    await this.get(testId).scrollIntoViewIfNeeded();
   }
 }

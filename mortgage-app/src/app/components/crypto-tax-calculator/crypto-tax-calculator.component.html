@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-icon ct-icon">₿</div>
   <div>
-    <h1 class="page-title">Φόρος Κρυπτονομισμάτων</h1>
+    <h1 class="page-title" data-testid="crypto-tax-page-title">Φόρος Κρυπτονομισμάτων</h1>
     <p class="page-subtitle">Υπολογισμός φόρου κερδών κεφαλαίου 15% από πωλήσεις crypto (δήλωση Ε1)</p>
   </div>
 </div>
@@ -38,7 +38,7 @@
           <label for="totalProceeds">Έσοδα από πώληση (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="totalProceeds" [formField]="formFields.totalProceeds">
+            <input type="number" id="totalProceeds" data-testid="crypto-tax-input-totalProceeds" [formField]="formFields.totalProceeds">
           </div>
         </div>
 
@@ -46,7 +46,7 @@
           <label for="totalCost">Κόστος απόκτησης (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="totalCost" [formField]="formFields.totalCost">
+            <input type="number" id="totalCost" data-testid="crypto-tax-input-totalCost" [formField]="formFields.totalCost">
           </div>
         </div>
 
@@ -54,7 +54,7 @@
           <label for="carriedLoss">Ζημίες προηγούμενων ετών (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="carriedLoss" [formField]="formFields.carriedLoss">
+            <input type="number" id="carriedLoss" data-testid="crypto-tax-input-carriedLoss" [formField]="formFields.carriedLoss">
           </div>
           <div class="ct-hint">Συμψηφίζονται με τα κέρδη του τρέχοντος έτους · μεταφορά έως {{ lossCarryYears }} έτη</div>
         </div>
@@ -74,7 +74,7 @@
   </div>
 
   <div class="right-panel">
-    <div class="card" id="crypto-results">
+    <div class="card" id="crypto-results" data-testid="crypto-tax-results">
       <div class="card-header">
         <div class="card-header-icon">&#128176;</div>
         <h2>Αποτέλεσμα</h2>
@@ -83,7 +83,7 @@
         <div class="hero-row">
           <div class="hero-card dark">
             <div class="hero-lbl">Φόρος πληρωτέος</div>
-            <div class="hero-val">{{ result().taxDue | euro }}</div>
+            <div class="hero-val" data-testid="crypto-tax-hero-taxDue">{{ result().taxDue | euro }}</div>
             <div class="hero-sub">
               @if (formModel().isProfessional) {
                 ενδεικτικός υπολογισμός

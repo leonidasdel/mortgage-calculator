@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-icon pp-icon">🏡</div>
   <div>
-    <h1 class="page-title">Κόστος Αγοράς Ακινήτου</h1>
+    <h1 class="page-title" data-testid="property-purchase-page-title">Κόστος Αγοράς Ακινήτου</h1>
     <p class="page-subtitle">Υπολογίστε το συνολικό κόστος απόκτησης — ΦΜΑ, συμβολαιογραφικά, κτηματολόγιο &amp; λοιπές δαπάνες</p>
   </div>
 </div>
@@ -23,7 +23,7 @@
           <label for="purchasePrice">Τίμημα Αγοράς (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="purchasePrice" [formField]="formFields.purchasePrice">
+            <input type="number" id="purchasePrice" data-testid="property-purchase-input-purchasePrice" [formField]="formFields.purchasePrice">
           </div>
         </div>
 
@@ -31,7 +31,7 @@
           <label for="aaotValue">Αντικειμενική Αξία / ΑΑΟΤ (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="aaotValue" [formField]="formFields.aaotValue">
+            <input type="number" id="aaotValue" data-testid="property-purchase-input-aaotValue" [formField]="formFields.aaotValue">
           </div>
           <div class="pp-hint">
             Ο ΦΜΑ υπολογίζεται στο <strong>μεγαλύτερο</strong> από τιμήμα &amp; αντικειμενική αξία.
@@ -59,7 +59,7 @@
         <!-- Πρώτη κατοικία -->
         <div class="form-group">
           <label class="pp-check-row">
-            <input type="checkbox" [formField]="formFields.isFirstHome">
+            <input type="checkbox" data-testid="property-purchase-input-isFirstHome" [formField]="formFields.isFirstHome">
             <span>Αγορά Πρώτης Κατοικίας (απαλλαγή ΦΜΑ)</span>
           </label>
         </div>
@@ -75,7 +75,7 @@
           <div class="form-group">
             <label for="children">Εξαρτώμενα Τέκνα</label>
             <div class="input-wrap">
-              <input type="number" id="children" [formField]="formFields.children">
+              <input type="number" id="children" data-testid="property-purchase-input-children" [formField]="formFields.children">
             </div>
           </div>
 
@@ -117,7 +117,7 @@
   <div class="right-panel">
 
     <!-- Hero αποτελέσματα -->
-    <div class="card" id="pp-results">
+    <div class="card" id="pp-results" data-testid="property-purchase-results">
       <div class="card-header">
         <div class="card-header-icon">&#128176;</div>
         <h2>Συνολικό Κόστος Απόκτησης</h2>
@@ -127,7 +127,7 @@
         <div class="hero-row">
           <div class="hero-card dark">
             <div class="hero-lbl">Συνολικό Κόστος</div>
-            <div class="hero-val">{{ result().totalAcquisitionCost | euro:0 }}</div>
+            <div class="hero-val" data-testid="property-purchase-hero-totalCost">{{ result().totalAcquisitionCost | euro:0 }}</div>
             <div class="hero-sub">τίμημα + όλες οι δαπάνες</div>
           </div>
           <div class="hero-card">

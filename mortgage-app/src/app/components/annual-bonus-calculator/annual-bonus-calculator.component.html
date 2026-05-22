@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-icon ab-icon">💸</div>
   <div>
-    <h1 class="page-title">Υπολογισμός Μπόνους</h1>
+    <h1 class="page-title" data-testid="annual-bonus-page-title">Υπολογισμός Μπόνους</h1>
     <p class="page-subtitle">Υπολογίστε το καθαρό ποσό ενός ετήσιου ή έκτακτου μπόνους μισθού</p>
   </div>
 </div>
@@ -19,7 +19,7 @@
           <label for="grossMonthly">Τρέχων Μικτός Μηνιαίος Μισθός (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="grossMonthly" [formField]="formFields.grossMonthly">
+            <input type="number" id="grossMonthly" data-testid="annual-bonus-input-grossMonthly" [formField]="formFields.grossMonthly">
           </div>
         </div>
 
@@ -27,7 +27,7 @@
           <label for="annualBonus">Μικτό Ποσό Μπόνους (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="annualBonus" [formField]="formFields.annualBonus">
+            <input type="number" id="annualBonus" data-testid="annual-bonus-input-annualBonus" [formField]="formFields.annualBonus">
           </div>
         </div>
 
@@ -37,7 +37,7 @@
           <div class="form-group">
             <label for="year">Φορολογικό Έτος</label>
             <div class="input-wrap">
-              <select id="year" [formField]="formFields.year" class="form-select">
+              <select id="year" data-testid="annual-bonus-input-year" [formField]="formFields.year" class="form-select">
                 <option [value]="2026">2026</option>
                 <option [value]="2025">2025</option>
               </select>
@@ -47,7 +47,7 @@
           <div class="form-group">
             <label for="ageGroup">Ηλικιακή Ομάδα</label>
             <div class="input-wrap">
-              <select id="ageGroup" [formField]="formFields.ageGroup" class="form-select">
+              <select id="ageGroup" data-testid="annual-bonus-input-ageGroup" [formField]="formFields.ageGroup" class="form-select">
                 <option value="over30">Άνω των 30 ετών</option>
                 <option value="26to30">26-30 ετών</option>
                 <option value="under25">Έως 25 ετών</option>
@@ -111,7 +111,7 @@
   </div>
 
   <div class="right-panel">
-    <div class="card" id="ab-results">
+    <div class="card" id="ab-results" data-testid="annual-bonus-results">
       <div class="card-header">
         <div class="card-header-icon">&#128176;</div>
         <h2>Καθαρό Μπόνους</h2>
@@ -120,7 +120,7 @@
         <div class="hero-row">
           <div class="hero-card dark">
             <div class="hero-lbl">Καθαρό Μπόνους</div>
-            <div class="hero-val">{{ bonus().net | euro }}</div>
+            <div class="hero-val" data-testid="annual-bonus-hero-net">{{ bonus().net | euro }}</div>
             <div class="hero-sub">{{ takeHomeRate() | number:'1.0-2' }}% του μικτού</div>
           </div>
           <div class="hero-card">

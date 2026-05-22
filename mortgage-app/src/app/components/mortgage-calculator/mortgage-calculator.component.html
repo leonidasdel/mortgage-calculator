@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-icon mortgage-icon">🏦</div>
   <div>
-    <h1 class="page-title">Υπολογισμός Δόσης Δανείου</h1>
+    <h1 class="page-title" data-testid="mortgage-page-title">Υπολογισμός Δόσης Δανείου</h1>
     <p class="page-subtitle">Υπολογίστε τη μηνιαία δόση και το συνολικό κόστος του στεγαστικού σας δανείου</p>
   </div>
 </div>
@@ -44,7 +44,7 @@
 
   <!-- RIGHT PANEL -->
   <div class="right-panel">
-    <div class="card" id="mortgage-results">
+    <div class="card" id="mortgage-results" data-testid="mortgage-results">
       <div class="card-header">
         <div class="card-header-icon">&#128176;</div>
         <h2>Σύνοψη Μηνιαίας Δόσης</h2>
@@ -66,7 +66,7 @@
     </div>
 
     @defer (on viewport) {
-      <div class="card">
+      <div class="card" data-testid="mortgage-deferred-chart">
         <div class="card-header">
           <div class="card-header-icon">&#128200;</div>
           <h2>Ετήσια Ανάλυση Πληρωμών</h2>
@@ -104,7 +104,7 @@
     }
 
     @defer (on viewport) {
-      <div class="card">
+      <div class="card" data-testid="mortgage-deferred-schedule">
         <div class="card-header">
           <div class="card-header-icon">&#128203;</div>
           <h2>Πίνακας Αποπληρωμής</h2>

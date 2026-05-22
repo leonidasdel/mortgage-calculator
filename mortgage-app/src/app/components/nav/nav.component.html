@@ -34,6 +34,7 @@
         @for (item of group.items; track item.route) {
           <a
             class="nav-link"
+            [attr.data-testid]="'nav-link-' + item.route.slice(1)"
             [routerLink]="item.route"
             routerLinkActive="active"
             [title]="collapsed() ? item.label : ''"

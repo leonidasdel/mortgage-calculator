@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-icon ig-icon">🏛</div>
   <div>
-    <h1 class="page-title">Φόρος Κληρονομιάς &amp; Δωρεάς</h1>
+    <h1 class="page-title" data-testid="inheritance-gift-page-title">Φόρος Κληρονομιάς &amp; Δωρεάς</h1>
     <p class="page-subtitle">Υπολογίστε τον φόρο μεταβίβασης περιουσίας βάσει κατηγορίας συγγένειας (Κ.Φ.Ε.)</p>
   </div>
 </div>
@@ -17,7 +17,7 @@
 
         <div class="form-group">
           <label for="transferType">Τύπος Μεταβίβασης</label>
-          <select id="transferType" [formField]="formFields.transferType" class="form-select">
+          <select id="transferType" data-testid="inheritance-gift-input-transferType" [formField]="formFields.transferType" class="form-select">
             <option value="inheritance">Κληρονομιά</option>
             <option value="gift">Δωρεά περιουσιακού στοιχείου</option>
             <option value="monetary">Χρηματική δωρεά</option>
@@ -26,7 +26,7 @@
 
         <div class="form-group">
           <label for="category">Κατηγορία Συγγένειας</label>
-          <select id="category" [formField]="formFields.category" class="form-select">
+          <select id="category" data-testid="inheritance-gift-input-category" [formField]="formFields.category" class="form-select">
             <option value="A">{{ kinshipLabels.A }}</option>
             <option value="B">{{ kinshipLabels.B }}</option>
             <option value="C">{{ kinshipLabels.C }}</option>
@@ -37,7 +37,7 @@
           <label for="value">Αξία / Ποσό (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="value" [formField]="formFields.value">
+            <input type="number" id="value" data-testid="inheritance-gift-input-value" [formField]="formFields.value">
           </div>
         </div>
 
@@ -67,7 +67,7 @@
   </div>
 
   <div class="right-panel">
-    <div class="card" id="inheritance-results">
+    <div class="card" id="inheritance-results" data-testid="inheritance-gift-results">
       <div class="card-header">
         <div class="card-header-icon">&#128176;</div>
         <h2>Αποτέλεσμα Φόρου</h2>
@@ -76,7 +76,7 @@
         <div class="hero-row">
           <div class="hero-card dark">
             <div class="hero-lbl">Φόρος Πληρωτέος</div>
-            <div class="hero-val">{{ result().taxDue | euro }}</div>
+            <div class="hero-val" data-testid="inheritance-gift-hero-taxDue">{{ result().taxDue | euro }}</div>
             <div class="hero-sub">{{ transferTypeLabel() }}</div>
           </div>
           <div class="hero-card">

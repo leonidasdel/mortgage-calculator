@@ -292,13 +292,15 @@ Browsers install to `node_modules` via `PLAYWRIGHT_BROWSERS_PATH=0` (set in npm 
 
 **CI:** GitHub Actions `deploy.yml` runs unit tests → build → `playwright install --with-deps chromium` → E2E against `dist/mortgage-app/browser/` (SPA fallback `-s`). Uploads `playwright-report/` artifact on failure.
 
-**Helpers:** `e2e/helpers/routes.ts` (17 paths + SEO titles), `e2e/helpers/calculator.page.ts` (`fillNumber`, `heroValIn`, `scrollToDefer`).
+**Helpers:** `e2e/helpers/routes.ts`, `e2e/helpers/test-ids.ts` (central registry), `e2e/helpers/calculator.page.ts` (`fill`, `get`, `hero`, `scrollToDeferred`).
 
-**Locator policy:** Prefer existing `#inputId` and `#*-results` containers; use `getByRole('heading')` for titles. Add `data-testid` only if flaky.
+**Locator policy:** Use **`data-testid` only** in E2E specs — `page.getByTestId()` via registry constants. Do not use `#id`, `.class`, or CSS selectors in new specs. Keep `#id` on inputs for labels/a11y; add matching `data-testid` alongside.
 
-**`@defer` blocks:** Charts/tables load on viewport — call `scrollToDefer()` before asserting deferred content.
+**TestId pattern:** `{scope}-{role}-{name}` — e.g. `mortgage-input-loanAmount`, `salary-hero-net`, `nav-link-mortgage`. See `e2e/helpers/test-ids.ts`.
 
-**Specs (~23 tests):** `smoke.routes.spec.ts` (all routes), `smoke.navigation.spec.ts`, golden-path: `mortgage`, `salary`, `severance`, `consumer-loan`.
+**`@defer` blocks:** Charts/tables load on viewport — call `scrollToDeferred(testId)` before asserting deferred content.
+
+**Specs (~50+ tests):** `smoke.routes.spec.ts`, `navigation.spec.ts`, `home.spec.ts`, `deferred.spec.ts`, `share-state.spec.ts`, `e2e/calculators/*.spec.ts` (golden-path per calculator).
 
 ---
 

@@ -1,5 +1,5 @@
 <div class="card">
-  <div class="card-header clickable" (click)="toggleDetails.emit()">
+  <div class="card-header clickable" data-testid="salary-tax-details-toggle" (click)="toggleDetails.emit()">
     <div class="card-header-icon">&#128209;</div>
     <h2>Φορολογικές Κλίμακες & Πληροφορίες Υπολογισμού</h2>
     <span class="toggle-arrow" [class.open]="showTaxDetails()">&#9660;</span>

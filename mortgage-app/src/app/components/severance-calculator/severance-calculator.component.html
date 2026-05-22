@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-icon severance-icon">📄</div>
   <div>
-    <h1 class="page-title">Αποζημίωση Απόλυσης</h1>
+    <h1 class="page-title" data-testid="severance-page-title">Αποζημίωση Απόλυσης</h1>
     <p class="page-subtitle">Υπολογίστε την αποζημίωση απόλυσης βάσει Ν. 4808/2021 — με φόρο μόνο για ποσά άνω των €60.000</p>
   </div>
 </div>
@@ -23,7 +23,7 @@
           <label for="grossMonthly">Μεικτός Μηνιαίος Μισθός (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="grossMonthly" [formField]="formFields.grossMonthly">
+            <input type="number" id="grossMonthly" data-testid="severance-input-grossMonthly" [formField]="formFields.grossMonthly">
           </div>
         </div>
 
@@ -31,7 +31,7 @@
         <div class="form-group">
           <label for="yearsOfService">Έτη Προϋπηρεσίας</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="yearsOfService" [formField]="formFields.yearsOfService">
+            <input type="number" id="yearsOfService" data-testid="severance-input-yearsOfService" [formField]="formFields.yearsOfService">
             <span class="sfx">έτη</span>
           </div>
         </div>
@@ -40,7 +40,7 @@
         <div class="form-group">
           <label for="monthsExtra">Επιπλέον Μήνες</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="monthsExtra" [formField]="formFields.monthsExtra">
+            <input type="number" id="monthsExtra" data-testid="severance-input-monthsExtra" [formField]="formFields.monthsExtra">
             <span class="sfx">μήνες</span>
           </div>
           <div class="sv-hint">
@@ -96,7 +96,7 @@
   <div class="right-panel">
 
     <!-- Κύρια αποτελέσματα -->
-    <div class="card" id="sv-results">
+    <div class="card" id="sv-results" data-testid="severance-results">
       <div class="card-header">
         <div class="card-header-icon">&#128176;</div>
         <h2>Αποτελέσματα Αποζημίωσης</h2>
@@ -112,7 +112,7 @@
           <div class="hero-row">
             <div class="hero-card dark">
               <div class="hero-lbl">Καθαρή Αποζημίωση</div>
-              <div class="hero-val">{{ result().netSeverance | euro }}</div>
+              <div class="hero-val" data-testid="severance-hero-net">{{ result().netSeverance | euro }}</div>
               <div class="hero-sub">στο χέρι, χωρίς ΕΦΚΑ</div>
             </div>
             <div class="hero-card">

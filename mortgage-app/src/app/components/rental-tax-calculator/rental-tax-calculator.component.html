@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-icon rental-tax-icon">🏘️</div>
   <div>
-    <h1 class="page-title">Φόρος Ενοικίου</h1>
+    <h1 class="page-title" data-testid="rental-tax-page-title">Φόρος Ενοικίου</h1>
     <p class="page-subtitle">Υπολογίστε τον φόρο εισοδήματος από ενοίκια για το 2026</p>
   </div>
 </div>
@@ -21,6 +21,7 @@
           <div class="rt-income-toggle">
             <button type="button"
                     class="rt-income-pill"
+                    data-testid="rental-tax-income-monthly"
                     [class.active]="formModel().incomeMode === 'monthly'"
                     (click)="onIncomeModeChange('monthly')">
               Μηνιαίο
@@ -39,7 +40,7 @@
             <label for="monthlyIncome">Μηνιαίο Εισόδημα Ενοικίων (&#8364;)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">&#8364;</span>
-              <input type="number" id="monthlyIncome" [formField]="formFields.monthlyIncome" (input)="onMonthlyIncomeInput()">
+              <input type="number" id="monthlyIncome" data-testid="rental-tax-input-monthlyIncome" [formField]="formFields.monthlyIncome" (input)="onMonthlyIncomeInput()">
             </div>
             <div class="rt-hint">Ετήσιο ισοδύναμο: <strong>{{ result().annualIncome | euro }}</strong></div>
           </div>
@@ -64,7 +65,7 @@
 
         <div class="form-group">
           <label for="rentalType">Τύπος Ενοικίασης</label>
-          <select id="rentalType" [formField]="formFields.rentalType" class="form-select">
+          <select id="rentalType" data-testid="rental-tax-input-rentalType" [formField]="formFields.rentalType" class="form-select">
             <option value="long-term">Μακροχρόνια Μίσθωση</option>
             <option value="short-term">Βραχυχρόνια Μίσθωση (Airbnb κ.λπ.)</option>
           </select>
@@ -124,7 +125,7 @@
   <div class="right-panel">
 
     <!-- Results card -->
-    <div class="card" id="rt-results">
+    <div class="card" id="rt-results" data-testid="rental-tax-results">
       <div class="card-header">
         <div class="card-header-icon">&#128176;</div>
         <h2>Αποτελέσματα</h2>
@@ -134,7 +135,7 @@
         <div class="hero-row">
           <div class="hero-card">
             <div class="hero-lbl">Φόρος Ενοικίου</div>
-            <div class="hero-val">{{ result().totalTax | euro }}</div>
+            <div class="hero-val" data-testid="rental-tax-hero-tax">{{ result().totalTax | euro }}</div>
             <div class="hero-sub">πραγματικός συντελεστής {{ result().effectiveRate.toFixed(1) }}%</div>
           </div>
           <div class="hero-card dark">
@@ -147,7 +148,7 @@
         <div class="sum-grid">
           <div class="sum-item">
             <div class="sum-lbl">Ακαθάριστο Εισόδημα</div>
-            <div class="sum-val">{{ result().annualIncome | euro }}</div>
+            <div class="sum-val" data-testid="rental-tax-annual-income">{{ result().annualIncome | euro }}</div>
           </div>
           <div class="sum-item">
             <div class="sum-lbl">Έκπτωση Εξόδων</div>

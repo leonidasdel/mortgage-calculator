@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-icon consumer-icon">💳</div>
   <div>
-    <h1 class="page-title">Καταναλωτικό Δάνειο</h1>
+    <h1 class="page-title" data-testid="consumer-loan-page-title">Καταναλωτικό Δάνειο</h1>
     <p class="page-subtitle">Υπολογίστε τη μηνιαία δόση και το συνολικό κόστος του καταναλωτικού σας δανείου</p>
   </div>
 </div>
@@ -20,14 +20,14 @@
           <label for="loanAmount">Ποσό Δανείου (&#8364;)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="loanAmount" [formField]="formFields.loanAmount">
+            <input type="number" id="loanAmount" data-testid="consumer-loan-input-loanAmount" [formField]="formFields.loanAmount">
           </div>
         </div>
 
         <div class="form-group">
           <label for="interestRate">Ετήσιο Επιτόκιο (%)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="interestRate" [formField]="formFields.interestRate">
+            <input type="number" id="interestRate" data-testid="consumer-loan-input-interestRate" [formField]="formFields.interestRate">
             <span class="sfx">%</span>
           </div>
         </div>
@@ -38,6 +38,7 @@
             @for (d of quickDurations; track d) {
               <button type="button"
                       class="cl-pill"
+                      [attr.data-testid]="'consumer-loan-pill-months-' + d"
                       [class.active]="formModel().loanMonths === d"
                       (click)="setMonths(d)">
                 {{ d / 12 >= 1 && d % 12 === 0 ? (d / 12) + ' έτη' : d + ' μήν.' }}
@@ -46,7 +47,7 @@
           </div>
           <div class="cl-months-row">
             <div class="input-wrap">
-              <input type="number" id="loanMonths" [formField]="formFields.loanMonths">
+              <input type="number" id="loanMonths" data-testid="consumer-loan-input-loanMonths" [formField]="formFields.loanMonths">
             </div>
             <span class="cl-months-lbl">μήνες</span>
           </div>
@@ -60,7 +61,7 @@
           <label for="loanFees">Έξοδα / Προμήθεια (&#8364;)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="loanFees" [formField]="formFields.loanFees">
+            <input type="number" id="loanFees" data-testid="consumer-loan-input-loanFees" [formField]="formFields.loanFees">
           </div>
           <div class="cl-hint">Εφάπαξ έξοδα εκταμίευσης, προμήθειες διαχείρισης κ.λπ.</div>
         </div>
@@ -85,7 +86,7 @@
   <div class="right-panel">
 
     <!-- Results card -->
-    <div class="card" id="cl-results">
+    <div class="card" id="cl-results" data-testid="consumer-loan-results">
       <div class="card-header">
         <div class="card-header-icon">&#128176;</div>
         <h2>Αποτελέσματα</h2>
@@ -96,7 +97,7 @@
         <div class="hero-row">
           <div class="hero-card">
             <div class="hero-lbl">Μηνιαία Δόση</div>
-            <div class="hero-val">{{ summary().monthlyPayment | euro }}</div>
+            <div class="hero-val" data-testid="consumer-loan-hero-payment">{{ summary().monthlyPayment | euro }}</div>
             <div class="hero-sub">{{ summary().loanMonths }} μήνες · {{ summary().effectiveRate.toFixed(2) }}% πραγμ.</div>
           </div>
           <div class="hero-card dark">
@@ -174,7 +175,7 @@
 
     <!-- Chart card -->
     @defer (on viewport) {
-      <div class="card">
+      <div class="card" data-testid="consumer-loan-deferred-chart">
         <div class="card-header">
           <div class="card-header-icon">&#128200;</div>
           <h2>Ετήσια Ανάλυση Πληρωμών</h2>
@@ -213,7 +214,7 @@
 
     <!-- Table card -->
     @defer (on viewport) {
-      <div class="card">
+      <div class="card" data-testid="consumer-loan-deferred-schedule">
         <div class="card-header">
           <div class="card-header-icon">&#128203;</div>
           <h2>Πίνακας Αποπληρωμής</h2>

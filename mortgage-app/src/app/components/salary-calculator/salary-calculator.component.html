@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-icon salary-icon">💰</div>
   <div>
-    <h1 class="page-title">Υπολογισμός Μισθού</h1>
+    <h1 class="page-title" data-testid="salary-page-title">Υπολογισμός Μισθού</h1>
     <p class="page-subtitle">Υπολογίστε τον καθαρό μισθό σας μετά από φόρους και εισφορές ΕΦΚΑ</p>
   </div>
 </div>
@@ -29,7 +29,7 @@
           </label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="grossMonthly" [formField]="formFields.grossMonthly" (input)="onGrossChange()">
+            <input type="number" id="grossMonthly" data-testid="salary-input-grossMonthly" [formField]="formFields.grossMonthly" (input)="onGrossChange()">
           </div>
         </div>
 
@@ -44,7 +44,7 @@
           </label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="netMonthly" [formField]="formFields.netMonthly" (input)="onNetChange()">
+            <input type="number" id="netMonthly" data-testid="salary-input-netMonthly" [formField]="formFields.netMonthly" (input)="onNetChange()">
           </div>
         </div>
 
@@ -58,7 +58,7 @@
           <div class="form-group">
             <label for="year">Έτος</label>
             <div class="input-wrap">
-              <select id="year" [formField]="formFields.year" class="form-select" (change)="onParamChange()">
+              <select id="year" data-testid="salary-input-year" [formField]="formFields.year" class="form-select" (change)="onParamChange()">
                 <option [value]="2026">2026</option>
                 <option [value]="2025">2025</option>
               </select>
@@ -69,7 +69,7 @@
             <div class="form-group">
               <label for="ageGroup">Ηλικιακή Ομάδα</label>
               <div class="input-wrap">
-                <select id="ageGroup" [formField]="formFields.ageGroup" class="form-select" (change)="onParamChange()">
+                <select id="ageGroup" data-testid="salary-input-ageGroup" [formField]="formFields.ageGroup" class="form-select" (change)="onParamChange()">
                   <option value="under25">Έως 25 ετών</option>
                   <option value="26to30">26-30 ετών</option>
                   <option value="over30">Άνω των 30 ετών</option>
@@ -81,7 +81,7 @@
           <div class="form-group">
             <label for="children">Παιδιά</label>
             <div class="input-wrap">
-              <select id="children" [formField]="formFields.children" class="form-select" (change)="onParamChange()">
+              <select id="children" data-testid="salary-input-children" [formField]="formFields.children" class="form-select" (change)="onParamChange()">
                 <option [value]="0">0</option>
                 <option [value]="1">1</option>
                 <option [value]="2">2</option>
@@ -96,7 +96,7 @@
           <div class="form-group">
             <label for="ftePercent">Ποσοστό απασχόλησης</label>
             <div class="input-wrap has-sfx">
-              <input type="number" id="ftePercent" [formField]="formFields.ftePercent" (input)="onParamChange()">
+              <input type="number" id="ftePercent" data-testid="salary-input-ftePercent" [formField]="formFields.ftePercent" (input)="onParamChange()">
               <span class="sfx">%</span>
             </div>
             <div class="sal-hint">Τα μικτά αφορούν πλήρη απασχόληση · με 50% υπολογίζεται μισθός μερικής</div>

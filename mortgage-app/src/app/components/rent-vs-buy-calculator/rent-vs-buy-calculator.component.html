@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-icon rent-vs-buy-icon">🏠</div>
   <div>
-    <h1 class="page-title">Νοικιάζω ή Αγοράζω;</h1>
+    <h1 class="page-title" data-testid="rent-vs-buy-page-title">Νοικιάζω ή Αγοράζω;</h1>
     <p class="page-subtitle">Συγκρίνετε το μακροπρόθεσμο οικονομικό αποτέλεσμα ενοικίασης έναντι αγοράς ακινήτου</p>
   </div>
 </div>
@@ -20,7 +20,7 @@
           <label for="propertyPrice">Αξία Ακινήτου</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="propertyPrice" [formField]="formFields.propertyPrice" (input)="onPropertyPriceInput()">
+            <input type="number" id="propertyPrice" data-testid="rent-vs-buy-input-propertyPrice" [formField]="formFields.propertyPrice" (input)="onPropertyPriceInput()">
           </div>
         </div>
 
@@ -39,7 +39,7 @@
           @if (formModel().downPaymentMode === 'amount') {
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="downPaymentAmount" [formField]="formFields.downPaymentAmount" (input)="onDownPaymentAmountInput()">
+              <input type="number" id="downPaymentAmount" data-testid="rent-vs-buy-input-downPaymentAmount" [formField]="formFields.downPaymentAmount" (input)="onDownPaymentAmountInput()">
             </div>
             <div class="field-hint">= {{ result().downPaymentPct | number:'1.1-2' }}% της αξίας</div>
           } @else {
@@ -66,7 +66,7 @@
           @if (formModel().closingCostsMode === 'amount') {
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="closingCostsAmount" [formField]="formFields.closingCostsAmount" (input)="onClosingCostsAmountInput()">
+              <input type="number" id="closingCostsAmount" data-testid="rent-vs-buy-input-closingCostsAmount" [formField]="formFields.closingCostsAmount" (input)="onClosingCostsAmountInput()">
             </div>
             <div class="field-hint">= {{ result().closingCostsPct | number:'1.1-2' }}% της αξίας</div>
           } @else {
@@ -106,7 +106,7 @@
           <label for="monthlyRent">Μηνιαίο Ενοίκιο</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="monthlyRent" [formField]="formFields.monthlyRent">
+            <input type="number" id="monthlyRent" data-testid="rent-vs-buy-input-monthlyRent" [formField]="formFields.monthlyRent">
           </div>
         </div>
 
@@ -164,7 +164,7 @@
         <div class="form-group">
           <label for="timeHorizon">Χρονικός Ορίζοντας — Σενάριο Α (έτη)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="timeHorizon" [formField]="formFields.timeHorizon">
+            <input type="number" id="timeHorizon" data-testid="rent-vs-buy-input-timeHorizon" [formField]="formFields.timeHorizon">
             <span class="sfx">έτη</span>
           </div>
         </div>
@@ -189,7 +189,7 @@
   <div class="right-panel">
 
     <!-- Verdict -->
-    <div class="card" id="rvb-results">
+    <div class="card" id="rvb-results" data-testid="rent-vs-buy-results">
       <div class="card-header">
         <div class="card-header-icon">⚖️</div>
         <h2>Αποτέλεσμα σε {{ formModel().timeHorizon }} Έτη</h2>
@@ -198,6 +198,7 @@
 
         <!-- Verdict banner -->
         <div class="verdict-banner"
+             data-testid="rent-vs-buy-verdict"
              [class.verdict-buy]="result().winner === 'buy'"
              [class.verdict-rent]="result().winner === 'rent'"
              [class.verdict-tie]="result().winner === 'tie'">
@@ -226,7 +227,7 @@
         <div class="hero-row">
           <div class="hero-card">
             <div class="hero-lbl">Μηνιαία Δόση Δανείου</div>
-            <div class="hero-val">{{ result().monthlyPayment | euro:0 }}</div>
+            <div class="hero-val" data-testid="rent-vs-buy-hero-monthlyPayment">{{ result().monthlyPayment | euro:0 }}</div>
             <div class="hero-sub">Ποσό δανείου: {{ result().loanAmount | euro:0 }}</div>
           </div>
           <div class="hero-card dark">

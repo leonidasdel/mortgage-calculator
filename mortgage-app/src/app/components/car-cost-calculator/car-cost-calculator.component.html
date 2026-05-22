@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-icon cc-icon">🚗</div>
   <div>
-    <h1 class="page-title">Κόστος Αυτοκινήτου</h1>
+    <h1 class="page-title" data-testid="car-cost-page-title">Κόστος Αυτοκινήτου</h1>
     <p class="page-subtitle">Υπολογίστε τέλη κυκλοφορίας και συνολικό ετήσιο κόστος ιδιοκτησίας</p>
   </div>
 </div>
@@ -26,7 +26,7 @@
 
         <div class="form-group">
           <label class="cc-check-row">
-            <input type="checkbox" [formField]="formFields.isEv">
+            <input type="checkbox" data-testid="car-cost-input-isEv" [formField]="formFields.isEv">
             <span>Ηλεκτρικό / plug-in υβριδικό (μηδενικά τέλη)</span>
           </label>
         </div>
@@ -35,7 +35,7 @@
           <div class="form-group">
             <label for="engineCc">Κυβισμός κινητήρα</label>
             <div class="input-wrap has-sfx">
-              <input type="number" id="engineCc" [formField]="formFields.engineCc">
+              <input type="number" id="engineCc" data-testid="car-cost-input-engineCc" [formField]="formFields.engineCc">
               <span class="sfx">cc</span>
             </div>
           </div>
@@ -58,7 +58,7 @@
             <label for="insuranceYear">Ασφάλεια / Έτος (€)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="insuranceYear" [formField]="formFields.insuranceYear">
+              <input type="number" id="insuranceYear" data-testid="car-cost-input-insuranceYear" [formField]="formFields.insuranceYear">
             </div>
           </div>
 
@@ -123,7 +123,7 @@
             <label for="maintenanceYear">Συντήρηση &amp; ΚΤΕΟ / Έτος (€)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="maintenanceYear" [formField]="formFields.maintenanceYear">
+              <input type="number" id="maintenanceYear" data-testid="car-cost-input-maintenanceYear" [formField]="formFields.maintenanceYear">
             </div>
           </div>
         </div>
@@ -136,7 +136,7 @@
   </div>
 
   <div class="right-panel">
-    <div class="card" id="car-cost-results">
+    <div class="card" id="car-cost-results" data-testid="car-cost-results">
       <div class="card-header">
         <div class="card-header-icon">&#128176;</div>
         <h2>Ετήσιο Κόστος</h2>
@@ -145,7 +145,7 @@
         <div class="hero-row">
           <div class="hero-card dark">
             <div class="hero-lbl">Συνολικό Ετήσιο</div>
-            <div class="hero-val">{{ result().totalAnnual | euro }}</div>
+            <div class="hero-val" data-testid="car-cost-hero-totalAnnual">{{ result().totalAnnual | euro }}</div>
             <div class="hero-sub">{{ result().monthlyCost | euro }}/μήνα</div>
           </div>
           <div class="hero-card">

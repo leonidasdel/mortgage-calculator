@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-header-icon leave-icon">🏖️</div>
   <div>
-    <h1 class="page-title">Μη Ληφθείσα Άδεια</h1>
+    <h1 class="page-title" data-testid="unused-leave-page-title">Μη Ληφθείσα Άδεια</h1>
     <p class="page-subtitle">Υπολογίστε την αποζημίωση για τις άδειες που δεν πήρατε — μεικτά &amp; καθαρά ποσά</p>
   </div>
 </div>
@@ -41,7 +41,7 @@
             <label for="grossMonthly">Μεικτός Μηνιαίος Μισθός (€)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="grossMonthly" [formField]="formFields.grossMonthly">
+              <input type="number" id="grossMonthly" data-testid="unused-leave-input-grossMonthly" [formField]="formFields.grossMonthly">
             </div>
             <div class="lv-hint">
               Ημερομίσθιο: <strong>{{ result().dailyWage | euro }}</strong>
@@ -83,7 +83,7 @@
         <div class="form-group">
           <label for="unusedDays">Ημέρες Μη Ληφθείσας Άδειας</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="unusedDays" [formField]="formFields.unusedDays">
+            <input type="number" id="unusedDays" data-testid="unused-leave-input-unusedDays" [formField]="formFields.unusedDays">
             <span class="sfx">ημ.</span>
           </div>
           <div class="lv-hint">
@@ -166,7 +166,7 @@
 
         <div class="form-group">
           <label for="ageGroup">Ηλικιακή Ομάδα</label>
-          <select id="ageGroup" [formField]="formFields.ageGroup" class="lv-select">
+          <select id="ageGroup" data-testid="unused-leave-input-ageGroup" [formField]="formFields.ageGroup" class="lv-select">
             <option value="over30">Άνω των 30 ετών</option>
             <option value="26to30">26–30 ετών</option>
             <option value="under25">Έως 25 ετών</option>
@@ -179,7 +179,7 @@
         <div class="form-group">
           <label for="children">Εξαρτώμενα Τέκνα</label>
           <div class="input-wrap">
-            <input type="number" id="children" [formField]="formFields.children">
+            <input type="number" id="children" data-testid="unused-leave-input-children" [formField]="formFields.children">
           </div>
         </div>
 
@@ -221,7 +221,7 @@
   </div>
 
   <!-- ═══ RIGHT: RESULTS ══════════════════════════════════════════════════════ -->
-  <div class="right-panel" id="ul-results">
+  <div class="right-panel" id="ul-results" data-testid="unused-leave-results">
 
     <app-unused-leave-compensation
       [result]="result()"

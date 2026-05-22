@@ -11,6 +11,7 @@ export default defineConfig({
     baseURL: process.env['PLAYWRIGHT_TEST_BASE_URL'] ?? 'http://localhost:4200',
     trace: 'on-first-retry',
     viewport: { width: 1280, height: 720 },
+    testIdAttribute: 'data-testid',
   },
   projects: [
     {

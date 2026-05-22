@@ -1,8 +1,8 @@
 <div class="home-hero">
-  <h1 class="home-title">Salaries<span class="home-title-dot">.gr</span></h1>
+  <h1 class="home-title" data-testid="home-title">Salaries<span class="home-title-dot">.gr</span></h1>
   <p class="home-subtitle">Οικονομικοί υπολογιστές για μισθούς, δάνεια, αποταμίευση και ακίνητα</p>
   <div class="home-search-wrap">
-    <input type="search" class="home-search" placeholder="Τι θέλεις να υπολογίσεις;"
+    <input type="search" class="home-search" data-testid="home-search" placeholder="Τι θέλεις να υπολογίσεις;"
            [value]="searchQuery()" (input)="onSearch($any($event.target).value)">
   </div>
 </div>
@@ -18,7 +18,7 @@
       <div class="cat-grid">
         @for (route of popularRoutes; track route) {
           @if (toolByRoute(route); as tool) {
-            <a class="tool-card" [routerLink]="tool.route">
+            <a class="tool-card" [attr.data-testid]="'home-tool-' + tool.route.slice(1)" [routerLink]="tool.route">
               <div class="tool-icon" [class]="tool.gradient">{{ tool.icon }}</div>
               <div class="tool-text">
                 <div class="tool-name">{{ tool.name }}</div>
@@ -61,7 +61,7 @@
         </div>
         <div class="cat-grid">
           @for (tool of filteredTools().filter(t => t.category === cat); track tool.route) {
-            <a class="tool-card" [routerLink]="tool.route">
+            <a class="tool-card" [attr.data-testid]="'home-tool-' + tool.route.slice(1)" [routerLink]="tool.route">
               <div class="tool-icon" [class]="tool.gradient">{{ tool.icon }}</div>
               <div class="tool-text">
                 <div class="tool-name">{{ tool.name }}</div>

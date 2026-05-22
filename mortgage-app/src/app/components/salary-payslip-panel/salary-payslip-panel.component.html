@@ -1,5 +1,5 @@
 <!-- Main results hero -->
-<div class="card">
+<div class="card" data-testid="salary-results">
   <div class="card-header">
     <div class="card-header-icon">&#128176;</div>
     <h2>Αποτελέσματα</h2>
@@ -90,14 +90,14 @@
       <div class="hero-row">
         <div class="salary-hero gross">
           <div class="hero-lbl">Μικτά</div>
-          <div class="hero-val">{{ r.grossMonthly | euro }}</div>
+          <div class="hero-val" data-testid="salary-hero-gross">{{ r.grossMonthly | euro }}</div>
           @if (ftePercent() < 100) {
             <div class="hero-sub">Μερικής απασχόλησης ({{ ftePercent() }}%)</div>
           }
         </div>
         <div class="salary-hero net">
           <div class="hero-lbl">Καθαρά</div>
-          <div class="hero-val">{{ r.netMonthly | euro }}</div>
+          <div class="hero-val" data-testid="salary-hero-net">{{ r.netMonthly | euro }}</div>
         </div>
       </div>
 
