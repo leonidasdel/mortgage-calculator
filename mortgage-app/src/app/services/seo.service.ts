@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
 
 export interface SeoConfig {
@@ -56,6 +57,7 @@ export const SEO_CONFIG: Record<string, SeoConfig> = {
 export class SeoService {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   updateForRoute(path: string): void {
     const cfg = SEO_CONFIG[path] ?? SEO_CONFIG['/'];
@@ -70,6 +72,7 @@ export class SeoService {
   }
 
   private injectFaqSchema(faq: { question: string; answer: string }[]): void {
+    if (!this.isBrowser) return;
     const script = document.createElement('script');
     script.id = 'faq-jsonld';
     script.type = 'application/ld+json';
@@ -86,6 +89,7 @@ export class SeoService {
   }
 
   private removeFaqSchema(): void {
+    if (!this.isBrowser) return;
     document.getElementById('faq-jsonld')?.remove();
   }
 }

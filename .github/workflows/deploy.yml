@@ -37,6 +37,23 @@ jobs:
         run: npm run build
         working-directory: mortgage-app
 
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: mortgage-app
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+
+      - name: E2E tests (production build)
+        run: CI=1 PLAYWRIGHT_BROWSERS_PATH=0 playwright test
+        working-directory: mortgage-app
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: mortgage-app/playwright-report/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

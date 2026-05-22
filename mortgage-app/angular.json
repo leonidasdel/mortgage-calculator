@@ -4,7 +4,7 @@
   "cli": {
     "packageManager": "npm",
     "analytics": false,
-    "schematicCollections": ["angular-eslint"]
+    "schematicCollections": ["angular-eslint", "playwright-ng-schematics"]
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -91,6 +91,17 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+          }
+        },
+        "e2e": {
+          "builder": "playwright-ng-schematics:playwright",
+          "options": {
+            "devServerTarget": "mortgage-app:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "mortgage-app:serve:production"
+            }
           }
         }
       }

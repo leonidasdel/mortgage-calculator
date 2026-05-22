@@ -278,6 +278,30 @@ Global skeleton utilities live in `styles.scss` (`.skeleton-block`, `.skeleton-c
 
 ---
 
+## E2E tests (Playwright)
+
+**Location:** `mortgage-app/e2e/` · config: `playwright.config.ts`
+
+| Command | What it does |
+|---------|----------------|
+| `npm run e2e` | Playwright against `ng serve :4200` (reuses running server locally) |
+| `npm run e2e:ui` | Playwright UI mode |
+| `npm run e2e:ci` | `ng build` + static `http-server` on `:4200` + tests (local CI dry-run) |
+
+Browsers install to `node_modules` via `PLAYWRIGHT_BROWSERS_PATH=0` (set in npm scripts). First run: `npx playwright install chromium`.
+
+**CI:** GitHub Actions `deploy.yml` runs unit tests → build → `playwright install --with-deps chromium` → E2E against `dist/mortgage-app/browser/` (SPA fallback `-s`). Uploads `playwright-report/` artifact on failure.
+
+**Helpers:** `e2e/helpers/routes.ts` (17 paths + SEO titles), `e2e/helpers/calculator.page.ts` (`fillNumber`, `heroValIn`, `scrollToDefer`).
+
+**Locator policy:** Prefer existing `#inputId` and `#*-results` containers; use `getByRole('heading')` for titles. Add `data-testid` only if flaky.
+
+**`@defer` blocks:** Charts/tables load on viewport — call `scrollToDefer()` before asserting deferred content.
+
+**Specs (~23 tests):** `smoke.routes.spec.ts` (all routes), `smoke.navigation.spec.ts`, golden-path: `mortgage`, `salary`, `severance`, `consumer-loan`.
+
+---
+
 ## Global CSS Utilities (`styles.scss`)
 
 **Always reuse these — never recreate them in component SCSS.**
