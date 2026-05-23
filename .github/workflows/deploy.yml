@@ -44,8 +44,11 @@ jobs:
           PLAYWRIGHT_BROWSERS_PATH: 0
 
       - name: E2E tests (production build)
-        run: CI=1 PLAYWRIGHT_BROWSERS_PATH=0 playwright test
+        run: npm run e2e
         working-directory: mortgage-app
+        env:
+          CI: 1
+          PLAYWRIGHT_BROWSERS_PATH: 0
 
       - name: Upload Playwright report on failure
         if: failure()
