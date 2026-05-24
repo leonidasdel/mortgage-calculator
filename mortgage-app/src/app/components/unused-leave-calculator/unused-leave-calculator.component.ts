@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 import {
@@ -32,7 +39,15 @@ import { UnusedLeaveTaxBreakdownComponent } from '../unused-leave-tax-breakdown/
 @Component({
   selector: 'app-unused-leave-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, LawFooterComponent, UnusedLeaveCompensationComponent, UnusedLeaveTaxBreakdownComponent],
+  imports: [
+    CommonModule,
+    FormField,
+    EuroPipe,
+    CalcExplanationComponent,
+    LawFooterComponent,
+    UnusedLeaveCompensationComponent,
+    UnusedLeaveTaxBreakdownComponent,
+  ],
   templateUrl: './unused-leave-calculator.component.html',
   styleUrl: './unused-leave-calculator.component.scss',
 })
@@ -66,8 +81,7 @@ export class UnusedLeaveCalculatorComponent {
     'Αφαιρούνται ΕΦΚΑ (αν ισχύει) και οριακός φόρος εισοδήματος.',
   ];
 
-  readonly explanationFormula =
-    'Καθαρά = (αποζημίωση + επίδομα) − ΕΦΚΑ − οριακός φόρος';
+  readonly explanationFormula = 'Καθαρά = (αποζημίωση + επίδομα) − ΕΦΚΑ − οριακός φόρος';
 
   constructor() {
     this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
@@ -81,7 +95,7 @@ export class UnusedLeaveCalculatorComponent {
   });
 
   patchModel(partial: Partial<UnusedLeaveModel>): void {
-    this.formModel.update(m => ({ ...m, ...partial }));
+    this.formModel.update((m) => ({ ...m, ...partial }));
   }
 
   toggleTaxBreakdown(): void {

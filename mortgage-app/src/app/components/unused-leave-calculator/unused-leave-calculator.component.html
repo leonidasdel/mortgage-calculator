@@ -2,35 +2,40 @@
   <div class="page-header-icon leave-icon">🏖️</div>
   <div>
     <h1 class="page-title" data-testid="unused-leave-page-title">Μη Ληφθείσα Άδεια</h1>
-    <p class="page-subtitle">Υπολογίστε την αποζημίωση για τις άδειες που δεν πήρατε — μεικτά &amp; καθαρά ποσά</p>
+    <p class="page-subtitle">
+      Υπολογίστε την αποζημίωση για τις άδειες που δεν πήρατε — μεικτά &amp; καθαρά ποσά
+    </p>
   </div>
 </div>
 
 <div class="grid">
-
   <!-- ═══ LEFT: INPUTS ═══════════════════════════════════════════════════════ -->
   <div class="left-panel">
-
     <!-- Αποδοχές -->
     <div class="card">
       <div class="card-header">
         <div class="card-header-icon">&#9881;</div>
         <h2>Αποδοχές &amp; Άδεια</h2>
       </div>
-      <div class="card-body" >
-
+      <div class="card-body">
         <!-- Τύπος αμοιβής -->
         <div class="form-group">
           <label>Τύπος Αμοιβής</label>
           <div class="seg-group">
-            <button type="button" class="seg-btn"
-                    [class.active]="formModel().salaryType === 'monthly'"
-                    (click)="patchModel({ salaryType: 'monthly' })">
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="formModel().salaryType === 'monthly'"
+              (click)="patchModel({ salaryType: 'monthly' })"
+            >
               Μηνιαίος Μισθός
             </button>
-            <button type="button" class="seg-btn"
-                    [class.active]="formModel().salaryType === 'daily'"
-                    (click)="patchModel({ salaryType: 'daily' })">
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="formModel().salaryType === 'daily'"
+              (click)="patchModel({ salaryType: 'daily' })"
+            >
               Ημερομίσθιο
             </button>
           </div>
@@ -41,11 +46,16 @@
             <label for="grossMonthly">Μεικτός Μηνιαίος Μισθός (€)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="grossMonthly" data-testid="unused-leave-input-grossMonthly" [formField]="formFields.grossMonthly">
+              <input
+                type="number"
+                id="grossMonthly"
+                data-testid="unused-leave-input-grossMonthly"
+                [formField]="formFields.grossMonthly"
+              />
             </div>
             <div class="lv-hint">
-              Ημερομίσθιο: <strong>{{ result().dailyWage | euro }}</strong>
-              (÷ {{ formModel().workWeek === '5day' ? '25' : '26' }})
+              Ημερομίσθιο: <strong>{{ result().dailyWage | euro }}</strong> (÷
+              {{ formModel().workWeek === '5day' ? '25' : '26' }})
             </div>
           </div>
         }
@@ -55,11 +65,11 @@
             <label for="dailyWage">Ημερομίσθιο (€)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="dailyWage" [formField]="formFields.dailyWage">
+              <input type="number" id="dailyWage" [formField]="formFields.dailyWage" />
             </div>
             <div class="lv-hint">
-              Μηνιαίο ισοδύναμο: <strong>{{ result().monthlyEquiv | euro }}</strong>
-              (× {{ formModel().workWeek === '5day' ? '25' : '26' }})
+              Μηνιαίο ισοδύναμο: <strong>{{ result().monthlyEquiv | euro }}</strong> (×
+              {{ formModel().workWeek === '5day' ? '25' : '26' }})
             </div>
           </div>
         }
@@ -67,14 +77,20 @@
         <div class="form-group">
           <label>Εβδομαδιαία Εργασία</label>
           <div class="seg-group">
-            <button type="button" class="seg-btn"
-                    [class.active]="formModel().workWeek === '5day'"
-                    (click)="patchModel({ workWeek: '5day' })">
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="formModel().workWeek === '5day'"
+              (click)="patchModel({ workWeek: '5day' })"
+            >
               Πενθήμερο (÷25)
             </button>
-            <button type="button" class="seg-btn"
-                    [class.active]="formModel().workWeek === '6day'"
-                    (click)="patchModel({ workWeek: '6day' })">
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="formModel().workWeek === '6day'"
+              (click)="patchModel({ workWeek: '6day' })"
+            >
               Εξαήμερο (÷26)
             </button>
           </div>
@@ -83,24 +99,28 @@
         <div class="form-group">
           <label for="unusedDays">Ημέρες Μη Ληφθείσας Άδειας</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="unusedDays" data-testid="unused-leave-input-unusedDays" [formField]="formFields.unusedDays">
+            <input
+              type="number"
+              id="unusedDays"
+              data-testid="unused-leave-input-unusedDays"
+              [formField]="formFields.unusedDays"
+            />
             <span class="sfx">ημ.</span>
           </div>
           <div class="lv-hint">
-            Δικαιούμενες: 20 ημ. / έτος (πενθήμερο) ή 24 ημ. (εξαήμερο).
-            Μετά 10ετία: 25 ή 30 ημ.
+            Δικαιούμενες: 20 ημ. / έτος (πενθήμερο) ή 24 ημ. (εξαήμερο). Μετά 10ετία: 25 ή 30 ημ.
           </div>
         </div>
 
         <div class="form-group">
           <label class="lv-check-row">
-            <input type="checkbox" [formField]="formFields.includeHolidayBonus">
+            <input type="checkbox" [formField]="formFields.includeHolidayBonus" />
             <span>Συμπερίληψη Επιδόματος Αδείας</span>
           </label>
           @if (formModel().includeHolidayBonus) {
             <div class="lv-hint">
-              = ίσο με αποδοχές αδείας (Ν. 4504/1966) —
-              μέγιστο {{ formModel().salaryType === 'daily' ? '13 ημερομίσθια' : '½ μηνιαίος μισθός' }}
+              = ίσο με αποδοχές αδείας (Ν. 4504/1966) — μέγιστο
+              {{ formModel().salaryType === 'daily' ? '13 ημερομίσθια' : '½ μηνιαίος μισθός' }}
               @if (result().holidayBonusCapped) {
                 <span class="badge-warn">Ανώτατο όριο εφαρμόζεται</span>
               }
@@ -111,21 +131,27 @@
         <div class="form-group">
           <label>Κατάσταση Εργασιακής Σχέσης</label>
           <div class="seg-group">
-            <button type="button" class="seg-btn"
-                    [class.active]="formModel().situation === 'termination'"
-                    (click)="patchModel({ situation: 'termination' })">
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="formModel().situation === 'termination'"
+              (click)="patchModel({ situation: 'termination' })"
+            >
               Λύση Σύμβασης
             </button>
-            <button type="button" class="seg-btn"
-                    [class.active]="formModel().situation === 'during_employment'"
-                    (click)="patchModel({ situation: 'during_employment' })">
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="formModel().situation === 'during_employment'"
+              (click)="patchModel({ situation: 'during_employment' })"
+            >
               Εν ενεργεία
             </button>
           </div>
           @if (formModel().situation === 'termination') {
             <div class="lv-hint">
-              Η αποζημίωση λόγω λύσης <strong>ΔΕΝ</strong> υπόκειται σε ΕΦΚΑ.
-              Το επίδομα αδείας <strong>υπόκειται</strong> σε ΕΦΚΑ.
+              Η αποζημίωση λόγω λύσης <strong>ΔΕΝ</strong> υπόκειται σε ΕΦΚΑ. Το επίδομα αδείας
+              <strong>υπόκειται</strong> σε ΕΦΚΑ.
             </div>
           } @else {
             <div class="lv-hint">
@@ -133,7 +159,6 @@
             </div>
           }
         </div>
-
       </div>
     </div>
 
@@ -143,30 +168,42 @@
         <div class="card-header-icon">&#128203;</div>
         <h2>Φορολογικά Στοιχεία</h2>
       </div>
-      <div class="card-body" >
-
+      <div class="card-body">
         <div class="form-group">
           <label>Φορολογικό Έτος</label>
           <div class="seg-group">
-            <button type="button" class="seg-btn"
-                    [class.active]="formModel().taxYear === '2025'"
-                    (click)="patchModel({ taxYear: '2025' })">
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="formModel().taxYear === '2025'"
+              (click)="patchModel({ taxYear: '2025' })"
+            >
               2025
             </button>
-            <button type="button" class="seg-btn"
-                    [class.active]="formModel().taxYear === '2026'"
-                    (click)="patchModel({ taxYear: '2026' })">
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="formModel().taxYear === '2026'"
+              (click)="patchModel({ taxYear: '2026' })"
+            >
               2026
             </button>
           </div>
           @if (formModel().taxYear === '2026') {
-            <div class="lv-hint">Νέες κλίμακες Ν. 5246/2025: μειωμένοι συντελεστές &amp; αφορολόγητο νέων.</div>
+            <div class="lv-hint">
+              Νέες κλίμακες Ν. 5246/2025: μειωμένοι συντελεστές &amp; αφορολόγητο νέων.
+            </div>
           }
         </div>
 
         <div class="form-group">
           <label for="ageGroup">Ηλικιακή Ομάδα</label>
-          <select id="ageGroup" data-testid="unused-leave-input-ageGroup" [formField]="formFields.ageGroup" class="lv-select">
+          <select
+            id="ageGroup"
+            data-testid="unused-leave-input-ageGroup"
+            [formField]="formFields.ageGroup"
+            class="lv-select"
+          >
             <option value="over30">Άνω των 30 ετών</option>
             <option value="26to30">26–30 ετών</option>
             <option value="under25">Έως 25 ετών</option>
@@ -179,7 +216,12 @@
         <div class="form-group">
           <label for="children">Εξαρτώμενα Τέκνα</label>
           <div class="input-wrap">
-            <input type="number" id="children" data-testid="unused-leave-input-children" [formField]="formFields.children">
+            <input
+              type="number"
+              id="children"
+              data-testid="unused-leave-input-children"
+              [formField]="formFields.children"
+            />
           </div>
         </div>
 
@@ -189,7 +231,7 @@
 
         <div class="form-group">
           <label class="lv-check-row">
-            <input type="checkbox" [formField]="formFields.useCustomAnnualIncome">
+            <input type="checkbox" [formField]="formFields.useCustomAnnualIncome" />
             <span>Εισαγωγή πραγματικού ετήσιου εισοδήματος</span>
           </label>
         </div>
@@ -197,7 +239,7 @@
         @if (!formModel().useCustomAnnualIncome) {
           <div class="info-box blue">
             💡 Χρησιμοποιείται το εκτιμώμενο ετήσιο εισόδημα
-            <strong>{{ result().annualBaseGross | euro:0 }}</strong>
+            <strong>{{ result().annualBaseGross | euro: 0 }}</strong>
             (μηνιαίος × 14 μισθοί).
           </div>
         }
@@ -207,27 +249,30 @@
             <label for="customAnnualGross">Μεικτό Ετήσιο Εισόδημα Έτους (€)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="customAnnualGross" [formField]="formFields.customAnnualGross">
+              <input
+                type="number"
+                id="customAnnualGross"
+                [formField]="formFields.customAnnualGross"
+              />
             </div>
             <div class="lv-hint">
-              Συμπεριλάβετε μισθούς, δώρα &amp; επίδομα αδείας του τρέχοντος έτους (χωρίς την παρούσα αποζημίωση).
+              Συμπεριλάβετε μισθούς, δώρα &amp; επίδομα αδείας του τρέχοντος έτους (χωρίς την
+              παρούσα αποζημίωση).
             </div>
           </div>
         }
-
       </div>
     </div>
-
   </div>
 
   <!-- ═══ RIGHT: RESULTS ══════════════════════════════════════════════════════ -->
   <div class="right-panel" id="ul-results" data-testid="unused-leave-results">
-
     <app-unused-leave-compensation
       [result]="result()"
       [workWeek]="formModel().workWeek"
       [unusedDays]="formModel().unusedDays"
-      [includeHolidayBonus]="formModel().includeHolidayBonus">
+      [includeHolidayBonus]="formModel().includeHolidayBonus"
+    >
     </app-unused-leave-compensation>
 
     <app-unused-leave-tax-breakdown
@@ -239,7 +284,8 @@
       [showTaxBreakdown]="showTaxBreakdown"
       [shareState]="formModel()"
       [shareSummary]="shareSummary()"
-      (toggleBreakdown)="toggleTaxBreakdown()">
+      (toggleBreakdown)="toggleTaxBreakdown()"
+    >
     </app-unused-leave-tax-breakdown>
 
     <!-- Νομοθετικό πλαίσιο -->
@@ -250,12 +296,14 @@
       </div>
       <div class="card-body">
         <div class="lv-law-grid">
-
           <div class="lv-law-item">
             <div class="lv-law-icon">📅</div>
             <div>
               <div class="lv-law-title">Δικαιούμενες Ημέρες Άδειας</div>
-              <div class="lv-law-desc">Ν. 539/1945: 20 ημ./έτος (πενθήμερο) ή 24 ημ. (εξαήμερο). Μετά 10 χρόνια στον ίδιο εργοδότη ή 12 χρόνια συνολικά: 25 ή 30 ημέρες.</div>
+              <div class="lv-law-desc">
+                Ν. 539/1945: 20 ημ./έτος (πενθήμερο) ή 24 ημ. (εξαήμερο). Μετά 10 χρόνια στον ίδιο
+                εργοδότη ή 12 χρόνια συνολικά: 25 ή 30 ημέρες.
+              </div>
             </div>
           </div>
 
@@ -263,7 +311,11 @@
             <div class="lv-law-icon">💰</div>
             <div>
               <div class="lv-law-title">Υπολογισμός Ημερομισθίου</div>
-              <div class="lv-law-desc">Πενθήμερο: μηνιαίος ÷ 25. Εξαήμερο: μηνιαίος ÷ 26. Το επίδομα αδείας = ίσο με τις αποδοχές αδείας (Ν. 4504/1966, ΑΠ 1182/2017), μέγιστο ½ μηνιαίου μισθού (μισθωτοί) ή 13 ημερομίσθια (ημερομίσθιοι).</div>
+              <div class="lv-law-desc">
+                Πενθήμερο: μηνιαίος ÷ 25. Εξαήμερο: μηνιαίος ÷ 26. Το επίδομα αδείας = ίσο με τις
+                αποδοχές αδείας (Ν. 4504/1966, ΑΠ 1182/2017), μέγιστο ½ μηνιαίου μισθού (μισθωτοί) ή
+                13 ημερομίσθια (ημερομίσθιοι).
+              </div>
             </div>
           </div>
 
@@ -271,7 +323,10 @@
             <div class="lv-law-icon">🏛️</div>
             <div>
               <div class="lv-law-title">ΕΦΚΑ κατά τη Λύση Σύμβασης</div>
-              <div class="lv-law-desc">Η αποζημίωση μη ληφθείσας άδειας ΔΕΝ υπόκειται σε εισφορές ΕΦΚΑ (ΑΝ. 1846/1951). Το επίδομα αδείας υπόκειται σε εισφορές.</div>
+              <div class="lv-law-desc">
+                Η αποζημίωση μη ληφθείσας άδειας ΔΕΝ υπόκειται σε εισφορές ΕΦΚΑ (ΑΝ. 1846/1951). Το
+                επίδομα αδείας υπόκειται σε εισφορές.
+              </div>
             </div>
           </div>
 
@@ -279,14 +334,17 @@
             <div class="lv-law-icon">📊</div>
             <div>
               <div class="lv-law-title">Φορολόγηση</div>
-              <div class="lv-law-desc">Το ποσό υπόκειται σε φόρο εισοδήματος ως τμήμα του ετήσιου εισοδήματος. Εισφορές ΕΦΚΑ εκπίπτουν από το φορολογητέο εισόδημα.</div>
+              <div class="lv-law-desc">
+                Το ποσό υπόκειται σε φόρο εισοδήματος ως τμήμα του ετήσιου εισοδήματος. Εισφορές
+                ΕΦΚΑ εκπίπτουν από το φορολογητέο εισόδημα.
+              </div>
             </div>
           </div>
-
         </div>
 
         <div class="disclaimer">
-          <strong>Σημαντική Σημείωση:</strong> Ο υπολογισμός βασίζεται στην ισχύουσα νομοθεσία (ΑΝ. 539/1945, Ν. 4504/1966 άρθρο 3, ΑΝ. 1846/1951, ΚΦΕ) και στις εισφορές ΕΦΚΑ 2025 (13,32%).
+          <strong>Σημαντική Σημείωση:</strong> Ο υπολογισμός βασίζεται στην ισχύουσα νομοθεσία (ΑΝ.
+          539/1945, Ν. 4504/1966 άρθρο 3, ΑΝ. 1846/1951, ΚΦΕ) και στις εισφορές ΕΦΚΑ 2025 (13,32%).
           Για ακριβή νομική γνωμοδότηση συμβουλευτείτε εργατολόγο ή λογιστή.
         </div>
       </div>
@@ -295,9 +353,9 @@
     <app-calc-explanation
       title="Πώς υπολογίζεται η μη ληφθείσα άδεια;"
       [steps]="explanationSteps"
-      [formula]="explanationFormula">
+      [formula]="explanationFormula"
+    >
     </app-calc-explanation>
-
   </div>
 </div>
 

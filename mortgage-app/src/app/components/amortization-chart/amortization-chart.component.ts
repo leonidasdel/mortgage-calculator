@@ -150,11 +150,12 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
     const mx = event.clientX - rect.left;
     const my = event.clientY - rect.top;
 
-    const hit = this.barHits.reduce<BarHit | null>((best, b) => {
-      if (mx < b.x || mx > b.x + b.w) return best;
-      if (my < b.y || my > b.y + b.h) return best;
-      return b;
-    }, null) ?? this.nearestHit(mx);
+    const hit =
+      this.barHits.reduce<BarHit | null>((best, b) => {
+        if (mx < b.x || mx > b.x + b.w) return best;
+        if (my < b.y || my > b.y + b.h) return best;
+        return b;
+      }, null) ?? this.nearestHit(mx);
 
     if (!hit) {
       if (this.hoveredKey !== null) {
@@ -232,7 +233,7 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const maxVal = niceMax(Math.max(...buckets.map(b => b.principal + b.interest)));
+    const maxVal = niceMax(Math.max(...buckets.map((b) => b.principal + b.interest)));
     const theme = getChartTheme(isDarkTheme());
     const { l, r, t, b } = this.pad;
     const cW = W - l - r;
@@ -261,7 +262,7 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
   ): void {
     const { l, t } = this.pad;
     const bW = Math.max(2, Math.min(28, slotW * 0.72));
-    const keys = buckets.map(bk => bk.key);
+    const keys = buckets.map((bk) => bk.key);
 
     buckets.forEach((bucket, i) => {
       const total = bucket.principal + bucket.interest;
@@ -316,7 +317,7 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
   ): void {
     const { l, t } = this.pad;
     const baseY = t + cH;
-    const keys = buckets.map(bk => bk.key);
+    const keys = buckets.map((bk) => bk.key);
 
     const pts = buckets.map((bucket, i) => {
       const x = l + (i + 0.5) * slotW;
@@ -337,7 +338,7 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
     ctx.fillStyle = theme.interestFill;
     ctx.beginPath();
     ctx.moveTo(pts[0].x, pts[0].principY);
-    pts.forEach(p => ctx.lineTo(p.x, p.totalY));
+    pts.forEach((p) => ctx.lineTo(p.x, p.totalY));
     for (let i = pts.length - 1; i >= 0; i--) ctx.lineTo(pts[i].x, pts[i].principY);
     ctx.closePath();
     ctx.fill();
@@ -345,7 +346,7 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
     ctx.fillStyle = theme.principalFill;
     ctx.beginPath();
     ctx.moveTo(pts[0].x, baseY);
-    pts.forEach(p => ctx.lineTo(p.x, p.principY));
+    pts.forEach((p) => ctx.lineTo(p.x, p.principY));
     for (let i = pts.length - 1; i >= 0; i--) ctx.lineTo(pts[i].x, baseY);
     ctx.closePath();
     ctx.fill();
@@ -364,7 +365,7 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
     ctx.stroke();
 
     if (this.hoveredKey !== null) {
-      const hi = pts.find(p => p.bucket.key === this.hoveredKey);
+      const hi = pts.find((p) => p.bucket.key === this.hoveredKey);
       if (hi) {
         ctx.strokeStyle = theme.axis;
         ctx.lineWidth = 1;

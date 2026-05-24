@@ -16,7 +16,7 @@
   font-size: 13px;
 }
 
-.cc-check-row input[type="checkbox"] {
+.cc-check-row input[type='checkbox'] {
   accent-color: var(--blue);
   width: 16px;
   height: 16px;
@@ -43,7 +43,10 @@
   font-weight: 600;
   color: var(--g600);
   cursor: pointer;
-  transition: border-color .15s, background .15s, color .15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    color 0.15s;
 }
 
 .cc-fuel-btn.active {
@@ -52,7 +55,9 @@
   color: var(--blue-dark);
 }
 
-.mt-8 { margin-top: 8px; }
+.mt-8 {
+  margin-top: 8px;
+}
 
 .sum-val-hint {
   font-size: 11px;

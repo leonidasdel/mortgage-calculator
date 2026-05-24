@@ -2,28 +2,32 @@
   <div class="page-header-icon hb-icon">🎁</div>
   <div>
     <h1 class="page-title" data-testid="holiday-bonus-page-title">Δώρα Εορτών</h1>
-    <p class="page-subtitle">Υπολογίστε τα δώρα Χριστουγέννων, Πάσχα και επίδομα αδείας — μεικτά &amp; καθαρά ποσά</p>
+    <p class="page-subtitle">
+      Υπολογίστε τα δώρα Χριστουγέννων, Πάσχα και επίδομα αδείας — μεικτά &amp; καθαρά ποσά
+    </p>
   </div>
 </div>
 
 <div class="grid">
-
   <!-- ═══ LEFT: INPUTS ═══════════════════════════════════════════════════════ -->
   <div class="left-panel">
-
     <div class="card">
       <div class="card-header">
         <div class="card-header-icon">&#9881;</div>
         <h2>Στοιχεία Εργαζομένου</h2>
       </div>
-      <div class="card-body" >
-
+      <div class="card-body">
         <!-- Μισθός -->
         <div class="form-group">
           <label for="grossMonthly">Μεικτός Μηνιαίος Μισθός (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="grossMonthly" data-testid="holiday-bonus-input-grossMonthly" [formField]="formFields.grossMonthly">
+            <input
+              type="number"
+              id="grossMonthly"
+              data-testid="holiday-bonus-input-grossMonthly"
+              [formField]="formFields.grossMonthly"
+            />
           </div>
         </div>
 
@@ -31,14 +35,20 @@
         <div class="form-group">
           <label>Φορολογικό Έτος</label>
           <div class="seg-group">
-            <button type="button" class="seg-btn"
-                    [class.active]="formModel().year === 2025"
-                    (click)="formModel.update(m => ({ ...m, year: 2025 }))">
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="formModel().year === 2025"
+              (click)="formModel.update((m) => ({ ...m, year: 2025 }))"
+            >
               2025
             </button>
-            <button type="button" class="seg-btn"
-                    [class.active]="formModel().year === 2026"
-                    (click)="formModel.update(m => ({ ...m, year: 2026 }))">
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="formModel().year === 2026"
+              (click)="formModel.update((m) => ({ ...m, year: 2026 }))"
+            >
               2026
             </button>
           </div>
@@ -47,7 +57,12 @@
         <!-- Ηλικιακή ομάδα -->
         <div class="form-group">
           <label for="ageGroup">Ηλικιακή Ομάδα</label>
-          <select id="ageGroup" data-testid="holiday-bonus-input-ageGroup" [formField]="formFields.ageGroup" class="hb-select">
+          <select
+            id="ageGroup"
+            data-testid="holiday-bonus-input-ageGroup"
+            [formField]="formFields.ageGroup"
+            class="hb-select"
+          >
             <option value="over30">Άνω των 30 ετών</option>
             <option value="26to30">26–30 ετών</option>
             <option value="under25">Έως 25 ετών</option>
@@ -58,7 +73,12 @@
         <div class="form-group">
           <label for="children">Εξαρτώμενα Τέκνα</label>
           <div class="input-wrap">
-            <input type="number" id="children" data-testid="holiday-bonus-input-children" [formField]="formFields.children">
+            <input
+              type="number"
+              id="children"
+              data-testid="holiday-bonus-input-children"
+              [formField]="formFields.children"
+            />
           </div>
         </div>
 
@@ -69,14 +89,15 @@
 
         <div class="form-group">
           <label class="hb-check-row">
-            <input type="checkbox" [formField]="formFields.partialEnabled">
+            <input type="checkbox" [formField]="formFields.partialEnabled" />
             <span>Δεν εργάστηκα ολόκληρη την περίοδο</span>
           </label>
         </div>
 
         @if (formModel().partialEnabled) {
-          <div class="info-box amber" style="margin-bottom:14px;">
-            💡 Τα δώρα υπολογίζονται αναλογικά βάσει των μηνών απασχόλησης στην αντίστοιχη περίοδο. Ο φόρος είναι εκτίμηση (γραμμική αναλογία).
+          <div class="info-box amber" style="margin-bottom: 14px">
+            💡 Τα δώρα υπολογίζονται αναλογικά βάσει των μηνών απασχόλησης στην αντίστοιχη περίοδο.
+            Ο φόρος είναι εκτίμηση (γραμμική αναλογία).
           </div>
 
           <div class="form-group">
@@ -85,12 +106,17 @@
               <span class="hb-period-hint">(Μάι–Δεκ, μέγ. 8)</span>
             </label>
             <div class="input-wrap has-sfx">
-              <input type="number" id="christmasMonthsWorked"
-                     data-testid="holiday-bonus-input-christmasMonthsWorked"
-                     [formField]="formFields.christmasMonthsWorked">
+              <input
+                type="number"
+                id="christmasMonthsWorked"
+                data-testid="holiday-bonus-input-christmasMonthsWorked"
+                [formField]="formFields.christmasMonthsWorked"
+              />
               <span class="sfx">/ 8 μήνες</span>
             </div>
-            <div class="hb-hint">Παράγοντας: {{ (result().christmasFactor * 100).toFixed(0) }}%</div>
+            <div class="hb-hint">
+              Παράγοντας: {{ (result().christmasFactor * 100).toFixed(0) }}%
+            </div>
           </div>
 
           <div class="form-group">
@@ -99,22 +125,22 @@
               <span class="hb-period-hint">(Ιαν–Απρ, μέγ. 4)</span>
             </label>
             <div class="input-wrap has-sfx">
-              <input type="number" id="easterMonthsWorked"
-                     [formField]="formFields.easterMonthsWorked">
+              <input
+                type="number"
+                id="easterMonthsWorked"
+                [formField]="formFields.easterMonthsWorked"
+              />
               <span class="sfx">/ 4 μήνες</span>
             </div>
             <div class="hb-hint">Παράγοντας: {{ (result().easterFactor * 100).toFixed(0) }}%</div>
           </div>
         }
-
       </div>
     </div>
-
   </div>
 
   <!-- ═══ RIGHT: RESULTS ══════════════════════════════════════════════════════ -->
   <div class="right-panel">
-
     <!-- Σύνολο Δώρων -->
     <div class="card" id="hb-results" data-testid="holiday-bonus-results">
       <div class="card-header">
@@ -122,11 +148,12 @@
         <h2>Σύνολο Δώρων Έτους</h2>
       </div>
       <div class="card-body">
-
         <div class="hero-row">
           <div class="hero-card dark">
             <div class="hero-lbl">Καθαρό Σύνολο</div>
-            <div class="hero-val" data-testid="holiday-bonus-hero-netTotal">{{ result().totalNet | euro }}</div>
+            <div class="hero-val" data-testid="holiday-bonus-hero-netTotal">
+              {{ result().totalNet | euro }}
+            </div>
             <div class="hero-sub">και τα τρία δώρα</div>
           </div>
           <div class="hero-card">
@@ -148,7 +175,9 @@
           </div>
           <div class="sum-item total-row">
             <div class="sum-lbl"><strong>Καθαρό Σύνολο</strong></div>
-            <div class="sum-val blue"><strong>{{ result().totalNet | euro }}</strong></div>
+            <div class="sum-val blue">
+              <strong>{{ result().totalNet | euro }}</strong>
+            </div>
           </div>
         </div>
 
@@ -157,10 +186,10 @@
             sharePath="/holiday-bonus"
             [shareState]="formModel()"
             [shareSummary]="shareSummary()"
-            printTargetId="hb-results">
+            printTargetId="hb-results"
+          >
           </app-export-row>
         </div>
-
       </div>
     </div>
 
@@ -174,8 +203,9 @@
         }
       </div>
       <div class="card-body">
-        <div class="info-box blue" style="margin-bottom:12px;">
-          📅 Περίοδος: <strong>1 Μαΐου – 31 Δεκεμβρίου</strong> &nbsp;|&nbsp; Ισούται με έναν πλήρη μισθό + 4,166% επιπλέον
+        <div class="info-box blue" style="margin-bottom: 12px">
+          📅 Περίοδος: <strong>1 Μαΐου – 31 Δεκεμβρίου</strong> &nbsp;|&nbsp; Ισούται με έναν πλήρη
+          μισθό + 4,166% επιπλέον
         </div>
         <div class="sum-grid">
           <div class="sum-item">
@@ -200,7 +230,9 @@
           </div>
           <div class="sum-item total-row">
             <div class="sum-lbl"><strong>Καθαρό Δώρο</strong></div>
-            <div class="sum-val blue"><strong>{{ result().christmas.net | euro }}</strong></div>
+            <div class="sum-val blue">
+              <strong>{{ result().christmas.net | euro }}</strong>
+            </div>
           </div>
         </div>
       </div>
@@ -216,8 +248,9 @@
         }
       </div>
       <div class="card-body">
-        <div class="info-box blue" style="margin-bottom:12px;">
-          📅 Περίοδος: <strong>1 Ιανουαρίου – 30 Απριλίου</strong> &nbsp;|&nbsp; Ισούται με το ½ μηνιαίου μισθού + 4,166%
+        <div class="info-box blue" style="margin-bottom: 12px">
+          📅 Περίοδος: <strong>1 Ιανουαρίου – 30 Απριλίου</strong> &nbsp;|&nbsp; Ισούται με το ½
+          μηνιαίου μισθού + 4,166%
         </div>
         <div class="sum-grid">
           <div class="sum-item">
@@ -242,7 +275,9 @@
           </div>
           <div class="sum-item total-row">
             <div class="sum-lbl"><strong>Καθαρό Δώρο</strong></div>
-            <div class="sum-val blue"><strong>{{ result().easter.net | euro }}</strong></div>
+            <div class="sum-val blue">
+              <strong>{{ result().easter.net | euro }}</strong>
+            </div>
           </div>
         </div>
       </div>
@@ -258,8 +293,9 @@
         }
       </div>
       <div class="card-body">
-        <div class="info-box blue" style="margin-bottom:12px;">
-          📅 Περίοδος: <strong>1 Ιανουαρίου – 30 Απριλίου</strong> &nbsp;|&nbsp; Ισούται με το ½ μηνιαίου μισθού (χωρίς προσαύξηση)
+        <div class="info-box blue" style="margin-bottom: 12px">
+          📅 Περίοδος: <strong>1 Ιανουαρίου – 30 Απριλίου</strong> &nbsp;|&nbsp; Ισούται με το ½
+          μηνιαίου μισθού (χωρίς προσαύξηση)
         </div>
         <div class="sum-grid">
           <div class="sum-item">
@@ -280,7 +316,9 @@
           </div>
           <div class="sum-item total-row">
             <div class="sum-lbl"><strong>Καθαρό Επίδομα</strong></div>
-            <div class="sum-val blue"><strong>{{ result().leave.net | euro }}</strong></div>
+            <div class="sum-val blue">
+              <strong>{{ result().leave.net | euro }}</strong>
+            </div>
           </div>
         </div>
       </div>
@@ -298,34 +336,48 @@
             <div class="lv-law-icon">📋</div>
             <div>
               <div class="lv-law-title">Δώρο Χριστουγέννων (Ν. 1082/1980)</div>
-              <div class="lv-law-desc">Ισούται με έναν πλήρη μηνιαίο μισθό για πλήρη απασχόληση (Μάι–Δεκ). Για μερική απασχόληση: μισθός × εργάσιμοι μήνες / 8.</div>
+              <div class="lv-law-desc">
+                Ισούται με έναν πλήρη μηνιαίο μισθό για πλήρη απασχόληση (Μάι–Δεκ). Για μερική
+                απασχόληση: μισθός × εργάσιμοι μήνες / 8.
+              </div>
             </div>
           </div>
           <div class="lv-law-item">
             <div class="lv-law-icon">🌸</div>
             <div>
               <div class="lv-law-title">Δώρο Πάσχα (Ν. 1082/1980)</div>
-              <div class="lv-law-desc">Ισούται με το ½ μηνιαίου μισθού για πλήρη απασχόληση (Ιαν–Απρ). Για μερική: (μισθός/2) × εργάσιμοι μήνες / 4.</div>
+              <div class="lv-law-desc">
+                Ισούται με το ½ μηνιαίου μισθού για πλήρη απασχόληση (Ιαν–Απρ). Για μερική:
+                (μισθός/2) × εργάσιμοι μήνες / 4.
+              </div>
             </div>
           </div>
           <div class="lv-law-item">
             <div class="lv-law-icon">☀️</div>
             <div>
               <div class="lv-law-title">Επίδομα Αδείας (Ν. 539/1945)</div>
-              <div class="lv-law-desc">Ισούται με το ½ μηνιαίου μισθού. Καταβάλλεται κατά τη λήψη της ετήσιας κανονικής άδειας. Υπολογίζεται με βάση την ίδια περίοδο με το Δώρο Πάσχα.</div>
+              <div class="lv-law-desc">
+                Ισούται με το ½ μηνιαίου μισθού. Καταβάλλεται κατά τη λήψη της ετήσιας κανονικής
+                άδειας. Υπολογίζεται με βάση την ίδια περίοδο με το Δώρο Πάσχα.
+              </div>
             </div>
           </div>
           <div class="lv-law-item">
             <div class="lv-law-icon">📊</div>
             <div>
               <div class="lv-law-title">ΕΦΚΑ &amp; Φόρος</div>
-              <div class="lv-law-desc">Τα δώρα υπόκεινται σε εισφορές ΕΦΚΑ (13,32%) και φόρο εισοδήματος βάσει της ετήσιας φορολογικής κλίμακας (14μηνο μοντέλο).</div>
+              <div class="lv-law-desc">
+                Τα δώρα υπόκεινται σε εισφορές ΕΦΚΑ (13,32%) και φόρο εισοδήματος βάσει της ετήσιας
+                φορολογικής κλίμακας (14μηνο μοντέλο).
+              </div>
             </div>
           </div>
         </div>
 
         <div class="disclaimer">
-          <strong>Σημαντική Σημείωση:</strong> Ο υπολογισμός βασίζεται στην ισχύουσα νομοθεσία (Ν. 1082/1980, Ν. 539/1945) και εισφορές ΕΦΚΑ 2025 (13,32%). Ο φόρος για μερική περίοδο αποτελεί εκτίμηση. Συμβουλευτείτε λογιστή για ακριβή αποτελέσματα.
+          <strong>Σημαντική Σημείωση:</strong> Ο υπολογισμός βασίζεται στην ισχύουσα νομοθεσία (Ν.
+          1082/1980, Ν. 539/1945) και εισφορές ΕΦΚΑ 2025 (13,32%). Ο φόρος για μερική περίοδο
+          αποτελεί εκτίμηση. Συμβουλευτείτε λογιστή για ακριβή αποτελέσματα.
         </div>
       </div>
     </div>
@@ -333,9 +385,9 @@
     <app-calc-explanation
       title="Πώς υπολογίζονται τα δώρα;"
       [steps]="explanationSteps"
-      [formula]="explanationFormula">
+      [formula]="explanationFormula"
+    >
     </app-calc-explanation>
-
   </div>
 </div>
 

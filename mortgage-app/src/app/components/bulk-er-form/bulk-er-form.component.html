@@ -4,22 +4,22 @@
     <div class="bulk-er-grid">
       <div>
         <label>Από Μήνα</label>
-        <input type="number" [formField]="formFields.startMonth">
+        <input type="number" [formField]="formFields.startMonth" />
       </div>
       <div>
         <label>Ποσό (€)</label>
         <div class="input-wrap has-pfx">
-          <span class="pfx" style="font-size:12px;">€</span>
-          <input type="number" [formField]="formFields.amount">
+          <span class="pfx" style="font-size: 12px">€</span>
+          <input type="number" [formField]="formFields.amount" />
         </div>
       </div>
       <div>
         <label>Κάθε (μήνες)</label>
-        <input type="number" [formField]="formFields.every">
+        <input type="number" [formField]="formFields.every" />
       </div>
       <div>
         <label>Αριθμός Πληρωμών</label>
-        <input type="number" [formField]="formFields.count">
+        <input type="number" [formField]="formFields.count" />
       </div>
     </div>
     <div class="bulk-preview">{{ preview() }}</div>

@@ -4,11 +4,12 @@
     <h2>Αποτελέσματα Αποζημίωσης</h2>
   </div>
   <div class="card-body">
-
     <div class="hero-row">
       <div class="hero-card dark">
         <div class="hero-lbl">Καθαρό Ποσό</div>
-        <div class="hero-val" data-testid="unused-leave-hero-net">{{ result().totalNet | euro }}</div>
+        <div class="hero-val" data-testid="unused-leave-hero-net">
+          {{ result().totalNet | euro }}
+        </div>
         <div class="hero-sub">που λαμβάνετε στο χέρι</div>
       </div>
       <div class="hero-card">
@@ -48,9 +49,10 @@
       }
       <div class="sum-item total-row">
         <div class="sum-lbl"><strong>Σύνολο Μεικτό</strong></div>
-        <div class="sum-val"><strong>{{ result().totalGross | euro }}</strong></div>
+        <div class="sum-val">
+          <strong>{{ result().totalGross | euro }}</strong>
+        </div>
       </div>
     </div>
-
   </div>
 </div>

@@ -2,7 +2,9 @@
   <div class="page-header-icon mortgage-icon">🏦</div>
   <div>
     <h1 class="page-title" data-testid="mortgage-page-title">Υπολογισμός Δόσης Δανείου</h1>
-    <p class="page-subtitle">Υπολογίστε τη μηνιαία δόση και το συνολικό κόστος του στεγαστικού σας δανείου</p>
+    <p class="page-subtitle">
+      Υπολογίστε τη μηνιαία δόση και το συνολικό κόστος του στεγαστικού σας δανείου
+    </p>
   </div>
 </div>
 
@@ -15,7 +17,11 @@
         <h2>Παράμετροι Δανείου</h2>
       </div>
       <div class="card-body">
-        <app-loan-form [formFields]="formFields" [rateFeed]="rateFeed" (liveEuriborToggle)="onLiveEuriborToggle($event)"></app-loan-form>
+        <app-loan-form
+          [formFields]="formFields"
+          [rateFeed]="rateFeed"
+          (liveEuriborToggle)="onLiveEuriborToggle($event)"
+        ></app-loan-form>
 
         <div class="sec-div">
           <div class="sec-label">Πρόωρες Αποπληρωμές</div>
@@ -25,7 +31,8 @@
             [scheduleLength]="schedule().length"
             [erMode]="formModel().erMode"
             (erListChange)="onErListChange($event)"
-            (erModeChange)="onErModeChange($event)">
+            (erModeChange)="onErModeChange($event)"
+          >
           </app-early-repayments>
         </div>
 
@@ -50,17 +57,15 @@
         <h2>Σύνοψη Μηνιαίας Δόσης</h2>
       </div>
       <div class="card-body">
-        <app-summary-panel
-          [summary]="summary()"
-          [params]="formModel()"
-          (exportCsv)="onExportCsv()">
+        <app-summary-panel [summary]="summary()" [params]="formModel()" (exportCsv)="onExportCsv()">
         </app-summary-panel>
 
         <app-export-row
           sharePath="/mortgage"
           [shareState]="formModel()"
           [shareSummary]="shareSummary()"
-          printTargetId="mortgage-results">
+          printTargetId="mortgage-results"
+        >
         </app-export-row>
       </div>
     </div>
@@ -82,12 +87,18 @@
               <div class="stat-val">{{ summary().totalInterest | euro }}</div>
             </div>
           </div>
-          <div style="overflow-x:auto;">
+          <div style="overflow-x: auto">
             <app-amortization-chart [schedule]="schedule()"></app-amortization-chart>
           </div>
           <div class="chart-legend">
-            <div class="leg-item"><div class="leg-dot blue"></div><span>Κεφάλαιο</span></div>
-            <div class="leg-item"><div class="leg-dot red"></div><span>Τόκοι</span></div>
+            <div class="leg-item">
+              <div class="leg-dot blue"></div>
+              <span>Κεφάλαιο</span>
+            </div>
+            <div class="leg-item">
+              <div class="leg-dot red"></div>
+              <span>Τόκοι</span>
+            </div>
           </div>
         </div>
       </div>
@@ -130,7 +141,8 @@
 <app-calc-explanation
   title="Πώς υπολογίζεται η δόση δανείου;"
   [steps]="explanationSteps"
-  [formula]="explanationFormula">
+  [formula]="explanationFormula"
+>
 </app-calc-explanation>
 
 <app-law-footer route="/mortgage"></app-law-footer>

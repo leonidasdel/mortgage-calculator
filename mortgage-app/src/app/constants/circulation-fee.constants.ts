@@ -31,9 +31,9 @@ export const CC_FEE_BRACKETS: CcBracket[] = [
 /** CO2 scale A: registration 1.11.2010 – 31.12.2020 (€/g/km above band floor) */
 export const CO2_SCALE_A: Co2Bracket[] = [
   { maxCo2: 90, ratePerGram: 0 },
-  { maxCo2: 100, ratePerGram: 0.90 },
+  { maxCo2: 100, ratePerGram: 0.9 },
   { maxCo2: 120, ratePerGram: 0.98 },
-  { maxCo2: 140, ratePerGram: 1.20 },
+  { maxCo2: 140, ratePerGram: 1.2 },
   { maxCo2: 160, ratePerGram: 1.85 },
   { maxCo2: 180, ratePerGram: 2.45 },
   { maxCo2: 200, ratePerGram: 2.78 },
@@ -45,12 +45,12 @@ export const CO2_SCALE_A: Co2Bracket[] = [
 export const CO2_SCALE_B: Co2Bracket[] = [
   { maxCo2: 122, ratePerGram: 0 },
   { maxCo2: 139, ratePerGram: 0.64 },
-  { maxCo2: 166, ratePerGram: 0.70 },
+  { maxCo2: 166, ratePerGram: 0.7 },
   { maxCo2: 208, ratePerGram: 0.85 },
   { maxCo2: 224, ratePerGram: 1.87 },
-  { maxCo2: 240, ratePerGram: 2.20 },
-  { maxCo2: 260, ratePerGram: 2.50 },
-  { maxCo2: 280, ratePerGram: 2.70 },
+  { maxCo2: 240, ratePerGram: 2.2 },
+  { maxCo2: 260, ratePerGram: 2.5 },
+  { maxCo2: 280, ratePerGram: 2.7 },
   { maxCo2: Infinity, ratePerGram: 2.85 },
 ];
 
@@ -89,11 +89,7 @@ export function getRegistrationEra(dateStr: string, isEv: boolean): Registration
   return 'co2_b';
 }
 
-export function calcCirculationFee(
-  era: RegistrationEra,
-  cc: number,
-  co2: number,
-): number {
+export function calcCirculationFee(era: RegistrationEra, cc: number, co2: number): number {
   if (era === 'ev') return 0;
   if (era === 'cc') {
     for (const b of CC_FEE_BRACKETS) {

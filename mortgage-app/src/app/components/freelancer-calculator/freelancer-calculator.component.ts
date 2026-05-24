@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { CommonModule } from '@angular/common';
 import { EuroPipe } from '../../pipes/euro.pipe';
@@ -26,7 +33,14 @@ interface FreelancerModel {
 @Component({
   selector: 'app-freelancer-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [
+    CommonModule,
+    FormField,
+    EuroPipe,
+    CalcExplanationComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+  ],
   templateUrl: './freelancer-calculator.component.html',
   styleUrl: './freelancer-calculator.component.scss',
 })
@@ -55,8 +69,7 @@ export class FreelancerCalculatorComponent {
     'Το καθαρό = έσοδα − έξοδα − ΕΦΚΑ − φόρος − προκαταβολή.',
   ];
 
-  readonly explanationFormula =
-    'Καθαρά = Έσοδα − Έξοδα − ΕΦΚΑ − Φόρος − Προκαταβολή';
+  readonly explanationFormula = 'Καθαρά = Έσοδα − Έξοδα − ΕΦΚΑ − Φόρος − Προκαταβολή';
 
   constructor() {
     this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
@@ -80,7 +93,7 @@ export class FreelancerCalculatorComponent {
   });
 
   selectedEfkaMonthly = computed(() => {
-    const cat = EFKA_CATEGORIES.find(c => c.id === this.formModel().efkaCategory);
+    const cat = EFKA_CATEGORIES.find((c) => c.id === this.formModel().efkaCategory);
     return cat?.monthly ?? 0;
   });
 

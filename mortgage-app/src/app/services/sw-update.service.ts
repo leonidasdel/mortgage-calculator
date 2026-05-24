@@ -66,7 +66,8 @@ export class SwUpdateService {
 
   applyUpdate(): void {
     if (!this.swUpdate.isEnabled) return;
-    this.swUpdate.activateUpdate()
+    this.swUpdate
+      .activateUpdate()
       .then(() => document.location.reload())
       .catch(() => document.location.reload());
   }

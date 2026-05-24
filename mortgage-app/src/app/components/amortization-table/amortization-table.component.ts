@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 import { AmortizationRow } from '../../models/mortgage.models';
 import { CommonModule } from '@angular/common';
 import { EuroPipe } from '../../pipes/euro.pipe';
@@ -35,16 +42,16 @@ export class AmortizationTableComponent {
   rangeEnd = computed(() => Math.min(this.page() * PER_PAGE, this.schedule().length));
 
   toggleShowAll(): void {
-    this.showAll.update(v => !v);
+    this.showAll.update((v) => !v);
     this.page.set(1);
   }
 
   prevPage(): void {
-    if (this.page() > 1) this.page.update(p => p - 1);
+    if (this.page() > 1) this.page.update((p) => p - 1);
   }
 
   nextPage(): void {
-    if (this.page() < this.totalPages()) this.page.update(p => p + 1);
+    if (this.page() < this.totalPages()) this.page.update((p) => p + 1);
   }
 
   rowClass(r: AmortizationRow): string {

@@ -63,14 +63,14 @@ describe('MortgageCalculatorService', () => {
     it('should mark fixed period rows isFixed=true', () => {
       const s = service.buildSchedule(BASE_PARAMS, []);
       const fixedMonths = BASE_PARAMS.fixedYears * 12;
-      expect(s.slice(0, fixedMonths).every(r => r.isFixed)).toBe(true);
-      expect(s.slice(fixedMonths).every(r => !r.isFixed)).toBe(true);
+      expect(s.slice(0, fixedMonths).every((r) => r.isFixed)).toBe(true);
+      expect(s.slice(fixedMonths).every((r) => !r.isFixed)).toBe(true);
     });
 
     it('should mark grace rows with principal=0', () => {
       const p: LoanParams = { ...BASE_PARAMS, gracePeriod: 6 };
       const s = service.buildSchedule(p, []);
-      expect(s.slice(0, 6).every(r => r.isGrace && r.principal === 0)).toBe(true);
+      expect(s.slice(0, 6).every((r) => r.isGrace && r.principal === 0)).toBe(true);
       expect(s[6].isGrace).toBe(false);
     });
 
@@ -80,7 +80,7 @@ describe('MortgageCalculatorService', () => {
       // First row N.128 ≈ loanAmount * rate (balance starts at loanAmount)
       expect(s[0].n128).toBeCloseTo(BASE_PARAMS.loanAmount * n128Rate, 2);
       // Each row N.128 = balance_before * rate; balance_before = newBalance + principal + earlyAmt
-      s.forEach(r => {
+      s.forEach((r) => {
         const balanceBefore = r.balance + r.principal + r.earlyAmt;
         expect(r.n128).toBeCloseTo(balanceBefore * n128Rate, 5);
       });
@@ -90,17 +90,17 @@ describe('MortgageCalculatorService', () => {
 
     it('should reduce schedule length in reduceDur mode with ER', () => {
       const er: EarlyRepayment[] = [{ id: 1, month: 12, amount: 10000 }];
-      const withER  = service.buildSchedule({ ...BASE_PARAMS, erMode: 'reduceDur' }, er);
+      const withER = service.buildSchedule({ ...BASE_PARAMS, erMode: 'reduceDur' }, er);
       const without = service.buildSchedule(BASE_PARAMS, []);
       expect(withER.length).toBeLessThan(without.length);
     });
 
     it('should reduce monthly payment in reducePmt mode with ER', () => {
       const er: EarlyRepayment[] = [{ id: 1, month: 12, amount: 10000 }];
-      const withER  = service.buildSchedule({ ...BASE_PARAMS, erMode: 'reducePmt' }, er);
+      const withER = service.buildSchedule({ ...BASE_PARAMS, erMode: 'reducePmt' }, er);
       const without = service.buildSchedule(BASE_PARAMS, []);
-      const pmtAfterER  = roundEuro(withER[13].payment);
-      const pmtNoER     = roundEuro(without[13].payment);
+      const pmtAfterER = roundEuro(withER[13].payment);
+      const pmtNoER = roundEuro(without[13].payment);
       expect(pmtAfterER).toBe(379.52);
       expect(pmtNoER).toBe(422.68);
       expect(pmtAfterER).toBeLessThan(pmtNoER);
@@ -112,7 +112,7 @@ describe('MortgageCalculatorService', () => {
         { id: 2, month: 12, amount: 5000 },
       ];
       const schedule = service.buildSchedule({ ...BASE_PARAMS, erMode: 'reduceDur' }, er);
-      const month12 = schedule.find(r => r.month === 12);
+      const month12 = schedule.find((r) => r.month === 12);
       const totalEarly = schedule.reduce((sum, r) => sum + r.earlyAmt, 0);
 
       expect(month12?.earlyAmt).toBe(15000);
@@ -139,7 +139,7 @@ describe('MortgageCalculatorService', () => {
 
     it('should not reduce payment in reduceDur mode with ER', () => {
       const er: EarlyRepayment[] = [{ id: 1, month: 12, amount: 10000 }];
-      const withER  = service.buildSchedule({ ...BASE_PARAMS, erMode: 'reduceDur' }, er);
+      const withER = service.buildSchedule({ ...BASE_PARAMS, erMode: 'reduceDur' }, er);
       const without = service.buildSchedule(BASE_PARAMS, []);
       // The total monthly payment (pmtFixed) must be unchanged in reduceDur mode.
       // pmtFixed is never recalculated after an ER in reduceDur mode.
@@ -170,7 +170,7 @@ describe('MortgageCalculatorService', () => {
 
     it('should report exact interestSaved when ERs present', () => {
       const er: EarlyRepayment[] = [{ id: 1, month: 12, amount: 10000 }];
-      const schedule     = service.buildSchedule(BASE_PARAMS, er);
+      const schedule = service.buildSchedule(BASE_PARAMS, er);
       const baseSchedule = service.buildSchedule(BASE_PARAMS, []);
       const summary = service.computeSummary(schedule, baseSchedule, BASE_PARAMS);
       expect(roundEuro(summary.interestSaved!)).toBe(7295.11);

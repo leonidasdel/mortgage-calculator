@@ -14,13 +14,17 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Παράμετροι</h2>
       </div>
-      <div class="card-body" >
-
+      <div class="card-body">
         <div class="form-group">
           <label for="initialDeposit">Αρχικό Κεφάλαιο (&#8364;)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="initialDeposit" data-testid="savings-input-initialDeposit" [formField]="formFields.initialDeposit">
+            <input
+              type="number"
+              id="initialDeposit"
+              data-testid="savings-input-initialDeposit"
+              [formField]="formFields.initialDeposit"
+            />
           </div>
         </div>
 
@@ -28,7 +32,12 @@
           <label for="monthlyContribution">Μηνιαία Αποταμίευση (&#8364;) — Σενάριο Α</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="monthlyContribution" data-testid="savings-input-monthlyContribution" [formField]="formFields.monthlyContribution">
+            <input
+              type="number"
+              id="monthlyContribution"
+              data-testid="savings-input-monthlyContribution"
+              [formField]="formFields.monthlyContribution"
+            />
           </div>
         </div>
 
@@ -36,14 +45,23 @@
           <label for="compareMonthlyContribution">Μηνιαία Αποταμίευση (&#8364;) — Σενάριο Β</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="compareMonthlyContribution" [formField]="formFields.compareMonthlyContribution">
+            <input
+              type="number"
+              id="compareMonthlyContribution"
+              [formField]="formFields.compareMonthlyContribution"
+            />
           </div>
         </div>
 
         <div class="form-group">
           <label for="annualReturn">Ετήσια Απόδοση (%)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="annualReturn" data-testid="savings-input-annualReturn" [formField]="formFields.annualReturn">
+            <input
+              type="number"
+              id="annualReturn"
+              data-testid="savings-input-annualReturn"
+              [formField]="formFields.annualReturn"
+            />
             <span class="sfx">%</span>
           </div>
         </div>
@@ -52,17 +70,24 @@
           <label>Διάρκεια</label>
           <div class="sv-quick">
             @for (d of quickDurations; track d) {
-              <button type="button"
-                      class="sv-pill"
-                      [class.active]="formModel().durationYears === d"
-                      (click)="setYears(d)">
+              <button
+                type="button"
+                class="sv-pill"
+                [class.active]="formModel().durationYears === d"
+                (click)="setYears(d)"
+              >
                 {{ d }} έτη
               </button>
             }
           </div>
           <div class="sv-years-row">
             <div class="input-wrap">
-              <input type="number" id="durationYears" data-testid="savings-input-durationYears" [formField]="formFields.durationYears">
+              <input
+                type="number"
+                id="durationYears"
+                data-testid="savings-input-durationYears"
+                [formField]="formFields.durationYears"
+              />
             </div>
             <span class="sv-years-lbl">έτη</span>
           </div>
@@ -74,12 +99,16 @@
 
         <div class="form-group">
           <label class="sv-check-row">
-            <input type="checkbox" data-testid="savings-input-applyTax" [formField]="formFields.applyTax">
+            <input
+              type="checkbox"
+              data-testid="savings-input-applyTax"
+              [formField]="formFields.applyTax"
+            />
             <span>Παρακράτηση φόρου τόκων</span>
           </label>
           @if (formModel().applyTax) {
-            <div class="input-wrap has-sfx" style="margin-top:6px;">
-              <input type="number" id="taxRate" [formField]="formFields.taxRate">
+            <div class="input-wrap has-sfx" style="margin-top: 6px">
+              <input type="number" id="taxRate" [formField]="formFields.taxRate" />
               <span class="sfx">%</span>
             </div>
             <div class="sv-hint">Ο φόρος τόκων στην Ελλάδα είναι 15%</div>
@@ -88,28 +117,27 @@
 
         <div class="form-group">
           <label class="sv-check-row">
-            <input type="checkbox" [formField]="formFields.applyInflation">
+            <input type="checkbox" [formField]="formFields.applyInflation" />
             <span>Προσαρμογή πληθωρισμού</span>
           </label>
           @if (formModel().applyInflation) {
-            <div class="input-wrap has-sfx" style="margin-top:6px;">
-              <input type="number" id="inflationRate" [formField]="formFields.inflationRate">
+            <div class="input-wrap has-sfx" style="margin-top: 6px">
+              <input type="number" id="inflationRate" [formField]="formFields.inflationRate" />
               <span class="sfx">%</span>
             </div>
           }
         </div>
 
         <div class="info-box blue">
-          💡 Η απόδοση υπολογίζεται με μηνιαίο ανατοκισμό (compound interest). Οι εισφορές γίνονται στο τέλος κάθε μήνα.
+          💡 Η απόδοση υπολογίζεται με μηνιαίο ανατοκισμό (compound interest). Οι εισφορές γίνονται
+          στο τέλος κάθε μήνα.
         </div>
-
       </div>
     </div>
   </div>
 
   <!-- RIGHT PANEL -->
   <div class="right-panel">
-
     <!-- Results card -->
     <div class="card" id="savings-results" data-testid="savings-results">
       <div class="card-header">
@@ -117,17 +145,24 @@
         <h2>Αποτελέσματα</h2>
       </div>
       <div class="card-body">
-
         <div class="hero-row">
           <div class="hero-card">
             <div class="hero-lbl">Τελικό Κεφάλαιο</div>
-            <div class="hero-val" data-testid="savings-hero-finalBalance">{{ result().finalNominal | euro:0 }}</div>
+            <div class="hero-val" data-testid="savings-hero-finalBalance">
+              {{ result().finalNominal | euro: 0 }}
+            </div>
             <div class="hero-sub">μετά {{ formModel().durationYears }} έτη</div>
           </div>
           <div class="hero-card dark">
             <div class="hero-lbl">Καθαρά Κέρδη</div>
-            <div class="hero-val">{{ result().netGains | euro:0 }}</div>
-            <div class="hero-sub">@if (result().applyTax) { μετά φόρων } @else { χωρίς φόρο }</div>
+            <div class="hero-val">{{ result().netGains | euro: 0 }}</div>
+            <div class="hero-sub">
+              @if (result().applyTax) {
+                μετά φόρων
+              } @else {
+                χωρίς φόρο
+              }
+            </div>
           </div>
         </div>
 
@@ -135,7 +170,7 @@
           <div class="hero-row mt-8">
             <div class="hero-card green span-2">
               <div class="hero-lbl">Πραγματική Αξία</div>
-              <div class="hero-val">{{ result().finalReal! | euro:0 }}</div>
+              <div class="hero-val">{{ result().finalReal! | euro: 0 }}</div>
               <div class="hero-sub">προσαρμοσμένη για πληθωρισμό</div>
             </div>
           </div>
@@ -171,9 +206,14 @@
         </div>
 
         <div class="info-box blue">
-          💡 Θα επενδύσετε συνολικά <strong>{{ result().totalContributed | euro }}</strong>
-          και θα κερδίσετε <strong>{{ result().netGains | euro }}</strong> @if (result().applyTax) { (μετά φόρων) }
-          — δηλαδή τα χρήματά σας θα πολλαπλασιαστούν <strong>×{{ (result().finalNominal / result().totalContributed).toFixed(1) }}</strong>.
+          💡 Θα επενδύσετε συνολικά <strong>{{ result().totalContributed | euro }}</strong> και θα
+          κερδίσετε <strong>{{ result().netGains | euro }}</strong>
+          @if (result().applyTax) {
+            (μετά φόρων)
+          }
+          — δηλαδή τα χρήματά σας θα πολλαπλασιαστούν
+          <strong>×{{ (result().finalNominal / result().totalContributed).toFixed(1) }}</strong
+          >.
         </div>
 
         <div class="export-row">
@@ -181,7 +221,8 @@
             sharePath="/savings"
             [shareState]="formModel()"
             [shareSummary]="shareSummary()"
-            printTargetId="savings-results">
+            printTargetId="savings-results"
+          >
           </app-export-row>
         </div>
       </div>
@@ -193,10 +234,7 @@
         <h2>Σύγκριση Μηνιαίας Αποταμίευσης</h2>
       </div>
       <div class="card-body">
-        <app-compare-panel
-          labelA="Σενάριο Α"
-          labelB="Σενάριο Β"
-          [rows]="compareRows()">
+        <app-compare-panel labelA="Σενάριο Α" labelB="Σενάριο Β" [rows]="compareRows()">
         </app-compare-panel>
       </div>
     </div>
@@ -209,12 +247,18 @@
           <h2>Εξέλιξη Κεφαλαίου</h2>
         </div>
         <div class="card-body">
-          <div style="overflow-x:auto;" appChartResize (chartResize)="onChartResize()">
+          <div style="overflow-x: auto" appChartResize (chartResize)="onChartResize()">
             <canvas #savingsChart></canvas>
           </div>
           <div class="chart-legend">
-            <div class="leg-item"><div class="leg-dot blue"></div><span>Εισφορές</span></div>
-            <div class="leg-item"><div class="leg-dot green"></div><span>Κέρδη</span></div>
+            <div class="leg-item">
+              <div class="leg-dot blue"></div>
+              <span>Εισφορές</span>
+            </div>
+            <div class="leg-item">
+              <div class="leg-dot green"></div>
+              <span>Κέρδη</span>
+            </div>
           </div>
         </div>
       </div>
@@ -256,12 +300,16 @@
               @for (row of result().yearlyRows; track row.year) {
                 <tr>
                   <td>{{ row.year }}</td>
-                  <td class="num">{{ row.totalContributed | euro:0 }}</td>
-                  <td class="num yearly-gains">{{ row.yearlyGains | euro:0 }}</td>
-                  <td class="num gains">{{ row.gains | euro:0 }}</td>
-                  <td class="num total"><strong>{{ row.totalValue | euro:0 }}</strong></td>
+                  <td class="num">{{ row.totalContributed | euro: 0 }}</td>
+                  <td class="num yearly-gains">{{ row.yearlyGains | euro: 0 }}</td>
+                  <td class="num gains">{{ row.gains | euro: 0 }}</td>
+                  <td class="num total">
+                    <strong>{{ row.totalValue | euro: 0 }}</strong>
+                  </td>
                   @if (result().applyInflation) {
-                    <td class="num">{{ row.realValue !== null ? (row.realValue | euro:0) : '—' }}</td>
+                    <td class="num">
+                      {{ row.realValue !== null ? (row.realValue | euro: 0) : '—' }}
+                    </td>
                   }
                 </tr>
               }
@@ -270,18 +318,19 @@
         </div>
 
         <div class="disclaimer">
-          <strong>Σημαντική Σημείωση:</strong> Οι υπολογισμοί είναι ενδεικτικοί και βασίζονται σε σταθερή ετήσια απόδοση. Οι πραγματικές αποδόσεις μπορεί να διαφέρουν.
+          <strong>Σημαντική Σημείωση:</strong> Οι υπολογισμοί είναι ενδεικτικοί και βασίζονται σε
+          σταθερή ετήσια απόδοση. Οι πραγματικές αποδόσεις μπορεί να διαφέρουν.
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
 <app-calc-explanation
   title="Πώς υπολογίζεται η αποταμίευση;"
   [steps]="explanationSteps"
-  [formula]="explanationFormula">
+  [formula]="explanationFormula"
+>
 </app-calc-explanation>
 
 <app-law-footer route="/savings"></app-law-footer>

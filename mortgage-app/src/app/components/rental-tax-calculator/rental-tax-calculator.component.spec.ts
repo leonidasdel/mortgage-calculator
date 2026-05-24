@@ -18,7 +18,7 @@ describe('RentalTaxCalculatorComponent', () => {
     fixture.detectChanges();
 
     component.onIncomeModeChange('monthly');
-    component.formModel.update(m => ({ ...m, monthlyIncome: 900 }));
+    component.formModel.update((m) => ({ ...m, monthlyIncome: 900 }));
     component.onMonthlyIncomeInput();
 
     expect(component.formModel().annualIncome).toBe(10800);
@@ -31,7 +31,7 @@ describe('RentalTaxCalculatorComponent', () => {
     fixture.detectChanges();
 
     component.onIncomeModeChange('monthly');
-    component.formModel.update(m => ({ ...m, monthlyIncome: 950 }));
+    component.formModel.update((m) => ({ ...m, monthlyIncome: 950 }));
     component.onMonthlyIncomeInput();
     TestBed.flushEffects();
 

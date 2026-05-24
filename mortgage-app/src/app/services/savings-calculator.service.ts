@@ -60,7 +60,14 @@ export class SavingsCalculatorService {
       const yearlyGains = gains - prevGains;
       prevGains = gains;
       const realValue = doInflation ? balance / Math.pow(1 + inflRate, y) : null;
-      rows.push({ year: y, totalContributed: contributed, yearlyGains, gains, totalValue: balance, realValue });
+      rows.push({
+        year: y,
+        totalContributed: contributed,
+        yearlyGains,
+        gains,
+        totalValue: balance,
+        realValue,
+      });
     }
 
     const mGross = annualRate / 12;

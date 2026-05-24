@@ -15,6 +15,6 @@ export class CalcExplanationComponent {
   open = signal(false);
 
   toggle(): void {
-    this.open.update(v => !v);
+    this.open.update((v) => !v);
   }
 }

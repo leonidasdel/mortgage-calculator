@@ -1,17 +1,30 @@
 <div class="home-hero">
-  <img ngSrc="/og-salaries.png" width="1200" height="630" priority alt=""
-       class="home-hero-visual" aria-hidden="true">
-  <h1 class="home-title" data-testid="home-title">Salaries<span class="home-title-dot">.gr</span></h1>
+  <img
+    ngSrc="/og-salaries.png"
+    width="1200"
+    height="630"
+    priority
+    alt=""
+    class="home-hero-visual"
+    aria-hidden="true"
+  />
+  <h1 class="home-title" data-testid="home-title">
+    Salaries<span class="home-title-dot">.gr</span>
+  </h1>
   <p class="home-subtitle">Οικονομικοί υπολογιστές για μισθούς, δάνεια, αποταμίευση και ακίνητα</p>
   <div class="home-search-wrap">
-    <input type="search" class="home-search" data-testid="home-search"
-           placeholder="Τι θέλεις να υπολογίσεις;"
-           [value]="searchQuery()" (input)="onSearch($any($event.target).value)">
+    <input
+      type="search"
+      class="home-search"
+      data-testid="home-search"
+      placeholder="Τι θέλεις να υπολογίσεις;"
+      [value]="searchQuery()"
+      (input)="onSearch($any($event.target).value)"
+    />
   </div>
 </div>
 
 <div class="home-categories">
-
   @if (!searchQuery()) {
     <section class="cat-section home-popular">
       <div class="cat-header">
@@ -21,7 +34,11 @@
       <div class="cat-grid">
         @for (route of popularRoutes; track route) {
           @if (toolByRoute(route); as tool) {
-            <a class="tool-card" [attr.data-testid]="'home-tool-' + tool.route.slice(1)" [routerLink]="tool.route">
+            <a
+              class="tool-card"
+              [attr.data-testid]="'home-tool-' + tool.route.slice(1)"
+              [routerLink]="tool.route"
+            >
               <div class="tool-icon" [class]="tool.gradient">{{ tool.icon }}</div>
               <div class="tool-text">
                 <div class="tool-name">{{ tool.name }}</div>
@@ -56,15 +73,21 @@
   }
 
   @for (cat of ['Δάνεια', 'Εισόδημα', 'Φόροι', 'Αποταμίευση', 'Ακίνητα', 'Άλλα']; track cat) {
-    @if (filteredTools().filter(t => t.category === cat).length) {
+    @if (filteredTools().filter((t) => t.category === cat).length) {
       <section class="cat-section">
         <div class="cat-header">
           <h2 class="cat-title">{{ cat }}</h2>
-          <span class="cat-count">{{ filteredTools().filter(t => t.category === cat).length }} εργαλεία</span>
+          <span class="cat-count"
+            >{{ filteredTools().filter((t) => t.category === cat).length }} εργαλεία</span
+          >
         </div>
         <div class="cat-grid">
-          @for (tool of filteredTools().filter(t => t.category === cat); track tool.route) {
-            <a class="tool-card" [attr.data-testid]="'home-tool-' + tool.route.slice(1)" [routerLink]="tool.route">
+          @for (tool of filteredTools().filter((t) => t.category === cat); track tool.route) {
+            <a
+              class="tool-card"
+              [attr.data-testid]="'home-tool-' + tool.route.slice(1)"
+              [routerLink]="tool.route"
+            >
               <div class="tool-icon" [class]="tool.gradient">{{ tool.icon }}</div>
               <div class="tool-text">
                 <div class="tool-name">{{ tool.name }}</div>

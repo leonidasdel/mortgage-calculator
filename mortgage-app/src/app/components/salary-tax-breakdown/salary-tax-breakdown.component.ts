@@ -9,7 +9,13 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-salary-tax-breakdown',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [
+    DecimalPipe,
+    EuroPipe,
+    CalcExplanationComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+  ],
   templateUrl: './salary-tax-breakdown.component.html',
   styleUrl: './salary-tax-breakdown.component.scss',
 })

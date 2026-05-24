@@ -15,14 +15,20 @@
   margin-top: 12px;
   text-align: left;
 }
-.calc-exp-toggle:hover { background: var(--g100); }
+.calc-exp-toggle:hover {
+  background: var(--g100);
+}
 .calc-exp-arrow {
   font-size: 10px;
   transition: transform 0.2s;
   color: var(--g400);
 }
-.calc-exp-arrow.open { transform: rotate(180deg); }
-.calc-exp-body { margin-top: 8px; }
+.calc-exp-arrow.open {
+  transform: rotate(180deg);
+}
+.calc-exp-body {
+  margin-top: 8px;
+}
 .calc-exp-steps {
   margin: 8px 0 0;
   padding-left: 18px;

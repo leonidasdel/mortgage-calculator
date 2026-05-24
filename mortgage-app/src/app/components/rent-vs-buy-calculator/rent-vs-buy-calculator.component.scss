@@ -1,4 +1,6 @@
-:host { display: block; }
+:host {
+  display: block;
+}
 
 .field-hint {
   font-size: 12px;
@@ -92,17 +94,36 @@
   max-height: 480px;
   overflow-y: auto;
 }
-th { text-align: right; }
-th:first-child { text-align: center; }
-th:last-child { text-align: center; }
+th {
+  text-align: right;
+}
+th:first-child {
+  text-align: center;
+}
+th:last-child {
+  text-align: center;
+}
 
-.wealth-val { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.winner-val { font-weight: 700; }
-.buy-ahead-row td { background: #eff6ff; }
-.rent-ahead-row td { background: var(--green-light); }
-tr:hover td { filter: brightness(0.97); }
+.wealth-val {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.winner-val {
+  font-weight: 700;
+}
+.buy-ahead-row td {
+  background: #eff6ff;
+}
+.rent-ahead-row td {
+  background: var(--green-light);
+}
+tr:hover td {
+  filter: brightness(0.97);
+}
 
-.best-col { text-align: center !important; }
+.best-col {
+  text-align: center !important;
+}
 
 .badge {
   display: inline-block;
@@ -112,8 +133,14 @@ tr:hover td { filter: brightness(0.97); }
   border-radius: 20px;
   white-space: nowrap;
 }
-.badge-buy  { background: var(--blue-light); color: var(--blue-dark); }
-.badge-rent { background: var(--green-light); color: #065f46; }
+.badge-buy {
+  background: var(--blue-light);
+  color: var(--blue-dark);
+}
+.badge-rent {
+  background: var(--green-light);
+  color: #065f46;
+}
 
 :host-context(html.dark) .buy-ahead-row td {
   background: #0b2a4a;

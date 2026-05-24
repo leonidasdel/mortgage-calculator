@@ -1,9 +1,4 @@
-import {
-  afterNextRender,
-  ChangeDetectionStrategy,
-  Component,
-  signal,
-} from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -87,7 +82,7 @@ export class NavComponent {
   }
 
   toggleMenu(): void {
-    this.mobileMenuOpen.update(v => !v);
+    this.mobileMenuOpen.update((v) => !v);
     document.body.style.overflow = this.mobileMenuOpen() ? 'hidden' : '';
   }
 
@@ -97,12 +92,12 @@ export class NavComponent {
   }
 
   toggleCollapse(): void {
-    this.collapsed.update(v => !v);
+    this.collapsed.update((v) => !v);
     document.body.classList.toggle('sidebar-collapsed', this.collapsed());
   }
 
   toggleDarkMode(): void {
-    this.darkMode.update(v => !v);
+    this.darkMode.update((v) => !v);
     localStorage.setItem('darkMode', String(this.darkMode()));
     document.documentElement.classList.toggle('dark', this.darkMode());
     window.dispatchEvent(new Event('themechange'));

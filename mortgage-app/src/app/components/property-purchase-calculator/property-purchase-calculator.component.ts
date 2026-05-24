@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 import {
@@ -26,7 +33,14 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-property-purchase-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [
+    CommonModule,
+    FormField,
+    EuroPipe,
+    CalcExplanationComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+  ],
   templateUrl: './property-purchase-calculator.component.html',
   styleUrl: './property-purchase-calculator.component.scss',
 })
@@ -53,8 +67,7 @@ export class PropertyPurchaseCalculatorComponent {
     'Προαιρετικά: μεσίτης (2%+ΦΠΑ) και δικηγόρος (~0,5%).',
   ];
 
-  readonly explanationFormula =
-    'Σύνολο = Τίμημα + ΦΜΑ + συμβολαιογραφικά + κτηματολόγιο + λοιπά';
+  readonly explanationFormula = 'Σύνολο = Τίμημα + ΦΜΑ + συμβολαιογραφικά + κτηματολόγιο + λοιπά';
 
   constructor() {
     this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);

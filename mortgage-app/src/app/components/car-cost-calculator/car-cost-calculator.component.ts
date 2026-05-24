@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import {
   getRegistrationEra,
@@ -36,7 +43,15 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-car-cost-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, FormField, EuroPipe, CalcExplanationComponent, DateSelectComponent, ExportRowComponent, LawFooterComponent],
+  imports: [
+    DecimalPipe,
+    FormField,
+    EuroPipe,
+    CalcExplanationComponent,
+    DateSelectComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+  ],
   templateUrl: './car-cost-calculator.component.html',
   styleUrl: './car-cost-calculator.component.scss',
 })
@@ -74,7 +89,9 @@ export class CarCostCalculatorComponent {
     this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef, {
       onApplyShareState: (state, model) => {
         if (state['firstRegistration']) {
-          state['firstRegistration'] = normalizeRegistrationDate(String(state['firstRegistration']));
+          state['firstRegistration'] = normalizeRegistrationDate(
+            String(state['firstRegistration']),
+          );
         }
         model.set({ ...model(), ...state } as CarCostModel);
       },
@@ -90,10 +107,14 @@ export class CarCostCalculatorComponent {
 
   eraHint = computed(() => {
     switch (this.registrationEra()) {
-      case 'cc': return 'Τέλη υπολογίζονται με βάση τον κυβισμό (1η άδεια έως 31/10/2010).';
-      case 'co2_a': return 'Τέλη υπολογίζονται με βάση τις εκπομπές CO₂ (1η άδεια 1/11/2010 – 31/12/2020).';
-      case 'co2_b': return 'Τέλη υπολογίζονται με βάση τις εκπομπές CO₂ (1η άδεια από 1/1/2021).';
-      case 'ev': return 'Ηλεκτρικό όχημα: μηδενικά τέλη κυκλοφορίας.';
+      case 'cc':
+        return 'Τέλη υπολογίζονται με βάση τον κυβισμό (1η άδεια έως 31/10/2010).';
+      case 'co2_a':
+        return 'Τέλη υπολογίζονται με βάση τις εκπομπές CO₂ (1η άδεια 1/11/2010 – 31/12/2020).';
+      case 'co2_b':
+        return 'Τέλη υπολογίζονται με βάση τις εκπομπές CO₂ (1η άδεια από 1/1/2021).';
+      case 'ev':
+        return 'Ηλεκτρικό όχημα: μηδενικά τέλη κυκλοφορίας.';
     }
   });
 
@@ -103,11 +124,11 @@ export class CarCostCalculatorComponent {
   });
 
   setFuelMode(mode: 'calc' | 'manual'): void {
-    this.formModel.update(m => ({ ...m, fuelMode: mode }));
+    this.formModel.update((m) => ({ ...m, fuelMode: mode }));
   }
 
   onFirstRegistrationChange(value: string): void {
-    this.formModel.update(m => ({
+    this.formModel.update((m) => ({
       ...m,
       firstRegistration: normalizeRegistrationDate(value),
     }));

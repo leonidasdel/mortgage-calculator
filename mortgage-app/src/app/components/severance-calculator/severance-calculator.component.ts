@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 import {
@@ -23,7 +30,14 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-severance-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [
+    CommonModule,
+    FormField,
+    EuroPipe,
+    CalcExplanationComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+  ],
   templateUrl: './severance-calculator.component.html',
   styleUrl: './severance-calculator.component.scss',
 })
@@ -47,8 +61,7 @@ export class SeveranceCalculatorComponent {
     'Φόρος αυτοτελώς: 0% έως €60.000, 10% / 20% / 30% πάνω.',
   ];
 
-  readonly explanationFormula =
-    'Αποζημίωση = μήνες × (μικτός × 14/12) · Καθαρά = μεικτή − φόρος';
+  readonly explanationFormula = 'Αποζημίωση = μήνες × (μικτός × 14/12) · Καθαρά = μεικτή − φόρος';
 
   constructor() {
     this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
@@ -62,7 +75,7 @@ export class SeveranceCalculatorComponent {
   });
 
   setTerminationType(type: SeveranceModel['terminationType']): void {
-    this.formModel.update(m => ({ ...m, terminationType: type }));
+    this.formModel.update((m) => ({ ...m, terminationType: type }));
   }
 
   print(): void {

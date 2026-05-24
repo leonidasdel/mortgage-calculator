@@ -14,22 +14,25 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Παράμετροι</h2>
       </div>
-      <div class="card-body" >
-
+      <div class="card-body">
         <div class="form-group">
           <label>Εισόδημα Ενοικίων</label>
           <div class="rt-income-toggle">
-            <button type="button"
-                    class="rt-income-pill"
-                    data-testid="rental-tax-income-monthly"
-                    [class.active]="formModel().incomeMode === 'monthly'"
-                    (click)="onIncomeModeChange('monthly')">
+            <button
+              type="button"
+              class="rt-income-pill"
+              data-testid="rental-tax-income-monthly"
+              [class.active]="formModel().incomeMode === 'monthly'"
+              (click)="onIncomeModeChange('monthly')"
+            >
               Μηνιαίο
             </button>
-            <button type="button"
-                    class="rt-income-pill"
-                    [class.active]="formModel().incomeMode === 'annual'"
-                    (click)="onIncomeModeChange('annual')">
+            <button
+              type="button"
+              class="rt-income-pill"
+              [class.active]="formModel().incomeMode === 'annual'"
+              (click)="onIncomeModeChange('annual')"
+            >
               Ετήσιο
             </button>
           </div>
@@ -40,18 +43,33 @@
             <label for="monthlyIncome">Μηνιαίο Εισόδημα Ενοικίων (&#8364;)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">&#8364;</span>
-              <input type="number" id="monthlyIncome" data-testid="rental-tax-input-monthlyIncome" [formField]="formFields.monthlyIncome" (input)="onMonthlyIncomeInput()">
+              <input
+                type="number"
+                id="monthlyIncome"
+                data-testid="rental-tax-input-monthlyIncome"
+                [formField]="formFields.monthlyIncome"
+                (input)="onMonthlyIncomeInput()"
+              />
             </div>
-            <div class="rt-hint">Ετήσιο ισοδύναμο: <strong>{{ result().annualIncome | euro }}</strong></div>
+            <div class="rt-hint">
+              Ετήσιο ισοδύναμο: <strong>{{ result().annualIncome | euro }}</strong>
+            </div>
           </div>
         } @else {
           <div class="form-group">
             <label for="annualIncome">Ετήσιο Εισόδημα Ενοικίων (&#8364;)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">&#8364;</span>
-              <input type="number" id="annualIncome" [formField]="formFields.annualIncome" (input)="onAnnualIncomeInput()">
+              <input
+                type="number"
+                id="annualIncome"
+                [formField]="formFields.annualIncome"
+                (input)="onAnnualIncomeInput()"
+              />
             </div>
-            <div class="rt-hint">Μηνιαίο ισοδύναμο: <strong>{{ result().annualIncome / 12 | euro }}</strong></div>
+            <div class="rt-hint">
+              Μηνιαίο ισοδύναμο: <strong>{{ result().annualIncome / 12 | euro }}</strong>
+            </div>
           </div>
         }
 
@@ -59,13 +77,18 @@
           <label>Φορολογική βάση εισοδήματος</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" [value]="result().annualIncome" readonly>
+            <input type="number" [value]="result().annualIncome" readonly />
           </div>
         </div>
 
         <div class="form-group">
           <label for="rentalType">Τύπος Ενοικίασης</label>
-          <select id="rentalType" data-testid="rental-tax-input-rentalType" [formField]="formFields.rentalType" class="form-select">
+          <select
+            id="rentalType"
+            data-testid="rental-tax-input-rentalType"
+            [formField]="formFields.rentalType"
+            class="form-select"
+          >
             <option value="long-term">Μακροχρόνια Μίσθωση</option>
             <option value="short-term">Βραχυχρόνια Μίσθωση (Airbnb κ.λπ.)</option>
           </select>
@@ -80,17 +103,20 @@
           <label>Μέθοδος Εκπτώσεων</label>
           <div class="rt-radio-row">
             <label class="rt-radio">
-              <input type="radio" [formField]="formFields.expenseMethod" value="automatic">
+              <input type="radio" [formField]="formFields.expenseMethod" value="automatic" />
               <span>Αυτόματη 5%</span>
             </label>
             <label class="rt-radio">
-              <input type="radio" [formField]="formFields.expenseMethod" value="actual">
+              <input type="radio" [formField]="formFields.expenseMethod" value="actual" />
               <span>Πραγματικά Έξοδα</span>
             </label>
           </div>
           <div class="rt-hint">
-            <strong>Αυτόματη 5%:</strong> Αφαιρείται αυτόματα 5% από το ακαθάριστο εισόδημα χωρίς δικαιολογητικά — ισχύει για όλους τους ιδιοκτήτες.<br>
-            <strong>Πραγματικά Έξοδα:</strong> Δηλώνετε τα πραγματικά έξοδα (π.χ. επισκευές, ασφάλιστρα, κοινόχρηστα ιδιοκτήτη, αμοιβές διαχείρισης). Συμφέρει όταν τα έξοδά σας ξεπερνούν το 5% του εισοδήματος.
+            <strong>Αυτόματη 5%:</strong> Αφαιρείται αυτόματα 5% από το ακαθάριστο εισόδημα χωρίς
+            δικαιολογητικά — ισχύει για όλους τους ιδιοκτήτες.<br />
+            <strong>Πραγματικά Έξοδα:</strong> Δηλώνετε τα πραγματικά έξοδα (π.χ. επισκευές,
+            ασφάλιστρα, κοινόχρηστα ιδιοκτήτη, αμοιβές διαχείρισης). Συμφέρει όταν τα έξοδά σας
+            ξεπερνούν το 5% του εισοδήματος.
           </div>
         </div>
 
@@ -99,7 +125,7 @@
             <label for="actualExpenses">Πραγματικά Έξοδα (&#8364;)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">&#8364;</span>
-              <input type="number" id="actualExpenses" [formField]="formFields.actualExpenses">
+              <input type="number" id="actualExpenses" [formField]="formFields.actualExpenses" />
             </div>
             <div class="rt-hint">Επισκευές, ασφάλεια, κοινόχρηστα ιδιοκτήτη κ.λπ.</div>
           </div>
@@ -109,21 +135,22 @@
           💡 Τα εισοδήματα από ακίνητα φορολογούνται αυτοτελώς με προοδευτική κλίμακα 15%–45%.
         </div>
 
-        <div class="info-box" style="background:var(--blue-light);border-left:3px solid var(--blue);margin-top:8px;">
+        <div
+          class="info-box"
+          style="background: var(--blue-light); border-left: 3px solid var(--blue); margin-top: 8px"
+        >
           <ul class="info-list-muted">
             <li>Έως €12.000 → 15%</li>
             <li>€12.001 – €35.000 → 35%</li>
             <li>Πάνω από €35.000 → 45%</li>
           </ul>
         </div>
-
       </div>
     </div>
   </div>
 
   <!-- RIGHT PANEL -->
   <div class="right-panel">
-
     <!-- Results card -->
     <div class="card" id="rt-results" data-testid="rental-tax-results">
       <div class="card-header">
@@ -131,12 +158,15 @@
         <h2>Αποτελέσματα</h2>
       </div>
       <div class="card-body">
-
         <div class="hero-row">
           <div class="hero-card">
             <div class="hero-lbl">Φόρος Ενοικίου</div>
-            <div class="hero-val" data-testid="rental-tax-hero-tax">{{ result().totalTax | euro }}</div>
-            <div class="hero-sub">πραγματικός συντελεστής {{ result().effectiveRate.toFixed(1) }}%</div>
+            <div class="hero-val" data-testid="rental-tax-hero-tax">
+              {{ result().totalTax | euro }}
+            </div>
+            <div class="hero-sub">
+              πραγματικός συντελεστής {{ result().effectiveRate.toFixed(1) }}%
+            </div>
           </div>
           <div class="hero-card dark">
             <div class="hero-lbl">Καθαρό Ετήσιο Εισόδημα</div>
@@ -148,7 +178,9 @@
         <div class="sum-grid">
           <div class="sum-item">
             <div class="sum-lbl">Ακαθάριστο Εισόδημα</div>
-            <div class="sum-val" data-testid="rental-tax-annual-income">{{ result().annualIncome | euro }}</div>
+            <div class="sum-val" data-testid="rental-tax-annual-income">
+              {{ result().annualIncome | euro }}
+            </div>
           </div>
           <div class="sum-item">
             <div class="sum-lbl">Έκπτωση Εξόδων</div>
@@ -173,8 +205,11 @@
         </div>
 
         <div class="info-box blue">
-          💡 Θα πληρώσετε <strong>{{ result().totalTax | euro }}</strong> φόρο ενοικίου
-          — θα κρατήσετε <strong>{{ result().netAnnual | euro }}</strong> καθαρά ({{ result().netMonthly | euro }} / μήνα).
+          💡 Θα πληρώσετε <strong>{{ result().totalTax | euro }}</strong> φόρο ενοικίου — θα
+          κρατήσετε <strong>{{ result().netAnnual | euro }}</strong> καθαρά ({{
+            result().netMonthly | euro
+          }}
+          / μήνα).
         </div>
 
         <div class="export-row">
@@ -182,7 +217,8 @@
             sharePath="/rental-tax"
             [shareState]="formModel()"
             [shareSummary]="shareSummary()"
-            printTargetId="rt-results">
+            printTargetId="rt-results"
+          >
           </app-export-row>
         </div>
       </div>
@@ -209,7 +245,9 @@
             <tbody>
               @for (row of result().bracketRows; track row.from) {
                 <tr>
-                  <td>{{ row.from | euro:0 }} – {{ row.to !== null ? (row.to | euro:0) : '...' }}</td>
+                  <td>
+                    {{ row.from | euro: 0 }} – {{ row.to !== null ? (row.to | euro: 0) : '...' }}
+                  </td>
                   <td>{{ (row.rate * 100).toFixed(0) }}%</td>
                   <td>{{ row.taxableAmount | euro }}</td>
                   <td class="red">{{ row.tax | euro }}</td>
@@ -219,15 +257,20 @@
             <tfoot>
               <tr>
                 <td colspan="2"><strong>Σύνολο</strong></td>
-                <td><strong>{{ result().taxableIncome | euro }}</strong></td>
-                <td class="red"><strong>{{ result().totalTax | euro }}</strong></td>
+                <td>
+                  <strong>{{ result().taxableIncome | euro }}</strong>
+                </td>
+                <td class="red">
+                  <strong>{{ result().totalTax | euro }}</strong>
+                </td>
               </tr>
             </tfoot>
           </table>
         </div>
 
         <div class="disclaimer">
-          <strong>Σημαντική Σημείωση:</strong> Οι υπολογισμοί παρέχονται για ενημερωτικούς σκοπούς βάσει της νομοθεσίας 2026. Επικοινωνήστε με λογιστή για επίσημους υπολογισμούς.
+          <strong>Σημαντική Σημείωση:</strong> Οι υπολογισμοί παρέχονται για ενημερωτικούς σκοπούς
+          βάσει της νομοθεσίας 2026. Επικοινωνήστε με λογιστή για επίσημους υπολογισμούς.
         </div>
       </div>
     </div>
@@ -235,9 +278,9 @@
     <app-calc-explanation
       title="Πώς υπολογίζεται ο φόρος ενοικίου;"
       [steps]="explanationSteps"
-      [formula]="explanationFormula">
+      [formula]="explanationFormula"
+    >
     </app-calc-explanation>
-
   </div>
 </div>
 

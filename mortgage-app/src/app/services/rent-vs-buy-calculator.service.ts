@@ -59,15 +59,17 @@ export class RentVsBuyCalculatorService {
     const annualOwnershipCostPct = Math.max(0, Number(params.annualOwnershipCostPct) ?? 1);
     const horizon = Math.min(40, Math.max(1, timeHorizon));
 
-    const downPayment = downPaymentMode === 'amount'
-      ? Math.min(propertyPrice, Math.max(0, Number(params.downPaymentAmount) || 0))
-      : propertyPrice * downPaymentPctInput / 100;
-    const downPaymentPct = propertyPrice > 0 ? downPayment / propertyPrice * 100 : 0;
+    const downPayment =
+      downPaymentMode === 'amount'
+        ? Math.min(propertyPrice, Math.max(0, Number(params.downPaymentAmount) || 0))
+        : (propertyPrice * downPaymentPctInput) / 100;
+    const downPaymentPct = propertyPrice > 0 ? (downPayment / propertyPrice) * 100 : 0;
     const loanAmount = propertyPrice - downPayment;
-    const closingCosts = closingCostsMode === 'amount'
-      ? Math.max(0, Number(params.closingCostsAmount) || 0)
-      : propertyPrice * closingCostsPctInput / 100;
-    const closingCostsPct = propertyPrice > 0 ? closingCosts / propertyPrice * 100 : 0;
+    const closingCosts =
+      closingCostsMode === 'amount'
+        ? Math.max(0, Number(params.closingCostsAmount) || 0)
+        : (propertyPrice * closingCostsPctInput) / 100;
+    const closingCostsPct = propertyPrice > 0 ? (closingCosts / propertyPrice) * 100 : 0;
 
     const n = mortgageTerm * 12;
     const r = mortgageRate / 100 / 12;
@@ -86,9 +88,10 @@ export class RentVsBuyCalculatorService {
     for (let year = 1; year <= horizon; year++) {
       for (let m = 0; m < 12; m++) {
         const totalMonth = (year - 1) * 12 + m + 1;
-        const propValMonth = propertyPrice * Math.pow(1 + propertyGrowthRate / 100, totalMonth / 12);
+        const propValMonth =
+          propertyPrice * Math.pow(1 + propertyGrowthRate / 100, totalMonth / 12);
         const rentThisMonth = monthlyRent * Math.pow(1 + rentGrowthRate / 100, year - 1);
-        const ownershipThisMonth = propValMonth * annualOwnershipCostPct / 100 / 12;
+        const ownershipThisMonth = (propValMonth * annualOwnershipCostPct) / 100 / 12;
         const buyerMonthly = (totalMonth <= n ? monthlyPayment : 0) + ownershipThisMonth;
         const delta = buyerMonthly - rentThisMonth;
         portfolio = portfolio * (1 + monthlyInvestRate) + delta;
@@ -100,7 +103,7 @@ export class RentVsBuyCalculatorService {
       if (totalMonths_y < n && loanAmount > 0) {
         if (r > 0) {
           const powM = Math.pow(1 + r, totalMonths_y);
-          remainingBal_y = loanAmount * (powN - powM) / (powN - 1);
+          remainingBal_y = (loanAmount * (powN - powM)) / (powN - 1);
         } else {
           remainingBal_y = loanAmount * (1 - totalMonths_y / n);
         }

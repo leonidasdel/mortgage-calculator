@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
 import {
@@ -23,7 +31,14 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-interest-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [
+    DecimalPipe,
+    FormField,
+    EuroPipe,
+    CalcExplanationComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+  ],
   templateUrl: './interest-calculator.component.html',
   styleUrl: './interest-calculator.component.scss',
 })
@@ -97,7 +112,7 @@ export class InterestCalculatorComponent {
     const end = new Date(start);
     end.setMonth(end.getMonth() + wholeMonths);
     end.setDate(end.getDate() + fractionalDays);
-    this.formModel.update(m => ({ ...m, endDate: this.formatDate(end) }));
+    this.formModel.update((m) => ({ ...m, endDate: this.formatDate(end) }));
     this.detectActiveDuration();
   }
 
@@ -106,7 +121,7 @@ export class InterestCalculatorComponent {
     if (isNaN(start.getTime())) return;
     const end = new Date(start);
     end.setMonth(end.getMonth() + months);
-    this.formModel.update(m => ({ ...m, endDate: this.formatDate(end) }));
+    this.formModel.update((m) => ({ ...m, endDate: this.formatDate(end) }));
   }
 
   private detectActiveDuration(): void {
@@ -131,7 +146,7 @@ export class InterestCalculatorComponent {
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
     const approxMonths = diffDays / 30.44;
     if (approxMonths >= 12 && Math.abs(approxMonths % 12) < 0.5) {
-      this.durationValue.set(Math.round(approxMonths / 12 * 10) / 10);
+      this.durationValue.set(Math.round((approxMonths / 12) * 10) / 10);
       this.durationUnit.set('years');
     } else {
       this.durationValue.set(Math.round(approxMonths * 10) / 10);

@@ -26,10 +26,16 @@
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
   min-height: auto;
 
-  &:hover { background: var(--g100); border-color: var(--g400); }
+  &:hover {
+    background: var(--g100);
+    border-color: var(--g400);
+  }
   &.active {
     background: var(--blue);
     color: #fff;
@@ -103,8 +109,12 @@ canvas {
   height: 8px;
   border-radius: 2px;
 
-  &.principal { background: var(--blue); }
-  &.interest { background: var(--red); }
+  &.principal {
+    background: var(--blue);
+  }
+  &.interest {
+    background: var(--red);
+  }
 }
 
 :host-context(html.dark) {
@@ -113,8 +123,14 @@ canvas {
     color: var(--g500);
     border-color: var(--g300);
 
-    &:hover { background: var(--g200); }
-    &.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+    &:hover {
+      background: var(--g200);
+    }
+    &.active {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
   }
 
   .chart-tooltip {

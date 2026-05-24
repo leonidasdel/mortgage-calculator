@@ -1,6 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
-import { CRYPTO_GAINS_TAX_RATE, CRYPTO_LOSS_CARRY_YEARS } from '../../constants/crypto-tax.constants';
+import {
+  CRYPTO_GAINS_TAX_RATE,
+  CRYPTO_LOSS_CARRY_YEARS,
+} from '../../constants/crypto-tax.constants';
 import {
   CryptoTaxCalculatorService,
   CryptoTaxParams,
@@ -25,7 +35,14 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-crypto-tax-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [
+    DecimalPipe,
+    FormField,
+    EuroPipe,
+    CalcExplanationComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+  ],
   templateUrl: './crypto-tax-calculator.component.html',
   styleUrl: './crypto-tax-calculator.component.scss',
 })
@@ -67,7 +84,7 @@ export class CryptoTaxCalculatorComponent {
   });
 
   setMode(mode: string): void {
-    this.formModel.update(m => ({ ...m, mode }));
+    this.formModel.update((m) => ({ ...m, mode }));
   }
 
   private buildParams(): CryptoTaxParams {

@@ -43,7 +43,7 @@
   cursor: pointer;
   font-size: 13px;
 }
-.hb-check-row input[type="checkbox"] {
+.hb-check-row input[type='checkbox'] {
   accent-color: var(--blue);
   width: 16px;
   height: 16px;
@@ -51,9 +51,15 @@
 }
 
 /* ── CARD HEADER ACCENTS ── */
-.card-header.hb-christmas { border-left: 3px solid #ef4444; }
-.card-header.hb-easter    { border-left: 3px solid #f59e0b; }
-.card-header.hb-leave     { border-left: 3px solid #10b981; }
+.card-header.hb-christmas {
+  border-left: 3px solid #ef4444;
+}
+.card-header.hb-easter {
+  border-left: 3px solid #f59e0b;
+}
+.card-header.hb-leave {
+  border-left: 3px solid #10b981;
+}
 
 /* ── FACTOR BADGE ── */
 .hb-factor-badge {
@@ -68,5 +74,11 @@
   color: #92400e;
 }
 
-.lv-law-title { margin-bottom: 2px; }
-.lv-law-desc  { font-size: 12px; color: var(--g500); line-height: 1.5; }
+.lv-law-title {
+  margin-bottom: 2px;
+}
+.lv-law-desc {
+  font-size: 12px;
+  color: var(--g500);
+  line-height: 1.5;
+}

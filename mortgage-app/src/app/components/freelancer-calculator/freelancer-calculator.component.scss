@@ -63,8 +63,12 @@
   font-weight: 600;
   white-space: nowrap;
 }
-.fl-wf-val.red { color: var(--red); }
-.fl-wf-val.blue { color: var(--blue); }
+.fl-wf-val.red {
+  color: var(--red);
+}
+.fl-wf-val.blue {
+  color: var(--blue);
+}
 
 /* ── TABLES ── */
 .fl-table-wrap {

@@ -72,7 +72,6 @@ export interface HolidayBonusResult {
 
 @Injectable({ providedIn: 'root' })
 export class SalaryCalculatorService {
-
   calculate(params: SalaryParams): SalaryResult {
     const fte = Math.min(100, Math.max(1, params.ftePercent ?? 100)) / 100;
     const gross = Math.max(0, params.grossMonthly * fte);
@@ -99,8 +98,22 @@ export class SalaryCalculatorService {
       const cumDays = this.getCumulativeDays(params.year);
 
       // Pro-rata weighted salary for each bonus period
-      const easterWeighted = this.getProRataGross(1, 4, sc.effectiveMonth, oldGross, gross, cumDays);
-      const christmasWeighted = this.getProRataGross(5, 12, sc.effectiveMonth, oldGross, gross, cumDays);
+      const easterWeighted = this.getProRataGross(
+        1,
+        4,
+        sc.effectiveMonth,
+        oldGross,
+        gross,
+        cumDays,
+      );
+      const christmasWeighted = this.getProRataGross(
+        5,
+        12,
+        sc.effectiveMonth,
+        oldGross,
+        gross,
+        cumDays,
+      );
 
       christmasGrossBase = +christmasWeighted.toFixed(2);
       easterGrossBase = +(easterWeighted / 2).toFixed(2);
@@ -112,19 +125,39 @@ export class SalaryCalculatorService {
       regularMonthlySum = +(monthsOld * oldGross + monthsNew * gross).toFixed(2);
 
       // Monthly EFKA sums
-      const oldEfkaEmployee = +(Math.min(oldGross, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE).toFixed(2);
-      const oldEfkaEmployer = +(Math.min(oldGross, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYER_RATE).toFixed(2);
+      const oldEfkaEmployee = +(
+        Math.min(oldGross, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE
+      ).toFixed(2);
+      const oldEfkaEmployer = +(
+        Math.min(oldGross, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYER_RATE
+      ).toFixed(2);
       monthlyEfkaEmployeeSum = +(monthsOld * oldEfkaEmployee + monthsNew * efkaEmployee).toFixed(2);
       monthlyEfkaEmployerSum = +(monthsOld * oldEfkaEmployer + monthsNew * efkaEmployer).toFixed(2);
 
       // 14-month annual for tax: regular months + bonus bases (without surcharges)
-      annualGross14 = +(regularMonthlySum + christmasGrossBase + easterGrossBase + leaveGrossBase).toFixed(2);
+      annualGross14 = +(
+        regularMonthlySum +
+        christmasGrossBase +
+        easterGrossBase +
+        leaveGrossBase
+      ).toFixed(2);
 
       // EFKA for 14-month: sum of monthly EFKAs + EFKA on bonus base amounts
-      const christmasEfka14 = +(Math.min(christmasGrossBase, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE).toFixed(2);
-      const easterEfka14 = +(Math.min(easterGrossBase, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE).toFixed(2);
-      const leaveEfka14 = +(Math.min(leaveGrossBase, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE).toFixed(2);
-      annualEfka14 = +(monthlyEfkaEmployeeSum + christmasEfka14 + easterEfka14 + leaveEfka14).toFixed(2);
+      const christmasEfka14 = +(
+        Math.min(christmasGrossBase, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE
+      ).toFixed(2);
+      const easterEfka14 = +(
+        Math.min(easterGrossBase, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE
+      ).toFixed(2);
+      const leaveEfka14 = +(
+        Math.min(leaveGrossBase, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE
+      ).toFixed(2);
+      annualEfka14 = +(
+        monthlyEfkaEmployeeSum +
+        christmasEfka14 +
+        easterEfka14 +
+        leaveEfka14
+      ).toFixed(2);
     } else {
       christmasGrossBase = gross;
       easterGrossBase = +(gross / 2).toFixed(2);
@@ -144,18 +177,22 @@ export class SalaryCalculatorService {
     const easterGrossTotal = +(easterGrossBase + easterSurcharge).toFixed(2);
 
     // EFKA on actual bonus amounts (with surcharges)
-    const christmasEfka = +(Math.min(christmasGrossTotal, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE).toFixed(2);
-    const easterEfka = +(Math.min(easterGrossTotal, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE).toFixed(2);
-    const leaveEfka = +(Math.min(leaveGrossBase, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE).toFixed(2);
+    const christmasEfka = +(
+      Math.min(christmasGrossTotal, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE
+    ).toFixed(2);
+    const easterEfka = +(
+      Math.min(easterGrossTotal, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE
+    ).toFixed(2);
+    const leaveEfka = +(
+      Math.min(leaveGrossBase, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE
+    ).toFixed(2);
 
     // Tax calculation on 14-month base
     const taxableIncome = +(annualGross14 - annualEfka14).toFixed(2);
     const childrenIdx = Math.min(params.children, 6);
     const taxTable = getTaxTable(params.year);
     const brackets = taxTable[params.ageGroup];
-    const { totalTax, breakdown } = this.calculateTax(
-      taxableIncome, brackets, childrenIdx
-    );
+    const { totalTax, breakdown } = this.calculateTax(taxableIncome, brackets, childrenIdx);
     const taxDiscount = this.getTaxDiscount(params.children, taxableIncome);
     const annualTax = Math.max(0, +(totalTax - taxDiscount).toFixed(2));
 
@@ -170,14 +207,26 @@ export class SalaryCalculatorService {
     if (params.salaryChange) {
       const oldGross = Math.max(0, params.salaryChange.previousGross);
       const oldEfka = +(Math.min(oldGross, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYEE_RATE).toFixed(2);
-      const oldMonthlyTax = this.calculateMonthlyTax(oldGross, oldEfka, childrenIdx, brackets, params.children);
+      const oldMonthlyTax = this.calculateMonthlyTax(
+        oldGross,
+        oldEfka,
+        childrenIdx,
+        brackets,
+        params.children,
+      );
       previousMonthly = {
         grossMonthly: oldGross,
         efkaEmployee: oldEfka,
         incomeTax: oldMonthlyTax,
         netMonthly: +(oldGross - oldEfka - oldMonthlyTax).toFixed(2),
       };
-      const newMonthlyTax = this.calculateMonthlyTax(gross, efkaEmployee, childrenIdx, brackets, params.children);
+      const newMonthlyTax = this.calculateMonthlyTax(
+        gross,
+        efkaEmployee,
+        childrenIdx,
+        brackets,
+        params.children,
+      );
       currentMonthly = {
         grossMonthly: gross,
         efkaEmployee: efkaEmployee,
@@ -198,16 +247,38 @@ export class SalaryCalculatorService {
     const leaveNet = +(leaveGrossBase - leaveEfka - leaveTax).toFixed(2);
 
     // Actual annual totals (with surcharges), without bonus
-    const annualGrossBase = +(regularMonthlySum + christmasGrossTotal + easterGrossTotal + leaveGrossBase).toFixed(2);
-    const annualEfka = +(monthlyEfkaEmployeeSum + christmasEfka + easterEfka + leaveEfka).toFixed(2);
+    const annualGrossBase = +(
+      regularMonthlySum +
+      christmasGrossTotal +
+      easterGrossTotal +
+      leaveGrossBase
+    ).toFixed(2);
+    const annualEfka = +(monthlyEfkaEmployeeSum + christmasEfka + easterEfka + leaveEfka).toFixed(
+      2,
+    );
     const annualNetBase = +(annualGrossBase - annualEfka - annualTax).toFixed(2);
 
     // Employer cost
-    const christmasEmployerEfka = +(Math.min(christmasGrossTotal, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYER_RATE).toFixed(2);
-    const easterEmployerEfka = +(Math.min(easterGrossTotal, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYER_RATE).toFixed(2);
-    const leaveEmployerEfka = +(Math.min(leaveGrossBase, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYER_RATE).toFixed(2);
+    const christmasEmployerEfka = +(
+      Math.min(christmasGrossTotal, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYER_RATE
+    ).toFixed(2);
+    const easterEmployerEfka = +(
+      Math.min(easterGrossTotal, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYER_RATE
+    ).toFixed(2);
+    const leaveEmployerEfka = +(
+      Math.min(leaveGrossBase, MAX_INSURABLE_EARNINGS) * EFKA_EMPLOYER_RATE
+    ).toFixed(2);
     const employerMonthly = +(gross + efkaEmployer).toFixed(2);
-    const employerAnnual = +(regularMonthlySum + monthlyEfkaEmployerSum + christmasGrossTotal + christmasEmployerEfka + easterGrossTotal + easterEmployerEfka + leaveGrossBase + leaveEmployerEfka).toFixed(2);
+    const employerAnnual = +(
+      regularMonthlySum +
+      monthlyEfkaEmployerSum +
+      christmasGrossTotal +
+      christmasEmployerEfka +
+      easterGrossTotal +
+      easterEmployerEfka +
+      leaveGrossBase +
+      leaveEmployerEfka
+    ).toFixed(2);
 
     // Annual bonus (μπόνους): subject to EFKA + marginal income tax.
     // Treat the bonus as a separate insured payment, then calculate marginal tax
@@ -218,17 +289,31 @@ export class SalaryCalculatorService {
 
       const bonusInsurable = Math.min(bonus, MAX_INSURABLE_EARNINGS);
       const bonusEfkaEmp = +(bonusInsurable * EFKA_EMPLOYEE_RATE).toFixed(2);
-      const bonusEfkaEr  = +(bonusInsurable * EFKA_EMPLOYER_RATE).toFixed(2);
+      const bonusEfkaEr = +(bonusInsurable * EFKA_EMPLOYER_RATE).toFixed(2);
 
       const taxableBaseForBonus = +(annualGrossBase - annualEfka).toFixed(2);
-      const { totalTax: totalTaxBaseForBonus } = this.calculateTax(taxableBaseForBonus, brackets, childrenIdx);
+      const { totalTax: totalTaxBaseForBonus } = this.calculateTax(
+        taxableBaseForBonus,
+        brackets,
+        childrenIdx,
+      );
       const taxDiscountBaseForBonus = this.getTaxDiscount(params.children, taxableBaseForBonus);
-      const annualTaxBaseForBonus = Math.max(0, +(totalTaxBaseForBonus - taxDiscountBaseForBonus).toFixed(2));
+      const annualTaxBaseForBonus = Math.max(
+        0,
+        +(totalTaxBaseForBonus - taxDiscountBaseForBonus).toFixed(2),
+      );
 
       const taxableWithBonus = +(taxableBaseForBonus + bonus - bonusEfkaEmp).toFixed(2);
-      const { totalTax: totalTaxWithBonus } = this.calculateTax(taxableWithBonus, brackets, childrenIdx);
+      const { totalTax: totalTaxWithBonus } = this.calculateTax(
+        taxableWithBonus,
+        brackets,
+        childrenIdx,
+      );
       const taxDiscountWithBonus = this.getTaxDiscount(params.children, taxableWithBonus);
-      const annualTaxWithBonus = Math.max(0, +(totalTaxWithBonus - taxDiscountWithBonus).toFixed(2));
+      const annualTaxWithBonus = Math.max(
+        0,
+        +(totalTaxWithBonus - taxDiscountWithBonus).toFixed(2),
+      );
 
       const bonusTax = Math.max(0, +(annualTaxWithBonus - annualTaxBaseForBonus).toFixed(2));
       const bonusNet = +(bonus - bonusEfkaEmp - bonusTax).toFixed(2);
@@ -243,10 +328,16 @@ export class SalaryCalculatorService {
     }
 
     // Final annual totals including bonus
-    const finalAnnualGross    = bonusResult ? +(annualGrossBase + bonusResult.grossBonus).toFixed(2)  : annualGrossBase;
-    const finalAnnualEfka     = bonusResult ? +(annualEfka      + bonusResult.efkaEmployee).toFixed(2) : annualEfka;
-    const finalAnnualTax      = bonusResult ? +(annualTax       + bonusResult.tax).toFixed(2)          : annualTax;
-    const finalAnnualNet      = bonusResult ? +(annualNetBase   + bonusResult.net).toFixed(2)           : annualNetBase;
+    const finalAnnualGross = bonusResult
+      ? +(annualGrossBase + bonusResult.grossBonus).toFixed(2)
+      : annualGrossBase;
+    const finalAnnualEfka = bonusResult
+      ? +(annualEfka + bonusResult.efkaEmployee).toFixed(2)
+      : annualEfka;
+    const finalAnnualTax = bonusResult ? +(annualTax + bonusResult.tax).toFixed(2) : annualTax;
+    const finalAnnualNet = bonusResult
+      ? +(annualNetBase + bonusResult.net).toFixed(2)
+      : annualNetBase;
     const finalEmployerAnnual = bonusResult
       ? +(employerAnnual + bonusResult.grossBonus + bonusResult.efkaEmployer).toFixed(2)
       : employerAnnual;
@@ -472,17 +563,24 @@ export class SalaryCalculatorService {
 
   calculateMultiEmployer(params: MultiEmployerParams): MultiEmployerResult {
     const warnings: string[] = [];
-    const employers = params.grossEmployers.filter(g => g > 0).map(gross => {
-      const insurable = Math.min(gross, MAX_INSURABLE_EARNINGS);
-      const efkaEmployee = +(insurable * EFKA_EMPLOYEE_RATE).toFixed(2);
-      const efkaEmployer = +(insurable * EFKA_EMPLOYER_RATE).toFixed(2);
-      return { gross, efkaEmployee, efkaEmployer, netEstimate: 0 };
-    });
+    const employers = params.grossEmployers
+      .filter((g) => g > 0)
+      .map((gross) => {
+        const insurable = Math.min(gross, MAX_INSURABLE_EARNINGS);
+        const efkaEmployee = +(insurable * EFKA_EMPLOYEE_RATE).toFixed(2);
+        const efkaEmployer = +(insurable * EFKA_EMPLOYER_RATE).toFixed(2);
+        return { gross, efkaEmployee, efkaEmployer, netEstimate: 0 };
+      });
 
     const combinedGross = +employers.reduce((s, e) => s + e.gross, 0).toFixed(2);
-    const totalInsurable = employers.reduce((s, e) => s + Math.min(e.gross, MAX_INSURABLE_EARNINGS), 0);
+    const totalInsurable = employers.reduce(
+      (s, e) => s + Math.min(e.gross, MAX_INSURABLE_EARNINGS),
+      0,
+    );
     if (totalInsurable > MAX_INSURABLE_EARNINGS * employers.length) {
-      warnings.push('Το άθροισμα ασφαλιστέων αποδοχών μπορεί να επηρεάζει την ακρίβεια — επαλήθευση με ΕΦΚΑ.');
+      warnings.push(
+        'Το άθροισμα ασφαλιστέων αποδοχών μπορεί να επηρεάζει την ακρίβεια — επαλήθευση με ΕΦΚΑ.',
+      );
     }
 
     const combinedEfkaEmployee = +employers.reduce((s, e) => s + e.efkaEmployee, 0).toFixed(2);
@@ -550,12 +648,12 @@ export class SalaryCalculatorService {
       : 1;
 
     const applyFactor = (b: BonusBreakdown, f: number): AdjustedBonus => ({
-      grossBase: +((b.grossBase * f).toFixed(2)),
-      leaveSurcharge: +((b.leaveSurcharge * f).toFixed(2)),
-      grossTotal: +((b.grossTotal * f).toFixed(2)),
-      efka: +((b.efka * f).toFixed(2)),
-      tax: +((b.tax * f).toFixed(2)),
-      net: +((b.net * f).toFixed(2)),
+      grossBase: +(b.grossBase * f).toFixed(2),
+      leaveSurcharge: +(b.leaveSurcharge * f).toFixed(2),
+      grossTotal: +(b.grossTotal * f).toFixed(2),
+      efka: +(b.efka * f).toFixed(2),
+      tax: +(b.tax * f).toFixed(2),
+      net: +(b.net * f).toFixed(2),
     });
 
     const christmas = applyFactor(base.christmasBonus, cFactor);

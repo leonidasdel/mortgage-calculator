@@ -13,20 +13,24 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Στοιχεία Οχήματος</h2>
       </div>
-      <div class="card-body" >
-
+      <div class="card-body">
         <div class="form-group">
           <label>Ημερομηνία 1ης κυκλοφορίας</label>
           <app-date-select
             [value]="formModel().firstRegistration"
             (valueChange)="onFirstRegistrationChange($event)"
-            [minYear]="1980"></app-date-select>
+            [minYear]="1980"
+          ></app-date-select>
           <div class="cc-hint">{{ eraHint() }}</div>
         </div>
 
         <div class="form-group">
           <label class="cc-check-row">
-            <input type="checkbox" data-testid="car-cost-input-isEv" [formField]="formFields.isEv">
+            <input
+              type="checkbox"
+              data-testid="car-cost-input-isEv"
+              [formField]="formFields.isEv"
+            />
             <span>Ηλεκτρικό / plug-in υβριδικό (μηδενικά τέλη)</span>
           </label>
         </div>
@@ -35,17 +39,24 @@
           <div class="form-group">
             <label for="engineCc">Κυβισμός κινητήρα</label>
             <div class="input-wrap has-sfx">
-              <input type="number" id="engineCc" data-testid="car-cost-input-engineCc" [formField]="formFields.engineCc">
+              <input
+                type="number"
+                id="engineCc"
+                data-testid="car-cost-input-engineCc"
+                [formField]="formFields.engineCc"
+              />
               <span class="sfx">cc</span>
             </div>
           </div>
         }
 
-        @if (!formModel().isEv && (registrationEra() === 'co2_a' || registrationEra() === 'co2_b')) {
+        @if (
+          !formModel().isEv && (registrationEra() === 'co2_a' || registrationEra() === 'co2_b')
+        ) {
           <div class="form-group">
             <label for="co2Grams">Εκπομπές CO₂</label>
             <div class="input-wrap has-sfx">
-              <input type="number" id="co2Grams" [formField]="formFields.co2Grams">
+              <input type="number" id="co2Grams" [formField]="formFields.co2Grams" />
               <span class="sfx">g/km</span>
             </div>
           </div>
@@ -58,7 +69,12 @@
             <label for="insuranceYear">Ασφάλεια / Έτος (€)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="insuranceYear" data-testid="car-cost-input-insuranceYear" [formField]="formFields.insuranceYear">
+              <input
+                type="number"
+                id="insuranceYear"
+                data-testid="car-cost-input-insuranceYear"
+                [formField]="formFields.insuranceYear"
+              />
             </div>
           </div>
 
@@ -66,14 +82,20 @@
             <div class="form-group">
               <label>Καύσιμα</label>
               <div class="cc-fuel-toggle">
-                <button type="button" class="cc-fuel-btn"
-                        [class.active]="formModel().fuelMode === 'calc'"
-                        (click)="setFuelMode('calc')">
+                <button
+                  type="button"
+                  class="cc-fuel-btn"
+                  [class.active]="formModel().fuelMode === 'calc'"
+                  (click)="setFuelMode('calc')"
+                >
                   Υπολογισμός
                 </button>
-                <button type="button" class="cc-fuel-btn"
-                        [class.active]="formModel().fuelMode === 'manual'"
-                        (click)="setFuelMode('manual')">
+                <button
+                  type="button"
+                  class="cc-fuel-btn"
+                  [class.active]="formModel().fuelMode === 'manual'"
+                  (click)="setFuelMode('manual')"
+                >
                   Χειροκίνητα
                 </button>
               </div>
@@ -82,14 +104,18 @@
                 <div class="form-group mt-8">
                   <label for="kmPerYear">Χιλιόμετρα / έτος</label>
                   <div class="input-wrap has-sfx">
-                    <input type="number" id="kmPerYear" [formField]="formFields.kmPerYear">
+                    <input type="number" id="kmPerYear" [formField]="formFields.kmPerYear" />
                     <span class="sfx">χλμ</span>
                   </div>
                 </div>
                 <div class="form-group">
                   <label for="litersPer100km">Κατανάλωση</label>
                   <div class="input-wrap has-sfx">
-                    <input type="number" id="litersPer100km" [formField]="formFields.litersPer100km">
+                    <input
+                      type="number"
+                      id="litersPer100km"
+                      [formField]="formFields.litersPer100km"
+                    />
                     <span class="sfx">λ/100χλμ</span>
                   </div>
                 </div>
@@ -97,14 +123,18 @@
                   <label for="pricePerLiter">Τιμή καυσίμου</label>
                   <div class="input-wrap has-pfx">
                     <span class="pfx">€</span>
-                    <input type="number" id="pricePerLiter" [formField]="formFields.pricePerLiter">
+                    <input
+                      type="number"
+                      id="pricePerLiter"
+                      [formField]="formFields.pricePerLiter"
+                    />
                   </div>
                   <div class="cc-hint">/ λίτρο</div>
                 </div>
                 <div class="info-box green">
                   Ετήσιο κόστος καυσίμων: <strong>{{ result().fuelCostYear | euro }}</strong>
                   @if (result().fuelLitersYear != null) {
-                    · {{ result().fuelLitersYear | number:'1.0-1' }} λίτρα/έτος
+                    · {{ result().fuelLitersYear | number: '1.0-1' }} λίτρα/έτος
                   }
                 </div>
               } @else {
@@ -112,7 +142,7 @@
                   <label for="fuelCostYear">Καύσιμα / έτος</label>
                   <div class="input-wrap has-pfx">
                     <span class="pfx">€</span>
-                    <input type="number" id="fuelCostYear" [formField]="formFields.fuelCostYear">
+                    <input type="number" id="fuelCostYear" [formField]="formFields.fuelCostYear" />
                   </div>
                 </div>
               }
@@ -123,7 +153,12 @@
             <label for="maintenanceYear">Συντήρηση &amp; ΚΤΕΟ / Έτος (€)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="maintenanceYear" data-testid="car-cost-input-maintenanceYear" [formField]="formFields.maintenanceYear">
+              <input
+                type="number"
+                id="maintenanceYear"
+                data-testid="car-cost-input-maintenanceYear"
+                [formField]="formFields.maintenanceYear"
+              />
             </div>
           </div>
         </div>
@@ -145,7 +180,9 @@
         <div class="hero-row">
           <div class="hero-card dark">
             <div class="hero-lbl">Συνολικό Ετήσιο</div>
-            <div class="hero-val" data-testid="car-cost-hero-totalAnnual">{{ result().totalAnnual | euro }}</div>
+            <div class="hero-val" data-testid="car-cost-hero-totalAnnual">
+              {{ result().totalAnnual | euro }}
+            </div>
             <div class="hero-sub">{{ result().monthlyCost | euro }}/μήνα</div>
           </div>
           <div class="hero-card">
@@ -172,7 +209,9 @@
             <div class="sum-lbl">Καύσιμα</div>
             <div class="sum-val">{{ result().fuelCostYear | euro }}</div>
             @if (result().fuelLitersYear != null) {
-              <div class="sum-val-hint">{{ result().fuelLitersYear | number:'1.0-1' }} λίτρα/έτος</div>
+              <div class="sum-val-hint">
+                {{ result().fuelLitersYear | number: '1.0-1' }} λίτρα/έτος
+              </div>
             }
           </div>
           <div class="sum-item">
@@ -181,11 +220,15 @@
           </div>
           <div class="sum-item cc-total">
             <div class="sum-lbl"><strong>Σύνολο ετήσιο κόστους</strong></div>
-            <div class="sum-val green"><strong>{{ result().totalAnnual | euro }}</strong></div>
+            <div class="sum-val green">
+              <strong>{{ result().totalAnnual | euro }}</strong>
+            </div>
           </div>
           <div class="sum-item cc-total">
             <div class="sum-lbl"><strong>Μηνιαίο κόστος (ισομερώς)</strong></div>
-            <div class="sum-val blue"><strong>{{ result().monthlyCost | euro }}</strong></div>
+            <div class="sum-val blue">
+              <strong>{{ result().monthlyCost | euro }}</strong>
+            </div>
           </div>
         </div>
 
@@ -193,7 +236,8 @@
           sharePath="/car-cost"
           [shareState]="formModel()"
           [shareSummary]="shareSummary()"
-          printTargetId="car-cost-results">
+          printTargetId="car-cost-results"
+        >
         </app-export-row>
       </div>
     </div>
@@ -203,7 +247,8 @@
 <app-calc-explanation
   title="Πώς υπολογίζεται το κόστος ιδιοκτησίας;"
   [steps]="explanationSteps"
-  [formula]="explanationFormula">
+  [formula]="explanationFormula"
+>
 </app-calc-explanation>
 
 <app-law-footer route="/car-cost"></app-law-footer>

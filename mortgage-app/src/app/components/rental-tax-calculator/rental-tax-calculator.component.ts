@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { form, FormField } from '@angular/forms/signals';
 import { EuroPipe } from '../../pipes/euro.pipe';
@@ -22,7 +29,14 @@ interface RentalTaxModel {
 @Component({
   selector: 'app-rental-tax-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [
+    CommonModule,
+    FormField,
+    EuroPipe,
+    CalcExplanationComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+  ],
   templateUrl: './rental-tax-calculator.component.html',
   styleUrl: './rental-tax-calculator.component.scss',
 })
@@ -79,12 +93,12 @@ export class RentalTaxCalculatorComponent {
   }
 
   onIncomeModeChange(mode: 'annual' | 'monthly'): void {
-    this.formModel.update(m => ({ ...m, incomeMode: mode }));
+    this.formModel.update((m) => ({ ...m, incomeMode: mode }));
   }
 
   onAnnualIncomeInput(): void {
     const annualIncome = Math.max(0, Number(this.formModel().annualIncome) || 0);
-    this.formModel.update(m => ({
+    this.formModel.update((m) => ({
       ...m,
       annualIncome,
       monthlyIncome: +(annualIncome / 12).toFixed(2),
@@ -93,7 +107,7 @@ export class RentalTaxCalculatorComponent {
 
   onMonthlyIncomeInput(): void {
     const monthlyIncome = Math.max(0, Number(this.formModel().monthlyIncome) || 0);
-    this.formModel.update(m => ({
+    this.formModel.update((m) => ({
       ...m,
       monthlyIncome,
       annualIncome: +(monthlyIncome * 12).toFixed(2),

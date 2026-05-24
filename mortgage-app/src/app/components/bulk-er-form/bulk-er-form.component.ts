@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+  linkedSignal,
+  output,
+} from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { BulkErParams } from '../../models/mortgage.models';
 import { CommonModule } from '@angular/common';

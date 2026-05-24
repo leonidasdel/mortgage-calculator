@@ -33,7 +33,7 @@ describe('RateFeedService', () => {
   async function waitForEuriborValue(): Promise<void> {
     service.euriborResource.reload();
     for (let i = 0; i < 30 && service.euriborResource.value() == null; i++) {
-      await new Promise(r => setTimeout(r, 10));
+      await new Promise((r) => setTimeout(r, 10));
       await TestBed.tick();
     }
   }

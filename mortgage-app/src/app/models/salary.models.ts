@@ -1,12 +1,12 @@
 export type AgeGroup = 'under25' | '26to30' | 'over30';
 
 export interface SalaryChange {
-  effectiveMonth: number;  // 1-12, change happens on the 1st of this month
-  previousGross: number;   // Gross salary before the change
+  effectiveMonth: number; // 1-12, change happens on the 1st of this month
+  previousGross: number; // Gross salary before the change
 }
 
 export interface SalaryParams {
-  grossMonthly: number;    // Current (new) gross salary
+  grossMonthly: number; // Current (new) gross salary
   year: number;
   ageGroup: AgeGroup;
   children: number;
@@ -17,7 +17,7 @@ export interface SalaryParams {
 }
 
 export interface MultiEmployerParams {
-  grossEmployers: number[];  // gross per employer (monthly)
+  grossEmployers: number[]; // gross per employer (monthly)
   year: number;
   ageGroup: AgeGroup;
   children: number;
@@ -72,12 +72,12 @@ export interface SalaryResult {
   previousMonthly?: MonthlyBreakdown;
   currentMonthly?: MonthlyBreakdown;
 
-  annualGross: number;       // includes bonus if present
+  annualGross: number; // includes bonus if present
   annualEfka: number;
   annualTax: number;
-  annualNet: number;         // includes bonus if present
-  annualGrossBase: number;   // without bonus
-  annualNetBase: number;     // without bonus
+  annualNet: number; // includes bonus if present
+  annualGrossBase: number; // without bonus
+  annualNetBase: number; // without bonus
 
   christmasBonus: BonusBreakdown;
   easterBonus: BonusBreakdown;

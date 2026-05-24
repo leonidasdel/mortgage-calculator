@@ -58,15 +58,15 @@ export class UnusedLeaveCalculatorService {
   private readonly salaryService = inject(SalaryCalculatorService);
 
   calculate(params: UnusedLeaveParams): LeaveResult {
-    const salaryType       = params.salaryType as 'monthly' | 'daily';
-    const workWeek         = params.workWeek as '5day' | '6day';
-    const unusedDays       = Math.max(0, +(params.unusedDays || 0));
-    const includeBonus     = !!params.includeHolidayBonus;
-    const situation        = params.situation as 'termination' | 'during_employment';
-    const taxYear          = params.taxYear as '2025' | '2026';
-    const ageGroup         = (params.ageGroup || 'over30') as AgeGroup;
-    const children         = Math.min(Math.max(0, +(params.children || 0)), 10);
-    const useCustom        = !!params.useCustomAnnualIncome;
+    const salaryType = params.salaryType as 'monthly' | 'daily';
+    const workWeek = params.workWeek as '5day' | '6day';
+    const unusedDays = Math.max(0, +(params.unusedDays || 0));
+    const includeBonus = !!params.includeHolidayBonus;
+    const situation = params.situation as 'termination' | 'during_employment';
+    const taxYear = params.taxYear as '2025' | '2026';
+    const ageGroup = (params.ageGroup || 'over30') as AgeGroup;
+    const children = Math.min(Math.max(0, +(params.children || 0)), 10);
+    const useCustom = !!params.useCustomAnnualIncome;
 
     const divisor = workWeek === '5day' ? 25 : 26;
 
@@ -75,9 +75,9 @@ export class UnusedLeaveCalculatorService {
 
     if (salaryType === 'monthly') {
       monthlyEquiv = Math.max(0, +(params.grossMonthly || 0));
-      dailyWage    = +(monthlyEquiv / divisor).toFixed(4);
+      dailyWage = +(monthlyEquiv / divisor).toFixed(4);
     } else {
-      dailyWage    = Math.max(0, +(params.dailyWage || 0));
+      dailyWage = Math.max(0, +(params.dailyWage || 0));
       monthlyEquiv = +(dailyWage * divisor).toFixed(2);
     }
 
@@ -87,11 +87,10 @@ export class UnusedLeaveCalculatorService {
     let holidayBonusCapped = false;
     if (includeBonus) {
       const rawBonus = leaveCompensation;
-      const cap = salaryType === 'monthly'
-        ? +(monthlyEquiv / 2).toFixed(2)
-        : +(13 * dailyWage).toFixed(2);
+      const cap =
+        salaryType === 'monthly' ? +(monthlyEquiv / 2).toFixed(2) : +(13 * dailyWage).toFixed(2);
       if (rawBonus > cap) {
-        holidayBonus      = cap;
+        holidayBonus = cap;
         holidayBonusCapped = true;
       } else {
         holidayBonus = rawBonus;
@@ -100,16 +99,16 @@ export class UnusedLeaveCalculatorService {
 
     const totalGross = +(leaveCompensation + holidayBonus).toFixed(2);
 
-    let efkaOnLeaveComp   = 0;
+    let efkaOnLeaveComp = 0;
     let efkaOnHolidayBonus = 0;
 
     if (situation === 'termination') {
-      efkaOnLeaveComp    = 0;
+      efkaOnLeaveComp = 0;
       efkaOnHolidayBonus = +(Math.min(holidayBonus, MAX_INSURABLE) * EFKA_RATE).toFixed(2);
     } else {
-      const insLeave    = Math.min(leaveCompensation, MAX_INSURABLE);
-      const insBonus    = Math.min(holidayBonus, Math.max(0, MAX_INSURABLE - leaveCompensation));
-      efkaOnLeaveComp    = +(insLeave * EFKA_RATE).toFixed(2);
+      const insLeave = Math.min(leaveCompensation, MAX_INSURABLE);
+      const insBonus = Math.min(holidayBonus, Math.max(0, MAX_INSURABLE - leaveCompensation));
+      efkaOnLeaveComp = +(insLeave * EFKA_RATE).toFixed(2);
       efkaOnHolidayBonus = +(insBonus * EFKA_RATE).toFixed(2);
     }
 
@@ -124,35 +123,34 @@ export class UnusedLeaveCalculatorService {
       annualBaseGross = +(monthlyEquiv * 14).toFixed(2);
     }
 
-    const monthlyForBase      = +(annualBaseGross / 14).toFixed(2);
-    const insMonthlyBase      = Math.min(monthlyForBase, MAX_INSURABLE);
-    const annualEfkaBase      = +(insMonthlyBase * EFKA_RATE * 14).toFixed(2);
-    const annualBaseTaxable   = Math.max(0, +(annualBaseGross - annualEfkaBase).toFixed(2));
+    const monthlyForBase = +(annualBaseGross / 14).toFixed(2);
+    const insMonthlyBase = Math.min(monthlyForBase, MAX_INSURABLE);
+    const annualEfkaBase = +(insMonthlyBase * EFKA_RATE * 14).toFixed(2);
+    const annualBaseTaxable = Math.max(0, +(annualBaseGross - annualEfkaBase).toFixed(2));
 
     const year = taxYear === '2026' ? 2026 : 2025;
 
-    const taxOnBase  = this.calcTax(annualBaseTaxable, year, ageGroup, children);
+    const taxOnBase = this.calcTax(annualBaseTaxable, year, ageGroup, children);
 
     const totalAnnualTaxable = +(annualBaseTaxable + taxableLeaveComp).toFixed(2);
     const taxOnTotal = this.calcTax(totalAnnualTaxable, year, ageGroup, children);
 
     const marginalTax = Math.max(0, +(taxOnTotal.tax - taxOnBase.tax).toFixed(2));
 
-    const taxOnTotalGross   = taxOnTotal.taxGross;
+    const taxOnTotalGross = taxOnTotal.taxGross;
     const taxDiscountAmount = +(taxOnTotalGross - taxOnTotal.tax).toFixed(2);
 
-    const effectiveTaxRate = taxableLeaveComp > 0
-      ? +((marginalTax / taxableLeaveComp) * 100).toFixed(1)
-      : 0;
+    const effectiveTaxRate =
+      taxableLeaveComp > 0 ? +((marginalTax / taxableLeaveComp) * 100).toFixed(1) : 0;
 
     const totalDeductions = +(totalEfka + marginalTax).toFixed(2);
-    const totalNet        = Math.max(0, +(totalGross - totalDeductions).toFixed(2));
+    const totalNet = Math.max(0, +(totalGross - totalDeductions).toFixed(2));
 
     return {
-      dailyWage:          +dailyWage.toFixed(2),
+      dailyWage: +dailyWage.toFixed(2),
       monthlyEquiv,
       leaveCompensation,
-      holidayBonus:       +holidayBonus.toFixed(2),
+      holidayBonus: +holidayBonus.toFixed(2),
       holidayBonusCapped,
       totalGross,
       efkaOnLeaveComp,
@@ -161,15 +159,15 @@ export class UnusedLeaveCalculatorService {
       annualBaseGross,
       annualBaseTaxable,
       taxableLeaveComp,
-      taxOnBase:          taxOnBase.tax,
+      taxOnBase: taxOnBase.tax,
       taxOnTotalGross,
       taxDiscountAmount,
-      taxOnTotal:         taxOnTotal.tax,
+      taxOnTotal: taxOnTotal.tax,
       marginalTax,
       effectiveTaxRate,
       totalNet,
       totalDeductions,
-      taxBreakdown:       taxOnTotal.breakdown,
+      taxBreakdown: taxOnTotal.breakdown,
     };
   }
 
@@ -183,7 +181,7 @@ export class UnusedLeaveCalculatorService {
     return {
       tax: result.annualTax,
       taxGross: result.totalTax,
-      breakdown: result.breakdown.map(b => ({
+      breakdown: result.breakdown.map((b) => ({
         from: b.from,
         to: b.to,
         rate: b.rate,

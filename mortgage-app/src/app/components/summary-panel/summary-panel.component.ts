@@ -19,7 +19,7 @@ export class SummaryPanelComponent {
     const p = this.params();
     const s = this.summary();
     if (!p?.loanAmount || p.loanAmount <= 0) return '0';
-    return (s.totalInterest / p.loanAmount * 100).toFixed(1);
+    return ((s.totalInterest / p.loanAmount) * 100).toFixed(1);
   });
 
   fixedSubLabel = computed(() => {

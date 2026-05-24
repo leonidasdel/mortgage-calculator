@@ -28,14 +28,15 @@ export class EarlyRepaymentsComponent {
   }
 
   removeER(id: number): void {
-    this.erListChange.emit(this.erList().filter(e => e.id !== id));
+    this.erListChange.emit(this.erList().filter((e) => e.id !== id));
   }
 
   updateERField(id: number, field: 'month' | 'amount', raw: string): void {
-    const val = field === 'month'
-      ? Math.max(1, Math.round(parseFloat(raw) || 1))
-      : Math.max(0, parseFloat(raw) || 0);
-    this.erListChange.emit(this.erList().map(e => e.id === id ? { ...e, [field]: val } : e));
+    const val =
+      field === 'month'
+        ? Math.max(1, Math.round(parseFloat(raw) || 1))
+        : Math.max(0, parseFloat(raw) || 0);
+    this.erListChange.emit(this.erList().map((e) => (e.id === id ? { ...e, [field]: val } : e)));
   }
 
   clearAll(): void {
@@ -76,6 +77,6 @@ export class EarlyRepaymentsComponent {
 
   private nextId(): number {
     const list = this.erList();
-    return list.length > 0 ? Math.max(...list.map(e => e.id)) + 1 : 1;
+    return list.length > 0 ? Math.max(...list.map((e) => e.id)) + 1 : 1;
   }
 }

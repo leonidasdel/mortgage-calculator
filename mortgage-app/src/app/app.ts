@@ -22,7 +22,7 @@ export class App {
   private readonly navUrl = toSignal(
     this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-      map(e => e.urlAfterRedirects.split('?')[0] || '/'),
+      map((e) => e.urlAfterRedirects.split('?')[0] || '/'),
     ),
     { initialValue: this.router.url.split('?')[0] || '/' },
   );

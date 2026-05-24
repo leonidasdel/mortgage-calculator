@@ -22,7 +22,9 @@ describe('InheritanceGiftCalculatorService', () => {
     expect(result.exemptAmount).toBe(100000);
     expect(result.taxableBase).toBe(0);
     expect(result.taxDue).toBe(0);
-    expect(result.notes.some(n => n.includes(GIFT_EXEMPT_CATEGORY_A.toLocaleString('el-GR')))).toBe(true);
+    expect(
+      result.notes.some((n) => n.includes(GIFT_EXEMPT_CATEGORY_A.toLocaleString('el-GR'))),
+    ).toBe(true);
   });
 
   it('should calculate progressive inheritance tax above zero', () => {

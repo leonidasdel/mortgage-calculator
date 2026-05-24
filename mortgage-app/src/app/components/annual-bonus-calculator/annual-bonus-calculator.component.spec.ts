@@ -41,21 +41,23 @@ describe('AnnualBonusCalculatorComponent', () => {
 
     component.result();
 
-    expect(calculateSpy).toHaveBeenCalledWith(expect.objectContaining({
-      grossMonthly: 2200,
-      annualBonus: 1000,
-      salaryChange: {
-        previousGross: 1800,
-        effectiveMonth: 7,
-      },
-    }));
+    expect(calculateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        grossMonthly: 2200,
+        annualBonus: 1000,
+        salaryChange: {
+          previousGross: 1800,
+          effectiveMonth: 7,
+        },
+      }),
+    );
   });
 
   it('should show zeroed bonus values when annual bonus is zero', () => {
     const fixture = TestBed.createComponent(AnnualBonusCalculatorComponent);
     const component = fixture.componentInstance;
 
-    component.formModel.update(m => ({ ...m, annualBonus: 0 }));
+    component.formModel.update((m) => ({ ...m, annualBonus: 0 }));
 
     expect(component.bonus()).toEqual({
       grossBonus: 0,

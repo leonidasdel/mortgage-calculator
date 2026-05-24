@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, PLATFORM_ID, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  PLATFORM_ID,
+  signal,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { form, FormField } from '@angular/forms/signals';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
@@ -29,7 +37,13 @@ import { SalaryTaxBreakdownComponent } from '../salary-tax-breakdown/salary-tax-
 @Component({
   selector: 'app-salary-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormField, SalaryChangeBlockComponent, SalaryPayslipPanelComponent, SalaryTaxBreakdownComponent],
+  imports: [
+    CommonModule,
+    FormField,
+    SalaryChangeBlockComponent,
+    SalaryPayslipPanelComponent,
+    SalaryTaxBreakdownComponent,
+  ],
   templateUrl: './salary-calculator.component.html',
   styleUrl: './salary-calculator.component.scss',
 })
@@ -133,7 +147,10 @@ export class SalaryCalculatorComponent {
     this.inputMode.set('net');
     const fv = this.formModel();
     const netTarget = fv.netMonthly || 0;
-    const salaryChangeMonth = Math.min(12, Math.max(1, Number(fv.salaryChangeMonth) || Number(this.salaryChangeMonth()) || 4));
+    const salaryChangeMonth = Math.min(
+      12,
+      Math.max(1, Number(fv.salaryChangeMonth) || Number(this.salaryChangeMonth()) || 4),
+    );
     const previousGross = Math.max(0, Number(fv.previousGross) || this.previousGross());
     const hasSalaryChange = !!fv.hasSalaryChange;
     const salaryChange: SalaryChange | undefined = hasSalaryChange
@@ -147,7 +164,7 @@ export class SalaryCalculatorComponent {
       salaryChange,
       ftePercent: Number(fv.ftePercent) || 100,
     });
-    this.formModel.update(m => ({ ...m, grossMonthly: gross }));
+    this.formModel.update((m) => ({ ...m, grossMonthly: gross }));
     this.syncFromGross();
   }
 
@@ -162,7 +179,7 @@ export class SalaryCalculatorComponent {
   private syncFromGross(): void {
     const r = this.result();
     const net = r.currentMonthly ? r.currentMonthly.netMonthly : r.netMonthly;
-    this.formModel.update(m => ({ ...m, netMonthly: net }));
+    this.formModel.update((m) => ({ ...m, netMonthly: net }));
   }
 
   onAnnualBonusChange(value: string): void {
@@ -178,7 +195,7 @@ export class SalaryCalculatorComponent {
   toggleSalaryChange(checked?: boolean): void {
     const next = checked ?? !this.hasSalaryChange();
     this.hasSalaryChange.set(next);
-    this.formModel.update(m => ({ ...m, hasSalaryChange: next }));
+    this.formModel.update((m) => ({ ...m, hasSalaryChange: next }));
     this.onParamChange();
     this.saveState(this.formModel());
   }
@@ -212,7 +229,7 @@ export class SalaryCalculatorComponent {
   onSalaryChangeMonthChange(value: string): void {
     const month = Math.min(12, Math.max(1, parseInt(value, 10) || 4));
     this.salaryChangeMonth.set(month);
-    this.formModel.update(m => ({ ...m, salaryChangeMonth: String(month) }));
+    this.formModel.update((m) => ({ ...m, salaryChangeMonth: String(month) }));
     this.onParamChange();
     this.saveState(this.formModel());
   }
@@ -220,7 +237,7 @@ export class SalaryCalculatorComponent {
   onPreviousGrossChange(value: string): void {
     const prev = Math.max(0, parseFloat(value) || 0);
     this.previousGross.set(prev);
-    this.formModel.update(m => ({ ...m, previousGross: prev }));
+    this.formModel.update((m) => ({ ...m, previousGross: prev }));
     this.onParamChange();
     this.saveState(this.formModel());
   }
@@ -228,9 +245,12 @@ export class SalaryCalculatorComponent {
   ageGroupLabel = computed(() => {
     const ag = this.formModel().ageGroup;
     switch (ag) {
-      case 'under25': return 'Έως 25 ετών';
-      case '26to30': return '26-30 ετών';
-      default: return 'Άνω των 30';
+      case 'under25':
+        return 'Έως 25 ετών';
+      case '26to30':
+        return '26-30 ετών';
+      default:
+        return 'Άνω των 30';
     }
   });
 
@@ -253,7 +273,9 @@ export class SalaryCalculatorComponent {
         previousGross,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch { /* storage unavailable */ }
+    } catch {
+      /* storage unavailable */
+    }
   }
 
   private applySavedState(state: Record<string, unknown>): void {
@@ -269,17 +291,17 @@ export class SalaryCalculatorComponent {
     const previousGross = inputs?.['previousGross'] ?? state['previousGross'];
     if (hasSalaryChange != null) {
       this.hasSalaryChange.set(!!hasSalaryChange);
-      this.formModel.update(m => ({ ...m, hasSalaryChange: !!hasSalaryChange }));
+      this.formModel.update((m) => ({ ...m, hasSalaryChange: !!hasSalaryChange }));
     }
     if (salaryChangeMonth != null) {
       const month = Math.min(12, Math.max(1, Number(salaryChangeMonth) || 4));
       this.salaryChangeMonth.set(month);
-      this.formModel.update(m => ({ ...m, salaryChangeMonth: String(month) }));
+      this.formModel.update((m) => ({ ...m, salaryChangeMonth: String(month) }));
     }
     if (previousGross != null) {
       const gross = Math.max(0, Number(previousGross) || 0);
       this.previousGross.set(gross);
-      this.formModel.update(m => ({ ...m, previousGross: gross }));
+      this.formModel.update((m) => ({ ...m, previousGross: gross }));
     }
   }
 }

@@ -2,7 +2,9 @@
   <div class="page-header-icon rent-vs-buy-icon">🏠</div>
   <div>
     <h1 class="page-title" data-testid="rent-vs-buy-page-title">Νοικιάζω ή Αγοράζω;</h1>
-    <p class="page-subtitle">Συγκρίνετε το μακροπρόθεσμο οικονομικό αποτέλεσμα ενοικίασης έναντι αγοράς ακινήτου</p>
+    <p class="page-subtitle">
+      Συγκρίνετε το μακροπρόθεσμο οικονομικό αποτέλεσμα ενοικίασης έναντι αγοράς ακινήτου
+    </p>
   </div>
 </div>
 
@@ -14,67 +16,114 @@
         <div class="card-header-icon">🏗️</div>
         <h2>Ακίνητο &amp; Αγορά</h2>
       </div>
-      <div class="card-body" >
-
+      <div class="card-body">
         <div class="form-group">
           <label for="propertyPrice">Αξία Ακινήτου</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="propertyPrice" data-testid="rent-vs-buy-input-propertyPrice" [formField]="formFields.propertyPrice" (input)="onPropertyPriceInput()">
+            <input
+              type="number"
+              id="propertyPrice"
+              data-testid="rent-vs-buy-input-propertyPrice"
+              [formField]="formFields.propertyPrice"
+              (input)="onPropertyPriceInput()"
+            />
           </div>
         </div>
 
         <div class="form-group">
           <label>Προκαταβολή</label>
           <div class="rvb-mode-toggle">
-            <button type="button"
-                    class="rvb-mode-pill"
-                    [class.active]="formModel().downPaymentMode === 'pct'"
-                    (click)="onDownPaymentModeChange('pct')">Ποσοστό</button>
-            <button type="button"
-                    class="rvb-mode-pill"
-                    [class.active]="formModel().downPaymentMode === 'amount'"
-                    (click)="onDownPaymentModeChange('amount')">Ποσό</button>
+            <button
+              type="button"
+              class="rvb-mode-pill"
+              [class.active]="formModel().downPaymentMode === 'pct'"
+              (click)="onDownPaymentModeChange('pct')"
+            >
+              Ποσοστό
+            </button>
+            <button
+              type="button"
+              class="rvb-mode-pill"
+              [class.active]="formModel().downPaymentMode === 'amount'"
+              (click)="onDownPaymentModeChange('amount')"
+            >
+              Ποσό
+            </button>
           </div>
           @if (formModel().downPaymentMode === 'amount') {
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="downPaymentAmount" data-testid="rent-vs-buy-input-downPaymentAmount" [formField]="formFields.downPaymentAmount" (input)="onDownPaymentAmountInput()">
+              <input
+                type="number"
+                id="downPaymentAmount"
+                data-testid="rent-vs-buy-input-downPaymentAmount"
+                [formField]="formFields.downPaymentAmount"
+                (input)="onDownPaymentAmountInput()"
+              />
             </div>
-            <div class="field-hint">= {{ result().downPaymentPct | number:'1.1-2' }}% της αξίας</div>
+            <div class="field-hint">
+              = {{ result().downPaymentPct | number: '1.1-2' }}% της αξίας
+            </div>
           } @else {
             <div class="input-wrap has-sfx">
-              <input type="number" id="downPaymentPct" [formField]="formFields.downPaymentPct" (input)="onDownPaymentPctInput()">
+              <input
+                type="number"
+                id="downPaymentPct"
+                [formField]="formFields.downPaymentPct"
+                (input)="onDownPaymentPctInput()"
+              />
               <span class="sfx">%</span>
             </div>
-            <div class="field-hint">= {{ result().downPayment | euro:0 }}</div>
+            <div class="field-hint">= {{ result().downPayment | euro: 0 }}</div>
           }
         </div>
 
         <div class="form-group">
           <label>Έξοδα Αγοράς (συμβολαιογράφος, φόρος μεταβίβασης κ.λπ.)</label>
           <div class="rvb-mode-toggle">
-            <button type="button"
-                    class="rvb-mode-pill"
-                    [class.active]="formModel().closingCostsMode === 'pct'"
-                    (click)="onClosingCostsModeChange('pct')">Ποσοστό</button>
-            <button type="button"
-                    class="rvb-mode-pill"
-                    [class.active]="formModel().closingCostsMode === 'amount'"
-                    (click)="onClosingCostsModeChange('amount')">Ποσό</button>
+            <button
+              type="button"
+              class="rvb-mode-pill"
+              [class.active]="formModel().closingCostsMode === 'pct'"
+              (click)="onClosingCostsModeChange('pct')"
+            >
+              Ποσοστό
+            </button>
+            <button
+              type="button"
+              class="rvb-mode-pill"
+              [class.active]="formModel().closingCostsMode === 'amount'"
+              (click)="onClosingCostsModeChange('amount')"
+            >
+              Ποσό
+            </button>
           </div>
           @if (formModel().closingCostsMode === 'amount') {
             <div class="input-wrap has-pfx">
               <span class="pfx">€</span>
-              <input type="number" id="closingCostsAmount" data-testid="rent-vs-buy-input-closingCostsAmount" [formField]="formFields.closingCostsAmount" (input)="onClosingCostsAmountInput()">
+              <input
+                type="number"
+                id="closingCostsAmount"
+                data-testid="rent-vs-buy-input-closingCostsAmount"
+                [formField]="formFields.closingCostsAmount"
+                (input)="onClosingCostsAmountInput()"
+              />
             </div>
-            <div class="field-hint">= {{ result().closingCostsPct | number:'1.1-2' }}% της αξίας</div>
+            <div class="field-hint">
+              = {{ result().closingCostsPct | number: '1.1-2' }}% της αξίας
+            </div>
           } @else {
             <div class="input-wrap has-sfx">
-              <input type="number" id="closingCostsPct" [formField]="formFields.closingCostsPct" (input)="onClosingCostsPctInput()">
+              <input
+                type="number"
+                id="closingCostsPct"
+                [formField]="formFields.closingCostsPct"
+                (input)="onClosingCostsPctInput()"
+              />
               <span class="sfx">%</span>
             </div>
-            <div class="field-hint">= {{ result().closingCosts | euro:0 }}</div>
+            <div class="field-hint">= {{ result().closingCosts | euro: 0 }}</div>
           }
         </div>
 
@@ -85,7 +134,7 @@
         <div class="form-group">
           <label for="mortgageRate">Επιτόκιο Δανείου (%)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="mortgageRate" [formField]="formFields.mortgageRate">
+            <input type="number" id="mortgageRate" [formField]="formFields.mortgageRate" />
             <span class="sfx">%</span>
           </div>
         </div>
@@ -93,7 +142,7 @@
         <div class="form-group">
           <label for="mortgageTerm">Διάρκεια Δανείου (έτη)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="mortgageTerm" [formField]="formFields.mortgageTerm">
+            <input type="number" id="mortgageTerm" [formField]="formFields.mortgageTerm" />
             <span class="sfx">έτη</span>
           </div>
         </div>
@@ -106,21 +155,27 @@
           <label for="monthlyRent">Μηνιαίο Ενοίκιο</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="monthlyRent" data-testid="rent-vs-buy-input-monthlyRent" [formField]="formFields.monthlyRent">
+            <input
+              type="number"
+              id="monthlyRent"
+              data-testid="rent-vs-buy-input-monthlyRent"
+              [formField]="formFields.monthlyRent"
+            />
           </div>
         </div>
 
         <div class="form-group">
           <label for="rentGrowthRate">Ετήσια Αύξηση Ενοικίου (%)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="rentGrowthRate" [formField]="formFields.rentGrowthRate">
+            <input type="number" id="rentGrowthRate" [formField]="formFields.rentGrowthRate" />
             <span class="sfx">%</span>
           </div>
           @if (formModel().monthlyRent > 0 && formModel().rentGrowthRate > 0) {
             <div class="field-hint">
               Αυτό σημαίνει ότι το ενοίκιο σε
               @for (p of rentProjections(); track p.years) {
-                <strong>{{ p.years }} έτη</strong> → <strong>{{ p.rent | euro:0 }}</strong>{{ !$last ? ', ' : '.' }}
+                <strong>{{ p.years }} έτη</strong> → <strong>{{ p.rent | euro: 0 }}</strong
+                >{{ !$last ? ', ' : '.' }}
               }
             </div>
           }
@@ -133,28 +188,45 @@
         <div class="form-group">
           <label for="propertyGrowthRate">Ετήσια Αύξηση Αξίας Ακινήτου (%)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="propertyGrowthRate" [formField]="formFields.propertyGrowthRate">
+            <input
+              type="number"
+              id="propertyGrowthRate"
+              [formField]="formFields.propertyGrowthRate"
+            />
             <span class="sfx">%</span>
           </div>
-          <div class="field-hint">Ο αναμενόμενος ετήσιος ρυθμός ανόδου της αξίας του ακινήτου. Ιστορικά στην Ελλάδα κυμαίνεται μεταξύ 1–4%.</div>
+          <div class="field-hint">
+            Ο αναμενόμενος ετήσιος ρυθμός ανόδου της αξίας του ακινήτου. Ιστορικά στην Ελλάδα
+            κυμαίνεται μεταξύ 1–4%.
+          </div>
         </div>
 
         <div class="form-group">
           <label for="investmentReturn">Απόδοση Επένδυσης Προκαταβολής (%/έτος)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="investmentReturn" [formField]="formFields.investmentReturn">
+            <input type="number" id="investmentReturn" [formField]="formFields.investmentReturn" />
             <span class="sfx">%</span>
           </div>
-          <div class="field-hint">Αν δεν αγοράζατε, η προκαταβολή θα επενδυόταν στις αγορές. Εκφράζει το κόστος ευκαιρίας των χρημάτων σας — τι θα κέρδιζαν αλλού.</div>
+          <div class="field-hint">
+            Αν δεν αγοράζατε, η προκαταβολή θα επενδυόταν στις αγορές. Εκφράζει το κόστος ευκαιρίας
+            των χρημάτων σας — τι θα κέρδιζαν αλλού.
+          </div>
         </div>
 
         <div class="form-group">
           <label for="annualOwnershipCostPct">Ετήσια Κόστη Ιδιοκτησίας (% αξίας)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="annualOwnershipCostPct" [formField]="formFields.annualOwnershipCostPct">
+            <input
+              type="number"
+              id="annualOwnershipCostPct"
+              [formField]="formFields.annualOwnershipCostPct"
+            />
             <span class="sfx">%</span>
           </div>
-          <div class="field-hint">Συνολικό ετήσιο κόστος ιδιοκτησίας: ΕΝΦΙΑ, συντήρηση, ασφάλεια, κ.λπ. Συνήθως κυμαίνεται στο 0.5–2% της αξίας του ακινήτου.</div>
+          <div class="field-hint">
+            Συνολικό ετήσιο κόστος ιδιοκτησίας: ΕΝΦΙΑ, συντήρηση, ασφάλεια, κ.λπ. Συνήθως κυμαίνεται
+            στο 0.5–2% της αξίας του ακινήτου.
+          </div>
         </div>
 
         <div class="sec-div">
@@ -164,7 +236,12 @@
         <div class="form-group">
           <label for="timeHorizon">Χρονικός Ορίζοντας — Σενάριο Α (έτη)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="timeHorizon" data-testid="rent-vs-buy-input-timeHorizon" [formField]="formFields.timeHorizon">
+            <input
+              type="number"
+              id="timeHorizon"
+              data-testid="rent-vs-buy-input-timeHorizon"
+              [formField]="formFields.timeHorizon"
+            />
             <span class="sfx">έτη</span>
           </div>
         </div>
@@ -172,22 +249,25 @@
         <div class="form-group">
           <label for="compareTimeHorizon">Χρονικός Ορίζοντας — Σενάριο Β (έτη)</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="compareTimeHorizon" [formField]="formFields.compareTimeHorizon">
+            <input
+              type="number"
+              id="compareTimeHorizon"
+              [formField]="formFields.compareTimeHorizon"
+            />
             <span class="sfx">έτη</span>
           </div>
         </div>
 
         <div class="info-box blue">
-          💡 Το σενάριο ενοικίασης υποθέτει ότι η προκαταβολή επενδύεται και η μηνιαία διαφορά δαπανών επανεπενδύεται.
+          💡 Το σενάριο ενοικίασης υποθέτει ότι η προκαταβολή επενδύεται και η μηνιαία διαφορά
+          δαπανών επανεπενδύεται.
         </div>
-
       </div>
     </div>
   </div>
 
   <!-- RIGHT PANEL -->
   <div class="right-panel">
-
     <!-- Verdict -->
     <div class="card" id="rvb-results" data-testid="rent-vs-buy-results">
       <div class="card-header">
@@ -195,24 +275,29 @@
         <h2>Αποτέλεσμα σε {{ formModel().timeHorizon }} Έτη</h2>
       </div>
       <div class="card-body">
-
         <!-- Verdict banner -->
-        <div class="verdict-banner"
-             data-testid="rent-vs-buy-verdict"
-             [class.verdict-buy]="result().winner === 'buy'"
-             [class.verdict-rent]="result().winner === 'rent'"
-             [class.verdict-tie]="result().winner === 'tie'">
+        <div
+          class="verdict-banner"
+          data-testid="rent-vs-buy-verdict"
+          [class.verdict-buy]="result().winner === 'buy'"
+          [class.verdict-rent]="result().winner === 'rent'"
+          [class.verdict-tie]="result().winner === 'tie'"
+        >
           @if (result().winner === 'buy') {
             <span class="verdict-icon">🏠</span>
             <div>
               <div class="verdict-title">Η Αγορά Συμφέρει</div>
-              <div class="verdict-sub">κατά {{ result().advantage | euro:0 }} σε {{ formModel().timeHorizon }} έτη</div>
+              <div class="verdict-sub">
+                κατά {{ result().advantage | euro: 0 }} σε {{ formModel().timeHorizon }} έτη
+              </div>
             </div>
           } @else if (result().winner === 'rent') {
             <span class="verdict-icon">🔑</span>
             <div>
               <div class="verdict-title">Η Ενοικίαση Συμφέρει</div>
-              <div class="verdict-sub">κατά {{ result().advantage | euro:0 }} σε {{ formModel().timeHorizon }} έτη</div>
+              <div class="verdict-sub">
+                κατά {{ result().advantage | euro: 0 }} σε {{ formModel().timeHorizon }} έτη
+              </div>
             </div>
           } @else {
             <span class="verdict-icon">⚖️</span>
@@ -227,8 +312,10 @@
         <div class="hero-row">
           <div class="hero-card">
             <div class="hero-lbl">Μηνιαία Δόση Δανείου</div>
-            <div class="hero-val" data-testid="rent-vs-buy-hero-monthlyPayment">{{ result().monthlyPayment | euro:0 }}</div>
-            <div class="hero-sub">Ποσό δανείου: {{ result().loanAmount | euro:0 }}</div>
+            <div class="hero-val" data-testid="rent-vs-buy-hero-monthlyPayment">
+              {{ result().monthlyPayment | euro: 0 }}
+            </div>
+            <div class="hero-sub">Ποσό δανείου: {{ result().loanAmount | euro: 0 }}</div>
           </div>
           <div class="hero-card dark">
             <div class="hero-lbl">Έτος Break-even</div>
@@ -246,23 +333,31 @@
         <div class="sum-grid">
           <div class="sum-item">
             <div class="sum-lbl">Ίδια Κεφάλαια (Αγορά)</div>
-            <div class="sum-val" [class.blue]="result().winner === 'buy'" [class.green]="result().winner !== 'buy'">
-              {{ result().finalBuyWealth | euro:0 }}
+            <div
+              class="sum-val"
+              [class.blue]="result().winner === 'buy'"
+              [class.green]="result().winner !== 'buy'"
+            >
+              {{ result().finalBuyWealth | euro: 0 }}
             </div>
           </div>
           <div class="sum-item">
             <div class="sum-lbl">Χαρτοφυλάκιο (Ενοικίαση)</div>
-            <div class="sum-val" [class.blue]="result().winner === 'rent'" [class.green]="result().winner !== 'rent'">
-              {{ result().finalRentWealth | euro:0 }}
+            <div
+              class="sum-val"
+              [class.blue]="result().winner === 'rent'"
+              [class.green]="result().winner !== 'rent'"
+            >
+              {{ result().finalRentWealth | euro: 0 }}
             </div>
           </div>
           <div class="sum-item">
             <div class="sum-lbl">Προκαταβολή</div>
-            <div class="sum-val">{{ result().downPayment | euro:0 }}</div>
+            <div class="sum-val">{{ result().downPayment | euro: 0 }}</div>
           </div>
           <div class="sum-item">
             <div class="sum-lbl">Έξοδα Αγοράς</div>
-            <div class="sum-val red">{{ result().closingCosts | euro:0 }}</div>
+            <div class="sum-val red">{{ result().closingCosts | euro: 0 }}</div>
           </div>
         </div>
 
@@ -270,7 +365,8 @@
           sharePath="/rent-vs-buy"
           [shareState]="formModel()"
           [shareSummary]="shareSummary()"
-          printTargetId="rvb-results">
+          printTargetId="rvb-results"
+        >
         </app-export-row>
       </div>
     </div>
@@ -281,10 +377,7 @@
         <h2>Σύγκριση Χρονικών Οριζόντων</h2>
       </div>
       <div class="card-body">
-        <app-compare-panel
-          labelA="Σενάριο Α"
-          labelB="Σενάριο Β"
-          [rows]="compareRows()">
+        <app-compare-panel labelA="Σενάριο Α" labelB="Σενάριο Β" [rows]="compareRows()">
         </app-compare-panel>
       </div>
     </div>
@@ -310,8 +403,12 @@
               @for (row of result().yearlyRows; track row.year) {
                 <tr [class.buy-ahead-row]="row.buyAhead" [class.rent-ahead-row]="!row.buyAhead">
                   <td>{{ row.year }}</td>
-                  <td class="wealth-val" [class.winner-val]="row.buyAhead">{{ row.buyWealth | euro:0 }}</td>
-                  <td class="wealth-val" [class.winner-val]="!row.buyAhead">{{ row.rentWealth | euro:0 }}</td>
+                  <td class="wealth-val" [class.winner-val]="row.buyAhead">
+                    {{ row.buyWealth | euro: 0 }}
+                  </td>
+                  <td class="wealth-val" [class.winner-val]="!row.buyAhead">
+                    {{ row.rentWealth | euro: 0 }}
+                  </td>
                   <td class="best-col">
                     @if (row.buyAhead) {
                       <span class="badge badge-buy">🏠 Αγορά</span>
@@ -336,26 +433,35 @@
       <div class="card-body">
         <div class="info-box blue">
           <ul class="info-list">
-            <li>Το σενάριο <strong>αγοράς</strong> περιλαμβάνει δάνειο σταθερού επιτοκίου, ΕΝΦΙΑ, ασφάλεια &amp; συντήρηση.</li>
-            <li>Το σενάριο <strong>ενοικίασης</strong> υποθέτει επένδυση της προκαταβολής &amp; των εξόδων αγοράς.</li>
+            <li>
+              Το σενάριο <strong>αγοράς</strong> περιλαμβάνει δάνειο σταθερού επιτοκίου, ΕΝΦΙΑ,
+              ασφάλεια &amp; συντήρηση.
+            </li>
+            <li>
+              Το σενάριο <strong>ενοικίασης</strong> υποθέτει επένδυση της προκαταβολής &amp; των
+              εξόδων αγοράς.
+            </li>
             <li>Η μηνιαία διαφορά δαπανών μεταξύ αγοράς &amp; ενοικίου επανεπενδύεται αυτόματα.</li>
-            <li>Δεν λαμβάνονται υπόψη: φόρος υπεραξίας κατά την πώληση, κόστη εξαγοράς δανείου, πληθωρισμός.</li>
+            <li>
+              Δεν λαμβάνονται υπόψη: φόρος υπεραξίας κατά την πώληση, κόστη εξαγοράς δανείου,
+              πληθωρισμός.
+            </li>
           </ul>
         </div>
         <div class="disclaimer">
-          <strong>Σημείωση:</strong> Οι υπολογισμοί είναι ενδεικτικοί και βασίζονται σε σταθερές παραδοχές.
-          Για εξατομικευμένη συμβουλή, απευθυνθείτε σε χρηματοοικονομικό σύμβουλο.
+          <strong>Σημείωση:</strong> Οι υπολογισμοί είναι ενδεικτικοί και βασίζονται σε σταθερές
+          παραδοχές. Για εξατομικευμένη συμβουλή, απευθυνθείτε σε χρηματοοικονομικό σύμβουλο.
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
 <app-calc-explanation
   title="Πώς συγκρίνονται ενοίκιο και αγορά;"
   [steps]="explanationSteps"
-  [formula]="explanationFormula">
+  [formula]="explanationFormula"
+>
 </app-calc-explanation>
 
 <app-law-footer route="/rent-vs-buy"></app-law-footer>

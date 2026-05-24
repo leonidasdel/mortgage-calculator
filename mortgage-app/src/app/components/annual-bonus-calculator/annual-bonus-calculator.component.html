@@ -13,13 +13,17 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Παράμετροι Υπολογισμού</h2>
       </div>
-      <div class="card-body" >
-
+      <div class="card-body">
         <div class="form-group">
           <label for="grossMonthly">Τρέχων Μικτός Μηνιαίος Μισθός (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="grossMonthly" data-testid="annual-bonus-input-grossMonthly" [formField]="formFields.grossMonthly">
+            <input
+              type="number"
+              id="grossMonthly"
+              data-testid="annual-bonus-input-grossMonthly"
+              [formField]="formFields.grossMonthly"
+            />
           </div>
         </div>
 
@@ -27,7 +31,12 @@
           <label for="annualBonus">Μικτό Ποσό Μπόνους (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="annualBonus" data-testid="annual-bonus-input-annualBonus" [formField]="formFields.annualBonus">
+            <input
+              type="number"
+              id="annualBonus"
+              data-testid="annual-bonus-input-annualBonus"
+              [formField]="formFields.annualBonus"
+            />
           </div>
         </div>
 
@@ -37,7 +46,12 @@
           <div class="form-group">
             <label for="year">Φορολογικό Έτος</label>
             <div class="input-wrap">
-              <select id="year" data-testid="annual-bonus-input-year" [formField]="formFields.year" class="form-select">
+              <select
+                id="year"
+                data-testid="annual-bonus-input-year"
+                [formField]="formFields.year"
+                class="form-select"
+              >
                 <option [value]="2026">2026</option>
                 <option [value]="2025">2025</option>
               </select>
@@ -47,7 +61,12 @@
           <div class="form-group">
             <label for="ageGroup">Ηλικιακή Ομάδα</label>
             <div class="input-wrap">
-              <select id="ageGroup" data-testid="annual-bonus-input-ageGroup" [formField]="formFields.ageGroup" class="form-select">
+              <select
+                id="ageGroup"
+                data-testid="annual-bonus-input-ageGroup"
+                [formField]="formFields.ageGroup"
+                class="form-select"
+              >
                 <option value="over30">Άνω των 30 ετών</option>
                 <option value="26to30">26-30 ετών</option>
                 <option value="under25">Έως 25 ετών</option>
@@ -76,7 +95,7 @@
 
           <div class="form-group">
             <label class="ab-check-row">
-              <input type="checkbox" [formField]="formFields.hasSalaryChange">
+              <input type="checkbox" [formField]="formFields.hasSalaryChange" />
               <span>Άλλαξα μισθό μέσα στο έτος</span>
             </label>
           </div>
@@ -86,14 +105,18 @@
               <label for="previousGross">Προηγούμενος Μικτός Μισθός (€)</label>
               <div class="input-wrap has-pfx">
                 <span class="pfx">€</span>
-                <input type="number" id="previousGross" [formField]="formFields.previousGross">
+                <input type="number" id="previousGross" [formField]="formFields.previousGross" />
               </div>
             </div>
 
             <div class="form-group">
               <label for="salaryChangeMonth">Μήνας Αλλαγής</label>
               <div class="input-wrap">
-                <select id="salaryChangeMonth" [formField]="formFields.salaryChangeMonth" class="form-select">
+                <select
+                  id="salaryChangeMonth"
+                  [formField]="formFields.salaryChangeMonth"
+                  class="form-select"
+                >
                   @for (month of months; track month.value) {
                     <option [value]="month.value">{{ month.label }}</option>
                   }
@@ -104,7 +127,8 @@
         </div>
 
         <div class="info-box blue">
-          Αυτός ο υπολογισμός αφορά προαιρετικό ή ετήσιο μπόνους μισθού. Τα Δώρα Χριστουγέννων, Πάσχα και το επίδομα αδείας υπολογίζονται ξεχωριστά.
+          Αυτός ο υπολογισμός αφορά προαιρετικό ή ετήσιο μπόνους μισθού. Τα Δώρα Χριστουγέννων,
+          Πάσχα και το επίδομα αδείας υπολογίζονται ξεχωριστά.
         </div>
       </div>
     </div>
@@ -121,7 +145,7 @@
           <div class="hero-card dark">
             <div class="hero-lbl">Καθαρό Μπόνους</div>
             <div class="hero-val" data-testid="annual-bonus-hero-net">{{ bonus().net | euro }}</div>
-            <div class="hero-sub">{{ takeHomeRate() | number:'1.0-2' }}% του μικτού</div>
+            <div class="hero-sub">{{ takeHomeRate() | number: '1.0-2' }}% του μικτού</div>
           </div>
           <div class="hero-card">
             <div class="hero-lbl">Μικτό Μπόνους</div>
@@ -136,7 +160,9 @@
             <div class="sum-val">{{ bonus().grossBonus | euro }}</div>
           </div>
           <div class="sum-item">
-            <div class="sum-lbl">ΕΦΚΑ εργαζομένου ({{ result().efkaEmployeeRate | number:'1.2-2' }}%)</div>
+            <div class="sum-lbl">
+              ΕΦΚΑ εργαζομένου ({{ result().efkaEmployeeRate | number: '1.2-2' }}%)
+            </div>
             <div class="sum-val red">-{{ bonus().efkaEmployee | euro }}</div>
           </div>
           <div class="sum-item">
@@ -149,19 +175,23 @@
           </div>
           <div class="sum-item ab-total">
             <div class="sum-lbl"><strong>Καθαρό Πληρωτέο Μπόνους</strong></div>
-            <div class="sum-val green"><strong>{{ bonus().net | euro }}</strong></div>
+            <div class="sum-val green">
+              <strong>{{ bonus().net | euro }}</strong>
+            </div>
           </div>
         </div>
 
         <div class="info-box green">
-          Ο φόρος υπολογίζεται ως οριακή διαφορά φόρου πάνω στην ετήσια φορολογητέα βάση, με το μπόνους μετά την ΕΦΚΑ εργαζομένου.
+          Ο φόρος υπολογίζεται ως οριακή διαφορά φόρου πάνω στην ετήσια φορολογητέα βάση, με το
+          μπόνους μετά την ΕΦΚΑ εργαζομένου.
         </div>
 
         <app-export-row
           sharePath="/annual-bonus"
           [shareState]="formModel()"
           [shareSummary]="shareSummary()"
-          printTargetId="ab-results">
+          printTargetId="ab-results"
+        >
         </app-export-row>
       </div>
     </div>
@@ -178,17 +208,22 @@
             <div class="sum-val">{{ bonus().grossBonus | euro }}</div>
           </div>
           <div class="sum-item">
-            <div class="sum-lbl">ΕΦΚΑ εργοδότη ({{ result().efkaEmployerRate | number:'1.2-2' }}%)</div>
+            <div class="sum-lbl">
+              ΕΦΚΑ εργοδότη ({{ result().efkaEmployerRate | number: '1.2-2' }}%)
+            </div>
             <div class="sum-val red">+{{ bonus().efkaEmployer | euro }}</div>
           </div>
           <div class="sum-item ab-total">
             <div class="sum-lbl"><strong>Συνολικό Κόστος Μπόνους</strong></div>
-            <div class="sum-val blue"><strong>{{ employerBonusCost() | euro }}</strong></div>
+            <div class="sum-val blue">
+              <strong>{{ employerBonusCost() | euro }}</strong>
+            </div>
           </div>
         </div>
 
         <div class="info-box blue">
-          Η ΕΦΚΑ του μπόνους εφαρμόζεται στο ίδιο ανώτατο ασφαλιστέο όριο ως ξεχωριστή ασφαλιστέα πληρωμή.
+          Η ΕΦΚΑ του μπόνους εφαρμόζεται στο ίδιο ανώτατο ασφαλιστέο όριο ως ξεχωριστή ασφαλιστέα
+          πληρωμή.
         </div>
       </div>
     </div>
@@ -196,7 +231,8 @@
     <app-calc-explanation
       title="Πώς υπολογίζεται το ετήσιο μπόνους;"
       [steps]="explanationSteps"
-      [formula]="explanationFormula">
+      [formula]="explanationFormula"
+    >
     </app-calc-explanation>
   </div>
 </div>

@@ -1,8 +1,12 @@
 <div class="page-header">
   <div class="page-header-icon ig-icon">🏛</div>
   <div>
-    <h1 class="page-title" data-testid="inheritance-gift-page-title">Φόρος Κληρονομιάς &amp; Δωρεάς</h1>
-    <p class="page-subtitle">Υπολογίστε τον φόρο μεταβίβασης περιουσίας βάσει κατηγορίας συγγένειας (Κ.Φ.Ε.)</p>
+    <h1 class="page-title" data-testid="inheritance-gift-page-title">
+      Φόρος Κληρονομιάς &amp; Δωρεάς
+    </h1>
+    <p class="page-subtitle">
+      Υπολογίστε τον φόρο μεταβίβασης περιουσίας βάσει κατηγορίας συγγένειας (Κ.Φ.Ε.)
+    </p>
   </div>
 </div>
 
@@ -13,11 +17,15 @@
         <div class="card-header-icon">&#9881;</div>
         <h2>Στοιχεία Μεταβίβασης</h2>
       </div>
-      <div class="card-body" >
-
+      <div class="card-body">
         <div class="form-group">
           <label for="transferType">Τύπος Μεταβίβασης</label>
-          <select id="transferType" data-testid="inheritance-gift-input-transferType" [formField]="formFields.transferType" class="form-select">
+          <select
+            id="transferType"
+            data-testid="inheritance-gift-input-transferType"
+            [formField]="formFields.transferType"
+            class="form-select"
+          >
             <option value="inheritance">Κληρονομιά</option>
             <option value="gift">Δωρεά περιουσιακού στοιχείου</option>
             <option value="monetary">Χρηματική δωρεά</option>
@@ -26,7 +34,12 @@
 
         <div class="form-group">
           <label for="category">Κατηγορία Συγγένειας</label>
-          <select id="category" data-testid="inheritance-gift-input-category" [formField]="formFields.category" class="form-select">
+          <select
+            id="category"
+            data-testid="inheritance-gift-input-category"
+            [formField]="formFields.category"
+            class="form-select"
+          >
             <option value="A">{{ kinshipLabels.A }}</option>
             <option value="B">{{ kinshipLabels.B }}</option>
             <option value="C">{{ kinshipLabels.C }}</option>
@@ -37,7 +50,12 @@
           <label for="value">Αξία / Ποσό (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="value" data-testid="inheritance-gift-input-value" [formField]="formFields.value">
+            <input
+              type="number"
+              id="value"
+              data-testid="inheritance-gift-input-value"
+              [formField]="formFields.value"
+            />
           </div>
         </div>
 
@@ -46,21 +64,22 @@
 
           <div class="form-group">
             <label class="ig-check-row">
-              <input type="checkbox" [formField]="formFields.hasDisability">
+              <input type="checkbox" [formField]="formFields.hasDisability" />
               <span>Αναπηρία ≥67% (μείωση φόρου 10%)</span>
             </label>
           </div>
 
           <div class="form-group">
             <label class="ig-check-row">
-              <input type="checkbox" [formField]="formFields.applyPrimaryResidenceInfo">
+              <input type="checkbox" [formField]="formFields.applyPrimaryResidenceInfo" />
               <span>Κύρια κατοικία (ενδέχεται απαλλαγή)</span>
             </label>
           </div>
         </div>
 
         <div class="info-box blue">
-          Ο υπολογισμός είναι ενδεικτικός. Για κύρια κατοικία, αναπηρία ή ειδικές περιπτώσεις συμβουλευτείτε λογιστή.
+          Ο υπολογισμός είναι ενδεικτικός. Για κύρια κατοικία, αναπηρία ή ειδικές περιπτώσεις
+          συμβουλευτείτε λογιστή.
         </div>
       </div>
     </div>
@@ -76,12 +95,14 @@
         <div class="hero-row">
           <div class="hero-card dark">
             <div class="hero-lbl">Φόρος Πληρωτέος</div>
-            <div class="hero-val" data-testid="inheritance-gift-hero-taxDue">{{ result().taxDue | euro }}</div>
+            <div class="hero-val" data-testid="inheritance-gift-hero-taxDue">
+              {{ result().taxDue | euro }}
+            </div>
             <div class="hero-sub">{{ transferTypeLabel() }}</div>
           </div>
           <div class="hero-card">
             <div class="hero-lbl">Μέσος Συντελεστής</div>
-            <div class="hero-val">{{ result().effectiveRate | number:'1.0-2' }}%</div>
+            <div class="hero-val">{{ result().effectiveRate | number: '1.0-2' }}%</div>
             <div class="hero-sub">επί της αξίας</div>
           </div>
         </div>
@@ -103,7 +124,9 @@
           </div>
           <div class="sum-item ig-total">
             <div class="sum-lbl"><strong>Φόρος πληρωτέος</strong></div>
-            <div class="sum-val red"><strong>{{ result().taxDue | euro }}</strong></div>
+            <div class="sum-val red">
+              <strong>{{ result().taxDue | euro }}</strong>
+            </div>
           </div>
         </div>
 
@@ -115,7 +138,8 @@
           sharePath="/inheritance-gift"
           [shareState]="formModel()"
           [shareSummary]="shareSummary()"
-          printTargetId="inheritance-results">
+          printTargetId="inheritance-results"
+        >
         </app-export-row>
       </div>
     </div>
@@ -142,9 +166,9 @@
               <tbody>
                 @for (row of result().brackets; track $index) {
                   <tr>
-                    <td>{{ row.from | number:'1.0-0' }}</td>
+                    <td>{{ row.from | number: '1.0-0' }}</td>
                     <td class="num">{{ formatBracketTo(row.to) }}</td>
-                    <td class="num">{{ row.rate | number:'1.0-2' }}%</td>
+                    <td class="num">{{ row.rate | number: '1.0-2' }}%</td>
                     <td class="num">{{ row.taxable | euro }}</td>
                     <td class="num">{{ row.tax | euro }}</td>
                   </tr>
@@ -163,7 +187,8 @@
 <app-calc-explanation
   title="Πώς υπολογίζεται ο φόρος κληρονομιάς;"
   [steps]="explanationSteps"
-  [formula]="explanationFormula">
+  [formula]="explanationFormula"
+>
 </app-calc-explanation>
 
 <app-law-footer route="/inheritance-gift"></app-law-footer>

@@ -1,6 +1,8 @@
 @if (schedule().length > 1) {
   <div class="chart-toolbar">
-    <span class="chart-toolbar-label">{{ viewMode() === 'monthly' ? 'Ανά μήνα' : 'Ανά έτος' }}</span>
+    <span class="chart-toolbar-label">{{
+      viewMode() === 'monthly' ? 'Ανά μήνα' : 'Ανά έτος'
+    }}</span>
     <div class="chart-toggle">
       <button
         type="button"
@@ -8,19 +10,25 @@
         class="toggle-btn"
         [class.active]="viewMode() === 'monthly'"
         [disabled]="!monthlyAllowed()"
-        [title]="monthlyAllowed() ? '' : 'Η μηνιαία προβολή είναι διαθέσιμη μόνο για δάνεια έως 5 ετών'">
+        [title]="
+          monthlyAllowed() ? '' : 'Η μηνιαία προβολή είναι διαθέσιμη μόνο για δάνεια έως 5 ετών'
+        "
+      >
         Μήνες
       </button>
-      <button type="button" (click)="setViewMode('yearly')" class="toggle-btn" [class.active]="viewMode() === 'yearly'">Έτη</button>
+      <button
+        type="button"
+        (click)="setViewMode('yearly')"
+        class="toggle-btn"
+        [class.active]="viewMode() === 'yearly'"
+      >
+        Έτη
+      </button>
     </div>
   </div>
 }
 <div class="chart-wrap" appChartResize (chartResize)="onChartResize()">
-  <canvas
-    #chartCanvas
-    (mousemove)="onMouseMove($event)"
-    (mouseleave)="onMouseLeave()">
-  </canvas>
+  <canvas #chartCanvas (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()"> </canvas>
   @if (tooltip().visible) {
     <div class="chart-tooltip" [style.left.px]="tooltip().x" [style.top.px]="tooltip().y">
       <div class="chart-tooltip-title">{{ tooltip().title }}</div>

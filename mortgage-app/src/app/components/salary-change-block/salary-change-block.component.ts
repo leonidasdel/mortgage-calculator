@@ -10,11 +10,13 @@ import { FieldTree, FormField } from '@angular/forms/signals';
 })
 export class SalaryChangeBlockComponent {
   // Subset of parent salary form fields — passed from parent FieldTree
-  formFields = input.required<FieldTree<{
-    hasSalaryChange: boolean;
-    salaryChangeMonth: string;
-    previousGross: number;
-  }>>();
+  formFields = input.required<
+    FieldTree<{
+      hasSalaryChange: boolean;
+      salaryChangeMonth: string;
+      previousGross: number;
+    }>
+  >();
   hasSalaryChange = input(false);
 
   salaryChangeToggle = output<boolean>();

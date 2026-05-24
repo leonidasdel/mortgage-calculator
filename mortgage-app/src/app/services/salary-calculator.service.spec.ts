@@ -21,10 +21,12 @@ describe('SalaryCalculatorService', () => {
   });
 
   it('should insure a bonus below the cap as a separate payment', () => {
-    const result = service.calculate(baseParams({
-      grossMonthly: 7000,
-      annualBonus: 1000,
-    }));
+    const result = service.calculate(
+      baseParams({
+        grossMonthly: 7000,
+        annualBonus: 1000,
+      }),
+    );
 
     expect(result.bonusResult?.efkaEmployee).toBe(133.7);
   });
@@ -32,9 +34,7 @@ describe('SalaryCalculatorService', () => {
   it('should cap EFKA contributions at MAX_INSURABLE_EARNINGS', () => {
     const result = service.calculate(baseParams({ grossMonthly: 10000 }));
 
-    expect(result.efkaEmployee).toBe(
-      +(MAX_INSURABLE_EARNINGS * 0.1337).toFixed(2),
-    );
+    expect(result.efkaEmployee).toBe(+(MAX_INSURABLE_EARNINGS * 0.1337).toFixed(2));
   });
 
   it('should reverse-calculate gross from target net monthly', () => {

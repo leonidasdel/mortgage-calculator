@@ -15,7 +15,6 @@
         <h2>Παράμετροι Υπολογισμού</h2>
       </div>
       <div class="card-body">
-
         <!-- Gross salary -->
         <div class="form-group">
           <label for="grossMonthly">
@@ -29,7 +28,13 @@
           </label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="grossMonthly" data-testid="salary-input-grossMonthly" [formField]="formFields.grossMonthly" (input)="onGrossChange()">
+            <input
+              type="number"
+              id="grossMonthly"
+              data-testid="salary-input-grossMonthly"
+              [formField]="formFields.grossMonthly"
+              (input)="onGrossChange()"
+            />
           </div>
         </div>
 
@@ -44,7 +49,13 @@
           </label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" id="netMonthly" data-testid="salary-input-netMonthly" [formField]="formFields.netMonthly" (input)="onNetChange()">
+            <input
+              type="number"
+              id="netMonthly"
+              data-testid="salary-input-netMonthly"
+              [formField]="formFields.netMonthly"
+              (input)="onNetChange()"
+            />
           </div>
         </div>
 
@@ -58,7 +69,13 @@
           <div class="form-group">
             <label for="year">Έτος</label>
             <div class="input-wrap">
-              <select id="year" data-testid="salary-input-year" [formField]="formFields.year" class="form-select" (change)="onParamChange()">
+              <select
+                id="year"
+                data-testid="salary-input-year"
+                [formField]="formFields.year"
+                class="form-select"
+                (change)="onParamChange()"
+              >
                 <option [value]="2026">2026</option>
                 <option [value]="2025">2025</option>
               </select>
@@ -69,7 +86,13 @@
             <div class="form-group">
               <label for="ageGroup">Ηλικιακή Ομάδα</label>
               <div class="input-wrap">
-                <select id="ageGroup" data-testid="salary-input-ageGroup" [formField]="formFields.ageGroup" class="form-select" (change)="onParamChange()">
+                <select
+                  id="ageGroup"
+                  data-testid="salary-input-ageGroup"
+                  [formField]="formFields.ageGroup"
+                  class="form-select"
+                  (change)="onParamChange()"
+                >
                   <option value="under25">Έως 25 ετών</option>
                   <option value="26to30">26-30 ετών</option>
                   <option value="over30">Άνω των 30 ετών</option>
@@ -81,7 +104,13 @@
           <div class="form-group">
             <label for="children">Παιδιά</label>
             <div class="input-wrap">
-              <select id="children" data-testid="salary-input-children" [formField]="formFields.children" class="form-select" (change)="onParamChange()">
+              <select
+                id="children"
+                data-testid="salary-input-children"
+                [formField]="formFields.children"
+                class="form-select"
+                (change)="onParamChange()"
+              >
                 <option [value]="0">0</option>
                 <option [value]="1">1</option>
                 <option [value]="2">2</option>
@@ -96,10 +125,18 @@
           <div class="form-group">
             <label for="ftePercent">Ποσοστό απασχόλησης</label>
             <div class="input-wrap has-sfx">
-              <input type="number" id="ftePercent" data-testid="salary-input-ftePercent" [formField]="formFields.ftePercent" (input)="onParamChange()">
+              <input
+                type="number"
+                id="ftePercent"
+                data-testid="salary-input-ftePercent"
+                [formField]="formFields.ftePercent"
+                (input)="onParamChange()"
+              />
               <span class="sfx">%</span>
             </div>
-            <div class="sal-hint">Τα μικτά αφορούν πλήρη απασχόληση · με 50% υπολογίζεται μισθός μερικής</div>
+            <div class="sal-hint">
+              Τα μικτά αφορούν πλήρη απασχόληση · με 50% υπολογίζεται μισθός μερικής
+            </div>
           </div>
         </div>
 
@@ -107,7 +144,11 @@
         <div class="sec-div">
           <div class="sec-label">Πολλαπλοί Εργοδότες</div>
           <label class="checkbox-label">
-            <input type="checkbox" [checked]="hasMultiEmployer()" (change)="toggleMultiEmployer($any($event.target).checked)">
+            <input
+              type="checkbox"
+              [checked]="hasMultiEmployer()"
+              (change)="toggleMultiEmployer($any($event.target).checked)"
+            />
             Έχω 2+ εργοδότες (άθροιση φόρου)
           </label>
           @if (hasMultiEmployer()) {
@@ -115,14 +156,14 @@
               <label>Εργοδότης 2 — Μικτά (€)</label>
               <div class="input-wrap has-pfx">
                 <span class="pfx">€</span>
-                <input type="number" [formField]="formFields.employer2Gross">
+                <input type="number" [formField]="formFields.employer2Gross" />
               </div>
             </div>
             <div class="form-group">
               <label>Εργοδότης 3 — Μικτά (€)</label>
               <div class="input-wrap has-pfx">
                 <span class="pfx">€</span>
-                <input type="number" [formField]="formFields.employer3Gross">
+                <input type="number" [formField]="formFields.employer3Gross" />
               </div>
             </div>
           }
@@ -135,13 +176,18 @@
             <label>Ετήσιο Μπόνους Μικτό (&#8364;)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">&#8364;</span>
-              <input type="number" min="0" step="100"
-                     [value]="annualBonus()"
-                     (input)="onAnnualBonusChange($any($event.target).value)">
+              <input
+                type="number"
+                min="0"
+                step="100"
+                [value]="annualBonus()"
+                (input)="onAnnualBonusChange($any($event.target).value)"
+              />
             </div>
           </div>
-          <div class="info-box blue" style="font-size:12px;">
-            Το μπόνους επιβαρύνεται με ΕΦΚΑ (βάσει ανωτάτου ορίου) και φόρο εισοδήματος βάσει οριακού συντελεστή
+          <div class="info-box blue" style="font-size: 12px">
+            Το μπόνους επιβαρύνεται με ΕΦΚΑ (βάσει ανωτάτου ορίου) και φόρο εισοδήματος βάσει
+            οριακού συντελεστή
           </div>
         </div>
 
@@ -150,20 +196,20 @@
           [hasSalaryChange]="hasSalaryChange()"
           (salaryChangeToggle)="toggleSalaryChange($event)"
           (salaryChangeMonthChange)="onSalaryChangeMonthChange($event)"
-          (previousGrossChange)="onPreviousGrossChange($event)">
+          (previousGrossChange)="onPreviousGrossChange($event)"
+        >
         </app-salary-change-block>
-
       </div>
     </div>
   </div>
 
   <!-- RIGHT PANEL -->
   <div class="right-panel">
-
     <app-salary-payslip-panel
       [result]="result()"
       [ftePercent]="formModel().ftePercent || 100"
-      [raiseDiff]="raiseDiff()">
+      [raiseDiff]="raiseDiff()"
+    >
     </app-salary-payslip-panel>
 
     <app-salary-tax-breakdown
@@ -176,8 +222,8 @@
       [shareState]="shareState()"
       [shareSummary]="shareSummary()"
       (toggleDetails)="toggleTaxDetails()"
-      (exportPayslip)="exportPayslip()">
+      (exportPayslip)="exportPayslip()"
+    >
     </app-salary-tax-breakdown>
-
   </div>
 </div>

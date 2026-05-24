@@ -33,7 +33,9 @@ export class DateSelectComponent {
     { value: 12, label: 'Δεκέμβριος' },
   ];
 
-  private readonly parts = computed(() => this.parseIso(this.value()) ?? { year: 2015, month: 6, day: 1 });
+  private readonly parts = computed(
+    () => this.parseIso(this.value()) ?? { year: 2015, month: 6, day: 1 },
+  );
 
   years = computed(() => {
     const min = this.minYear();
@@ -100,12 +102,18 @@ export class DateSelectComponent {
     this.value.set(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
   }
 
-  private clampDay(year: number, month: number, day: number): { year: number; month: number; day: number } {
+  private clampDay(
+    year: number,
+    month: number,
+    day: number,
+  ): { year: number; month: number; day: number } {
     const max = new Date(year, month, 0).getDate();
     return { year, month, day: Math.min(day, max) };
   }
 
-  private parseIso(value: string | null | undefined): { year: number; month: number; day: number } | null {
+  private parseIso(
+    value: string | null | undefined,
+  ): { year: number; month: number; day: number } | null {
     if (!value) return null;
     const iso = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (iso) {

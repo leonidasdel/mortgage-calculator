@@ -35,9 +35,9 @@ const SEVERANCE_TABLE: { years: number; months: number }[] = [
 const SEVERANCE_CAP_MONTHS = 24;
 const SEVERANCE_TAX_BRACKETS: { upTo: number | null; rate: number }[] = [
   { upTo: 60000, rate: 0 },
-  { upTo: 100000, rate: 0.10 },
-  { upTo: 150000, rate: 0.20 },
-  { upTo: null, rate: 0.30 },
+  { upTo: 100000, rate: 0.1 },
+  { upTo: 150000, rate: 0.2 },
+  { upTo: null, rate: 0.3 },
 ];
 
 export type TerminationType = 'without_notice' | 'with_notice' | 'mutual';
@@ -97,7 +97,7 @@ export class SeveranceCalculatorService {
 
     const actualMonths = termType === 'without_notice' ? fullMonths : fullMonths / 2;
 
-    const baseSalaryCalculation = +(gross * 14 / 12).toFixed(2);
+    const baseSalaryCalculation = +((gross * 14) / 12).toFixed(2);
     const grossSeverance = +(actualMonths * baseSalaryCalculation).toFixed(2);
     const severanceTax = this.calcSeveranceTax(grossSeverance);
     const netSeverance = Math.max(0, +(grossSeverance - severanceTax).toFixed(2));

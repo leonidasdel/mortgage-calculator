@@ -25,7 +25,11 @@ export class ShareStateService {
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(query)) {
       if (v.startsWith('{') || v.startsWith('[')) {
-        try { out[k] = JSON.parse(v); } catch { out[k] = v; }
+        try {
+          out[k] = JSON.parse(v);
+        } catch {
+          out[k] = v;
+        }
       } else if (v === 'true') out[k] = true;
       else if (v === 'false') out[k] = false;
       else if (!isNaN(Number(v)) && v !== '') out[k] = Number(v);
@@ -44,7 +48,11 @@ export class ShareStateService {
   async copyShareLink(path: string, state: object): Promise<string> {
     const url = this.buildShareUrl(path, state);
     if (!this.isBrowser) return url;
-    try { await navigator.clipboard.writeText(url); } catch { /* ignore */ }
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      /* ignore */
+    }
     return url;
   }
 

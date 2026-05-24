@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
@@ -24,7 +31,14 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-holiday-bonus-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [
+    CommonModule,
+    FormField,
+    EuroPipe,
+    CalcExplanationComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+  ],
   templateUrl: './holiday-bonus-calculator.component.html',
   styleUrl: './holiday-bonus-calculator.component.scss',
 })
@@ -51,8 +65,7 @@ export class HolidayBonusCalculatorComponent {
     'Για μερική απασχόληση: αναλογία εργάσιμων μηνών.',
   ];
 
-  readonly explanationFormula =
-    'Καθαρά = Σ(μικτά δώρων) − ΕΦΚΑ − φόρος (14μηνο μοντέλο)';
+  readonly explanationFormula = 'Καθαρά = Σ(μικτά δώρων) − ΕΦΚΑ − φόρος (14μηνο μοντέλο)';
 
   constructor() {
     this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);

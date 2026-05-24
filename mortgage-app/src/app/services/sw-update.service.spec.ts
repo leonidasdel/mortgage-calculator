@@ -28,10 +28,7 @@ describe('SwUpdateService', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        provideZonelessChangeDetection(),
-        { provide: SwUpdate, useValue: swUpdateMock },
-      ],
+      providers: [provideZonelessChangeDetection(), { provide: SwUpdate, useValue: swUpdateMock }],
     });
     service = TestBed.inject(SwUpdateService);
     service.init();

@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { AnnualBonusResult } from '../../models/salary.models';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
@@ -33,7 +40,14 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-annual-bonus-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [
+    DecimalPipe,
+    FormField,
+    EuroPipe,
+    CalcExplanationComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+  ],
   templateUrl: './annual-bonus-calculator.component.html',
   styleUrl: './annual-bonus-calculator.component.scss',
 })
@@ -76,8 +90,7 @@ export class AnnualBonusCalculatorComponent {
     'Καθαρό μπόνους = μικτό − ΕΦΚΑ − φόρος.',
   ];
 
-  readonly explanationFormula =
-    'Καθαρό μπόνους = Μικτό − ΕΦΚΑ − οριακός φόρος';
+  readonly explanationFormula = 'Καθαρό μπόνους = Μικτό − ΕΦΚΑ − οριακός φόρος';
 
   constructor() {
     this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);

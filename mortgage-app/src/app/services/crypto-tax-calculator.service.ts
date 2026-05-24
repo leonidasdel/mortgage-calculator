@@ -33,7 +33,9 @@ export class CryptoTaxCalculatorService {
     const notes: string[] = [];
 
     if (params.isProfessional) {
-      notes.push('Επαγγελματική δραστηριότητα: ισχύουν κλιμακωτοί συντελεστές έως 44%. Συμβουλευτείτε λογιστή για την τελική εκκαθάριση.');
+      notes.push(
+        'Επαγγελματική δραστηριότητα: ισχύουν κλιμακωτοί συντελεστές έως 44%. Συμβουλευτείτε λογιστή για την τελική εκκαθάριση.',
+      );
     }
 
     let netGain: number;
@@ -48,24 +50,31 @@ export class CryptoTaxCalculatorService {
 
     const withCarry = netGain - Math.max(0, params.carriedLoss);
     const taxableGain = Math.max(0, +withCarry.toFixed(2));
-    const lossCarryForward = netGain < 0
-      ? +Math.abs(netGain).toFixed(2)
-      : params.carriedLoss > netGain ? +(params.carriedLoss - netGain).toFixed(2) : 0;
+    const lossCarryForward =
+      netGain < 0
+        ? +Math.abs(netGain).toFixed(2)
+        : params.carriedLoss > netGain
+          ? +(params.carriedLoss - netGain).toFixed(2)
+          : 0;
 
     const rate = params.isProfessional ? 0.15 : CRYPTO_GAINS_TAX_RATE;
     const taxDue = params.isProfessional
       ? +(taxableGain * rate).toFixed(2)
       : +(taxableGain * CRYPTO_GAINS_TAX_RATE).toFixed(2);
 
-    const effectiveRate = params.totalProceeds > 0 && !params.isProfessional
-      ? +((taxDue / params.totalProceeds) * 100).toFixed(2)
-      : 0;
+    const effectiveRate =
+      params.totalProceeds > 0 && !params.isProfessional
+        ? +((taxDue / params.totalProceeds) * 100).toFixed(2)
+        : 0;
 
     return { netGain, taxableGain, taxDue, lossCarryForward, effectiveRate, fifoDetails, notes };
   }
 
-  private calcFifo(acq: CryptoLot[], disp: CryptoLot[]): { proceeds: number; cost: number; gain: number }[] {
-    const pool = acq.map(a => ({ ...a, remaining: a.amount }));
+  private calcFifo(
+    acq: CryptoLot[],
+    disp: CryptoLot[],
+  ): { proceeds: number; cost: number; gain: number }[] {
+    const pool = acq.map((a) => ({ ...a, remaining: a.amount }));
     const results: { proceeds: number; cost: number; gain: number }[] = [];
 
     for (const d of disp) {

@@ -35,9 +35,8 @@ export class InterestCalculatorService {
     const tax = +(grossInterest * TAX_RATE).toFixed(2);
     const netInterest = +(grossInterest - tax).toFixed(2);
     const totalAmount = +(capital + netInterest).toFixed(2);
-    const effectiveRate = days > 0 && capital > 0
-      ? +((netInterest / capital) * (365 / days) * 100).toFixed(2)
-      : 0;
+    const effectiveRate =
+      days > 0 && capital > 0 ? +((netInterest / capital) * (365 / days) * 100).toFixed(2) : 0;
     const dailyInterest = days > 0 ? +(grossInterest / days).toFixed(4) : 0;
 
     return {

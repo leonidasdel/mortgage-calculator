@@ -76,7 +76,10 @@ export class InheritanceGiftCalculatorService {
     return { taxableBase, taxDue, effectiveRate, exemptAmount, brackets, notes };
   }
 
-  private calcProgressive(value: number, table: { upTo: number | null; rate: number }[]): { tax: number; brackets: TaxBracketRow[] } {
+  private calcProgressive(
+    value: number,
+    table: { upTo: number | null; rate: number }[],
+  ): { tax: number; brackets: TaxBracketRow[] } {
     const brackets: TaxBracketRow[] = [];
     let remaining = value;
     let prev = 0;

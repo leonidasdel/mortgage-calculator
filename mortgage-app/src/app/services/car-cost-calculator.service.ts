@@ -61,7 +61,11 @@ export class CarCostCalculatorService {
     if (!params.isEv) {
       if (params.fuelMode === 'calc') {
         fuelLitersYear = calcFuelLitersPerYear(params.kmPerYear, params.litersPer100km);
-        fuelCostYear = calcAnnualFuelCost(params.kmPerYear, params.litersPer100km, params.pricePerLiter);
+        fuelCostYear = calcAnnualFuelCost(
+          params.kmPerYear,
+          params.litersPer100km,
+          params.pricePerLiter,
+        );
       } else {
         fuelCostYear = Math.max(0, params.fuelCostYear);
       }

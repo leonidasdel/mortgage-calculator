@@ -17,7 +17,7 @@ describe('ConsumerLoanCalculatorComponent', () => {
     const fixture = TestBed.createComponent(ConsumerLoanCalculatorComponent);
     const component = fixture.componentInstance;
 
-    component.formModel.set({
+    component.store.formModelWritable.set({
       loanAmount: 10000,
       interestRate: 13,
       loanMonths: 48,

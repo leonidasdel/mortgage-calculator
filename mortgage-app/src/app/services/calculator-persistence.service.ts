@@ -1,4 +1,14 @@
-import { DestroyRef, effect, inject, Injectable, Injector, PLATFORM_ID, runInInjectionContext, untracked, WritableSignal } from '@angular/core';
+import {
+  DestroyRef,
+  effect,
+  inject,
+  Injectable,
+  Injector,
+  PLATFORM_ID,
+  runInInjectionContext,
+  untracked,
+  WritableSignal,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ShareStateService } from './share-state.service';
 
@@ -20,7 +30,9 @@ export class CalculatorPersistenceService {
     if (!this.isBrowser) return;
     try {
       localStorage.setItem(key, JSON.stringify(value));
-    } catch { /* storage unavailable */ }
+    } catch {
+      /* storage unavailable */
+    }
   }
 
   loadFormState<T>(key: string): T | null {

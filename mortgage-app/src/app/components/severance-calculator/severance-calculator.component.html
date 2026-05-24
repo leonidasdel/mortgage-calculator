@@ -2,28 +2,32 @@
   <div class="page-header-icon severance-icon">📄</div>
   <div>
     <h1 class="page-title" data-testid="severance-page-title">Αποζημίωση Απόλυσης</h1>
-    <p class="page-subtitle">Υπολογίστε την αποζημίωση απόλυσης βάσει Ν. 4808/2021 — με φόρο μόνο για ποσά άνω των €60.000</p>
+    <p class="page-subtitle">
+      Υπολογίστε την αποζημίωση απόλυσης βάσει Ν. 4808/2021 — με φόρο μόνο για ποσά άνω των €60.000
+    </p>
   </div>
 </div>
 
 <div class="grid">
-
   <!-- ═══ LEFT: INPUTS ═══════════════════════════════════════════════════════ -->
   <div class="left-panel">
-
     <div class="card">
       <div class="card-header">
         <div class="card-header-icon">&#9881;</div>
         <h2>Στοιχεία Εργαζομένου</h2>
       </div>
-      <div class="card-body" >
-
+      <div class="card-body">
         <!-- Μισθός -->
         <div class="form-group">
           <label for="grossMonthly">Μεικτός Μηνιαίος Μισθός (€)</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">€</span>
-            <input type="number" id="grossMonthly" data-testid="severance-input-grossMonthly" [formField]="formFields.grossMonthly">
+            <input
+              type="number"
+              id="grossMonthly"
+              data-testid="severance-input-grossMonthly"
+              [formField]="formFields.grossMonthly"
+            />
           </div>
         </div>
 
@@ -31,7 +35,12 @@
         <div class="form-group">
           <label for="yearsOfService">Έτη Προϋπηρεσίας</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="yearsOfService" data-testid="severance-input-yearsOfService" [formField]="formFields.yearsOfService">
+            <input
+              type="number"
+              id="yearsOfService"
+              data-testid="severance-input-yearsOfService"
+              [formField]="formFields.yearsOfService"
+            />
             <span class="sfx">έτη</span>
           </div>
         </div>
@@ -40,7 +49,12 @@
         <div class="form-group">
           <label for="monthsExtra">Επιπλέον Μήνες</label>
           <div class="input-wrap has-sfx">
-            <input type="number" id="monthsExtra" data-testid="severance-input-monthsExtra" [formField]="formFields.monthsExtra">
+            <input
+              type="number"
+              id="monthsExtra"
+              data-testid="severance-input-monthsExtra"
+              [formField]="formFields.monthsExtra"
+            />
             <span class="sfx">μήνες</span>
           </div>
           <div class="sv-hint">
@@ -53,19 +67,28 @@
         <div class="form-group">
           <label>Τύπος Λύσης Σύμβασης</label>
           <div class="seg-group seg-stack-sm">
-            <button type="button" class="seg-btn"
-                    [class.active]="formModel().terminationType === 'without_notice'"
-                    (click)="setTerminationType('without_notice')">
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="formModel().terminationType === 'without_notice'"
+              (click)="setTerminationType('without_notice')"
+            >
               Χωρίς Προειδοποίηση
             </button>
-            <button type="button" class="seg-btn"
-                    [class.active]="formModel().terminationType === 'with_notice'"
-                    (click)="setTerminationType('with_notice')">
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="formModel().terminationType === 'with_notice'"
+              (click)="setTerminationType('with_notice')"
+            >
               Με Προειδοποίηση
             </button>
-            <button type="button" class="seg-btn"
-                    [class.active]="formModel().terminationType === 'mutual'"
-                    (click)="setTerminationType('mutual')">
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="formModel().terminationType === 'mutual'"
+              (click)="setTerminationType('mutual')"
+            >
               Συναινετική
             </button>
           </div>
@@ -73,28 +96,38 @@
 
         @if (formModel().terminationType === 'without_notice') {
           <div class="info-box blue">
-            ✅ Ο εργοδότης απολύει άμεσα. Καταβάλλεται <strong>πλήρης αποζημίωση</strong> ({{ result().fullSeveranceMonths }} μισθοί).
+            ✅ Ο εργοδότης απολύει άμεσα. Καταβάλλεται <strong>πλήρης αποζημίωση</strong> ({{
+              result().fullSeveranceMonths
+            }}
+            μισθοί).
           </div>
         }
         @if (formModel().terminationType === 'with_notice') {
           <div class="info-box blue">
-            📢 Απαιτείται προειδοποίηση <strong>{{ result().noticePeriod }} {{ result().noticePeriod === 1 ? 'μήνα' : 'μήνες' }}</strong> πριν την απόλυση. Αποζημίωση = <strong>½ × {{ result().fullSeveranceMonths }} = {{ result().fullSeveranceMonths / 2 }} μισθοί</strong>.
+            📢 Απαιτείται προειδοποίηση
+            <strong
+              >{{ result().noticePeriod }}
+              {{ result().noticePeriod === 1 ? 'μήνα' : 'μήνες' }}</strong
+            >
+            πριν την απόλυση. Αποζημίωση =
+            <strong
+              >½ × {{ result().fullSeveranceMonths }} =
+              {{ result().fullSeveranceMonths / 2 }} μισθοί</strong
+            >.
           </div>
         }
         @if (formModel().terminationType === 'mutual') {
           <div class="info-box blue">
-            🤝 Αμοιβαία συμφωνία. Αποζημίωση = <strong>½ της αποζημίωσης απόλυσης</strong> = {{ result().fullSeveranceMonths / 2 }} μισθοί. Δεν απαιτείται προειδοποίηση.
+            🤝 Αμοιβαία συμφωνία. Αποζημίωση = <strong>½ της αποζημίωσης απόλυσης</strong> =
+            {{ result().fullSeveranceMonths / 2 }} μισθοί. Δεν απαιτείται προειδοποίηση.
           </div>
         }
-
       </div>
     </div>
-
   </div>
 
   <!-- ═══ RIGHT: RESULTS ══════════════════════════════════════════════════════ -->
   <div class="right-panel">
-
     <!-- Κύρια αποτελέσματα -->
     <div class="card" id="sv-results" data-testid="severance-results">
       <div class="card-header">
@@ -102,17 +135,18 @@
         <h2>Αποτελέσματα Αποζημίωσης</h2>
       </div>
       <div class="card-body">
-
         @if (result().isZero) {
           <div class="info-box amber">
-            ⚠️ Με λιγότερο από <strong>1 συμπληρωμένο έτος</strong> υπηρεσίας, δεν δικαιούστε αποζημίωση βάσει νόμου (δοκιμαστική περίοδος ή σύντομη εργασιακή σχέση).
+            ⚠️ Με λιγότερο από <strong>1 συμπληρωμένο έτος</strong> υπηρεσίας, δεν δικαιούστε
+            αποζημίωση βάσει νόμου (δοκιμαστική περίοδος ή σύντομη εργασιακή σχέση).
           </div>
         } @else {
-
           <div class="hero-row">
             <div class="hero-card dark">
               <div class="hero-lbl">Καθαρή Αποζημίωση</div>
-              <div class="hero-val" data-testid="severance-hero-net">{{ result().netSeverance | euro }}</div>
+              <div class="hero-val" data-testid="severance-hero-net">
+                {{ result().netSeverance | euro }}
+              </div>
               <div class="hero-sub">στο χέρι, χωρίς ΕΦΚΑ</div>
             </div>
             <div class="hero-card">
@@ -180,10 +214,11 @@
                   <span class="sv-exempt-badge">Αφορολόγητο</span>
                 }
               </div>
-              <div class="sum-val blue"><strong>{{ result().netSeverance | euro }}</strong></div>
+              <div class="sum-val blue">
+                <strong>{{ result().netSeverance | euro }}</strong>
+              </div>
             </div>
           </div>
-
         }
 
         <div class="export-row mt-12">
@@ -191,10 +226,10 @@
             sharePath="/severance"
             [shareState]="formModel()"
             [shareSummary]="shareSummary()"
-            printTargetId="sv-results">
+            printTargetId="sv-results"
+          >
           </app-export-row>
         </div>
-
       </div>
     </div>
 
@@ -216,22 +251,81 @@
               </tr>
             </thead>
             <tbody>
-              <tr><td>&lt; 1 έτος</td><td class="num">0 μισθοί</td><td class="num">0 μισθοί</td></tr>
-              <tr [class.sv-current-row]="result().completedYears === 1"><td>1 έτος</td><td class="num">2</td><td class="num">1</td></tr>
-              <tr [class.sv-current-row]="result().completedYears >= 2 && result().completedYears <= 3"><td>2–3 έτη</td><td class="num">2</td><td class="num">1</td></tr>
-              <tr [class.sv-current-row]="result().completedYears === 4"><td>4 έτη</td><td class="num">3</td><td class="num">1,5</td></tr>
-              <tr [class.sv-current-row]="result().completedYears === 5"><td>5 έτη</td><td class="num">3</td><td class="num">1,5</td></tr>
-              <tr [class.sv-current-row]="result().completedYears >= 6 && result().completedYears <= 7"><td>6–7 έτη</td><td class="num">4</td><td class="num">2</td></tr>
-              <tr [class.sv-current-row]="result().completedYears >= 8 && result().completedYears <= 9"><td>8–9 έτη</td><td class="num">5</td><td class="num">2,5</td></tr>
-              <tr [class.sv-current-row]="result().completedYears === 10"><td>10 έτη</td><td class="num">6</td><td class="num">3</td></tr>
-              <tr [class.sv-current-row]="result().completedYears >= 11 && result().completedYears <= 15"><td>11–15 έτη</td><td class="num">7–11</td><td class="num">3,5–5,5</td></tr>
-              <tr [class.sv-current-row]="result().completedYears >= 16"><td>&ge; 16 έτη</td><td class="num">12 έως 24</td><td class="num">6 έως 12</td></tr>
+              <tr>
+                <td>&lt; 1 έτος</td>
+                <td class="num">0 μισθοί</td>
+                <td class="num">0 μισθοί</td>
+              </tr>
+              <tr [class.sv-current-row]="result().completedYears === 1">
+                <td>1 έτος</td>
+                <td class="num">2</td>
+                <td class="num">1</td>
+              </tr>
+              <tr
+                [class.sv-current-row]="
+                  result().completedYears >= 2 && result().completedYears <= 3
+                "
+              >
+                <td>2–3 έτη</td>
+                <td class="num">2</td>
+                <td class="num">1</td>
+              </tr>
+              <tr [class.sv-current-row]="result().completedYears === 4">
+                <td>4 έτη</td>
+                <td class="num">3</td>
+                <td class="num">1,5</td>
+              </tr>
+              <tr [class.sv-current-row]="result().completedYears === 5">
+                <td>5 έτη</td>
+                <td class="num">3</td>
+                <td class="num">1,5</td>
+              </tr>
+              <tr
+                [class.sv-current-row]="
+                  result().completedYears >= 6 && result().completedYears <= 7
+                "
+              >
+                <td>6–7 έτη</td>
+                <td class="num">4</td>
+                <td class="num">2</td>
+              </tr>
+              <tr
+                [class.sv-current-row]="
+                  result().completedYears >= 8 && result().completedYears <= 9
+                "
+              >
+                <td>8–9 έτη</td>
+                <td class="num">5</td>
+                <td class="num">2,5</td>
+              </tr>
+              <tr [class.sv-current-row]="result().completedYears === 10">
+                <td>10 έτη</td>
+                <td class="num">6</td>
+                <td class="num">3</td>
+              </tr>
+              <tr
+                [class.sv-current-row]="
+                  result().completedYears >= 11 && result().completedYears <= 15
+                "
+              >
+                <td>11–15 έτη</td>
+                <td class="num">7–11</td>
+                <td class="num">3,5–5,5</td>
+              </tr>
+              <tr [class.sv-current-row]="result().completedYears >= 16">
+                <td>&ge; 16 έτη</td>
+                <td class="num">12 έως 24</td>
+                <td class="num">6 έως 12</td>
+              </tr>
             </tbody>
           </table>
         </div>
 
         <div class="disclaimer">
-          <strong>Σημαντική Σημείωση:</strong> Η αποζημίωση υπολογίζεται βάσει Ν. 4808/2021 για εργαζομένους ιδιωτικού τομέα αορίστου χρόνου. Η αποζημίωση δεν υπόκειται σε ΕΦΚΑ και φορολογείται αυτοτελώς για το τμήμα άνω των €60.000. Για συλλογικές συμβάσεις ή ειδικές περιπτώσεις συμβουλευτείτε εργατολόγο.
+          <strong>Σημαντική Σημείωση:</strong> Η αποζημίωση υπολογίζεται βάσει Ν. 4808/2021 για
+          εργαζομένους ιδιωτικού τομέα αορίστου χρόνου. Η αποζημίωση δεν υπόκειται σε ΕΦΚΑ και
+          φορολογείται αυτοτελώς για το τμήμα άνω των €60.000. Για συλλογικές συμβάσεις ή ειδικές
+          περιπτώσεις συμβουλευτείτε εργατολόγο.
         </div>
       </div>
     </div>
@@ -239,9 +333,9 @@
     <app-calc-explanation
       title="Πώς υπολογίζεται η αποζημίωση;"
       [steps]="explanationSteps"
-      [formula]="explanationFormula">
+      [formula]="explanationFormula"
+    >
     </app-calc-explanation>
-
   </div>
 </div>
 

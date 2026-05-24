@@ -48,12 +48,18 @@
 
 @if (!showAll() && totalPages() > 1) {
   <div class="pagination">
-    <button class="btn-outline" [disabled]="page() === 1" (click)="prevPage()">← Προηγούμενο</button>
+    <button class="btn-outline" [disabled]="page() === 1" (click)="prevPage()">
+      ← Προηγούμενο
+    </button>
     <span>Σελίδα {{ page() }} από {{ totalPages() }}</span>
-    <button class="btn-outline" [disabled]="page() === totalPages()" (click)="nextPage()">Επόμενο →</button>
+    <button class="btn-outline" [disabled]="page() === totalPages()" (click)="nextPage()">
+      Επόμενο →
+    </button>
   </div>
 }
 
 <div class="disclaimer">
-  <strong>Σημαντική Σημείωση:</strong> Οι υπολογισμοί παρέχονται αποκλειστικά για ενημερωτικούς σκοπούς και δεν αποτελούν χρηματοοικονομική συμβουλή. Επικοινωνήστε με την τράπεζά σας για επίσημα στοιχεία.
+  <strong>Σημαντική Σημείωση:</strong> Οι υπολογισμοί παρέχονται αποκλειστικά για ενημερωτικούς
+  σκοπούς και δεν αποτελούν χρηματοοικονομική συμβουλή. Επικοινωνήστε με την τράπεζά σας για επίσημα
+  στοιχεία.
 </div>

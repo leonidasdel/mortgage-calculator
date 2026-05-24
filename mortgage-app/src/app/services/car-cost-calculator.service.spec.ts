@@ -1,8 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  calcAnnualFuelCost,
-  CarCostCalculatorService,
-} from './car-cost-calculator.service';
+import { calcAnnualFuelCost, CarCostCalculatorService } from './car-cost-calculator.service';
 
 describe('CarCostCalculatorService', () => {
   let service: CarCostCalculatorService;

@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { CompareRow } from '../compare-panel/compare-panel.component';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
@@ -37,7 +44,15 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-rent-vs-buy-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, FormField, EuroPipe, CalcExplanationComponent, ComparePanelComponent, ExportRowComponent, LawFooterComponent],
+  imports: [
+    DecimalPipe,
+    FormField,
+    EuroPipe,
+    CalcExplanationComponent,
+    ComparePanelComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+  ],
   templateUrl: './rent-vs-buy-calculator.component.html',
   styleUrl: './rent-vs-buy-calculator.component.scss',
 })
@@ -87,7 +102,7 @@ export class RentVsBuyCalculatorComponent {
     const fv = this.formModel();
     const monthly = Math.max(0, fv.monthlyRent || 0);
     const growth = fv.rentGrowthRate ?? 3;
-    return [3, 5, 10].map(y => ({
+    return [3, 5, 10].map((y) => ({
       years: y,
       rent: Math.round(monthly * Math.pow(1 + growth / 100, y)),
     }));
@@ -109,7 +124,11 @@ export class RentVsBuyCalculatorComponent {
     const fmt = (n: number) => `${Math.round(n).toLocaleString('el-GR')} €`;
     const winnerLabel = (w: 'buy' | 'rent' | 'tie') =>
       w === 'buy' ? 'Αγορά' : w === 'rent' ? 'Ενοίκιο' : 'Ισοδύναμα';
-    const pickWealth = (va: number, vb: number, winner: 'buy' | 'rent' | 'tie'): 'a' | 'b' | undefined => {
+    const pickWealth = (
+      va: number,
+      vb: number,
+      winner: 'buy' | 'rent' | 'tie',
+    ): 'a' | 'b' | undefined => {
       if (winner === 'buy') return va >= vb ? 'a' : 'b';
       if (winner === 'rent') return vb >= va ? 'b' : 'a';
       return undefined;
@@ -118,9 +137,27 @@ export class RentVsBuyCalculatorComponent {
     const hB = Number(this.formModel().compareTimeHorizon) || 10;
     return [
       { label: 'Χρονικός ορίζοντας', valueA: `${hA} έτη`, valueB: `${hB} έτη` },
-      { label: 'Break-even έτος', valueA: a.breakEvenYear ? `Έτος ${a.breakEvenYear}` : '—', valueB: b.breakEvenYear ? `Έτος ${b.breakEvenYear}` : '—' },
-      { label: 'Ίδια κεφάλαια (αγορά)', valueA: fmt(a.finalBuyWealth), valueB: fmt(b.finalBuyWealth), highlight: pickWealth(a.finalBuyWealth, b.finalBuyWealth, a.winner) },
-      { label: 'Χαρτοφυλάκιο (ενοίκιο)', valueA: fmt(a.finalRentWealth), valueB: fmt(b.finalRentWealth), highlight: pickWealth(a.finalRentWealth, b.finalRentWealth, a.winner === 'buy' ? 'rent' : a.winner === 'rent' ? 'buy' : 'tie') },
+      {
+        label: 'Break-even έτος',
+        valueA: a.breakEvenYear ? `Έτος ${a.breakEvenYear}` : '—',
+        valueB: b.breakEvenYear ? `Έτος ${b.breakEvenYear}` : '—',
+      },
+      {
+        label: 'Ίδια κεφάλαια (αγορά)',
+        valueA: fmt(a.finalBuyWealth),
+        valueB: fmt(b.finalBuyWealth),
+        highlight: pickWealth(a.finalBuyWealth, b.finalBuyWealth, a.winner),
+      },
+      {
+        label: 'Χαρτοφυλάκιο (ενοίκιο)',
+        valueA: fmt(a.finalRentWealth),
+        valueB: fmt(b.finalRentWealth),
+        highlight: pickWealth(
+          a.finalRentWealth,
+          b.finalRentWealth,
+          a.winner === 'buy' ? 'rent' : a.winner === 'rent' ? 'buy' : 'tie',
+        ),
+      },
       { label: 'Καλύτερη επιλογή', valueA: winnerLabel(a.winner), valueB: winnerLabel(b.winner) },
     ];
   });
@@ -136,7 +173,7 @@ export class RentVsBuyCalculatorComponent {
   }
 
   onDownPaymentModeChange(mode: 'pct' | 'amount'): void {
-    this.formModel.update(m => ({ ...m, downPaymentMode: mode }));
+    this.formModel.update((m) => ({ ...m, downPaymentMode: mode }));
     this.syncDownPaymentPair(mode);
   }
 
@@ -149,7 +186,7 @@ export class RentVsBuyCalculatorComponent {
   }
 
   onClosingCostsModeChange(mode: 'pct' | 'amount'): void {
-    this.formModel.update(m => ({ ...m, closingCostsMode: mode }));
+    this.formModel.update((m) => ({ ...m, closingCostsMode: mode }));
     this.syncClosingCostsPair(mode);
   }
 
@@ -174,14 +211,14 @@ export class RentVsBuyCalculatorComponent {
     const propertyPrice = Math.max(0, Number(m.propertyPrice) || 0);
     if (source === 'pct') {
       const pct = Math.min(100, Math.max(0, Number(m.downPaymentPct) || 0));
-      const amount = +(propertyPrice * pct / 100).toFixed(2);
-      this.formModel.update(v => ({ ...v, downPaymentPct: pct, downPaymentAmount: amount }));
+      const amount = +((propertyPrice * pct) / 100).toFixed(2);
+      this.formModel.update((v) => ({ ...v, downPaymentPct: pct, downPaymentAmount: amount }));
       return;
     }
 
     const amount = Math.min(propertyPrice, Math.max(0, Number(m.downPaymentAmount) || 0));
-    const pct = propertyPrice > 0 ? +(amount / propertyPrice * 100).toFixed(2) : 0;
-    this.formModel.update(v => ({ ...v, downPaymentAmount: amount, downPaymentPct: pct }));
+    const pct = propertyPrice > 0 ? +((amount / propertyPrice) * 100).toFixed(2) : 0;
+    this.formModel.update((v) => ({ ...v, downPaymentAmount: amount, downPaymentPct: pct }));
   }
 
   private syncClosingCostsPair(source: 'pct' | 'amount'): void {
@@ -189,14 +226,14 @@ export class RentVsBuyCalculatorComponent {
     const propertyPrice = Math.max(0, Number(m.propertyPrice) || 0);
     if (source === 'pct') {
       const pct = Math.max(0, Number(m.closingCostsPct) || 0);
-      const amount = +(propertyPrice * pct / 100).toFixed(2);
-      this.formModel.update(v => ({ ...v, closingCostsPct: pct, closingCostsAmount: amount }));
+      const amount = +((propertyPrice * pct) / 100).toFixed(2);
+      this.formModel.update((v) => ({ ...v, closingCostsPct: pct, closingCostsAmount: amount }));
       return;
     }
 
     const amount = Math.max(0, Number(m.closingCostsAmount) || 0);
-    const pct = propertyPrice > 0 ? +(amount / propertyPrice * 100).toFixed(2) : 0;
-    this.formModel.update(v => ({ ...v, closingCostsAmount: amount, closingCostsPct: pct }));
+    const pct = propertyPrice > 0 ? +((amount / propertyPrice) * 100).toFixed(2) : 0;
+    this.formModel.update((v) => ({ ...v, closingCostsAmount: amount, closingCostsPct: pct }));
   }
 
   private patchLoadedState(state: Record<string, unknown>, model = this.formModel): void {
@@ -205,12 +242,12 @@ export class RentVsBuyCalculatorComponent {
     if (state['downPaymentAmount'] == null) {
       const price = Math.max(0, Number(state['propertyPrice']) || 0);
       const pct = Math.min(100, Math.max(0, Number(state['downPaymentPct']) || 0));
-      state['downPaymentAmount'] = +(price * pct / 100).toFixed(2);
+      state['downPaymentAmount'] = +((price * pct) / 100).toFixed(2);
     }
     if (state['closingCostsAmount'] == null) {
       const price = Math.max(0, Number(state['propertyPrice']) || 0);
       const pct = Math.max(0, Number(state['closingCostsPct']) || 0);
-      state['closingCostsAmount'] = +(price * pct / 100).toFixed(2);
+      state['closingCostsAmount'] = +((price * pct) / 100).toFixed(2);
     }
     model.set({ ...model(), ...state } as RentVsBuyModel);
   }

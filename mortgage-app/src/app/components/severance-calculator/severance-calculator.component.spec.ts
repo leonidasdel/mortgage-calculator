@@ -45,6 +45,6 @@ describe('SeveranceCalculatorComponent', () => {
 
     expect(result.grossSeverance).toBe(186666.72);
     expect(result.severanceTax).toBe(25000.02);
-    expect(result.netSeverance).toBe(161666.70);
+    expect(result.netSeverance).toBe(161666.7);
   });
 });

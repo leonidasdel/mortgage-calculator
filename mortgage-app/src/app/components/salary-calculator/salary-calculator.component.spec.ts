@@ -29,23 +29,26 @@ describe('SalaryCalculatorComponent', () => {
   });
 
   it('should restore salary change month from local storage inputs', () => {
-    localStorage.setItem('salaryCalcState', JSON.stringify({
-      inputs: {
-        grossMonthly: 3100,
-        netMonthly: 0,
-        year: 2026,
-        ageGroup: 'over30',
-        children: 0,
-        hasSalaryChange: true,
-        salaryChangeMonth: '9',
-        previousGross: 2850,
-        ftePercent: 100,
-        employer2Gross: 0,
-        employer3Gross: 0,
-      },
-      annualBonus: 0,
-      inputMode: 'gross',
-    }));
+    localStorage.setItem(
+      'salaryCalcState',
+      JSON.stringify({
+        inputs: {
+          grossMonthly: 3100,
+          netMonthly: 0,
+          year: 2026,
+          ageGroup: 'over30',
+          children: 0,
+          hasSalaryChange: true,
+          salaryChangeMonth: '9',
+          previousGross: 2850,
+          ftePercent: 100,
+          employer2Gross: 0,
+          employer3Gross: 0,
+        },
+        annualBonus: 0,
+        inputMode: 'gross',
+      }),
+    );
 
     const fixture = TestBed.createComponent(SalaryCalculatorComponent);
     const component = fixture.componentInstance;

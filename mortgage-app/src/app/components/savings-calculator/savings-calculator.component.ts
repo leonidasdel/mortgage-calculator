@@ -1,4 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, PLATFORM_ID, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  PLATFORM_ID,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { form, FormField } from '@angular/forms/signals';
 import { CompareRow } from '../compare-panel/compare-panel.component';
@@ -40,7 +51,16 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-savings-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormField, EuroPipe, ChartResizeDirective, CalcExplanationComponent, ComparePanelComponent, ExportRowComponent, LawFooterComponent],
+  imports: [
+    CommonModule,
+    FormField,
+    EuroPipe,
+    ChartResizeDirective,
+    CalcExplanationComponent,
+    ComparePanelComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+  ],
   templateUrl: './savings-calculator.component.html',
   styleUrl: './savings-calculator.component.scss',
 })
@@ -73,8 +93,7 @@ export class SavingsCalculatorComponent {
     'Τα κέρδη = τελικό ποσό − συνολικές εισφορές (αρχικό + μηνιαίες).',
   ];
 
-  readonly explanationFormula =
-    'Τελικό = αρχικό × (1+r)^n + μηνιαία × [(1+r)^n − 1] / r';
+  readonly explanationFormula = 'Τελικό = αρχικό × (1+r)^n + μηνιαία × [(1+r)^n − 1] / r';
 
   canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('savingsChart');
 
@@ -107,9 +126,23 @@ export class SavingsCalculatorComponent {
     const monthlyB = Math.max(0, this.formModel().compareMonthlyContribution || 0);
     return [
       { label: 'Μηνιαία εισφορά', valueA: fmt(monthlyA), valueB: fmt(monthlyB) },
-      { label: 'Συνολικές εισφορές', valueA: fmt(a.totalContributed), valueB: fmt(b.totalContributed) },
-      { label: 'Καθαρά κέρδη', valueA: fmt(a.netGains), valueB: fmt(b.netGains), highlight: pick(a.netGains, b.netGains) },
-      { label: 'Τελικό ποσό', valueA: fmt(a.finalNominal), valueB: fmt(b.finalNominal), highlight: pick(a.finalNominal, b.finalNominal) },
+      {
+        label: 'Συνολικές εισφορές',
+        valueA: fmt(a.totalContributed),
+        valueB: fmt(b.totalContributed),
+      },
+      {
+        label: 'Καθαρά κέρδη',
+        valueA: fmt(a.netGains),
+        valueB: fmt(b.netGains),
+        highlight: pick(a.netGains, b.netGains),
+      },
+      {
+        label: 'Τελικό ποσό',
+        valueA: fmt(a.finalNominal),
+        valueB: fmt(b.finalNominal),
+        highlight: pick(a.finalNominal, b.finalNominal),
+      },
     ];
   });
 
@@ -119,7 +152,7 @@ export class SavingsCalculatorComponent {
   });
 
   setYears(y: number): void {
-    this.formModel.update(m => ({ ...m, durationYears: y }));
+    this.formModel.update((m) => ({ ...m, durationYears: y }));
   }
 
   onChartResize(): void {
@@ -136,10 +169,13 @@ export class SavingsCalculatorComponent {
     if (!ctx) return;
     ctx.clearRect(0, 0, W, H);
 
-    const maxVal = Math.max(...rows.map(r => r.totalValue));
+    const maxVal = Math.max(...rows.map((r) => r.totalValue));
     if (maxVal <= 0) return;
 
-    const PL = 60, PR = 12, PT = 16, PB = 28;
+    const PL = 60,
+      PR = 12,
+      PT = 16,
+      PB = 28;
     const pad = { l: PL, r: PR, t: PT, b: PB };
     const cW = W - PL - PR;
     const cH = H - PT - PB;
@@ -148,14 +184,22 @@ export class SavingsCalculatorComponent {
     const theme = getSavingsChartTheme(isDarkTheme());
 
     drawHorizontalGrid(
-      ctx, W, H, maxVal, pad, theme.grid, theme.label, formatSavingsAxis, 4,
+      ctx,
+      W,
+      H,
+      maxVal,
+      pad,
+      theme.grid,
+      theme.label,
+      formatSavingsAxis,
+      4,
       '10px system-ui, sans-serif',
     );
 
     rows.forEach((r, i) => {
       const x = PL + i * gap + gap / 2 - bW / 2;
-      const totalH = r.totalValue / maxVal * cH;
-      const contribH = r.totalContributed / maxVal * cH;
+      const totalH = (r.totalValue / maxVal) * cH;
+      const contribH = (r.totalContributed / maxVal) * cH;
       const gainsH = totalH - contribH;
 
       ctx.fillStyle = theme.gains;

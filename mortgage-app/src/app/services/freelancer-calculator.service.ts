@@ -72,10 +72,17 @@ export class FreelancerCalculatorService {
     const catId = params.efkaCategory || 'cat1';
     const advanceRate = params.yearsActive === 'under3' ? 0.275 : 0.55;
     const children = Math.min(Math.max(0, params.children || 0), 6);
-    const cat = EFKA_CATEGORIES.find(c => c.id === catId) ?? EFKA_CATEGORIES[1];
+    const cat = EFKA_CATEGORIES.find((c) => c.id === catId) ?? EFKA_CATEGORIES[1];
 
-    const calc = this.calcForCategory(cat, revenue, expenses, children, advanceRate, params.ageGroup);
-    const efkaComparison = EFKA_CATEGORIES.map(c => {
+    const calc = this.calcForCategory(
+      cat,
+      revenue,
+      expenses,
+      children,
+      advanceRate,
+      params.ageGroup,
+    );
+    const efkaComparison = EFKA_CATEGORIES.map((c) => {
       const r = this.calcForCategory(c, revenue, expenses, children, advanceRate, params.ageGroup);
       return {
         label: c.label,
@@ -112,7 +119,7 @@ export class FreelancerCalculatorService {
     const taxableIncome = Math.max(0, revenue - expenses - annualEfka);
     const taxResult = this.salaryService.calculateTaxOnly(taxableIncome, 2026, ageGroup, children);
     const incomeTax = taxResult.totalTax;
-    const bracketRows: TaxBracketRow[] = taxResult.breakdown.map(b => ({
+    const bracketRows: TaxBracketRow[] = taxResult.breakdown.map((b) => ({
       from: b.from,
       to: b.to,
       rate: b.rate / 100,

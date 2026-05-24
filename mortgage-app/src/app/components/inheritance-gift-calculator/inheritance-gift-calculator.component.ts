@@ -1,6 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
-import { KINSHIP_LABELS, KinshipCategory, TransferType } from '../../constants/inheritance-gift.constants';
+import {
+  KINSHIP_LABELS,
+  KinshipCategory,
+  TransferType,
+} from '../../constants/inheritance-gift.constants';
 import {
   InheritanceGiftCalculatorService,
   InheritanceGiftParams,
@@ -25,7 +36,14 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-inheritance-gift-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
+  imports: [
+    DecimalPipe,
+    FormField,
+    EuroPipe,
+    CalcExplanationComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+  ],
   templateUrl: './inheritance-gift-calculator.component.html',
   styleUrl: './inheritance-gift-calculator.component.scss',
 })
@@ -76,11 +94,11 @@ export class InheritanceGiftCalculatorComponent {
   });
 
   setTransferType(type: string): void {
-    this.formModel.update(m => ({ ...m, transferType: type }));
+    this.formModel.update((m) => ({ ...m, transferType: type }));
   }
 
   setCategory(category: string): void {
-    this.formModel.update(m => ({ ...m, category }));
+    this.formModel.update((m) => ({ ...m, category }));
   }
 
   private buildParams(): InheritanceGiftParams {

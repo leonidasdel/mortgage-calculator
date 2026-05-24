@@ -3,10 +3,19 @@
     <button type="button" class="btn-outline" (click)="print()">&#128424; Εκτύπωση</button>
   }
   @if (showCopy()) {
-    <button type="button" class="btn-outline" data-testid="export-copy-summary" (click)="copySummary()">&#128203; Αντιγραφή</button>
+    <button
+      type="button"
+      class="btn-outline"
+      data-testid="export-copy-summary"
+      (click)="copySummary()"
+    >
+      &#128203; Αντιγραφή
+    </button>
   }
   @if (showShare() && sharePath()) {
-    <button type="button" class="btn-outline" data-testid="export-share-link" (click)="copyLink()">&#128279; Σύνδεσμος</button>
+    <button type="button" class="btn-outline" data-testid="export-share-link" (click)="copyLink()">
+      &#128279; Σύνδεσμος
+    </button>
     <button type="button" class="btn-outline" (click)="shareWhatsApp()">WhatsApp</button>
   }
 </div>

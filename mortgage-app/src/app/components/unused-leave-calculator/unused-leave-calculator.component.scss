@@ -62,7 +62,7 @@
   cursor: pointer;
   font-size: 13px;
 }
-.lv-check-row input[type="checkbox"] {
+.lv-check-row input[type='checkbox'] {
   accent-color: var(--blue);
   width: 16px;
   height: 16px;
@@ -195,5 +195,11 @@
   text-align: right;
 }
 
-.lv-law-title { margin-bottom: 2px; }
-.lv-law-desc  { font-size: 12px; color: var(--g500); line-height: 1.5; }
+.lv-law-title {
+  margin-bottom: 2px;
+}
+.lv-law-desc {
+  font-size: 12px;
+  color: var(--g500);
+  line-height: 1.5;
+}

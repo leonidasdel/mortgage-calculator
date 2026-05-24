@@ -1,4 +1,6 @@
-:host { display: block; }
+:host {
+  display: block;
+}
 
 /* ── HERO ─────────────────────────────────────────────────── */
 .home-hero {
@@ -133,19 +135,45 @@
   flex-shrink: 0;
 }
 
-.tool-icon.mortgage-gradient          { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); }
-.tool-icon.salary-gradient            { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); }
-.tool-icon.annual-bonus-gradient      { background: linear-gradient(135deg, #dcfce7 0%, #86efac 100%); }
-.tool-icon.interest-gradient          { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
-.tool-icon.consumer-loan-gradient     { background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); }
-.tool-icon.rent-vs-buy-gradient       { background: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%); }
-.tool-icon.rental-tax-gradient        { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
-.tool-icon.freelancer-gradient        { background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); }
-.tool-icon.savings-gradient           { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); }
-.tool-icon.unused-leave-gradient      { background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 60%, #f59e0b 100%); }
-.tool-icon.holiday-bonus-gradient     { background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%); }
-.tool-icon.severance-gradient         { background: linear-gradient(135deg, #f3f4f6 0%, #d1d5db 100%); }
-.tool-icon.property-purchase-gradient { background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%); }
+.tool-icon.mortgage-gradient {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+}
+.tool-icon.salary-gradient {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+}
+.tool-icon.annual-bonus-gradient {
+  background: linear-gradient(135deg, #dcfce7 0%, #86efac 100%);
+}
+.tool-icon.interest-gradient {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+.tool-icon.consumer-loan-gradient {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+}
+.tool-icon.rent-vs-buy-gradient {
+  background: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%);
+}
+.tool-icon.rental-tax-gradient {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+.tool-icon.freelancer-gradient {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+}
+.tool-icon.savings-gradient {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+}
+.tool-icon.unused-leave-gradient {
+  background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 60%, #f59e0b 100%);
+}
+.tool-icon.holiday-bonus-gradient {
+  background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+}
+.tool-icon.severance-gradient {
+  background: linear-gradient(135deg, #f3f4f6 0%, #d1d5db 100%);
+}
+.tool-icon.property-purchase-gradient {
+  background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%);
+}
 
 /* ── TOOL TEXT ────────────────────────────────────────────── */
 .tool-text {
@@ -231,7 +259,7 @@
 .home-search:focus {
   outline: none;
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 .life-events {
   display: grid;
@@ -252,7 +280,11 @@
   color: var(--g800);
   min-width: 140px;
 }
-.life-event-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.life-event-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .life-link {
   font-size: 12px;
   color: var(--blue);
@@ -262,4 +294,6 @@
   border-radius: 6px;
   font-weight: 500;
 }
-.life-link:hover { background: var(--blue-mid); }
+.life-link:hover {
+  background: var(--blue-mid);
+}

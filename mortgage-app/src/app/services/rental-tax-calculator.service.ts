@@ -36,13 +36,15 @@ export interface RentalTaxResult {
 @Injectable({ providedIn: 'root' })
 export class RentalTaxCalculatorService {
   calculate(params: RentalTaxParams): RentalTaxResult {
-    const annualIncome = params.incomeMode === 'monthly'
-      ? +(Math.max(0, params.monthlyIncome || 0) * 12).toFixed(2)
-      : Math.max(0, params.annualIncome || 0);
+    const annualIncome =
+      params.incomeMode === 'monthly'
+        ? +(Math.max(0, params.monthlyIncome || 0) * 12).toFixed(2)
+        : Math.max(0, params.annualIncome || 0);
 
-    const expensesDeduction = params.expenseMethod === 'automatic'
-      ? annualIncome * 0.05
-      : Math.max(0, Math.min(params.actualExpenses || 0, annualIncome));
+    const expensesDeduction =
+      params.expenseMethod === 'automatic'
+        ? annualIncome * 0.05
+        : Math.max(0, Math.min(params.actualExpenses || 0, annualIncome));
 
     const taxableIncome = Math.max(0, annualIncome - expensesDeduction);
     const bracketRows: TaxBracketRow[] = [];

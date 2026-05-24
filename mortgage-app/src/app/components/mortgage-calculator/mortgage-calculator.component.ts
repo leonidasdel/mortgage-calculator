@@ -1,11 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, linkedSignal, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { form } from '@angular/forms/signals';
-import { EarlyRepayment, LoanParams } from '../../models/mortgage.models';
-import { MortgageCalculatorService } from '../../services/mortgage-calculator.service';
-import { PersistenceService } from '../../services/persistence.service';
+import { EarlyRepayment } from '../../models/mortgage.models';
 import { ExportService } from '../../services/export.service';
 import { RateFeedService } from '../../services/rate-feed.service';
-import { DEFAULT_EURIBOR_RATE } from '../../constants/euribor.constants';
+import { MortgageStore } from './mortgage.store';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { AmortizationChartComponent } from '../amortization-chart/amortization-chart.component';
 import { AmortizationTableComponent } from '../amortization-table/amortization-table.component';
@@ -16,56 +14,39 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
 import { LoanFormComponent } from '../loan-form/loan-form.component';
 import { SummaryPanelComponent } from '../summary-panel/summary-panel.component';
 
-const DEFAULT_LOAN_PARAMS: LoanParams = {
-  loanAmount: 100000,
-  loanYears: 30,
-  fixedYears: 5,
-  fixedRate: 2.9,
-  euribor: DEFAULT_EURIBOR_RATE,
-  bankMargin: 2.1,
-  gracePeriod: 0,
-  erMode: 'reducePmt',
-};
-
 @Component({
   selector: 'app-mortgage-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EuroPipe, AmortizationChartComponent, AmortizationTableComponent, CalcExplanationComponent, EarlyRepaymentsComponent, ExportRowComponent, LawFooterComponent, LoanFormComponent, SummaryPanelComponent],
+  imports: [
+    EuroPipe,
+    AmortizationChartComponent,
+    AmortizationTableComponent,
+    CalcExplanationComponent,
+    EarlyRepaymentsComponent,
+    ExportRowComponent,
+    LawFooterComponent,
+    LoanFormComponent,
+    SummaryPanelComponent,
+  ],
+  providers: [MortgageStore],
   templateUrl: './mortgage-calculator.component.html',
   styleUrl: './mortgage-calculator.component.scss',
 })
 export class MortgageCalculatorComponent {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly calc = inject(MortgageCalculatorService);
-  private readonly persistence = inject(PersistenceService);
-  private readonly exportSvc = inject(ExportService);
+  readonly store = inject(MortgageStore);
   readonly rateFeed = inject(RateFeedService);
+  private readonly exportSvc = inject(ExportService);
 
-  formModel = linkedSignal<{ useLive: boolean; live: number | null }, LoanParams>({
-    source: () => ({
-      useLive: this.rateFeed.useLiveRate(),
-      live: this.rateFeed.liveRate(),
-    }),
-    computation: (src, prev) => {
-      const current = prev?.value ?? { ...DEFAULT_LOAN_PARAMS };
-      if (src.useLive && src.live != null) {
-        return current.euribor === src.live ? current : { ...current, euribor: src.live };
-      }
-      if (prev?.source.useLive && !src.useLive) {
-        return { ...current, euribor: DEFAULT_EURIBOR_RATE };
-      }
-      return current;
-    },
-  });
-  formFields = form(this.formModel);
-  erList = signal<EarlyRepayment[]>([]);
+  readonly formFields = form(this.store.formModelWritable);
 
-  constructor() {
-    this.persistence.initMortgageForm(this.formModel, this.destroyRef, {
-      onLoadErList: (list) => this.erList.set(list),
-      onSave: () => this.persist(),
-    });
-  }
+  // Expose signals directly to preserve HTML template references
+  readonly formModel = this.store.formModel;
+  readonly erList = this.store.erList;
+  readonly schedule = this.store.schedule;
+  readonly baseSchedule = this.store.baseSchedule;
+  readonly summary = this.store.summary;
+  readonly erMonthsSaved = this.store.erMonthsSaved;
+  readonly shareSummary = this.store.shareSummary;
 
   readonly explanationSteps = [
     'Η δόση υπολογίζεται με τύπο PMT για σταθερή και κυμαινόμενη περίοδο.',
@@ -77,35 +58,19 @@ export class MortgageCalculatorComponent {
   readonly explanationFormula =
     'Δόση = PMT(κεφάλαιο, επιτόκιο + 0,12%, μήνες) · Σύνολο = δόσεις + εισφορά';
 
-  schedule = computed(() => this.calc.buildSchedule(this.formModel(), this.erList()));
-  baseSchedule = computed(() => this.calc.buildSchedule(this.formModel(), []));
-  summary = computed(() => this.calc.computeSummary(this.schedule(), this.baseSchedule(), this.formModel()));
-  erMonthsSaved = computed(() => this.calc.computeErMonthsSaved(this.formModel(), this.erList()));
-
-  shareSummary = computed(() => {
-    const s = this.summary();
-    return `Στεγαστικό δάνειο Salaries.gr: δόση ${s.fixedPayment.toFixed(2)}€ (σταθερή), σύνολο ${s.grandTotal.toFixed(2)}€`;
-  });
-
   onLiveEuriborToggle(enabled: boolean): void {
-    this.rateFeed.toggleUseLiveRate(enabled);
+    this.store.onLiveEuriborToggle(enabled);
   }
 
   onErListChange(updated: EarlyRepayment[]): void {
-    this.erList.set(updated);
-    this.persist();
+    this.store.onErListChange(updated);
   }
 
   onErModeChange(mode: 'reducePmt' | 'reduceDur'): void {
-    this.formModel.update(m => ({ ...m, erMode: mode }));
-    this.persist();
+    this.store.onErModeChange(mode);
   }
 
   onExportCsv(): void {
     this.exportSvc.exportAmortizationCSV(this.schedule());
-  }
-
-  private persist(): void {
-    this.persistence.saveState(this.formModel(), this.erList(), 0);
   }
 }

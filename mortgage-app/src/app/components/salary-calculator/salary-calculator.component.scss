@@ -77,8 +77,12 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-.breakdown-value.red { color: var(--red); }
-.breakdown-value.green { color: var(--green); }
+.breakdown-value.red {
+  color: var(--red);
+}
+.breakdown-value.green {
+  color: var(--green);
+}
 
 /* Benefits */
 .benefit-item {
@@ -151,8 +155,12 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
-.raise-diff-value.green { color: #059669; }
-.raise-diff-value.red { color: var(--red); }
+.raise-diff-value.green {
+  color: #059669;
+}
+.raise-diff-value.red {
+  color: var(--red);
+}
 
 /* Tax table */
 .tax-table-wrap {
@@ -174,14 +182,19 @@
   border-bottom: 2px solid var(--g200);
   white-space: nowrap;
 }
-.tax-table th:first-child { text-align: left; }
+.tax-table th:first-child {
+  text-align: left;
+}
 .tax-table td {
   padding: 8px 10px;
   text-align: right;
   border-bottom: 1px solid var(--g100);
   font-variant-numeric: tabular-nums;
 }
-.tax-table td:first-child { text-align: left; color: var(--g600); }
+.tax-table td:first-child {
+  text-align: left;
+  color: var(--g600);
+}
 .tax-table tfoot td {
   font-weight: 600;
   border-top: 1px solid var(--g200);
@@ -199,7 +212,7 @@
   gap: 8px;
   cursor: pointer;
 
-  input[type="checkbox"] {
+  input[type='checkbox'] {
     width: 16px;
     height: 16px;
     accent-color: var(--blue);
@@ -232,9 +245,20 @@
 }
 
 @media (max-width: 480px) {
-  .salary-hero .hero-val { font-size: 22px; }
-  .salary-hero { padding: 14px 10px; }
-  .breakdown-row { padding: 10px 12px; font-size: 13px; }
-  .benefit-item { flex-wrap: wrap; }
-  .benefit-item .benefit-val { width: 100px; }
+  .salary-hero .hero-val {
+    font-size: 22px;
+  }
+  .salary-hero {
+    padding: 14px 10px;
+  }
+  .breakdown-row {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  .benefit-item {
+    flex-wrap: wrap;
+  }
+  .benefit-item .benefit-val {
+    width: 100px;
+  }
 }

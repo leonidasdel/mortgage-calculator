@@ -17,12 +17,12 @@ describe('RentVsBuyCalculatorComponent', () => {
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
-    component.formModel.update(m => ({ ...m, propertyPrice: 198000 }));
+    component.formModel.update((m) => ({ ...m, propertyPrice: 198000 }));
     component.onDownPaymentModeChange('amount');
-    component.formModel.update(m => ({ ...m, downPaymentAmount: 17820 }));
+    component.formModel.update((m) => ({ ...m, downPaymentAmount: 17820 }));
     component.onDownPaymentAmountInput();
     component.onClosingCostsModeChange('amount');
-    component.formModel.update(m => ({ ...m, closingCostsAmount: 11880 }));
+    component.formModel.update((m) => ({ ...m, closingCostsAmount: 11880 }));
     component.onClosingCostsAmountInput();
 
     const result = component.result();
@@ -37,12 +37,12 @@ describe('RentVsBuyCalculatorComponent', () => {
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
-    component.formModel.update(m => ({ ...m, propertyPrice: 198000 }));
+    component.formModel.update((m) => ({ ...m, propertyPrice: 198000 }));
     component.onDownPaymentModeChange('amount');
-    component.formModel.update(m => ({ ...m, downPaymentAmount: 17820 }));
+    component.formModel.update((m) => ({ ...m, downPaymentAmount: 17820 }));
     component.onDownPaymentAmountInput();
     component.onClosingCostsModeChange('amount');
-    component.formModel.update(m => ({ ...m, closingCostsAmount: 11880 }));
+    component.formModel.update((m) => ({ ...m, closingCostsAmount: 11880 }));
     component.onClosingCostsAmountInput();
     TestBed.flushEffects();
 
