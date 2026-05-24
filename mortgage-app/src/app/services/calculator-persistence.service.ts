@@ -1,15 +1,6 @@
-import { DestroyRef, effect, inject, Injectable, Injector, runInInjectionContext, untracked, WritableSignal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormGroup } from '@angular/forms';
+import { DestroyRef, effect, inject, Injectable, Injector, PLATFORM_ID, runInInjectionContext, untracked, WritableSignal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { ShareStateService } from './share-state.service';
-
-export interface CalculatorInitOptions {
-  onLoad?: (saved: Record<string, unknown>) => void;
-  onSave?: () => void;
-  /** Full control when applying URL query params (default: patchValue deserialized state). */
-  onApplyShareState?: (state: Record<string, unknown>, form: FormGroup) => void;
-  onAfterInit?: () => void;
-}
 
 export interface SignalFormInitOptions<T> {
   onLoad?: (saved: Record<string, unknown>) => void;
@@ -22,14 +13,18 @@ export interface SignalFormInitOptions<T> {
 export class CalculatorPersistenceService {
   private readonly shareSvc = inject(ShareStateService);
   private readonly injector = inject(Injector);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   saveFormState<T>(key: string, value: T): void {
+    if (!this.isBrowser) return;
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch { /* storage unavailable */ }
   }
 
   loadFormState<T>(key: string): T | null {
+    if (!this.isBrowser) return null;
     try {
       const raw = localStorage.getItem(key);
       if (!raw) return null;
@@ -37,49 +32,6 @@ export class CalculatorPersistenceService {
     } catch {
       return null;
     }
-  }
-
-  initCalculatorForm(
-    form: FormGroup,
-    storageKey: string,
-    destroyRef: DestroyRef,
-    options?: CalculatorInitOptions,
-  ): void {
-    const saved = this.loadFormState<Record<string, unknown>>(storageKey);
-    if (saved) {
-      if (options?.onLoad) {
-        options.onLoad(saved);
-      } else {
-        form.patchValue(saved, { emitEvent: false });
-      }
-    }
-
-    const qp = this.shareSvc.getQueryParams();
-    if (Object.keys(qp).length) {
-      const state = this.shareSvc.deserializeState(qp);
-      if (options?.onApplyShareState) {
-        options.onApplyShareState(state, form);
-      } else {
-        form.patchValue(state, { emitEvent: false });
-      }
-    }
-
-    runInInjectionContext(this.injector, () => {
-      const formValues = toSignal(form.valueChanges, { initialValue: form.value });
-      const saveRef = effect(() => {
-        formValues();
-        untracked(() => {
-          if (options?.onSave) {
-            options.onSave();
-          } else {
-            this.saveFormState(storageKey, form.value);
-          }
-        });
-      });
-      destroyRef.onDestroy(() => saveRef.destroy());
-    });
-
-    options?.onAfterInit?.();
   }
 
   initSignalForm<T extends object>(

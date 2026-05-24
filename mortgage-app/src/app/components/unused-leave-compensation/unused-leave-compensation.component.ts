@@ -5,7 +5,6 @@ import { EuroPipe } from '../../pipes/euro.pipe';
 
 @Component({
   selector: 'app-unused-leave-compensation',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, EuroPipe],
   templateUrl: './unused-leave-compensation.component.html',

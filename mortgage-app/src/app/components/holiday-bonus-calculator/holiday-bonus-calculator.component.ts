@@ -23,7 +23,6 @@ import { ExportRowComponent } from '../export-row/export-row.component';
 import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-holiday-bonus-calculator',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './holiday-bonus-calculator.component.html',

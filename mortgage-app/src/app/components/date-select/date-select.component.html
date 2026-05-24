@@ -3,8 +3,8 @@
     <div class="date-part">
       <label class="date-part-lbl">Ημέρα</label>
       <select class="form-select" (change)="onDayChange($event)" aria-label="Ημέρα">
-        @for (d of days; track d) {
-          <option [value]="d" [selected]="d === day">{{ d }}</option>
+        @for (d of days(); track d) {
+          <option [value]="d" [selected]="d === day()">{{ d }}</option>
         }
       </select>
     </div>
@@ -12,18 +12,18 @@
       <label class="date-part-lbl">Μήνας</label>
       <select class="form-select" (change)="onMonthChange($event)" aria-label="Μήνας">
         @for (m of months; track m.value) {
-          <option [value]="m.value" [selected]="m.value === month">{{ m.label }}</option>
+          <option [value]="m.value" [selected]="m.value === month()">{{ m.label }}</option>
         }
       </select>
     </div>
     <div class="date-part">
       <label class="date-part-lbl">Έτος</label>
       <select class="form-select" (change)="onYearChange($event)" aria-label="Έτος">
-        @for (y of years; track y) {
-          <option [value]="y" [selected]="y === year">{{ y }}</option>
+        @for (y of years(); track y) {
+          <option [value]="y" [selected]="y === year()">{{ y }}</option>
         }
       </select>
     </div>
   </div>
-  <div class="date-select-preview">{{ displayDate }}</div>
+  <div class="date-select-preview">{{ displayDate() }}</div>
 </div>

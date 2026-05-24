@@ -1,5 +1,19 @@
-import { ChangeDetectionStrategy, Component, ElementRef, AfterViewInit, OnDestroy, ViewChild, effect, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  linkedSignal,
+  OnDestroy,
+  PLATFORM_ID,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ChartResizeDirective } from '../../directives/chart-resize.directive';
 import { AmortizationRow } from '../../models/mortgage.models';
 import {
@@ -33,9 +47,28 @@ interface BarHit {
   interest: number;
 }
 
+interface ChartTooltip {
+  visible: boolean;
+  x: number;
+  y: number;
+  title: string;
+  principal: string;
+  interest: string;
+  total: string;
+}
+
+const HIDDEN_TOOLTIP: ChartTooltip = {
+  visible: false,
+  x: 0,
+  y: 0,
+  title: '',
+  principal: '',
+  interest: '',
+  total: '',
+};
+
 @Component({
   selector: 'app-amortization-chart',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ChartResizeDirective],
   templateUrl: './amortization-chart.component.html',
@@ -43,18 +76,27 @@ interface BarHit {
 })
 export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
   schedule = input<AmortizationRow[]>([]);
-  @ViewChild('chartCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
+  canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('chartCanvas');
 
-  viewMode: 'monthly' | 'yearly' = 'yearly';
-  tooltipVisible = false;
-  tooltipX = 0;
-  tooltipY = 0;
-  tooltipTitle = '';
-  tooltipPrincipal = '';
-  tooltipInterest = '';
-  tooltipTotal = '';
+  private readonly userOverride = signal(false);
+  monthlyAllowed = computed(() => this.schedule().length <= MAX_MONTHLY_BUCKETS);
 
-  private userOverride = false;
+  viewMode = linkedSignal<{ allowed: boolean }, 'monthly' | 'yearly'>({
+    source: () => ({ allowed: this.monthlyAllowed() }),
+    computation: (src, prev) => {
+      if (!this.userOverride()) {
+        return src.allowed ? 'monthly' : 'yearly';
+      }
+      const mode = prev?.value ?? 'yearly';
+      return mode === 'monthly' && !src.allowed ? 'yearly' : mode;
+    },
+  });
+
+  tooltip = signal<ChartTooltip>(HIDDEN_TOOLTIP);
+
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
+
   private resizeObserver?: ResizeObserver;
   private barHits: BarHit[] = [];
   private hoveredKey: number | null = null;
@@ -65,21 +107,17 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
   constructor() {
     effect(() => {
       this.schedule();
-      if (!this.userOverride) {
-        this.viewMode = this.monthlyAllowed ? 'monthly' : 'yearly';
-      } else if (this.viewMode === 'monthly' && !this.monthlyAllowed) {
-        this.viewMode = 'yearly';
+      this.viewMode();
+      if (this.isBrowser) {
+        this.draw();
       }
-      this.draw();
     });
   }
 
-  get monthlyAllowed(): boolean {
-    return this.schedule().length <= MAX_MONTHLY_BUCKETS;
-  }
-
   ngAfterViewInit(): void {
-    const parent = this.canvasRef.nativeElement.parentElement;
+    if (!this.isBrowser) return;
+    const canvas = this.canvasRef().nativeElement;
+    const parent = canvas.parentElement;
     if (parent && typeof ResizeObserver !== 'undefined') {
       this.resizeObserver = new ResizeObserver(() => this.draw());
       this.resizeObserver.observe(parent);
@@ -96,17 +134,17 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
   }
 
   setViewMode(mode: 'monthly' | 'yearly'): void {
-    if (mode === 'monthly' && !this.monthlyAllowed) return;
-    if (this.viewMode === mode) return;
-    this.userOverride = true;
-    this.viewMode = mode;
+    if (mode === 'monthly' && !this.monthlyAllowed()) return;
+    if (this.viewMode() === mode) return;
+    this.userOverride.set(true);
+    this.viewMode.set(mode);
     this.hideTooltip();
     this.draw();
   }
 
   onMouseMove(event: MouseEvent): void {
-    const canvas = this.canvasRef?.nativeElement;
-    if (!canvas || !this.barHits.length) return;
+    const canvas = this.canvasRef().nativeElement;
+    if (!this.barHits.length) return;
 
     const rect = canvas.getBoundingClientRect();
     const mx = event.clientX - rect.left;
@@ -152,14 +190,9 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
 
   private showTooltip(hit: BarHit, event: MouseEvent): void {
     const total = hit.principal + hit.interest;
-    const unit = this.viewMode === 'monthly' ? 'Μήνας' : 'Έτος';
-    this.tooltipTitle = `${unit} ${hit.key}`;
-    this.tooltipPrincipal = this.formatEuro(hit.principal);
-    this.tooltipInterest = this.formatEuro(hit.interest);
-    this.tooltipTotal = this.formatEuro(total);
-    this.tooltipVisible = true;
+    const unit = this.viewMode() === 'monthly' ? 'Μήνας' : 'Έτος';
 
-    const canvas = this.canvasRef.nativeElement;
+    const canvas = this.canvasRef().nativeElement;
     const container = canvas.parentElement!;
     const containerRect = container.getBoundingClientRect();
     let tx = event.clientX - containerRect.left + 12;
@@ -167,16 +200,24 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
     tx = Math.min(tx, containerRect.width - 168);
     tx = Math.max(8, tx);
     ty = Math.max(8, ty);
-    this.tooltipX = tx;
-    this.tooltipY = ty;
+
+    this.tooltip.set({
+      visible: true,
+      x: tx,
+      y: ty,
+      title: `${unit} ${hit.key}`,
+      principal: this.formatEuro(hit.principal),
+      interest: this.formatEuro(hit.interest),
+      total: this.formatEuro(total),
+    });
   }
 
   private hideTooltip(): void {
-    this.tooltipVisible = false;
+    this.tooltip.set(HIDDEN_TOOLTIP);
   }
 
   private draw(): void {
-    const canvas = this.canvasRef?.nativeElement;
+    const canvas = this.canvasRef()?.nativeElement;
     if (!canvas) return;
 
     const W = canvas.parentElement?.clientWidth || 600;
@@ -292,7 +333,6 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
 
     const dimmed = this.hoveredKey !== null;
 
-    // Interest area (top layer)
     ctx.globalAlpha = dimmed ? 0.25 : 0.9;
     ctx.fillStyle = theme.interestFill;
     ctx.beginPath();
@@ -302,7 +342,6 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
     ctx.closePath();
     ctx.fill();
 
-    // Principal area
     ctx.fillStyle = theme.principalFill;
     ctx.beginPath();
     ctx.moveTo(pts[0].x, baseY);
@@ -313,7 +352,6 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
 
     ctx.globalAlpha = 1;
 
-    // Boundary lines
     ctx.lineWidth = 1.5;
     ctx.strokeStyle = theme.interest;
     ctx.beginPath();
@@ -364,7 +402,7 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
     const buckets: Record<number, ChartBucket> = {};
 
     for (const row of this.schedule()) {
-      const key = this.viewMode === 'monthly' ? row.month : Math.ceil(row.month / 12);
+      const key = this.viewMode() === 'monthly' ? row.month : Math.ceil(row.month / 12);
       if (!buckets[key]) buckets[key] = { key, principal: 0, interest: 0 };
       buckets[key].principal += row.principal + row.earlyAmt;
       buckets[key].interest += row.interest;
@@ -401,7 +439,7 @@ export class AmortizationChartComponent implements AfterViewInit, OnDestroy {
   private shouldLabelTick(index: number, total: number, key: number, keys: number[]): boolean {
     if (index === 0 || index === total - 1) return true;
     let every: number;
-    if (this.viewMode === 'monthly') {
+    if (this.viewMode() === 'monthly') {
       every = total <= 12 ? 1 : total <= 24 ? 2 : total <= 60 ? 6 : 12;
     } else {
       every = total <= 10 ? 1 : total <= 20 ? 2 : total <= 30 ? 3 : 5;

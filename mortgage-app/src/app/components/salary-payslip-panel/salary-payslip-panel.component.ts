@@ -5,7 +5,6 @@ import { EuroPipe } from '../../pipes/euro.pipe';
 
 @Component({
   selector: 'app-salary-payslip-panel',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DecimalPipe, EuroPipe],
   templateUrl: './salary-payslip-panel.component.html',

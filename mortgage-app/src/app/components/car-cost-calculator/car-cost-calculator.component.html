@@ -18,8 +18,8 @@
         <div class="form-group">
           <label>Ημερομηνία 1ης κυκλοφορίας</label>
           <app-date-select
-            [ngModel]="formModel().firstRegistration"
-            (ngModelChange)="onFirstRegistrationChange($event)"
+            [value]="formModel().firstRegistration"
+            (valueChange)="onFirstRegistrationChange($event)"
             [minYear]="1980"></app-date-select>
           <div class="cc-hint">{{ eraHint() }}</div>
         </div>

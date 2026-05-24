@@ -31,7 +31,6 @@ import { UnusedLeaveCompensationComponent } from '../unused-leave-compensation/u
 import { UnusedLeaveTaxBreakdownComponent } from '../unused-leave-tax-breakdown/unused-leave-tax-breakdown.component';
 @Component({
   selector: 'app-unused-leave-calculator',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, LawFooterComponent, UnusedLeaveCompensationComponent, UnusedLeaveTaxBreakdownComponent],
   templateUrl: './unused-leave-calculator.component.html',

@@ -37,7 +37,6 @@ import { ExportRowComponent } from '../export-row/export-row.component';
 import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-consumer-loan-calculator',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormField, EuroPipe, AmortizationChartComponent, AmortizationTableComponent, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './consumer-loan-calculator.component.html',

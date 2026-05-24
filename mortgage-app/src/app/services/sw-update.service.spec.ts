@@ -34,10 +34,10 @@ describe('SwUpdateService', () => {
       ],
     });
     service = TestBed.inject(SwUpdateService);
+    service.init();
   });
 
   it('should set updateAvailable on VERSION_READY', () => {
-    TestBed.runInInjectionContext(() => service.init());
     expect(service.updateAvailable()).toBe(false);
     versionUpdates$.next({ type: 'VERSION_READY' } as VersionReadyEvent);
     TestBed.flushEffects();
@@ -45,14 +45,12 @@ describe('SwUpdateService', () => {
   });
 
   it('should set updateAvailable on unrecoverable error', () => {
-    TestBed.runInInjectionContext(() => service.init());
     unrecoverable$.next({ reason: 'cache bust' });
     TestBed.flushEffects();
     expect(service.updateAvailable()).toBe(true);
   });
 
   it('should check for updates on init', () => {
-    TestBed.runInInjectionContext(() => service.init());
     expect(swUpdateMock.checkForUpdate).toHaveBeenCalled();
   });
 
@@ -64,7 +62,7 @@ describe('SwUpdateService', () => {
 
   it('should no-op when service worker disabled', () => {
     swUpdateMock.isEnabled = false;
-    TestBed.runInInjectionContext(() => service.init());
+    swUpdateMock.checkForUpdate.mockClear();
     service.checkForUpdates();
     expect(swUpdateMock.checkForUpdate).not.toHaveBeenCalled();
   });

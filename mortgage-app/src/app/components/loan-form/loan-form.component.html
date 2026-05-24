@@ -43,9 +43,28 @@
     <div class="form-group">
       <label for="euribor">Euribor 3M (%)</label>
       <div class="input-wrap has-sfx">
-        <input type="number" id="euribor" data-testid="mortgage-input-euribor" [formField]="formFields().euribor">
+        @if (useLive()) {
+          <input type="number" id="euribor" data-testid="mortgage-input-euribor"
+                 [value]="liveDisplayRate()" disabled aria-readonly="true">
+        } @else {
+          <input type="number" id="euribor" data-testid="mortgage-input-euribor" [formField]="formFields().euribor">
+        }
         <span class="sfx">%</span>
       </div>
+      @if (rateFeed()) {
+        <label class="cc-check-row euribor-live-toggle" style="margin-top:8px;font-size:13px;">
+          <input type="checkbox" data-testid="mortgage-input-useLiveEuribor"
+                 [checked]="useLive()"
+                 (change)="toggleLiveEuribor($any($event.target).checked)">
+          <span>Χρήση τρέχουσας τιμής Euribor (ECB)@if (euriborLoading()) { — φόρτωση… }</span>
+        </label>
+        @if (useLive() && euriborAsOf() && !euriborLoading()) {
+          <div class="euribor-live-hint">Τρέχουσα τιμή ECB ({{ euriborAsOf() }})</div>
+        }
+        @if (euriborFetchFailed()) {
+          <div class="euribor-live-hint euribor-live-hint--warn">Δεν ήταν δυνατή η φόρτωση — χρησιμοποιείται προεπιλογή</div>
+        }
+      }
     </div>
     <div class="form-group">
       <label for="bankMargin">Περιθώριο Τράπεζας (%)</label>

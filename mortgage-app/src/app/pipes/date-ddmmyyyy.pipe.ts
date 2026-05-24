@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({ name: 'dateDDMMYYYY', standalone: true })
+@Pipe({ name: 'dateDDMMYYYY' })
 export class DateDDMMYYYYPipe implements PipeTransform {
   transform(d: Date): string {
     const dd = String(d.getDate()).padStart(2, '0');

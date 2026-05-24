@@ -1,10 +1,12 @@
-import { Injectable, inject } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class ShareStateService {
   private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   serializeState(state: object): string {
     const params = new URLSearchParams();
@@ -34,12 +36,14 @@ export class ShareStateService {
 
   buildShareUrl(path: string, state: object): string {
     const qs = this.serializeState(state);
-    const base = window.location.origin + path;
+    const origin = this.isBrowser ? window.location.origin : '';
+    const base = origin + path;
     return qs ? `${base}?${qs}` : base;
   }
 
   async copyShareLink(path: string, state: object): Promise<string> {
     const url = this.buildShareUrl(path, state);
+    if (!this.isBrowser) return url;
     try { await navigator.clipboard.writeText(url); } catch { /* ignore */ }
     return url;
   }
@@ -51,6 +55,7 @@ export class ShareStateService {
 
   getQueryParams(): Record<string, string> {
     const params: Record<string, string> = {};
+    if (!this.isBrowser) return params;
     const searchParams = new URLSearchParams(window.location.search);
     searchParams.forEach((value, key) => {
       params[key] = value;
@@ -58,10 +63,10 @@ export class ShareStateService {
     return params;
   }
 
-  loadShareStateIntoForm(form: FormGroup, options?: { emitEvent?: boolean }): boolean {
+  loadShareStateIntoRecord(state: Record<string, unknown>): boolean {
     const qp = this.getQueryParams();
     if (!Object.keys(qp).length) return false;
-    form.patchValue(this.deserializeState(qp), { emitEvent: options?.emitEvent ?? false });
+    Object.assign(state, this.deserializeState(qp));
     return true;
   }
 }

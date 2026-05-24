@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, ElementRef, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, PLATFORM_ID, signal, viewChild } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { form, FormField } from '@angular/forms/signals';
 import { CompareRow } from '../compare-panel/compare-panel.component';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
@@ -38,7 +39,6 @@ import { ExportRowComponent } from '../export-row/export-row.component';
 import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-savings-calculator',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormField, EuroPipe, ChartResizeDirective, CalcExplanationComponent, ComparePanelComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './savings-calculator.component.html',
@@ -61,6 +61,8 @@ export class SavingsCalculatorComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly calc = inject(SavingsCalculatorService);
   private readonly persistence = inject(CalculatorPersistenceService);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   readonly quickDurations = [5, 10, 15, 20, 25, 30];
 
@@ -74,12 +76,14 @@ export class SavingsCalculatorComponent {
   readonly explanationFormula =
     'Τελικό = αρχικό × (1+r)^n + μηνιαία × [(1+r)^n − 1] / r';
 
-  @ViewChild('savingsChart', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
+  canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('savingsChart');
 
   constructor() {
     effect(() => {
       const rows = this.result().yearlyRows;
-      setTimeout(() => this.drawChart(rows), 0);
+      if (this.isBrowser) {
+        setTimeout(() => this.drawChart(rows), 0);
+      }
     });
 
     this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
@@ -123,7 +127,7 @@ export class SavingsCalculatorComponent {
   }
 
   private drawChart(rows: SavingsYearRow[]): void {
-    const canvas = this.canvasRef?.nativeElement;
+    const canvas = this.canvasRef().nativeElement;
     if (!canvas || !rows.length) return;
 
     const W = canvas.parentElement?.clientWidth || 600;

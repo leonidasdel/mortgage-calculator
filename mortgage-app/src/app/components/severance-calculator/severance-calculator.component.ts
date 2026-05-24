@@ -22,7 +22,6 @@ import { ExportRowComponent } from '../export-row/export-row.component';
 import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-severance-calculator',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormField, EuroPipe, CalcExplanationComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './severance-calculator.component.html',

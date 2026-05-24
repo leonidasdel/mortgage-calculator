@@ -28,7 +28,6 @@ interface CarCostModel {
 }
 
 import { DecimalPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { DateSelectComponent } from '../date-select/date-select.component';
@@ -36,9 +35,8 @@ import { ExportRowComponent } from '../export-row/export-row.component';
 import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-car-cost-calculator',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, FormsModule, FormField, EuroPipe, CalcExplanationComponent, DateSelectComponent, ExportRowComponent, LawFooterComponent],
+  imports: [DecimalPipe, FormField, EuroPipe, CalcExplanationComponent, DateSelectComponent, ExportRowComponent, LawFooterComponent],
   templateUrl: './car-cost-calculator.component.html',
   styleUrl: './car-cost-calculator.component.scss',
 })

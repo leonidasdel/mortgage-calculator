@@ -10,7 +10,6 @@ export interface CompareRow {
 
 @Component({
   selector: 'app-compare-panel',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
   templateUrl: './compare-panel.component.html',

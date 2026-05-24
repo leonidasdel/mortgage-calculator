@@ -4,12 +4,12 @@
     <div class="hero-card">
       <div class="hero-lbl">Μηνιαία Δόση (Σταθερή Περίοδος)</div>
       <div class="hero-val" data-testid="mortgage-hero-payment">{{ summary().fixedPayment | euro }}</div>
-      <div class="hero-sub">{{ fixedSubLabel }}</div>
+      <div class="hero-sub">{{ fixedSubLabel() }}</div>
     </div>
     <div class="hero-card dark">
       <div class="hero-lbl">Μετά την Περίοδο Σταθερού Επιτοκίου</div>
       <div class="hero-val">{{ summary().variablePayment | euro }}</div>
-      <div class="hero-sub">{{ varSubLabel }}</div>
+      <div class="hero-sub">{{ varSubLabel() }}</div>
     </div>
   </div>
 
@@ -47,21 +47,21 @@
 
   <!-- Info message -->
   <div class="info-box blue">
-    💡 Θα πληρώσετε <strong>{{ summary().totalInterest | euro }}</strong> σε τόκους για {{ params().loanYears }} έτη — <strong>{{ interestPct }}%</strong> του ποσού δανείου.
+    💡 Θα πληρώσετε <strong>{{ summary().totalInterest | euro }}</strong> σε τόκους για {{ params().loanYears }} έτη — <strong>{{ interestPct() }}%</strong> του ποσού δανείου.
   </div>
 
   <!-- Savings message -->
-  @if (hasErSavings) {
+  @if (hasErSavings()) {
     <div class="info-box green" style="margin-top:10px;">
       🎉 <strong>Εξοικονόμηση από πρόωρες αποπληρωμές</strong><br>
       Αρχικοί τόκοι: <strong>{{ (summary().baseInterest ?? 0) | euro }}</strong> → Τελικοί τόκοι: <strong>{{ summary().totalInterest | euro }}</strong><br>
       @if (params().erMode === 'reducePmt') {
         Εξοικονομείτε <strong>{{ (summary().interestSaved ?? 0) | euro }}</strong> σε τόκους
-        @if (savingsTimePart) { και <strong>{{ savingsTimePart }}</strong> νωρίτερα }
+        @if (savingsTimePart()) { και <strong>{{ savingsTimePart() }}</strong> νωρίτερα }
         .
       } @else {
         Εξοικονομείτε <strong>{{ (summary().interestSaved ?? 0) | euro }}</strong> σε τόκους.<br>
-        📅 Λήξη δανείου <strong>{{ savingsTimePart }} νωρίτερα</strong> — η μηνιαία δόση παραμένει σταθερή.
+        📅 Λήξη δανείου <strong>{{ savingsTimePart() }} νωρίτερα</strong> — η μηνιαία δόση παραμένει σταθερή.
       }
     </div>
   }

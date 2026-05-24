@@ -1,8 +1,11 @@
 <div class="home-hero">
+  <img ngSrc="/og-salaries.png" width="1200" height="630" priority alt=""
+       class="home-hero-visual" aria-hidden="true">
   <h1 class="home-title" data-testid="home-title">Salaries<span class="home-title-dot">.gr</span></h1>
   <p class="home-subtitle">Οικονομικοί υπολογιστές για μισθούς, δάνεια, αποταμίευση και ακίνητα</p>
   <div class="home-search-wrap">
-    <input type="search" class="home-search" data-testid="home-search" placeholder="Τι θέλεις να υπολογίσεις;"
+    <input type="search" class="home-search" data-testid="home-search"
+           placeholder="Τι θέλεις να υπολογίσεις;"
            [value]="searchQuery()" (input)="onSearch($any($event.target).value)">
   </div>
 </div>

@@ -1,4 +1,12 @@
-import { DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
+import {
+  DestroyRef,
+  EnvironmentInjector,
+  effect,
+  inject,
+  Injectable,
+  runInInjectionContext,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter } from 'rxjs/operators';
@@ -10,25 +18,29 @@ export class SwUpdateService {
   readonly updateAvailable = signal(false);
 
   private readonly swUpdate = inject(SwUpdate);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(EnvironmentInjector);
+  private initialized = false;
 
   init(): void {
-    if (!this.swUpdate.isEnabled) return;
+    if (!this.swUpdate.isEnabled || this.initialized) return;
+    this.initialized = true;
 
-    const destroyRef = inject(DestroyRef);
+    runInInjectionContext(this.injector, () => {
+      const versionReady = toSignal(
+        this.swUpdate.versionUpdates.pipe(
+          filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY'),
+        ),
+        { initialValue: null },
+      );
 
-    const versionReady = toSignal(
-      this.swUpdate.versionUpdates.pipe(
-        filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY'),
-      ),
-      { initialValue: null },
-    );
+      const unrecoverable = toSignal(this.swUpdate.unrecoverable, { initialValue: null });
 
-    const unrecoverable = toSignal(this.swUpdate.unrecoverable, { initialValue: null });
-
-    effect(() => {
-      if (versionReady() || unrecoverable()) {
-        this.updateAvailable.set(true);
-      }
+      effect(() => {
+        if (versionReady() || unrecoverable()) {
+          this.updateAvailable.set(true);
+        }
+      });
     });
 
     this.checkForUpdates();
@@ -41,7 +53,7 @@ export class SwUpdateService {
     };
     document.addEventListener('visibilitychange', onVisible);
 
-    destroyRef.onDestroy(() => {
+    this.destroyRef.onDestroy(() => {
       clearInterval(intervalId);
       document.removeEventListener('visibilitychange', onVisible);
     });

@@ -1,31 +1,22 @@
-import { ChangeDetectionStrategy, Component, forwardRef, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 interface MonthOption {
   value: number;
   label: string;
 }
+
 @Component({
   selector: 'app-date-select',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
   templateUrl: './date-select.component.html',
   styleUrl: './date-select.component.scss',
-  providers: [{
-    provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => DateSelectComponent),
-    multi: true,
-  }],
 })
-export class DateSelectComponent implements ControlValueAccessor {
+export class DateSelectComponent {
   minYear = input(1980);
   maxYear = input(new Date().getFullYear());
-
-  day = 1;
-  month = 6;
-  year = 2015;
+  value = model<string>('2015-06-01');
 
   readonly months: MonthOption[] = [
     { value: 1, label: 'Ιανουάριος' },
@@ -42,71 +33,76 @@ export class DateSelectComponent implements ControlValueAccessor {
     { value: 12, label: 'Δεκέμβριος' },
   ];
 
-  private onChange: (value: string) => void = () => {};
-  private onTouched: () => void = () => {};
+  private readonly parts = computed(() => this.parseIso(this.value()) ?? { year: 2015, month: 6, day: 1 });
 
-  get years(): number[] {
+  years = computed(() => {
     const min = this.minYear();
     const max = this.maxYear();
     const from = Math.min(min, max);
     const to = Math.max(min, max);
     return Array.from({ length: to - from + 1 }, (_, i) => to - i);
-  }
+  });
 
-  get days(): number[] {
-    const max = new Date(this.year, this.month, 0).getDate();
+  days = computed(() => {
+    const { year, month } = this.parts();
+    const max = new Date(year, month, 0).getDate();
     return Array.from({ length: max }, (_, i) => i + 1);
-  }
+  });
 
-  get displayDate(): string {
-    const dd = String(this.day).padStart(2, '0');
-    const mm = String(this.month).padStart(2, '0');
-    return `${dd}/${mm}/${this.year}`;
-  }
+  displayDate = computed(() => {
+    const { day, month, year } = this.parts();
+    return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+  });
 
-  writeValue(value: string | null): void {
-    const iso = this.parseIso(value);
-    if (!iso) return;
-    this.year = iso.year;
-    this.month = iso.month;
-    this.day = iso.day;
-    this.clampDay();
-  }
+  day = computed(() => this.parts().day);
+  month = computed(() => this.parts().month);
+  year = computed(() => this.parts().year);
 
-  registerOnChange(fn: (value: string) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
+  constructor() {
+    effect(() => {
+      const iso = this.value();
+      const parsed = this.parseIso(iso);
+      if (!parsed) return;
+      const clamped = this.clampDay(parsed.year, parsed.month, parsed.day);
+      const next = `${clamped.year}-${String(clamped.month).padStart(2, '0')}-${String(clamped.day).padStart(2, '0')}`;
+      if (next !== iso) this.value.set(next);
+    });
   }
 
   onDayChange(event: Event): void {
-    this.day = Number((event.target as HTMLSelectElement).value);
-    this.emit();
+    this.emitWith({ day: Number((event.target as HTMLSelectElement).value) });
   }
 
   onMonthChange(event: Event): void {
-    this.month = Number((event.target as HTMLSelectElement).value);
-    this.clampDay();
-    this.emit();
+    const month = Number((event.target as HTMLSelectElement).value);
+    const { year, day } = this.parts();
+    const clamped = this.clampDay(year, month, day);
+    this.emitIso(clamped.year, clamped.month, clamped.day);
   }
 
   onYearChange(event: Event): void {
-    this.year = Number((event.target as HTMLSelectElement).value);
-    this.clampDay();
-    this.emit();
+    const year = Number((event.target as HTMLSelectElement).value);
+    const { month, day } = this.parts();
+    const clamped = this.clampDay(year, month, day);
+    this.emitIso(clamped.year, clamped.month, clamped.day);
   }
 
-  private emit(): void {
-    const iso = `${this.year}-${String(this.month).padStart(2, '0')}-${String(this.day).padStart(2, '0')}`;
-    this.onChange(iso);
-    this.onTouched();
+  private emitWith(partial: { day?: number; month?: number; year?: number }): void {
+    const cur = this.parts();
+    const year = partial.year ?? cur.year;
+    const month = partial.month ?? cur.month;
+    const day = partial.day ?? cur.day;
+    const clamped = this.clampDay(year, month, day);
+    this.emitIso(clamped.year, clamped.month, clamped.day);
   }
 
-  private clampDay(): void {
-    const max = new Date(this.year, this.month, 0).getDate();
-    if (this.day > max) this.day = max;
+  private emitIso(year: number, month: number, day: number): void {
+    this.value.set(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+  }
+
+  private clampDay(year: number, month: number, day: number): { year: number; month: number; day: number } {
+    const max = new Date(year, month, 0).getDate();
+    return { year, month, day: Math.min(day, max) };
   }
 
   private parseIso(value: string | null | undefined): { year: number; month: number; day: number } | null {

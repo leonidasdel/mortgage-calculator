@@ -6,7 +6,6 @@ import { ExportRowComponent } from '../export-row/export-row.component';
 
 @Component({
   selector: 'app-unused-leave-tax-breakdown',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, EuroPipe, ExportRowComponent],
   templateUrl: './unused-leave-tax-breakdown.component.html',

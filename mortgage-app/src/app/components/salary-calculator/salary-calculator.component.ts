@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, PLATFORM_ID, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { form, FormField } from '@angular/forms/signals';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
 import { ExportService } from '../../services/export.service';
@@ -27,7 +28,6 @@ import { SalaryPayslipPanelComponent } from '../salary-payslip-panel/salary-pays
 import { SalaryTaxBreakdownComponent } from '../salary-tax-breakdown/salary-tax-breakdown.component';
 @Component({
   selector: 'app-salary-calculator',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormField, SalaryChangeBlockComponent, SalaryPayslipPanelComponent, SalaryTaxBreakdownComponent],
   templateUrl: './salary-calculator.component.html',
@@ -61,6 +61,8 @@ export class SalaryCalculatorComponent {
   private readonly calc = inject(SalaryCalculatorService);
   private readonly exportSvc = inject(ExportService);
   private readonly persistence = inject(CalculatorPersistenceService);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   constructor() {
     this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef, {
@@ -233,6 +235,7 @@ export class SalaryCalculatorComponent {
   });
 
   private saveState(fv: SalaryModel): void {
+    if (!this.isBrowser) return;
     try {
       const salaryChangeMonth = Math.min(12, Math.max(1, Number(fv.salaryChangeMonth) || 4));
       const previousGross = Math.max(0, Number(fv.previousGross) || 0);

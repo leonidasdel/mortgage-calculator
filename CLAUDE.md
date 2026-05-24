@@ -286,7 +286,7 @@ Global skeleton utilities live in `styles.scss` (`.skeleton-block`, `.skeleton-c
 |---------|----------------|
 | `npm run e2e` | Playwright against `ng serve :4200` (reuses running server locally) |
 | `npm run e2e:ui` | Playwright UI mode |
-| `npm run e2e:ci` | `ng build` + static `http-server` on `:4200` + tests (local CI dry-run) |
+| `npm run e2e:ci` | `ng build` + Playwright against `http-server dist/mortgage-app/browser` on `:4200` |
 
 Browsers install to `node_modules` via `PLAYWRIGHT_BROWSERS_PATH=0` (set in npm scripts). First run: `npx playwright install chromium`.
 

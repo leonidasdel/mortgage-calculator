@@ -1,6 +1,8 @@
-import { Injectable, PLATFORM_ID, inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
+
+export const OG_IMAGE_URL = 'https://salaries.gr/og-salaries.png';
+export const SITE_ORIGIN = 'https://salaries.gr';
 
 export interface SeoConfig {
   title: string;
@@ -53,27 +55,47 @@ export const SEO_CONFIG: Record<string, SeoConfig> = {
   '/property-purchase': { title: 'Κόστος Αγοράς Ακινήτου | Salaries.gr', description: 'Μεταβίβαση, συμβολαιογράφος, φόροι.', path: '/property-purchase' },
 };
 
+export function normalizeSeoPath(path: string): string {
+  return path.split('?')[0] || '/';
+}
+
 @Injectable({ providedIn: 'root' })
 export class SeoService {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
-  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly doc = inject(DOCUMENT);
 
   updateForRoute(path: string): void {
-    const cfg = SEO_CONFIG[path] ?? SEO_CONFIG['/'];
+    const normalized = normalizeSeoPath(path);
+    const cfg = SEO_CONFIG[normalized] ?? SEO_CONFIG['/'];
+    const canonicalUrl = `${SITE_ORIGIN}${cfg.path === '/' ? '' : cfg.path}`;
+
     this.title.setTitle(cfg.title);
     this.meta.updateTag({ name: 'description', content: cfg.description });
     this.meta.updateTag({ property: 'og:title', content: cfg.title });
     this.meta.updateTag({ property: 'og:description', content: cfg.description });
-    this.meta.updateTag({ property: 'og:url', content: `https://salaries.gr${cfg.path}` });
+    this.meta.updateTag({ property: 'og:url', content: canonicalUrl });
     this.meta.updateTag({ property: 'og:type', content: 'website' });
+    this.meta.updateTag({ property: 'og:image', content: OG_IMAGE_URL });
+    this.setCanonical(canonicalUrl);
     this.removeFaqSchema();
     if (cfg.faq?.length) this.injectFaqSchema(cfg.faq);
   }
 
+  private setCanonical(url: string): void {
+    const head = this.doc.head;
+    let link = head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!link) {
+      link = this.doc.createElement('link');
+      link.setAttribute('rel', 'canonical');
+      head.appendChild(link);
+    }
+    link.setAttribute('href', url);
+  }
+
   private injectFaqSchema(faq: { question: string; answer: string }[]): void {
-    if (!this.isBrowser) return;
-    const script = document.createElement('script');
+    this.removeFaqSchema();
+    const script = this.doc.createElement('script');
     script.id = 'faq-jsonld';
     script.type = 'application/ld+json';
     script.textContent = JSON.stringify({
@@ -85,11 +107,10 @@ export class SeoService {
         acceptedAnswer: { '@type': 'Answer', text: f.answer },
       })),
     });
-    document.head.appendChild(script);
+    this.doc.head.appendChild(script);
   }
 
   private removeFaqSchema(): void {
-    if (!this.isBrowser) return;
-    document.getElementById('faq-jsonld')?.remove();
+    this.doc.getElementById('faq-jsonld')?.remove();
   }
 }

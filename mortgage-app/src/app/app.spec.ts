@@ -17,7 +17,6 @@ describe('App', () => {
           provide: SwUpdateService,
           useValue: {
             updateAvailable: signal(false),
-            init: () => {},
             applyUpdate: () => {},
             dismiss: () => {},
           },

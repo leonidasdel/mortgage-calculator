@@ -1,7 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { CryptoTaxCalculatorService } from './crypto-tax-calculator.service';
-import { CRYPTO_GAINS_TAX_RATE } from '../constants/crypto-tax.constants';
-
 describe('CryptoTaxCalculatorService', () => {
   let service: CryptoTaxCalculatorService;
 

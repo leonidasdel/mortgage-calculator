@@ -4,7 +4,6 @@ import { FieldTree, FormField } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-salary-change-block',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormField],
   templateUrl: './salary-change-block.component.html',

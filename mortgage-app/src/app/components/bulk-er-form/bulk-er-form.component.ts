@@ -1,13 +1,21 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { BulkErParams } from '../../models/mortgage.models';
 import { CommonModule } from '@angular/common';
 
+interface BulkErModel {
+  startMonth: number;
+  amount: number;
+  every: number;
+  count: number;
+}
+
+const DEFAULT_BULK: BulkErModel = { startMonth: 12, amount: 3000, every: 12, count: 12 };
+
 @Component({
   selector: 'app-bulk-er-form',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, FormField],
   templateUrl: './bulk-er-form.component.html',
   styleUrl: './bulk-er-form.component.scss',
 })
@@ -16,45 +24,34 @@ export class BulkErFormComponent {
   addBulk = output<BulkErParams>();
   cancelled = output<void>();
 
-  form: FormGroup;
-  private prevVisible = false;
-
-  private readonly fb = inject(FormBuilder);
-
-  constructor() {
-    this.form = this.fb.group({
-      startMonth: [12, [Validators.required, Validators.min(1)]],
-      amount:     [3000, [Validators.required, Validators.min(0)]],
-      every:      [12, [Validators.required, Validators.min(1)]],
-      count:      [12, [Validators.required, Validators.min(1)]],
-    });
-
-    effect(() => {
-      const v = this.visible();
-      if (v && !this.prevVisible) {
-        this.form.reset({ startMonth: 12, amount: 3000, every: 12, count: 12 });
+  formModel = linkedSignal<boolean, BulkErModel>({
+    source: this.visible,
+    computation: (visible, prev) => {
+      if (visible && !prev?.source) {
+        return { ...DEFAULT_BULK };
       }
-      this.prevVisible = v;
-    });
-  }
+      return prev?.value ?? { ...DEFAULT_BULK };
+    },
+  });
+  formFields = form(this.formModel);
 
-  get preview(): string {
-    const v = this.form.value;
+  preview = computed(() => {
+    const v = this.formModel();
     const start = Math.max(1, Math.round(v.startMonth || 1));
-    const amt   = Math.max(0, v.amount || 0);
+    const amt = Math.max(0, v.amount || 0);
     const every = Math.max(1, Math.round(v.every || 1));
     const count = Math.max(1, Math.round(v.count || 1));
-    const last  = start + (count - 1) * every;
+    const last = start + (count - 1) * every;
     return `Θα προστεθούν ${count} πληρωμές × €${amt.toLocaleString('el-GR')} — από μήνα ${start}, κάθε ${every} μήνα/ες, έως μήνα ${last}.`;
-  }
+  });
 
   submit(): void {
-    const v = this.form.value;
+    const v = this.formModel();
     this.addBulk.emit({
       startMonth: Math.max(1, Math.round(v.startMonth || 1)),
-      amount:     Math.max(0, v.amount || 0),
-      every:      Math.max(1, Math.round(v.every || 1)),
-      count:      Math.max(1, Math.round(v.count || 1)),
+      amount: Math.max(0, v.amount || 0),
+      every: Math.max(1, Math.round(v.every || 1)),
+      count: Math.max(1, Math.round(v.count || 1)),
     });
   }
 }

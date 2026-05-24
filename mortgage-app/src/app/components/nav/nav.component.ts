@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -15,13 +20,12 @@ interface NavGroup {
 
 @Component({
   selector: 'app-nav',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './nav.component.html',
   styleUrl: './nav.component.scss',
 })
-export class NavComponent implements OnInit {
+export class NavComponent {
   mobileMenuOpen = signal(false);
   collapsed = signal(false);
   darkMode = signal(false);
@@ -40,17 +44,17 @@ export class NavComponent implements OnInit {
         { route: '/salary', icon: '💰', label: 'Υπολογισμός Μισθού' },
         { route: '/annual-bonus', icon: '💸', label: 'Μπόνους Μισθού' },
         { route: '/freelancer', icon: '📋', label: 'Ελεύθ. Επαγγελματίας' },
-        { route: '/unused-leave',  icon: '🏖️', label: 'Μη Ληφθείσα Άδεια' },
+        { route: '/unused-leave', icon: '🏖️', label: 'Μη Ληφθείσα Άδεια' },
         { route: '/holiday-bonus', icon: '🎁', label: 'Δώρα Εορτών' },
-        { route: '/severance',     icon: '📄', label: 'Αποζημίωση Απόλυσης' },
+        { route: '/severance', icon: '📄', label: 'Αποζημίωση Απόλυσης' },
       ],
     },
     {
       label: 'Φόροι & Άλλα',
       items: [
         { route: '/inheritance-gift', icon: '🏛️', label: 'Κληρονομιά & Δωρεά' },
-        { route: '/crypto-tax',       icon: '₿',  label: 'Φόρος Crypto' },
-        { route: '/car-cost',         icon: '🚗', label: 'Κόστος Αυτοκινήτου' },
+        { route: '/crypto-tax', icon: '₿', label: 'Φόρος Crypto' },
+        { route: '/car-cost', icon: '🚗', label: 'Κόστος Αυτοκινήτου' },
       ],
     },
     {
@@ -64,20 +68,22 @@ export class NavComponent implements OnInit {
       label: 'Ακίνητα',
       items: [
         { route: '/rent-vs-buy', icon: '🏠', label: 'Νοικιάζω ή Αγοράζω;' },
-        { route: '/rental-tax',         icon: '🏘️', label: 'Φόρος Ενοικίου' },
-        { route: '/property-purchase',  icon: '🏡', label: 'Κόστος Αγοράς Ακινήτου' },
+        { route: '/rental-tax', icon: '🏘️', label: 'Φόρος Ενοικίου' },
+        { route: '/property-purchase', icon: '🏡', label: 'Κόστος Αγοράς Ακινήτου' },
       ],
     },
   ];
 
-  ngOnInit(): void {
-    const saved = localStorage.getItem('darkMode');
-    if (saved !== null) {
-      this.darkMode.set(saved === 'true');
-    } else {
-      this.darkMode.set(window.matchMedia('(prefers-color-scheme: dark)').matches);
-    }
-    document.documentElement.classList.toggle('dark', this.darkMode());
+  constructor() {
+    afterNextRender(() => {
+      const saved = localStorage.getItem('darkMode');
+      if (saved !== null) {
+        this.darkMode.set(saved === 'true');
+      } else {
+        this.darkMode.set(window.matchMedia('(prefers-color-scheme: dark)').matches);
+      }
+      document.documentElement.classList.toggle('dark', this.darkMode());
+    });
   }
 
   toggleMenu(): void {

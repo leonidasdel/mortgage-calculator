@@ -9,7 +9,6 @@ import { SwUpdateService } from './services/sw-update.service';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet, NavComponent, CommonModule],
   templateUrl: './app.html',
@@ -29,7 +28,6 @@ export class App {
   );
 
   constructor() {
-    this.swUpdate.init();
     effect(() => {
       this.seo.updateForRoute(this.navUrl());
     });

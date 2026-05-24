@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LawFooterComponent } from '../law-footer/law-footer.component';
 
@@ -15,9 +15,8 @@ export interface HomeTool {
 
 @Component({
   selector: 'app-home',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, LawFooterComponent],
+  imports: [CommonModule, NgOptimizedImage, RouterLink, LawFooterComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
@@ -70,7 +69,6 @@ export class HomeComponent {
   }
 }
 
-/** Accent-insensitive Greek search: δανειο matches δάνειο, μισθος matches μισθός. */
 function normalizeGreekSearch(text: string): string {
   return text
     .toLowerCase()

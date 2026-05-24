@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-export-row',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
   templateUrl: './export-row.component.html',

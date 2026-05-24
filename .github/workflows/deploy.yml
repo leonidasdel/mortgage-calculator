@@ -29,6 +29,19 @@ jobs:
         run: npm ci
         working-directory: mortgage-app
 
+      - name: Lint
+        run: npm run lint
+        working-directory: mortgage-app
+
+      - name: Format check
+        run: npm run format:check
+        working-directory: mortgage-app
+
+      - name: Security audit
+        run: npm audit --audit-level=high
+        working-directory: mortgage-app
+        continue-on-error: true
+
       - name: Run tests
         run: npm test -- --watch=false
         working-directory: mortgage-app

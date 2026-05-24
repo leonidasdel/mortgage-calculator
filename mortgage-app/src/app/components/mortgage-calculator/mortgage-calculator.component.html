@@ -15,7 +15,7 @@
         <h2>Παράμετροι Δανείου</h2>
       </div>
       <div class="card-body">
-        <app-loan-form [formFields]="formFields"></app-loan-form>
+        <app-loan-form [formFields]="formFields" [rateFeed]="rateFeed" (liveEuriborToggle)="onLiveEuriborToggle($event)"></app-loan-form>
 
         <div class="sec-div">
           <div class="sec-label">Πρόωρες Αποπληρωμές</div>

@@ -5,7 +5,6 @@ import { BulkErFormComponent } from '../bulk-er-form/bulk-er-form.component';
 
 @Component({
   selector: 'app-early-repayments',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, BulkErFormComponent],
   templateUrl: './early-repayments.component.html',
