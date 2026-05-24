@@ -153,17 +153,17 @@
           </label>
           @if (hasMultiEmployer()) {
             <div class="form-group mt-8">
-              <label>Εργοδότης 2 — Μικτά (€)</label>
+              <label for="employer2Gross">Εργοδότης 2 — Μικτά (€)</label>
               <div class="input-wrap has-pfx">
                 <span class="pfx">€</span>
-                <input type="number" [formField]="formFields.employer2Gross" />
+                <input type="number" id="employer2Gross" [formField]="formFields.employer2Gross" />
               </div>
             </div>
             <div class="form-group">
-              <label>Εργοδότης 3 — Μικτά (€)</label>
+              <label for="employer3Gross">Εργοδότης 3 — Μικτά (€)</label>
               <div class="input-wrap has-pfx">
                 <span class="pfx">€</span>
-                <input type="number" [formField]="formFields.employer3Gross" />
+                <input type="number" id="employer3Gross" [formField]="formFields.employer3Gross" />
               </div>
             </div>
           }
@@ -173,11 +173,12 @@
         <div class="sec-div">
           <div class="sec-label">Μπόνους</div>
           <div class="form-group">
-            <label>Ετήσιο Μπόνους Μικτό (&#8364;)</label>
+            <label for="annualBonus">Ετήσιο Μπόνους Μικτό (&#8364;)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">&#8364;</span>
               <input
                 type="number"
+                id="annualBonus"
                 min="0"
                 step="100"
                 [value]="annualBonus()"
