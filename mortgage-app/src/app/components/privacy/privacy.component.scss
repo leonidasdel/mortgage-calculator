@@ -1,0 +1,43 @@
+.privacy-body {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--g700);
+
+  h2 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--g800);
+    margin: 20px 0 8px;
+  }
+
+  ul {
+    padding-left: 1.25rem;
+    margin: 0 0 12px;
+  }
+
+  li {
+    margin-bottom: 6px;
+  }
+
+  a {
+    color: var(--blue);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+.privacy-lead {
+  margin-bottom: 4px;
+}
+
+.privacy-updated {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--g600);
+}

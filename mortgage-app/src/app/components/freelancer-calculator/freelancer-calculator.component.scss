@@ -3,14 +3,6 @@
   background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
 }
 
-/* ── HINT TEXT ── */
-.fl-hint {
-  font-size: 11px;
-  color: var(--g400);
-  margin-top: 4px;
-  line-height: 1.4;
-}
-
 /* ── SELECT ── */
 .fl-select {
   width: 100%;
@@ -88,7 +80,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  color: var(--g500);
+  color: var(--g600);
 }
 .fl-table td {
   padding: 8px 10px;

@@ -2,33 +2,10 @@
   background: linear-gradient(135deg, #dbeafe 0%, #3b82f6 100%);
 }
 
-.ct-hint {
-  font-size: 11px;
-  color: var(--g400);
-  margin-top: 4px;
-}
-
 .ct-mode-toggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
-}
-
-.ct-mode-btn {
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  background: var(--g100);
-  color: var(--g600);
-  border: 1px solid var(--g200);
-  min-height: 38px;
-}
-
-.ct-mode-btn.active {
-  background: var(--blue);
-  border-color: var(--blue);
-  color: #fff;
 }
 
 .ct-check-row {

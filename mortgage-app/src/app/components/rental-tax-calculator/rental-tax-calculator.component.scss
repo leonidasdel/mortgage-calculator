@@ -3,14 +3,6 @@
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
 }
 
-/* ── HINT TEXT ── */
-.rt-hint {
-  font-size: 11px;
-  color: var(--g400);
-  margin-top: 4px;
-  line-height: 1.4;
-}
-
 /* ── RADIO ROW ── */
 .rt-radio-row {
   display: flex;
@@ -33,26 +25,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
-}
-.rt-income-pill {
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  background: var(--g100);
-  color: var(--g600);
-  border: 1px solid var(--g200);
-  min-height: 38px;
-}
-.rt-income-pill:hover {
-  background: var(--blue-light);
-  border-color: var(--blue-mid);
-  color: var(--blue-dark);
-}
-.rt-income-pill.active {
-  background: #2563eb;
-  border-color: #2563eb;
-  color: #fff;
 }
 .rt-annual-readout input[readonly] {
   opacity: 0.9;
@@ -98,7 +70,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  color: var(--g500);
+  color: var(--g600);
 }
 .rt-table td {
   padding: 8px 10px;
@@ -111,20 +83,4 @@
 .rt-table .red {
   color: var(--red);
   font-weight: 600;
-}
-
-:host-context(html.dark) .rt-income-pill {
-  background: #111827;
-  color: var(--g600);
-  border-color: var(--g300);
-}
-:host-context(html.dark) .rt-income-pill:hover {
-  background: var(--blue-light);
-  border-color: var(--blue-mid);
-  color: var(--blue-dark);
-}
-:host-context(html.dark) .rt-income-pill.active {
-  background: #2563eb;
-  border-color: #60a5fa;
-  color: #fff;
 }

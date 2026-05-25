@@ -95,4 +95,9 @@ export const ROUTES: RouteSmoke[] = [
     title: 'Τέλη Κυκλοφορίας & Κόστος Αυτοκινήτου 2026 | Salaries.gr',
     heading: 'Κόστος Αυτοκινήτου',
   },
+  {
+    path: '/privacy',
+    title: 'Απόρρητο & Δεδομένα | Salaries.gr',
+    heading: 'Απόρρητο & Δεδομένα',
+  },
 ];

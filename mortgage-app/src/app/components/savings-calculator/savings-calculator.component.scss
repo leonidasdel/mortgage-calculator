@@ -10,30 +10,6 @@
   gap: 5px;
   margin-bottom: 8px;
 }
-.sv-pill {
-  padding: 4px 10px;
-  border-radius: 16px;
-  font-size: 11px;
-  font-weight: 500;
-  background: var(--g100);
-  color: var(--g600);
-  border: 1px solid var(--g200);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  min-height: auto;
-}
-.sv-pill:hover {
-  background: var(--blue-light);
-  border-color: var(--blue-mid);
-  color: var(--blue);
-}
-.sv-pill.active {
-  background: var(--blue);
-  color: #fff;
-  border-color: var(--blue);
-  font-weight: 600;
-}
-
 /* ── YEARS ROW ── */
 .sv-years-row {
   display: flex;
@@ -42,7 +18,7 @@
 }
 .sv-years-lbl {
   font-size: 13px;
-  color: var(--g500);
+  color: var(--g600);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -58,14 +34,6 @@
   accent-color: var(--blue);
   width: 16px;
   height: 16px;
-}
-
-/* ── HINT TEXT ── */
-.sv-hint {
-  font-size: 11px;
-  color: var(--g400);
-  margin-top: 4px;
-  line-height: 1.4;
 }
 
 /* ── TABLE ── */
@@ -86,7 +54,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  color: var(--g500);
+  color: var(--g600);
   white-space: nowrap;
 }
 .sv-table td {
@@ -96,13 +64,6 @@
 .sv-table th.num,
 .sv-table td.num {
   text-align: right;
-}
-.sv-table td.yearly-gains {
-  color: #059669;
-  font-weight: 600;
-}
-.sv-table td.gains {
-  color: #059669;
 }
 .sv-table td.total {
   color: var(--blue);

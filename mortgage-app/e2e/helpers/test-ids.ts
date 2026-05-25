@@ -6,6 +6,8 @@ export const Shell = {
   homeTool: (slug: string) => `home-tool-${slug}`,
   navLink: (slug: string) => `nav-link-${slug}`,
   lawFooter: 'law-footer',
+  lawFooterPrivacy: 'law-footer-privacy',
+  privacyTitle: 'privacy-page-title',
 } as const;
 
 export const Mortgage = {

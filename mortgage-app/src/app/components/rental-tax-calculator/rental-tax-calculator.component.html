@@ -51,7 +51,7 @@
                 (input)="onMonthlyIncomeInput()"
               />
             </div>
-            <div class="rt-hint">
+            <div class="form-hint">
               Ετήσιο ισοδύναμο: <strong>{{ result().annualIncome | euro }}</strong>
             </div>
           </div>
@@ -67,7 +67,7 @@
                 (input)="onAnnualIncomeInput()"
               />
             </div>
-            <div class="rt-hint">
+            <div class="form-hint">
               Μηνιαίο ισοδύναμο: <strong>{{ result().annualIncome / 12 | euro }}</strong>
             </div>
           </div>
@@ -77,7 +77,13 @@
           <label>Φορολογική βάση εισοδήματος</label>
           <div class="input-wrap has-pfx">
             <span class="pfx">&#8364;</span>
-            <input type="number" [value]="result().annualIncome" readonly />
+            <input
+              type="number"
+              id="annualIncomeReadout"
+              aria-label="Ετήσιο εισόδημα (υπολογισμένο)"
+              [value]="result().annualIncome"
+              readonly
+            />
           </div>
         </div>
 
@@ -92,7 +98,7 @@
             <option value="long-term">Μακροχρόνια Μίσθωση</option>
             <option value="short-term">Βραχυχρόνια Μίσθωση (Airbnb κ.λπ.)</option>
           </select>
-          <div class="rt-hint">Από το 2024 φορολογούνται με την ίδια κλίμακα</div>
+          <div class="form-hint">Από το 2024 φορολογούνται με την ίδια κλίμακα</div>
         </div>
 
         <div class="sec-div">
@@ -111,7 +117,7 @@
               <span>Πραγματικά Έξοδα</span>
             </label>
           </div>
-          <div class="rt-hint">
+          <div class="form-hint">
             <strong>Αυτόματη 5%:</strong> Αφαιρείται αυτόματα 5% από το ακαθάριστο εισόδημα χωρίς
             δικαιολογητικά — ισχύει για όλους τους ιδιοκτήτες.<br />
             <strong>Πραγματικά Έξοδα:</strong> Δηλώνετε τα πραγματικά έξοδα (π.χ. επισκευές,
@@ -127,7 +133,7 @@
               <span class="pfx">&#8364;</span>
               <input type="number" id="actualExpenses" [formField]="formFields.actualExpenses" />
             </div>
-            <div class="rt-hint">Επισκευές, ασφάλεια, κοινόχρηστα ιδιοκτήτη κ.λπ.</div>
+            <div class="form-hint">Επισκευές, ασφάλεια, κοινόχρηστα ιδιοκτήτη κ.λπ.</div>
           </div>
         }
 

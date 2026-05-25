@@ -17,4 +17,5 @@
   <url><loc>https://salaries.gr/property-purchase</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://salaries.gr/unused-leave</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://salaries.gr/holiday-bonus</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://salaries.gr/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>

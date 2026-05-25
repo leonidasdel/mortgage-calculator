@@ -3,14 +3,6 @@
   background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%);
 }
 
-/* ── HINTS ── */
-.pp-hint {
-  font-size: 11px;
-  color: var(--g400);
-  margin-top: 5px;
-  line-height: 1.5;
-}
-
 /* ── CHECKBOX ROW ── */
 .pp-check-row {
   display: flex;
@@ -45,7 +37,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  color: var(--g500);
+  color: var(--g600);
   white-space: nowrap;
 }
 .pp-table td {
@@ -103,7 +95,7 @@
   border-radius: 4px;
   font-size: 10px;
   background: var(--g100);
-  color: var(--g500);
+  color: var(--g600);
   border: 1px solid var(--g200);
 }
 .pp-exempt-badge {
@@ -119,17 +111,12 @@
 }
 .pp-exempt-label {
   text-decoration: line-through;
-  color: var(--g400);
+  color: var(--g600);
 }
-.pp-exempt-val {
-  color: var(--green) !important;
-  font-weight: 700;
-}
-
 /* ── ITEM NOTE ── */
 .pp-item-note {
   font-size: 11px;
-  color: var(--g400);
+  color: var(--g600);
   margin-top: 3px;
   line-height: 1.4;
 }
@@ -139,6 +126,6 @@
 }
 .lv-law-desc {
   font-size: 12px;
-  color: var(--g500);
+  color: var(--g600);
   line-height: 1.5;
 }

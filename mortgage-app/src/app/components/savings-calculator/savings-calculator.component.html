@@ -67,7 +67,7 @@
         </div>
 
         <div class="form-group">
-          <label>Διάρκεια</label>
+          <label for="durationYears">Διάρκεια</label>
           <div class="sv-quick">
             @for (d of quickDurations; track d) {
               <button
@@ -108,10 +108,15 @@
           </label>
           @if (formModel().applyTax) {
             <div class="input-wrap has-sfx" style="margin-top: 6px">
-              <input type="number" id="taxRate" [formField]="formFields.taxRate" />
+              <input
+                type="number"
+                id="taxRate"
+                aria-label="Φόρος τόκων (%)"
+                [formField]="formFields.taxRate"
+              />
               <span class="sfx">%</span>
             </div>
-            <div class="sv-hint">Ο φόρος τόκων στην Ελλάδα είναι 15%</div>
+            <div class="form-hint">Ο φόρος τόκων στην Ελλάδα είναι 15%</div>
           }
         </div>
 
@@ -122,7 +127,12 @@
           </label>
           @if (formModel().applyInflation) {
             <div class="input-wrap has-sfx" style="margin-top: 6px">
-              <input type="number" id="inflationRate" [formField]="formFields.inflationRate" />
+              <input
+                type="number"
+                id="inflationRate"
+                aria-label="Πληθωρισμός (%)"
+                [formField]="formFields.inflationRate"
+              />
               <span class="sfx">%</span>
             </div>
           }
@@ -247,7 +257,14 @@
           <h2>Εξέλιξη Κεφαλαίου</h2>
         </div>
         <div class="card-body">
-          <div style="overflow-x: auto" appChartResize (chartResize)="onChartResize()">
+          <div
+            style="overflow-x: auto"
+            tabindex="0"
+            role="region"
+            aria-label="Διάγραμμα εξέλιξης κεφαλαίου"
+            appChartResize
+            (chartResize)="onChartResize()"
+          >
             <canvas #savingsChart></canvas>
           </div>
           <div class="chart-legend">
@@ -282,7 +299,7 @@
       </div>
       <div class="card-body">
         <div class="tbl-scroll-hint">← Σύρτε οριζόντια για να δείτε όλες τις στήλες →</div>
-        <div class="sv-table-wrap tbl-wrap">
+        <div class="sv-table-wrap tbl-wrap" tabindex="0" role="region" aria-label="Ετήσια ανάλυση αποταμίευσης">
           <table class="sv-table">
             <thead>
               <tr>

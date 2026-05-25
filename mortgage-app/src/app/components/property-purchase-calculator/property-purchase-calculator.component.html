@@ -43,7 +43,7 @@
               [formField]="formFields.aaotValue"
             />
           </div>
-          <div class="pp-hint">
+          <div class="form-hint">
             Ο ΦΜΑ υπολογίζεται στο <strong>μεγαλύτερο</strong> από τιμήμα &amp; αντικειμενική αξία.
             Αφήστε ίσο με το τίμημα αν δεν γνωρίζετε.
           </div>
@@ -163,7 +163,12 @@
 
         <!-- Αναλυτικός πίνακας κόστους -->
         <div class="tbl-scroll-hint">← Σύρτε οριζόντια για να δείτε όλες τις στήλες →</div>
-        <div class="pp-table-wrap tbl-wrap">
+        <div
+          class="pp-table-wrap tbl-wrap"
+          tabindex="0"
+          role="region"
+          aria-label="Ανάλυση κόστους αγοράς ακινήτου"
+        >
           <table class="pp-table">
             <thead>
               <tr>

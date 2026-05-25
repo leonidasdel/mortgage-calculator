@@ -40,14 +40,25 @@ jobs:
       - name: Security audit
         run: npm audit --audit-level=high
         working-directory: mortgage-app
-        continue-on-error: true
 
-      - name: Run tests
-        run: npm test -- --watch=false
+      - name: Run tests with coverage
+        run: npm test -- --watch=false --coverage
         working-directory: mortgage-app
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: mortgage-app/coverage/
+          if-no-files-found: ignore
 
       - name: Build
         run: npm run build
+        working-directory: mortgage-app
+
+      - name: Lighthouse CI
+        run: npx --yes @lhci/cli@0.14.0 autorun
         working-directory: mortgage-app
 
       - name: Install Playwright browsers

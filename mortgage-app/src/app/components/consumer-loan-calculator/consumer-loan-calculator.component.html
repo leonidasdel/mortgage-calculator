@@ -44,7 +44,7 @@
         </div>
 
         <div class="form-group">
-          <label>Διάρκεια Δανείου</label>
+          <label for="loanMonths">Διάρκεια Δανείου</label>
           <div class="cl-quick">
             @for (d of quickDurations; track d) {
               <button
@@ -86,7 +86,7 @@
               [formField]="formFields.loanFees"
             />
           </div>
-          <div class="cl-hint">Εφάπαξ έξοδα εκταμίευσης, προμήθειες διαχείρισης κ.λπ.</div>
+          <div class="form-hint">Εφάπαξ έξοδα εκταμίευσης, προμήθειες διαχείρισης κ.λπ.</div>
         </div>
 
         <div class="info-box blue">
@@ -180,7 +180,7 @@
           }
           <div class="sum-item">
             <div class="sum-lbl">ΣΕΠΠΕ (APR)</div>
-            <div class="sum-val" style="color: var(--orange, #d97706); font-weight: 700">
+            <div class="sum-val cl-apr-val">
               {{ summary().seppe.toFixed(2) }}%
             </div>
           </div>

@@ -108,6 +108,12 @@ export const SEO_CONFIG: Record<string, SeoConfig> = {
     description: 'Μεταβίβαση, συμβολαιογράφος, φόροι.',
     path: '/property-purchase',
   },
+  '/privacy': {
+    title: 'Απόρρητο & Δεδομένα | Salaries.gr',
+    description:
+      'Πώς χειρίζεται το Salaries.gr τα δεδομένα: localStorage, σύνδεσμοι κοινοποίησης, PWA.',
+    path: '/privacy',
+  },
 };
 
 export function normalizeSeoPath(path: string): string {

@@ -62,7 +62,7 @@
                 (input)="onDownPaymentAmountInput()"
               />
             </div>
-            <div class="field-hint">
+            <div class="form-hint">
               = {{ result().downPaymentPct | number: '1.1-2' }}% της αξίας
             </div>
           } @else {
@@ -70,12 +70,13 @@
               <input
                 type="number"
                 id="downPaymentPct"
+                aria-label="Προκαταβολή (%)"
                 [formField]="formFields.downPaymentPct"
                 (input)="onDownPaymentPctInput()"
               />
               <span class="sfx">%</span>
             </div>
-            <div class="field-hint">= {{ result().downPayment | euro: 0 }}</div>
+            <div class="form-hint">= {{ result().downPayment | euro: 0 }}</div>
           }
         </div>
 
@@ -110,7 +111,7 @@
                 (input)="onClosingCostsAmountInput()"
               />
             </div>
-            <div class="field-hint">
+            <div class="form-hint">
               = {{ result().closingCostsPct | number: '1.1-2' }}% της αξίας
             </div>
           } @else {
@@ -118,12 +119,13 @@
               <input
                 type="number"
                 id="closingCostsPct"
+                aria-label="Έξοδα αγοράς (%)"
                 [formField]="formFields.closingCostsPct"
                 (input)="onClosingCostsPctInput()"
               />
               <span class="sfx">%</span>
             </div>
-            <div class="field-hint">= {{ result().closingCosts | euro: 0 }}</div>
+            <div class="form-hint">= {{ result().closingCosts | euro: 0 }}</div>
           }
         </div>
 
@@ -171,7 +173,7 @@
             <span class="sfx">%</span>
           </div>
           @if (formModel().monthlyRent > 0 && formModel().rentGrowthRate > 0) {
-            <div class="field-hint">
+            <div class="form-hint">
               Αυτό σημαίνει ότι το ενοίκιο σε
               @for (p of rentProjections(); track p.years) {
                 <strong>{{ p.years }} έτη</strong> → <strong>{{ p.rent | euro: 0 }}</strong
@@ -195,7 +197,7 @@
             />
             <span class="sfx">%</span>
           </div>
-          <div class="field-hint">
+          <div class="form-hint">
             Ο αναμενόμενος ετήσιος ρυθμός ανόδου της αξίας του ακινήτου. Ιστορικά στην Ελλάδα
             κυμαίνεται μεταξύ 1–4%.
           </div>
@@ -207,7 +209,7 @@
             <input type="number" id="investmentReturn" [formField]="formFields.investmentReturn" />
             <span class="sfx">%</span>
           </div>
-          <div class="field-hint">
+          <div class="form-hint">
             Αν δεν αγοράζατε, η προκαταβολή θα επενδυόταν στις αγορές. Εκφράζει το κόστος ευκαιρίας
             των χρημάτων σας — τι θα κέρδιζαν αλλού.
           </div>
@@ -223,7 +225,7 @@
             />
             <span class="sfx">%</span>
           </div>
-          <div class="field-hint">
+          <div class="form-hint">
             Συνολικό ετήσιο κόστος ιδιοκτησίας: ΕΝΦΙΑ, συντήρηση, ασφάλεια, κ.λπ. Συνήθως κυμαίνεται
             στο 0.5–2% της αξίας του ακινήτου.
           </div>
@@ -389,7 +391,12 @@
         <h2>Εξέλιξη Πλούτου ανά Έτος</h2>
       </div>
       <div class="card-body">
-        <div class="tbl-wrap rvb-table-wrap">
+        <div
+          class="tbl-wrap rvb-table-wrap"
+          tabindex="0"
+          role="region"
+          aria-label="Πίνακας σύγκρισης νοικιάζω ή αγοράζω"
+        >
           <table>
             <thead>
               <tr>

@@ -3,8 +3,17 @@
   padding-top: 12px;
   border-top: 1px solid var(--g200);
   font-size: 11px;
-  color: var(--g500);
+  color: var(--g600);
   line-height: 1.5;
+}
+
+.law-site-links {
+  margin-bottom: 8px;
+}
+
+.law-link-sep {
+  margin: 0 6px;
+  color: var(--g600);
 }
 .law-chip {
   display: inline-block;

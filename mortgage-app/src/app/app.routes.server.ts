@@ -18,5 +18,6 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'inheritance-gift', renderMode: RenderMode.Prerender },
   { path: 'crypto-tax', renderMode: RenderMode.Prerender },
   { path: 'car-cost', renderMode: RenderMode.Prerender },
+  { path: 'privacy', renderMode: RenderMode.Prerender },
   { path: '**', renderMode: RenderMode.Client },
 ];

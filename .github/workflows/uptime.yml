@@ -1,0 +1,19 @@
+name: Uptime check
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check homepage
+        run: curl -fsSL --retry 3 --retry-delay 5 https://www.salaries.gr/
+
+      - name: Check mortgage calculator
+        run: curl -fsSL --retry 3 --retry-delay 5 https://www.salaries.gr/mortgage
+
+      - name: Check privacy page
+        run: curl -fsSL --retry 3 --retry-delay 5 https://www.salaries.gr/privacy

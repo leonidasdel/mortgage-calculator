@@ -1,7 +1,14 @@
 <div class="law-footer" data-testid="law-footer">
+  <div class="law-site-links">
+    <a class="law-link" href="/privacy" data-testid="law-footer-privacy">Απόρρητο</a>
+    <span class="law-link-sep" aria-hidden="true">·</span>
+    <a class="law-link" href="/">Αρχική</a>
+  </div>
   <span class="law-chip">Ενημερώθηκε: {{ meta().lastVerified }} · {{ meta().law }}</span>
   @if (meta().sourceUrl) {
-    <a class="law-link" [href]="meta().sourceUrl" target="_blank" rel="noopener">Πηγή</a>
+    <a class="law-link law-link-external" [href]="meta().sourceUrl" target="_blank" rel="noopener"
+      >Πηγή</a
+    >
   }
   <p class="law-disclaimer">{{ meta().disclaimer }}</p>
 </div>

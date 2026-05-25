@@ -3,14 +3,6 @@
   background: linear-gradient(135deg, #f3f4f6 0%, #d1d5db 100%);
 }
 
-/* ── HINTS ── */
-.sv-hint {
-  font-size: 11px;
-  color: var(--g400);
-  margin-top: 5px;
-  line-height: 1.5;
-}
-
 /* ── BADGES ── */
 .sv-exempt-badge {
   display: inline-block;
@@ -31,7 +23,7 @@
   font-size: 10px;
   font-weight: 600;
   background: var(--g100);
-  color: var(--g500);
+  color: var(--g600);
   border: 1px solid var(--g200);
 }
 
@@ -55,7 +47,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  color: var(--g500);
+  color: var(--g600);
   white-space: nowrap;
 }
 .sv-table td {

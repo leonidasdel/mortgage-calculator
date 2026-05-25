@@ -103,7 +103,7 @@
           <div class="form-group">
             <label for="christmasMonthsWorked">
               Μήνες εργασίας — Δώρο Χριστουγέννων
-              <span class="hb-period-hint">(Μάι–Δεκ, μέγ. 8)</span>
+              <span class="form-hint form-hint--inline">(Μάι–Δεκ, μέγ. 8)</span>
             </label>
             <div class="input-wrap has-sfx">
               <input
@@ -114,7 +114,7 @@
               />
               <span class="sfx">/ 8 μήνες</span>
             </div>
-            <div class="hb-hint">
+            <div class="form-hint">
               Παράγοντας: {{ (result().christmasFactor * 100).toFixed(0) }}%
             </div>
           </div>
@@ -122,7 +122,7 @@
           <div class="form-group">
             <label for="easterMonthsWorked">
               Μήνες εργασίας — Πάσχα &amp; Επίδομα Αδείας
-              <span class="hb-period-hint">(Ιαν–Απρ, μέγ. 4)</span>
+              <span class="form-hint form-hint--inline">(Ιαν–Απρ, μέγ. 4)</span>
             </label>
             <div class="input-wrap has-sfx">
               <input
@@ -132,7 +132,7 @@
               />
               <span class="sfx">/ 4 μήνες</span>
             </div>
-            <div class="hb-hint">Παράγοντας: {{ (result().easterFactor * 100).toFixed(0) }}%</div>
+            <div class="form-hint">Παράγοντας: {{ (result().easterFactor * 100).toFixed(0) }}%</div>
           </div>
         }
       </div>

@@ -53,7 +53,7 @@
                 [formField]="formFields.grossMonthly"
               />
             </div>
-            <div class="lv-hint">
+            <div class="form-hint">
               Ημερομίσθιο: <strong>{{ result().dailyWage | euro }}</strong> (÷
               {{ formModel().workWeek === '5day' ? '25' : '26' }})
             </div>
@@ -67,7 +67,7 @@
               <span class="pfx">€</span>
               <input type="number" id="dailyWage" [formField]="formFields.dailyWage" />
             </div>
-            <div class="lv-hint">
+            <div class="form-hint">
               Μηνιαίο ισοδύναμο: <strong>{{ result().monthlyEquiv | euro }}</strong> (×
               {{ formModel().workWeek === '5day' ? '25' : '26' }})
             </div>
@@ -107,7 +107,7 @@
             />
             <span class="sfx">ημ.</span>
           </div>
-          <div class="lv-hint">
+          <div class="form-hint">
             Δικαιούμενες: 20 ημ. / έτος (πενθήμερο) ή 24 ημ. (εξαήμερο). Μετά 10ετία: 25 ή 30 ημ.
           </div>
         </div>
@@ -118,7 +118,7 @@
             <span>Συμπερίληψη Επιδόματος Αδείας</span>
           </label>
           @if (formModel().includeHolidayBonus) {
-            <div class="lv-hint">
+            <div class="form-hint">
               = ίσο με αποδοχές αδείας (Ν. 4504/1966) — μέγιστο
               {{ formModel().salaryType === 'daily' ? '13 ημερομίσθια' : '½ μηνιαίος μισθός' }}
               @if (result().holidayBonusCapped) {
@@ -149,12 +149,12 @@
             </button>
           </div>
           @if (formModel().situation === 'termination') {
-            <div class="lv-hint">
+            <div class="form-hint">
               Η αποζημίωση λόγω λύσης <strong>ΔΕΝ</strong> υπόκειται σε ΕΦΚΑ. Το επίδομα αδείας
               <strong>υπόκειται</strong> σε ΕΦΚΑ.
             </div>
           } @else {
-            <div class="lv-hint">
+            <div class="form-hint">
               Κατά τη διάρκεια εργασίας, <strong>όλες</strong> οι αποδοχές υπόκεινται σε ΕΦΚΑ.
             </div>
           }
@@ -190,7 +190,7 @@
             </button>
           </div>
           @if (formModel().taxYear === '2026') {
-            <div class="lv-hint">
+            <div class="form-hint">
               Νέες κλίμακες Ν. 5246/2025: μειωμένοι συντελεστές &amp; αφορολόγητο νέων.
             </div>
           }
@@ -209,7 +209,7 @@
             <option value="under25">Έως 25 ετών</option>
           </select>
           @if (formModel().taxYear === '2025') {
-            <div class="lv-hint">Στο 2025 οι συντελεστές είναι ίδιοι για όλες τις ηλικίες.</div>
+            <div class="form-hint">Στο 2025 οι συντελεστές είναι ίδιοι για όλες τις ηλικίες.</div>
           }
         </div>
 
@@ -255,7 +255,7 @@
                 [formField]="formFields.customAnnualGross"
               />
             </div>
-            <div class="lv-hint">
+            <div class="form-hint">
               Συμπεριλάβετε μισθούς, δώρα &amp; επίδομα αδείας του τρέχοντος έτους (χωρίς την
               παρούσα αποζημίωση).
             </div>

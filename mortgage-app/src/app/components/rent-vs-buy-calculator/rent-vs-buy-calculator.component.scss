@@ -2,13 +2,6 @@
   display: block;
 }
 
-.field-hint {
-  font-size: 12px;
-  color: var(--g500);
-  margin-top: 4px;
-  line-height: 1.5;
-}
-
 .rvb-mode-toggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -18,38 +11,7 @@
 .rvb-mode-pill {
   min-height: 36px;
   padding: 7px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--g200);
-  background: var(--g100);
-  color: var(--g600);
   font-size: 12px;
-  font-weight: 600;
-}
-.rvb-mode-pill:hover {
-  background: var(--blue-light);
-  border-color: var(--blue-mid);
-  color: var(--blue-dark);
-}
-.rvb-mode-pill.active {
-  background: #2563eb;
-  border-color: #2563eb;
-  color: #fff;
-}
-
-:host-context(html.dark) .rvb-mode-pill {
-  background: #111827;
-  color: var(--g600);
-  border-color: var(--g300);
-}
-:host-context(html.dark) .rvb-mode-pill:hover {
-  background: var(--blue-light);
-  border-color: var(--blue-mid);
-  color: var(--blue-dark);
-}
-:host-context(html.dark) .rvb-mode-pill.active {
-  background: #2563eb;
-  border-color: #60a5fa;
-  color: #fff;
 }
 
 /* Verdict banner */
@@ -139,7 +101,7 @@ tr:hover td {
 }
 .badge-rent {
   background: var(--green-light);
-  color: #065f46;
+  color: var(--fg-positive);
 }
 
 :host-context(html.dark) .buy-ahead-row td {

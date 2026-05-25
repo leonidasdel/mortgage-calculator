@@ -22,14 +22,6 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* ── HINTS ── */
-.lv-hint {
-  font-size: 11px;
-  color: var(--g400);
-  margin-top: 5px;
-  line-height: 1.5;
-}
-
 /* ── BADGES ── */
 .badge-warn {
   display: inline-block;
@@ -42,18 +34,6 @@
   color: #92400e;
   border: 1px solid #fcd34d;
 }
-.badge-green {
-  display: inline-block;
-  margin-left: 6px;
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  background: var(--green-light);
-  color: #065f46;
-  border: 1px solid #6ee7b7;
-}
-
 /* ── CHECKBOX ROW ── */
 .lv-check-row {
   display: flex;
@@ -84,7 +64,7 @@
 .lv-toggle-arrow {
   margin-left: auto;
   font-size: 12px;
-  color: var(--g400);
+  color: var(--g600);
   transition: transform 0.2s ease;
   flex-shrink: 0;
 }
@@ -113,7 +93,7 @@
 .lv-tax-col-title {
   font-size: 11px;
   font-weight: 600;
-  color: var(--g500);
+  color: var(--g600);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   margin-bottom: 4px;
@@ -126,7 +106,7 @@
 }
 .lv-tax-col-sub {
   font-size: 10px;
-  color: var(--g400);
+  color: var(--g600);
   margin-bottom: 6px;
 }
 .lv-tax-col-tax {
@@ -172,7 +152,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  color: var(--g500);
+  color: var(--g600);
   white-space: nowrap;
 }
 .lv-table td {
@@ -200,6 +180,6 @@
 }
 .lv-law-desc {
   font-size: 12px;
-  color: var(--g500);
+  color: var(--g600);
   line-height: 1.5;
 }

@@ -97,10 +97,10 @@
           </span>
         </label>
         @if (useLive() && euriborAsOf() && !euriborLoading()) {
-          <div class="euribor-live-hint">Τρέχουσα τιμή ECB ({{ euriborAsOf() }})</div>
+          <div class="form-hint form-hint--md">Τρέχουσα τιμή ECB ({{ euriborAsOf() }})</div>
         }
         @if (euriborFetchFailed()) {
-          <div class="euribor-live-hint euribor-live-hint--warn">
+          <div class="form-hint form-hint--md form-hint--warn">
             Δεν ήταν δυνατή η φόρτωση — χρησιμοποιείται προεπιλογή
           </div>
         }

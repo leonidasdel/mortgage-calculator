@@ -21,7 +21,7 @@
             (valueChange)="onFirstRegistrationChange($event)"
             [minYear]="1980"
           ></app-date-select>
-          <div class="cc-hint">{{ eraHint() }}</div>
+          <div class="form-hint">{{ eraHint() }}</div>
         </div>
 
         <div class="form-group">
@@ -129,7 +129,7 @@
                       [formField]="formFields.pricePerLiter"
                     />
                   </div>
-                  <div class="cc-hint">/ λίτρο</div>
+                  <div class="form-hint">/ λίτρο</div>
                 </div>
                 <div class="info-box green">
                   Ετήσιο κόστος καυσίμων: <strong>{{ result().fuelCostYear | euro }}</strong>

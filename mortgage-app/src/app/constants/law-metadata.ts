@@ -111,6 +111,12 @@ export const LAW_METADATA: Record<string, LawMeta> = {
     lastVerified: '2026-05',
     disclaimer: 'Ενδεικτικός υπολογισμός κόστους.',
   },
+  '/privacy': {
+    route: '/privacy',
+    law: 'Salaries.gr',
+    lastVerified: '2026-05',
+    disclaimer: 'Πολιτική απορρήτου · client-side εφαρμογή.',
+  },
 };
 
 export function getLawMeta(route: string): LawMeta {

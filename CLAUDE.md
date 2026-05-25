@@ -311,6 +311,8 @@ Browsers install to `node_modules` via `PLAYWRIGHT_BROWSERS_PATH=0` (set in npm 
 **Always reuse these — never recreate them in component SCSS.**
 
 ### CSS Variables
+**Semantic text:** use `var(--fg-default)`, `--fg-muted`, `--fg-positive`, `--fg-negative`, `--fg-link`, `--fg-warm` for body copy (not raw `--green` / `--g500`). Hints: global `.form-hint` / `.form-hint--warn`.
+
 ```scss
 --blue, --blue-dark, --blue-light, --blue-mid
 --red, --red-light

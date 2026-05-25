@@ -1,3 +1,21 @@
 :host {
   display: block;
 }
+
+.export-share-hint {
+  flex-basis: 100%;
+  margin: 4px 0 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--fg-muted);
+
+  a {
+    color: var(--blue);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}

@@ -1,3 +1,5 @@
+import { CHART_COLORS } from '../../constants/chart-colors';
+
 export interface AmortizationChartTheme {
   grid: string;
   axis: string;
@@ -46,8 +48,8 @@ export function getChartTheme(isDark: boolean): AmortizationChartTheme {
         grid: '#e2e8f0',
         axis: '#475569',
         label: '#94a3b8',
-        principal: '#2563eb',
-        interest: '#dc2626',
+        principal: CHART_COLORS.principal,
+        interest: CHART_COLORS.interest,
         principalFill: 'rgba(37, 99, 235, 0.25)',
         interestFill: 'rgba(220, 38, 38, 0.22)',
         principalHover: '#1d4ed8',
@@ -61,15 +63,15 @@ export function getSavingsChartTheme(isDark: boolean): SavingsChartTheme {
         grid: '#64748b',
         label: '#cbd5e1',
         axis: '#e2e8f0',
-        gains: '#86efac',
-        contribution: '#60a5fa',
+        gains: CHART_COLORS.gainsDark,
+        contribution: CHART_COLORS.contributionDark,
       }
     : {
         grid: '#f3f4f6',
         label: '#9ca3af',
         axis: '#6b7280',
-        gains: '#059669',
-        contribution: '#1d4ed8',
+        gains: CHART_COLORS.gains,
+        contribution: CHART_COLORS.contribution,
       };
 }
 
