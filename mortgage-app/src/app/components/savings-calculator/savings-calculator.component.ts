@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -6,6 +7,8 @@ import {
   effect,
   ElementRef,
   inject,
+  Injector,
+  OnDestroy,
   PLATFORM_ID,
   signal,
   viewChild,
@@ -64,7 +67,7 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   templateUrl: './savings-calculator.component.html',
   styleUrl: './savings-calculator.component.scss',
 })
-export class SavingsCalculatorComponent {
+export class SavingsCalculatorComponent implements OnDestroy {
   formModel = signal<SavingsModel>({
     initialDeposit: 10000,
     monthlyContribution: 200,
@@ -82,6 +85,7 @@ export class SavingsCalculatorComponent {
   private readonly calc = inject(SavingsCalculatorService);
   private readonly persistence = inject(CalculatorPersistenceService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly injector = inject(Injector);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   readonly quickDurations = [5, 10, 15, 20, 25, 30];
@@ -95,17 +99,43 @@ export class SavingsCalculatorComponent {
 
   readonly explanationFormula = 'Τελικό = αρχικό × (1+r)^n + μηνιαία × [(1+r)^n − 1] / r';
 
-  canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('savingsChart');
+  canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('savingsChart');
+
+  private resizeObserver?: ResizeObserver;
 
   constructor() {
     effect(() => {
       const rows = this.result().yearlyRows;
-      if (this.isBrowser) {
-        setTimeout(() => this.drawChart(rows), 0);
-      }
+      const canvas = this.canvasRef();
+      if (!this.isBrowser || !canvas || !rows.length) return;
+
+      afterNextRender(
+        () => {
+          this.attachResizeObserver();
+          this.drawChart(rows);
+        },
+        { injector: this.injector },
+      );
     });
 
     this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
+  }
+
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
+  }
+
+  private attachResizeObserver(): void {
+    const canvas = this.canvasRef()?.nativeElement;
+    const parent = canvas?.parentElement;
+    if (!parent || typeof ResizeObserver === 'undefined') return;
+
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = new ResizeObserver(() => {
+      this.drawChart(this.result().yearlyRows);
+    });
+    this.resizeObserver.observe(parent);
+    this.drawChart(this.result().yearlyRows);
   }
 
   result = computed<SavingsResult>(() => this.calc.calculate(this.formModel()));
@@ -160,7 +190,7 @@ export class SavingsCalculatorComponent {
   }
 
   private drawChart(rows: SavingsYearRow[]): void {
-    const canvas = this.canvasRef().nativeElement;
+    const canvas = this.canvasRef()?.nativeElement;
     if (!canvas || !rows.length) return;
 
     const W = canvas.parentElement?.clientWidth || 600;
