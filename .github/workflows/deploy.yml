@@ -29,6 +29,25 @@ jobs:
         run: npm ci
         working-directory: mortgage-app
 
+      # Browsers live in ~/.cache/ms-playwright in CI (not PLAYWRIGHT_BROWSERS_PATH=0).
+      # npm run e2e forces node_modules/.local-browsers, which is never cached — see e2e step below.
+      - name: Resolve Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+        working-directory: mortgage-app
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+        working-directory: mortgage-app
+
       - name: Lint
         run: npm run lint
         working-directory: mortgage-app
@@ -61,18 +80,11 @@ jobs:
         run: npx --yes @lhci/cli@0.14.0 autorun
         working-directory: mortgage-app
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-        working-directory: mortgage-app
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-
       - name: E2E tests (production build)
-        run: npm run e2e
+        run: npx playwright test
         working-directory: mortgage-app
         env:
-          CI: 1
-          PLAYWRIGHT_BROWSERS_PATH: 0
+          CI: 'true'
 
       - name: Upload Playwright report on failure
         if: failure()
