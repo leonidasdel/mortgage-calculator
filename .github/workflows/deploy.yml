@@ -45,7 +45,8 @@ jobs:
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
+        # Headless shell only (~115 MiB + ffmpeg). Skips full Chrome for Testing (~175 MiB).
+        run: npx playwright install --with-deps --only-shell chromium
         working-directory: mortgage-app
 
       - name: Lint
