@@ -11,7 +11,9 @@ export class ErrorReportingService {
     if (!isPlatformBrowser(this.platformId) || this.initialized) return;
     this.initialized = true;
 
-    window.addEventListener('error', (event) => this.captureException(event.error ?? event.message));
+    window.addEventListener('error', (event) =>
+      this.captureException(event.error ?? event.message),
+    );
     window.addEventListener('unhandledrejection', (event) => this.captureException(event.reason));
   }
 
