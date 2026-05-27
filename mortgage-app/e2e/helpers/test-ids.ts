@@ -206,6 +206,7 @@ export const PAGE_TITLE_BY_PATH: Record<string, string> = {
   '/inheritance-gift': InheritanceGift.pageTitle,
   '/crypto-tax': CryptoTax.pageTitle,
   '/car-cost': CarCost.pageTitle,
+  '/privacy': Shell.privacyTitle,
 };
 
 export function routeToSlug(route: string): string {
