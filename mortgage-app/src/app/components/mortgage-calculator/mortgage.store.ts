@@ -1,4 +1,4 @@
-import { computed, DestroyRef, effect, inject, untracked } from '@angular/core';
+import { computed, effect, inject, untracked } from '@angular/core';
 import {
   patchState,
   signalStore,
@@ -9,10 +9,9 @@ import {
 } from '@ngrx/signals';
 import { EarlyRepayment, LoanParams } from '../../models/mortgage.models';
 import { MortgageCalculatorService } from '../../services/mortgage-calculator.service';
-import { PersistenceService } from '../../services/persistence.service';
 import { RateFeedService } from '../../services/rate-feed.service';
 import { DEFAULT_EURIBOR_RATE } from '../../constants/euribor.constants';
-import { createStoreWritable } from '../../utils/store-adapters';
+import { withMortgagePersistence } from '../../utils/store-adapters';
 
 const DEFAULT_LOAN_PARAMS: LoanParams = {
   loanAmount: 100000,
@@ -30,37 +29,24 @@ export const MortgageStore = signalStore(
     formModel: DEFAULT_LOAN_PARAMS,
     erList: [] as EarlyRepayment[],
   }),
+  withMortgagePersistence(),
   withMethods((store) => {
     const rateFeed = inject(RateFeedService);
-    const persistence = inject(PersistenceService);
-
-    // Create the writable proxy signal for the form
-    const formModelWritable = createStoreWritable<{ formModel: LoanParams }, 'formModel'>(
-      store,
-      'formModel',
-    );
-
-    const persist = () => {
-      persistence.saveState(store.formModel(), store.erList(), 0);
-    };
 
     return {
-      get formModelWritable() {
-        return formModelWritable;
-      },
       onLiveEuriborToggle(enabled: boolean): void {
         rateFeed.toggleUseLiveRate(enabled);
       },
       onErListChange(updated: EarlyRepayment[]): void {
         patchState(store, { erList: updated });
-        persist();
+        store.persistMortgageState();
       },
       onErModeChange(mode: 'reducePmt' | 'reduceDur'): void {
         patchState(store, (state) => ({ formModel: { ...state.formModel, erMode: mode } }));
-        persist();
+        store.persistMortgageState();
       },
       persistState(): void {
-        persist();
+        store.persistMortgageState();
       },
     };
   }),
@@ -90,16 +76,9 @@ export const MortgageStore = signalStore(
   withHooks({
     onInit(store) {
       const rateFeed = inject(RateFeedService);
-      const persistence = inject(PersistenceService);
-      const destroyRef = inject(DestroyRef);
 
-      // Initialize the form state from local storage and query params
-      persistence.initMortgageForm(store.formModelWritable, destroyRef, {
-        onLoadErList: (list) => patchState(store, { erList: list }),
-        onSave: () => store.persistState(),
-      });
+      store.initMortgageState();
 
-      // Synchronize live rate changes to the store's formModel euribor property
       effect(() => {
         const useLive = rateFeed.useLiveRate();
         const live = rateFeed.liveRate();

@@ -1,26 +1,22 @@
 import { DestroyRef, Injectable, inject, WritableSignal } from '@angular/core';
 import { EarlyRepayment, LoanParams } from '../models/mortgage.models';
 import { CalculatorPersistenceService } from './calculator-persistence.service';
+import { MORTGAGE_STORAGE_KEY, MortgagePersistedState } from '../utils/store-adapters';
 
-export interface PersistedState {
-  inputs: Partial<LoanParams>;
-  erList: EarlyRepayment[];
-  erCounter: number;
-}
+export type { MortgagePersistedState as PersistedState };
 
-const STORAGE_KEY = 'mortgageCalcState';
-
+/** @deprecated Prefer MortgageStore with withMortgagePersistence; kept for legacy callers. */
 @Injectable({ providedIn: 'root' })
 export class PersistenceService {
   private readonly persistence = inject(CalculatorPersistenceService);
 
   saveState(inputs: Partial<LoanParams>, erList: EarlyRepayment[], erCounter: number): void {
-    const state: PersistedState = { inputs, erList, erCounter };
-    this.persistence.saveFormState(STORAGE_KEY, state);
+    const state: MortgagePersistedState = { inputs, erList, erCounter };
+    this.persistence.saveFormState(MORTGAGE_STORAGE_KEY, state);
   }
 
-  loadState(): PersistedState | null {
-    return this.persistence.loadFormState<PersistedState>(STORAGE_KEY);
+  loadState(): MortgagePersistedState | null {
+    return this.persistence.loadFormState<MortgagePersistedState>(MORTGAGE_STORAGE_KEY);
   }
 
   initMortgageForm(
@@ -31,7 +27,7 @@ export class PersistenceService {
       onSave: () => void;
     },
   ): void {
-    this.persistence.initSignalForm(model, STORAGE_KEY, destroyRef, {
+    this.persistence.initSignalForm(model, MORTGAGE_STORAGE_KEY, destroyRef, {
       onLoad: (saved) => {
         if (saved['inputs']) {
           model.set({ ...model(), ...(saved['inputs'] as Partial<LoanParams>) });

@@ -1,18 +1,22 @@
+import { DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   effect,
   inject,
   signal,
 } from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
-import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
+import { FormField } from '@angular/forms/signals';
 import {
   InterestCalculatorService,
   InterestResult,
 } from '../../services/interest-calculator.service';
+import { injectCalculatorForm } from '../../utils/calculator-form.util';
+import { EuroPipe } from '../../pipes/euro.pipe';
+import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
+import { ExportRowComponent } from '../export-row/export-row.component';
+import { LawFooterComponent } from '../law-footer/law-footer.component';
 
 const STORAGE_KEY = 'interestCalcState';
 
@@ -23,11 +27,6 @@ interface InterestModel {
   endDate: string;
 }
 
-import { DecimalPipe } from '@angular/common';
-import { EuroPipe } from '../../pipes/euro.pipe';
-import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
-import { ExportRowComponent } from '../export-row/export-row.component';
-import { LawFooterComponent } from '../law-footer/law-footer.component';
 @Component({
   selector: 'app-interest-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,12 +42,15 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   styleUrl: './interest-calculator.component.scss',
 })
 export class InterestCalculatorComponent {
-  formModel = signal<InterestModel>(this.createDefaultModel());
-  formFields = form(this.formModel);
-
-  private readonly destroyRef = inject(DestroyRef);
   private readonly calc = inject(InterestCalculatorService);
-  private readonly persistence = inject(CalculatorPersistenceService);
+
+  private readonly formSetup = injectCalculatorForm<InterestModel>({
+    defaultModel: () => this.createDefaultModel(),
+    storageKey: STORAGE_KEY,
+  });
+
+  readonly formModel = this.formSetup.formModel;
+  readonly formFields = this.formSetup.formFields;
 
   readonly quickPicks = [
     { label: '3μ', months: 3 },
@@ -74,14 +76,11 @@ export class InterestCalculatorComponent {
     'Μικτοί τόκοι = Κεφάλαιο × (Επιτόκιο / 365) × Ημέρες · Καθαροί = Μικτοί × 85%';
 
   constructor() {
-    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef, {
-      onAfterInit: () => this.detectActiveDuration(),
-    });
-
     effect(() => {
       this.formModel();
       this.detectActiveDuration();
     });
+    this.detectActiveDuration();
   }
 
   pickDuration(months: number): void {

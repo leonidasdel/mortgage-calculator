@@ -1,17 +1,10 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  signal,
-} from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
-import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { FormField } from '@angular/forms/signals';
 import {
   PropertyPurchaseCalculatorService,
   PropertyPurchaseResult,
 } from '../../services/property-purchase-calculator.service';
+import { injectCalculatorForm } from '../../utils/calculator-form.util';
 
 const STORAGE_KEY = 'propertyPurchaseCalcState';
 
@@ -45,20 +38,23 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   styleUrl: './property-purchase-calculator.component.scss',
 })
 export class PropertyPurchaseCalculatorComponent {
-  formModel = signal<PropertyPurchaseModel>({
-    purchasePrice: 200000,
-    aaotValue: 200000,
-    isFirstHome: true,
-    isMarried: false,
-    children: 0,
-    includeAgent: true,
-    includeLawyer: true,
-  });
-  formFields = form(this.formModel);
-
-  private readonly destroyRef = inject(DestroyRef);
   private readonly calc = inject(PropertyPurchaseCalculatorService);
-  private readonly persistence = inject(CalculatorPersistenceService);
+
+  private readonly formSetup = injectCalculatorForm<PropertyPurchaseModel>({
+    defaultModel: {
+      purchasePrice: 200000,
+      aaotValue: 200000,
+      isFirstHome: true,
+      isMarried: false,
+      children: 0,
+      includeAgent: true,
+      includeLawyer: true,
+    },
+    storageKey: STORAGE_KEY,
+  });
+
+  readonly formModel = this.formSetup.formModel;
+  readonly formFields = this.formSetup.formFields;
 
   readonly explanationSteps = [
     'ΦΜΑ 3% επί του μεγαλύτερου τιμήματος ή αντικειμενικής αξίας.',
@@ -68,10 +64,6 @@ export class PropertyPurchaseCalculatorComponent {
   ];
 
   readonly explanationFormula = 'Σύνολο = Τίμημα + ΦΜΑ + συμβολαιογραφικά + κτηματολόγιο + λοιπά';
-
-  constructor() {
-    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
-  }
 
   result = computed<PropertyPurchaseResult>(() => this.calc.calculate(this.formModel()));
 

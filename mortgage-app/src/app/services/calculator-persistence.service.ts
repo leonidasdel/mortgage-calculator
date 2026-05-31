@@ -13,7 +13,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { ShareStateService } from './share-state.service';
 
 export interface SignalFormInitOptions<T> {
-  onLoad?: (saved: Record<string, unknown>) => void;
+  onLoad?: (saved: Record<string, unknown>, model: WritableSignal<T>) => void;
   onSave?: (value: T) => void;
   onApplyShareState?: (state: Record<string, unknown>, model: WritableSignal<T>) => void;
   onAfterInit?: () => void;
@@ -55,7 +55,7 @@ export class CalculatorPersistenceService {
     const saved = this.loadFormState<Record<string, unknown>>(storageKey);
     if (saved) {
       if (options?.onLoad) {
-        options.onLoad(saved);
+        options.onLoad(saved, model);
       } else {
         model.set({ ...model(), ...saved } as T);
       }
@@ -89,6 +89,9 @@ export class CalculatorPersistenceService {
       destroyRef.onDestroy(() => persistRef.destroy());
     });
 
-    options?.onAfterInit?.();
+    if (options?.onAfterInit) {
+      // Defer until component field initializers (e.g. formModel alias) have run.
+      queueMicrotask(() => options.onAfterInit!());
+    }
   }
 }

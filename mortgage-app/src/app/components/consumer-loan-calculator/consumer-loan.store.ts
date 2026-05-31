@@ -1,5 +1,5 @@
 import { computed, inject } from '@angular/core';
-import { signalStore, withComputed, withState, withHooks } from '@ngrx/signals';
+import { signalStore, withComputed, withHooks, withState } from '@ngrx/signals';
 import { AmortizationRow } from '../../models/mortgage.models';
 import { MortgageCalculatorService } from '../../services/mortgage-calculator.service';
 import { withCalculatorPersistence } from '../../utils/store-adapters';

@@ -2,48 +2,16 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
-  computed,
-  DestroyRef,
   effect,
   ElementRef,
   inject,
   Injector,
   OnDestroy,
   PLATFORM_ID,
-  signal,
   viewChild,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { form, FormField } from '@angular/forms/signals';
-import { CompareRow } from '../compare-panel/compare-panel.component';
-import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
-import {
-  SavingsCalculatorService,
-  SavingsResult,
-  SavingsYearRow,
-} from '../../services/savings-calculator.service';
-import {
-  drawHorizontalGrid,
-  formatSavingsAxis,
-  getSavingsChartTheme,
-  isDarkTheme,
-  setupCanvas,
-} from '../../utils/chart-canvas.util';
-
-const STORAGE_KEY = 'savingsCalcState';
-
-interface SavingsModel {
-  initialDeposit: number;
-  monthlyContribution: number;
-  compareMonthlyContribution: number;
-  annualReturn: number;
-  durationYears: number;
-  applyTax: boolean;
-  taxRate: number;
-  applyInflation: boolean;
-  inflationRate: number;
-}
-
 import { CommonModule } from '@angular/common';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { ChartResizeDirective } from '../../directives/chart-resize.directive';
@@ -51,6 +19,16 @@ import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.c
 import { ComparePanelComponent } from '../compare-panel/compare-panel.component';
 import { ExportRowComponent } from '../export-row/export-row.component';
 import { LawFooterComponent } from '../law-footer/law-footer.component';
+import { SavingsYearRow } from '../../services/savings-calculator.service';
+import {
+  drawHorizontalGrid,
+  formatSavingsAxis,
+  getSavingsChartTheme,
+  isDarkTheme,
+  setupCanvas,
+} from '../../utils/chart-canvas.util';
+import { SavingsStore } from './savings.store';
+
 @Component({
   selector: 'app-savings-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,29 +42,22 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
     ExportRowComponent,
     LawFooterComponent,
   ],
+  providers: [SavingsStore],
   templateUrl: './savings-calculator.component.html',
   styleUrl: './savings-calculator.component.scss',
 })
 export class SavingsCalculatorComponent implements OnDestroy {
-  formModel = signal<SavingsModel>({
-    initialDeposit: 10000,
-    monthlyContribution: 200,
-    compareMonthlyContribution: 400,
-    annualReturn: 7,
-    durationYears: 20,
-    applyTax: true,
-    taxRate: 15,
-    applyInflation: false,
-    inflationRate: 2,
-  });
-  formFields = form(this.formModel);
-
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly calc = inject(SavingsCalculatorService);
-  private readonly persistence = inject(CalculatorPersistenceService);
+  readonly store = inject(SavingsStore);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly injector = inject(Injector);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
+
+  readonly formFields = form(this.store.formModelWritable);
+  readonly formModel = this.store.formModel;
+  readonly result = this.store.result;
+  readonly compareResult = this.store.compareResult;
+  readonly compareRows = this.store.compareRows;
+  readonly shareSummary = this.store.shareSummary;
 
   readonly quickDurations = [5, 10, 15, 20, 25, 30];
 
@@ -117,8 +88,6 @@ export class SavingsCalculatorComponent implements OnDestroy {
         { injector: this.injector },
       );
     });
-
-    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
   }
 
   ngOnDestroy(): void {
@@ -138,51 +107,8 @@ export class SavingsCalculatorComponent implements OnDestroy {
     this.drawChart(this.result().yearlyRows);
   }
 
-  result = computed<SavingsResult>(() => this.calc.calculate(this.formModel()));
-
-  compareResult = computed(() => {
-    const fv = this.formModel();
-    const monthly = Math.max(0, fv.compareMonthlyContribution || 0);
-    return this.calc.calculate(fv, monthly);
-  });
-
-  compareRows = computed((): CompareRow[] => {
-    const a = this.result();
-    const b = this.compareResult();
-    const fmt = (n: number) => `${Math.round(n).toLocaleString('el-GR')} €`;
-    const pick = (va: number, vb: number): 'a' | 'b' | undefined =>
-      va > vb ? 'a' : vb > va ? 'b' : undefined;
-    const monthlyA = Math.max(0, this.formModel().monthlyContribution || 0);
-    const monthlyB = Math.max(0, this.formModel().compareMonthlyContribution || 0);
-    return [
-      { label: 'Μηνιαία εισφορά', valueA: fmt(monthlyA), valueB: fmt(monthlyB) },
-      {
-        label: 'Συνολικές εισφορές',
-        valueA: fmt(a.totalContributed),
-        valueB: fmt(b.totalContributed),
-      },
-      {
-        label: 'Καθαρά κέρδη',
-        valueA: fmt(a.netGains),
-        valueB: fmt(b.netGains),
-        highlight: pick(a.netGains, b.netGains),
-      },
-      {
-        label: 'Τελικό ποσό',
-        valueA: fmt(a.finalNominal),
-        valueB: fmt(b.finalNominal),
-        highlight: pick(a.finalNominal, b.finalNominal),
-      },
-    ];
-  });
-
-  shareSummary = computed(() => {
-    const r = this.result();
-    return `Αποταμίευση Salaries.gr: τελικό ${Math.round(r.finalNominal)}€ μετά ${this.formModel().durationYears} έτη`;
-  });
-
   setYears(y: number): void {
-    this.formModel.update((m) => ({ ...m, durationYears: y }));
+    this.store.formModelWritable.update((m) => ({ ...m, durationYears: y }));
   }
 
   onChartResize(): void {

@@ -43,6 +43,7 @@ describe('SalaryCalculatorService', () => {
     expect(forward.netMonthly).toBe(1484.4);
 
     const gross = service.reverseCalculate(forward.netMonthly, {
+      grossMonthly: params.grossMonthly,
       annualBonus: params.annualBonus,
       year: params.year,
       ageGroup: params.ageGroup,

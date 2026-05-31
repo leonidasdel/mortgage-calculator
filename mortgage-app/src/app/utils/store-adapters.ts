@@ -8,10 +8,19 @@ import {
   untracked,
 } from '@angular/core';
 import { patchState, signalStoreFeature, withMethods } from '@ngrx/signals';
+import { EarlyRepayment, LoanParams } from '../models/mortgage.models';
 import {
   CalculatorPersistenceService,
   SignalFormInitOptions,
 } from '../services/calculator-persistence.service';
+
+export const MORTGAGE_STORAGE_KEY = 'mortgageCalcState';
+
+export interface MortgagePersistedState {
+  inputs: Partial<LoanParams>;
+  erList: EarlyRepayment[];
+  erCounter: number;
+}
 
 /**
  * Creates a custom proxy WritableSignal that links a standard Angular Signal Form
@@ -81,6 +90,62 @@ export function withCalculatorPersistence<T extends object>(
         initCalculatorState(): void {
           persistence.initSignalForm(formModelWritable, storageKey, destroyRef, options);
         },
+      };
+    }),
+  );
+}
+
+/**
+ * Mortgage-specific persistence: localStorage shape `{ inputs, erList, erCounter }`.
+ */
+export function withMortgagePersistence() {
+  return signalStoreFeature(
+    {
+      state: {
+        formModel: {} as LoanParams,
+        erList: [] as EarlyRepayment[],
+      },
+    },
+    withMethods((store) => {
+      const persistence = inject(CalculatorPersistenceService);
+      const destroyRef = inject(DestroyRef);
+
+      const formModelWritable = createStoreWritable<
+        { formModel: LoanParams; erList: EarlyRepayment[] },
+        'formModel'
+      >(store, 'formModel');
+
+      const persistMortgageState = (): void => {
+        persistence.saveFormState<MortgagePersistedState>(MORTGAGE_STORAGE_KEY, {
+          inputs: store.formModel(),
+          erList: store.erList(),
+          erCounter: 0,
+        });
+      };
+
+      return {
+        get formModelWritable() {
+          return formModelWritable;
+        },
+        initMortgageState(): void {
+          persistence.initSignalForm(formModelWritable, MORTGAGE_STORAGE_KEY, destroyRef, {
+            onLoad: (saved) => {
+              if (saved['inputs']) {
+                patchState(store, {
+                  formModel: {
+                    ...store.formModel(),
+                    ...(saved['inputs'] as Partial<LoanParams>),
+                  },
+                });
+              }
+              if (Array.isArray(saved['erList'])) {
+                patchState(store, { erList: saved['erList'] as EarlyRepayment[] });
+              }
+            },
+            onSave: () => persistMortgageState(),
+          });
+        },
+        persistMortgageState,
       };
     }),
   );
