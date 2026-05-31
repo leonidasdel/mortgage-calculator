@@ -1,12 +1,4 @@
-import {
-  DestroyRef,
-  inject,
-  Signal,
-  WritableSignal,
-  linkedSignal,
-  effect,
-  untracked,
-} from '@angular/core';
+import { DestroyRef, inject, Signal, WritableSignal, linkedSignal, untracked } from '@angular/core';
 import { patchState, signalStoreFeature, withMethods } from '@ngrx/signals';
 import { EarlyRepayment, LoanParams } from '../models/mortgage.models';
 import {
@@ -46,16 +38,29 @@ export function createStoreWritable<State extends object, Key extends keyof Stat
     computation: (src) => src,
   });
 
-  effect(() => {
-    const value = writable();
+  const syncStore = (value: State[Key]) => {
     untracked(() => {
-      const currentStoreVal = signalVal();
-      if (JSON.stringify(currentStoreVal) !== JSON.stringify(value)) {
+      if (JSON.stringify(signalVal()) !== JSON.stringify(value)) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         patchState(store, { [key]: value } as any);
       }
     });
-  });
+  };
+
+  const set = writable.set.bind(writable);
+  writable.set = (value: State[Key]) => {
+    set(value);
+    syncStore(value);
+  };
+
+  const update = writable.update.bind(writable);
+  writable.update = (updateFn: (value: State[Key]) => State[Key]) => {
+    update((current) => {
+      const next = updateFn(current);
+      syncStore(next);
+      return next;
+    });
+  };
 
   return writable;
 }

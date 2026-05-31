@@ -33,7 +33,7 @@
               id="grossMonthly"
               data-testid="salary-input-grossMonthly"
               [formField]="formFields.grossMonthly"
-              (input)="onGrossChange()"
+              (input)="onGrossChange($event)"
             />
           </div>
         </div>
@@ -54,7 +54,7 @@
               id="netMonthly"
               data-testid="salary-input-netMonthly"
               [formField]="formFields.netMonthly"
-              (input)="onNetChange()"
+              (input)="onNetChange($event)"
             />
           </div>
         </div>

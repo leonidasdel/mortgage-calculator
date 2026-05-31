@@ -72,13 +72,36 @@ describe('SalaryCalculatorComponent', () => {
     const netFor310 = component.store.formModelWritable().netMonthly;
     expect(netFor310).toBeGreaterThan(0);
 
-    component.store.formModelWritable.update((m) => ({ ...m, grossMonthly: 3100 }));
-    component.onGrossChange();
+    component.store.applyGrossInput(3100);
     TestBed.flushEffects();
 
     const net = component.store.formModelWritable().netMonthly;
     expect(net).toBe(component.result().netMonthly);
     expect(net).not.toBe(netFor310);
     expect(net).toBeGreaterThan(netFor310);
+  });
+
+  it('should sync net from gross input element value before form model commits', () => {
+    const fixture = TestBed.createComponent(SalaryCalculatorComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const grossInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-testid="salary-input-grossMonthly"]',
+    );
+    grossInput.value = '310';
+    grossInput.dispatchEvent(new Event('input'));
+    component.onGrossChange({ target: grossInput } as unknown as Event);
+    TestBed.flushEffects();
+
+    const netFor310 = component.store.formModelWritable().netMonthly;
+
+    grossInput.value = '3100';
+    grossInput.dispatchEvent(new Event('input'));
+    component.onGrossChange({ target: grossInput } as unknown as Event);
+    TestBed.flushEffects();
+
+    expect(component.store.formModelWritable().netMonthly).toBe(component.result().netMonthly);
+    expect(component.store.formModelWritable().netMonthly).not.toBe(netFor310);
   });
 });

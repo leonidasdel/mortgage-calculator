@@ -43,22 +43,33 @@ export class SalaryCalculatorComponent {
   readonly shareSummary = this.store.shareSummary;
   readonly ageGroupLabel = this.store.ageGroupLabel;
 
-  onGrossChange(): void {
-    this.store.setInputMode('gross');
-    this.store.syncFromGross();
+  onGrossChange(event: Event): void {
+    const gross = this.amountFromInput(event);
+    if (gross !== null) {
+      this.store.applyGrossInput(gross);
+    }
   }
 
-  onNetChange(): void {
-    this.store.setInputMode('net');
-    this.store.reverseFromNet(this.store.formModelWritable().netMonthly || 0);
+  onNetChange(event: Event): void {
+    const net = this.amountFromInput(event);
+    if (net !== null) {
+      this.store.applyNetInput(net);
+    }
   }
 
   onParamChange(): void {
     if (this.inputMode() === 'net') {
-      this.onNetChange();
+      this.store.applyNetInput(this.store.formModelWritable().netMonthly || 0);
     } else {
       this.store.syncFromGross();
     }
+  }
+
+  private amountFromInput(event: Event): number | null {
+    const el = event.target;
+    if (!(el instanceof HTMLInputElement)) return null;
+    const value = Number(el.value);
+    return Number.isFinite(value) ? Math.max(0, value) : null;
   }
 
   onAnnualBonusChange(value: string): void {

@@ -1,4 +1,4 @@
-import { computed, DestroyRef, inject, PLATFORM_ID } from '@angular/core';
+import { computed, DestroyRef, effect, inject, PLATFORM_ID, untracked } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import {
   patchState,
@@ -135,14 +135,70 @@ export const SalaryStore = signalStore(
       }
     };
 
-    const buildParams = () =>
-      buildSalaryParams(formModelWritable(), { annualBonus: store.annualBonus() });
+    const buildParams = (model: SalaryModel = formModelWritable()) =>
+      buildSalaryParams(model, { annualBonus: store.annualBonus() });
 
-    const syncFromGross = (): void => {
-      const r = calculateSalary(buildParams());
-      const net = r.currentMonthly ? r.currentMonthly.netMonthly : r.netMonthly;
-      formModelWritable.update((m) => ({ ...m, netMonthly: net }));
+    const patchFormModel = (patch: Partial<SalaryModel>): void => {
+      formModelWritable.update((m) => ({ ...m, ...patch }));
     };
+
+    const syncFromGross = (grossOverride?: number): void => {
+      const base = formModelWritable();
+      const model =
+        grossOverride === undefined ? base : { ...base, grossMonthly: grossOverride };
+      const r = calculateSalary(buildParams(model));
+      const net = r.currentMonthly ? r.currentMonthly.netMonthly : r.netMonthly;
+      patchFormModel({ grossMonthly: model.grossMonthly, netMonthly: net });
+    };
+
+    const applyGrossInput = (gross: number): void => {
+      patchState(store, { inputMode: 'gross' });
+      syncFromGross(Math.max(0, gross));
+    };
+
+    const applyNetInput = (net: number): void => {
+      patchState(store, { inputMode: 'net' });
+      const fv = formModelWritable();
+      const salaryChangeMonth = Math.min(
+        12,
+        Math.max(1, Number(fv.salaryChangeMonth) || store.salaryChangeMonth() || 4),
+      );
+      const previousGross = Math.max(0, Number(fv.previousGross) || store.previousGross());
+      const salaryChange: SalaryChange | undefined = fv.hasSalaryChange
+        ? { effectiveMonth: salaryChangeMonth, previousGross }
+        : undefined;
+      const gross = reverseCalculateSalary(Math.max(0, net), {
+        grossMonthly: fv.grossMonthly,
+        year: Number(fv.year) || 2026,
+        ageGroup: fv.ageGroup || 'over30',
+        children: Math.max(0, Number(fv.children) || 0),
+        annualBonus: store.annualBonus(),
+        salaryChange,
+        ftePercent: Number(fv.ftePercent) || 100,
+      });
+      patchFormModel({ grossMonthly: gross, netMonthly: Math.max(0, net) });
+    };
+
+    let lastSyncedGross = formModelWritable().grossMonthly;
+    let lastSyncedNet = formModelWritable().netMonthly;
+    const grossNetSyncRef = effect(() => {
+      const mode = store.inputMode();
+      const { grossMonthly, netMonthly } = formModelWritable();
+
+      untracked(() => {
+        if (mode === 'gross' && grossMonthly !== lastSyncedGross) {
+          lastSyncedGross = grossMonthly;
+          syncFromGross(grossMonthly);
+        } else if (mode === 'net' && netMonthly !== lastSyncedNet) {
+          lastSyncedNet = netMonthly;
+          applyNetInput(netMonthly);
+        }
+      });
+
+      if (mode !== 'gross') lastSyncedGross = grossMonthly;
+      if (mode !== 'net') lastSyncedNet = netMonthly;
+    });
+    destroyRef.onDestroy(() => grossNetSyncRef.destroy());
 
     return {
       get formModelWritable() {
@@ -169,6 +225,8 @@ export const SalaryStore = signalStore(
       saveState,
       buildParams,
       syncFromGross,
+      applyGrossInput,
+      applyNetInput,
       setAnnualBonus(value: number): void {
         patchState(store, { annualBonus: Math.max(0, value) });
       },
@@ -196,26 +254,8 @@ export const SalaryStore = signalStore(
         formModelWritable.update((fv) => ({ ...fv, previousGross: prev }));
       },
       reverseFromNet(netTarget: number): void {
-        const fv = formModelWritable();
-        const salaryChangeMonth = Math.min(
-          12,
-          Math.max(1, Number(fv.salaryChangeMonth) || store.salaryChangeMonth() || 4),
-        );
-        const previousGross = Math.max(0, Number(fv.previousGross) || store.previousGross());
-        const salaryChange: SalaryChange | undefined = fv.hasSalaryChange
-          ? { effectiveMonth: salaryChangeMonth, previousGross }
-          : undefined;
-        const gross = reverseCalculateSalary(netTarget, {
-          grossMonthly: fv.grossMonthly,
-          year: Number(fv.year) || 2026,
-          ageGroup: fv.ageGroup || 'over30',
-          children: Math.max(0, Number(fv.children) || 0),
-          annualBonus: store.annualBonus(),
-          salaryChange,
-          ftePercent: Number(fv.ftePercent) || 100,
-        });
-        formModelWritable.update((m) => ({ ...m, grossMonthly: gross }));
-        syncFromGross();
+        patchState(store, { inputMode: 'net' });
+        applyNetInput(netTarget);
       },
     };
   }),
