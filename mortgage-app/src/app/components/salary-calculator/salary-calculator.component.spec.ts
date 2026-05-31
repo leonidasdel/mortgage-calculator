@@ -59,4 +59,26 @@ describe('SalaryCalculatorComponent', () => {
     expect(component.formModel().salaryChangeMonth).toBe('9');
     expect(component.result().previousMonthly?.grossMonthly).toBe(2850);
   });
+
+  it('should sync net input when gross changes via formModelWritable', () => {
+    const fixture = TestBed.createComponent(SalaryCalculatorComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component.store.formModelWritable.update((m) => ({ ...m, grossMonthly: 310 }));
+    component.store.syncFromGross();
+    TestBed.flushEffects();
+
+    const netFor310 = component.store.formModelWritable().netMonthly;
+    expect(netFor310).toBeGreaterThan(0);
+
+    component.store.formModelWritable.update((m) => ({ ...m, grossMonthly: 3100 }));
+    component.onGrossChange();
+    TestBed.flushEffects();
+
+    const net = component.store.formModelWritable().netMonthly;
+    expect(net).toBe(component.result().netMonthly);
+    expect(net).not.toBe(netFor310);
+    expect(net).toBeGreaterThan(netFor310);
+  });
 });

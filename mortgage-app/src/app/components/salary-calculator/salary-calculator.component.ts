@@ -50,7 +50,7 @@ export class SalaryCalculatorComponent {
 
   onNetChange(): void {
     this.store.setInputMode('net');
-    this.store.reverseFromNet(this.formModel().netMonthly || 0);
+    this.store.reverseFromNet(this.store.formModelWritable().netMonthly || 0);
   }
 
   onParamChange(): void {

@@ -117,7 +117,7 @@ export const SalaryStore = signalStore(
 
     const saveState = (): void => {
       if (!isBrowser) return;
-      const fv = store.formModel();
+      const fv = formModelWritable();
       try {
         const salaryChangeMonth = Math.min(12, Math.max(1, Number(fv.salaryChangeMonth) || 4));
         const previousGross = Math.max(0, Number(fv.previousGross) || 0);
@@ -136,7 +136,7 @@ export const SalaryStore = signalStore(
     };
 
     const buildParams = () =>
-      buildSalaryParams(store.formModel(), { annualBonus: store.annualBonus() });
+      buildSalaryParams(formModelWritable(), { annualBonus: store.annualBonus() });
 
     const syncFromGross = (): void => {
       const r = calculateSalary(buildParams());
@@ -179,30 +179,24 @@ export const SalaryStore = signalStore(
         patchState(store, { showTaxDetails: !store.showTaxDetails() });
       },
       setHasSalaryChange(next: boolean): void {
-        patchState(store, {
-          hasSalaryChange: next,
-          formModel: { ...store.formModel(), hasSalaryChange: next },
-        });
+        patchState(store, { hasSalaryChange: next });
+        formModelWritable.update((m) => ({ ...m, hasSalaryChange: next }));
       },
       setHasMultiEmployer(next: boolean): void {
         patchState(store, { hasMultiEmployer: next });
       },
       setSalaryChangeMonth(month: number): void {
         const m = Math.min(12, Math.max(1, month));
-        patchState(store, {
-          salaryChangeMonth: m,
-          formModel: { ...store.formModel(), salaryChangeMonth: String(m) },
-        });
+        patchState(store, { salaryChangeMonth: m });
+        formModelWritable.update((fv) => ({ ...fv, salaryChangeMonth: String(m) }));
       },
       setPreviousGross(gross: number): void {
         const prev = Math.max(0, gross);
-        patchState(store, {
-          previousGross: prev,
-          formModel: { ...store.formModel(), previousGross: prev },
-        });
+        patchState(store, { previousGross: prev });
+        formModelWritable.update((fv) => ({ ...fv, previousGross: prev }));
       },
       reverseFromNet(netTarget: number): void {
-        const fv = store.formModel();
+        const fv = formModelWritable();
         const salaryChangeMonth = Math.min(
           12,
           Math.max(1, Number(fv.salaryChangeMonth) || store.salaryChangeMonth() || 4),
@@ -220,7 +214,7 @@ export const SalaryStore = signalStore(
           salaryChange,
           ftePercent: Number(fv.ftePercent) || 100,
         });
-        patchState(store, { formModel: { ...fv, grossMonthly: gross } });
+        formModelWritable.update((m) => ({ ...m, grossMonthly: gross }));
         syncFromGross();
       },
     };
