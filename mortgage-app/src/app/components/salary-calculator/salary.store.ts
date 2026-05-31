@@ -144,8 +144,7 @@ export const SalaryStore = signalStore(
 
     const syncFromGross = (grossOverride?: number): void => {
       const base = formModelWritable();
-      const model =
-        grossOverride === undefined ? base : { ...base, grossMonthly: grossOverride };
+      const model = grossOverride === undefined ? base : { ...base, grossMonthly: grossOverride };
       const r = calculateSalary(buildParams(model));
       const net = r.currentMonthly ? r.currentMonthly.netMonthly : r.netMonthly;
       patchFormModel({ grossMonthly: model.grossMonthly, netMonthly: net });
