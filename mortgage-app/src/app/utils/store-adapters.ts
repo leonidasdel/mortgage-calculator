@@ -136,11 +136,9 @@ export function withMortgagePersistence() {
           persistence.initSignalForm(formModelWritable, MORTGAGE_STORAGE_KEY, destroyRef, {
             onLoad: (saved) => {
               if (saved['inputs']) {
-                patchState(store, {
-                  formModel: {
-                    ...store.formModel(),
-                    ...(saved['inputs'] as Partial<LoanParams>),
-                  },
+                formModelWritable.set({
+                  ...formModelWritable(),
+                  ...(saved['inputs'] as Partial<LoanParams>),
                 });
               }
               if (Array.isArray(saved['erList'])) {

@@ -42,7 +42,7 @@ export const MortgageStore = signalStore(
         store.persistMortgageState();
       },
       onErModeChange(mode: 'reducePmt' | 'reduceDur'): void {
-        patchState(store, (state) => ({ formModel: { ...state.formModel, erMode: mode } }));
+        store.formModelWritable.update((m) => ({ ...m, erMode: mode }));
         store.persistMortgageState();
       },
       persistState(): void {
@@ -87,10 +87,10 @@ export const MortgageStore = signalStore(
           const current = store.formModel();
           if (useLive && live != null) {
             if (current.euribor !== live) {
-              patchState(store, { formModel: { ...current, euribor: live } });
+              store.formModelWritable.update((m) => ({ ...m, euribor: live }));
             }
           } else if (!useLive && current.euribor === live) {
-            patchState(store, { formModel: { ...current, euribor: DEFAULT_EURIBOR_RATE } });
+            store.formModelWritable.update((m) => ({ ...m, euribor: DEFAULT_EURIBOR_RATE }));
           }
         });
       });

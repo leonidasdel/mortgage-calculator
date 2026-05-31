@@ -151,6 +151,24 @@ export const SalaryStore = signalStore(
       patchFormModel({ grossMonthly: model.grossMonthly, netMonthly: net });
     };
 
+    const syncCurrentInput = (): void => {
+      if (store.inputMode() === 'net') {
+        applyNetInput(formModelWritable().netMonthly || 0);
+      } else {
+        syncFromGross();
+      }
+    };
+
+    const applyParamChange = (patch: Partial<SalaryModel>): void => {
+      const merged = { ...formModelWritable(), ...patch };
+      formModelWritable.set(merged);
+      if (store.inputMode() === 'net') {
+        applyNetInput(merged.netMonthly || 0);
+      } else {
+        syncFromGross(merged.grossMonthly);
+      }
+    };
+
     const applyGrossInput = (gross: number): void => {
       patchState(store, { inputMode: 'gross' });
       syncFromGross(Math.max(0, gross));
@@ -225,6 +243,8 @@ export const SalaryStore = signalStore(
       saveState,
       buildParams,
       syncFromGross,
+      syncCurrentInput,
+      applyParamChange,
       applyGrossInput,
       applyNetInput,
       setAnnualBonus(value: number): void {

@@ -74,7 +74,7 @@
                 data-testid="salary-input-year"
                 [formField]="formFields.year"
                 class="form-select"
-                (change)="onParamChange()"
+                (change)="onParamChange($event)"
               >
                 <option [value]="2026">2026</option>
                 <option [value]="2025">2025</option>
@@ -91,7 +91,7 @@
                   data-testid="salary-input-ageGroup"
                   [formField]="formFields.ageGroup"
                   class="form-select"
-                  (change)="onParamChange()"
+                  (change)="onParamChange($event)"
                 >
                   <option value="under25">Έως 25 ετών</option>
                   <option value="26to30">26-30 ετών</option>
@@ -109,7 +109,7 @@
                 data-testid="salary-input-children"
                 [formField]="formFields.children"
                 class="form-select"
-                (change)="onParamChange()"
+                (change)="onParamChange($event)"
               >
                 <option [value]="0">0</option>
                 <option [value]="1">1</option>
@@ -130,7 +130,7 @@
                 id="ftePercent"
                 data-testid="salary-input-ftePercent"
                 [formField]="formFields.ftePercent"
-                (input)="onParamChange()"
+                (input)="onParamChange($event)"
               />
               <span class="sfx">%</span>
             </div>

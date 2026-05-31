@@ -104,4 +104,25 @@ describe('SalaryCalculatorComponent', () => {
     expect(component.store.formModelWritable().netMonthly).toBe(component.result().netMonthly);
     expect(component.store.formModelWritable().netMonthly).not.toBe(netFor310);
   });
+
+  it('should sync net from fte input element value before form model commits', () => {
+    const fixture = TestBed.createComponent(SalaryCalculatorComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component.store.applyGrossInput(3100);
+    TestBed.flushEffects();
+
+    const fteInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-testid="salary-input-ftePercent"]',
+    );
+    fteInput.value = '50';
+    fteInput.dispatchEvent(new Event('input'));
+    component.onParamChange({ target: fteInput } as unknown as Event);
+    TestBed.flushEffects();
+
+    expect(component.store.formModelWritable().ftePercent).toBe(50);
+    expect(component.result().netMonthly).toBe(component.store.formModelWritable().netMonthly);
+    expect(component.fullTimeResult()).not.toBeNull();
+  });
 });

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { CommonModule } from '@angular/common';
-import { PayslipLine } from '../../models/salary.models';
+import { AgeGroup, PayslipLine } from '../../models/salary.models';
 import { ExportService } from '../../services/export.service';
 import { SalaryChangeBlockComponent } from '../salary-change-block/salary-change-block.component';
 import { SalaryPayslipPanelComponent } from '../salary-payslip-panel/salary-payslip-panel.component';
@@ -57,12 +57,36 @@ export class SalaryCalculatorComponent {
     }
   }
 
-  onParamChange(): void {
-    if (this.inputMode() === 'net') {
-      this.store.applyNetInput(this.store.formModelWritable().netMonthly || 0);
+  onParamChange(event?: Event): void {
+    const patch = this.patchFromParamEvent(event);
+    if (patch) {
+      this.store.applyParamChange(patch);
     } else {
-      this.store.syncFromGross();
+      this.store.syncCurrentInput();
     }
+  }
+
+  private patchFromParamEvent(event?: Event): Partial<SalaryModel> | null {
+    const el = event?.target;
+    if (el instanceof HTMLInputElement && el.id === 'ftePercent') {
+      const fte = Number(el.value);
+      return {
+        ftePercent: Number.isFinite(fte) ? Math.min(100, Math.max(0, fte)) : 100,
+      };
+    }
+    if (el instanceof HTMLSelectElement) {
+      switch (el.id) {
+        case 'year':
+          return { year: el.value };
+        case 'ageGroup':
+          return { ageGroup: el.value as AgeGroup };
+        case 'children':
+          return { children: el.value };
+        default:
+          return null;
+      }
+    }
+    return null;
   }
 
   private amountFromInput(event: Event): number | null {
