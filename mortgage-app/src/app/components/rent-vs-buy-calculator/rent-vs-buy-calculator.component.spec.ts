@@ -17,13 +17,12 @@ describe('RentVsBuyCalculatorComponent', () => {
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
-    component.formModel.update((m) => ({ ...m, propertyPrice: 198000 }));
+    component.store.formModelWritable.update((m) => ({ ...m, propertyPrice: 198000 }));
     component.onDownPaymentModeChange('amount');
-    component.formModel.update((m) => ({ ...m, downPaymentAmount: 17820 }));
-    component.onDownPaymentAmountInput();
+    component.store.formModelWritable.update((m) => ({ ...m, downPaymentAmount: 17820 }));
     component.onClosingCostsModeChange('amount');
-    component.formModel.update((m) => ({ ...m, closingCostsAmount: 11880 }));
-    component.onClosingCostsAmountInput();
+    component.store.formModelWritable.update((m) => ({ ...m, closingCostsAmount: 11880 }));
+    TestBed.flushEffects();
 
     const result = component.result();
     expect(result.downPayment).toBe(17820);
@@ -37,13 +36,11 @@ describe('RentVsBuyCalculatorComponent', () => {
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
-    component.formModel.update((m) => ({ ...m, propertyPrice: 198000 }));
+    component.store.formModelWritable.update((m) => ({ ...m, propertyPrice: 198000 }));
     component.onDownPaymentModeChange('amount');
-    component.formModel.update((m) => ({ ...m, downPaymentAmount: 17820 }));
-    component.onDownPaymentAmountInput();
+    component.store.formModelWritable.update((m) => ({ ...m, downPaymentAmount: 17820 }));
     component.onClosingCostsModeChange('amount');
-    component.formModel.update((m) => ({ ...m, closingCostsAmount: 11880 }));
-    component.onClosingCostsAmountInput();
+    component.store.formModelWritable.update((m) => ({ ...m, closingCostsAmount: 11880 }));
     TestBed.flushEffects();
 
     const saved = JSON.parse(localStorage.getItem('rentVsBuyCalcState') ?? '{}');

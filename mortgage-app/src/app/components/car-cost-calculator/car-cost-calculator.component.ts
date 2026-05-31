@@ -1,12 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  signal,
-} from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
+import { DecimalPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { FormField } from '@angular/forms/signals';
 import {
   getRegistrationEra,
   normalizeRegistrationDate,
@@ -16,30 +10,30 @@ import {
   CarCostCalculatorService,
   CarCostParams,
 } from '../../services/car-cost-calculator.service';
-import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
-
-const STORAGE_KEY = 'carCostCalcState';
-
-interface CarCostModel {
-  firstRegistration: string;
-  isEv: boolean;
-  engineCc: number;
-  co2Grams: number;
-  insuranceYear: number;
-  fuelMode: string;
-  fuelCostYear: number;
-  kmPerYear: number;
-  litersPer100km: number;
-  pricePerLiter: number;
-  maintenanceYear: number;
-}
-
-import { DecimalPipe } from '@angular/common';
+import { injectCalculatorForm } from '../../utils/calculator-form.util';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { DateSelectComponent } from '../date-select/date-select.component';
 import { ExportRowComponent } from '../export-row/export-row.component';
 import { LawFooterComponent } from '../law-footer/law-footer.component';
+import { CarCostModel, carCostFormSchema } from './car-cost.schema';
+
+const STORAGE_KEY = 'carCostCalcState';
+
+const DEFAULT_MODEL: CarCostModel = {
+  firstRegistration: '2015-06-01',
+  isEv: false,
+  engineCc: 1400,
+  co2Grams: 120,
+  insuranceYear: 450,
+  fuelMode: 'calc',
+  fuelCostYear: 1800,
+  kmPerYear: 15000,
+  litersPer100km: 6.5,
+  pricePerLiter: 1.85,
+  maintenanceYear: 600,
+};
+
 @Component({
   selector: 'app-car-cost-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,24 +50,26 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   styleUrl: './car-cost-calculator.component.scss',
 })
 export class CarCostCalculatorComponent {
-  formModel = signal<CarCostModel>({
-    firstRegistration: '2015-06-01',
-    isEv: false,
-    engineCc: 1400,
-    co2Grams: 120,
-    insuranceYear: 450,
-    fuelMode: 'calc',
-    fuelCostYear: 1800,
-    kmPerYear: 15000,
-    litersPer100km: 6.5,
-    pricePerLiter: 1.85,
-    maintenanceYear: 600,
-  });
-  formFields = form(this.formModel);
-
-  private readonly destroyRef = inject(DestroyRef);
   private readonly calc = inject(CarCostCalculatorService);
-  private readonly persistence = inject(CalculatorPersistenceService);
+
+  private readonly formSetup = injectCalculatorForm<CarCostModel>({
+    defaultModel: DEFAULT_MODEL,
+    storageKey: STORAGE_KEY,
+    schema: carCostFormSchema,
+    persistence: {
+      onApplyShareState: (state, model) => {
+        if (state['firstRegistration']) {
+          state['firstRegistration'] = normalizeRegistrationDate(
+            String(state['firstRegistration']),
+          );
+        }
+        model.set({ ...model(), ...state } as CarCostModel);
+      },
+    },
+  });
+
+  readonly formModel = this.formSetup.formModel;
+  readonly formFields = this.formSetup.formFields;
 
   readonly explanationSteps = [
     'Τα τέλη κυκλοφορίας υπολογίζονται από cc (πριν 2010) ή CO₂ (μετά).',
@@ -84,19 +80,6 @@ export class CarCostCalculatorComponent {
 
   readonly explanationFormula =
     'Καύσιμα = (χλμ/έτος ÷ 100) × λίτρα/100χλμ × €/λίτρο · TCO = τέλη + ασφάλεια + καύσιμα + συντήρηση';
-
-  constructor() {
-    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef, {
-      onApplyShareState: (state, model) => {
-        if (state['firstRegistration']) {
-          state['firstRegistration'] = normalizeRegistrationDate(
-            String(state['firstRegistration']),
-          );
-        }
-        model.set({ ...model(), ...state } as CarCostModel);
-      },
-    });
-  }
 
   result = computed(() => this.calc.calculate(this.buildParams()));
 

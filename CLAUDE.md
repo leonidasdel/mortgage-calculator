@@ -8,7 +8,7 @@ Auto-loaded by Claude Code. Keep this up to date when architecture changes.
 
 **Name:** Salaries.gr
 **Purpose:** Greek financial calculator suite (mortgages, salaries, savings, taxes, real estate)
-**Stack:** Angular 21 · Standalone components · OnPush · Zoneless · SCSS · Canvas charts · PWA · SSG (prerender)
+**Stack:** Angular 22 (RC) · Standalone components · OnPush · Zoneless · SCSS · Canvas charts · PWA · SSG (prerender)
 **Backend:** None — pure client-side calculations
 **Locale:** Greek throughout (labels, tax law, EFKA, date formats)
 
@@ -37,8 +37,12 @@ mortgage-app/
       services/              ← calculator + platform services
       constants/             ← law metadata, tax brackets, per-calculator law tables
       models/                ← mortgage, salary models
+      calculators/           ← pure calculation modules (framework-agnostic)
+        mortgage/mortgage.calc.ts
+        interest/interest.calc.ts
+        salary/salary.calc.ts  ← SalaryCalculatorEngine + exported functions
       pipes/                 ← euro | dateDDMMYYYY (standalone)
-      utils/                 ← chart-canvas.util.ts
+      utils/                 ← calculator-form.util.ts, store-adapters.ts, create-calculator-store.ts, chart-canvas.util.ts
       directives/            ← chart-resize.directive.ts (standalone)
     styles.scss              ← Global CSS variables + all utility classes
 ```
@@ -78,17 +82,40 @@ mortgage-app/
 
 ---
 
+## Calculator architecture
+
+**Pure math** lives in `calculators/<domain>/*.calc.ts`. `@Injectable` `*-calculator.service.ts` files are thin facades (tests and legacy imports keep using services).
+
+**Tier 2 (simple routes)** — component + `injectCalculatorForm()` from `utils/calculator-form.util.ts` (pilot: interest, property-purchase). Sets up `formModel`, `formFields`, and `CalculatorPersistenceService.initSignalForm`.
+
+**Tier 1 (complex routes)** — route-scoped NgRx `signalStore` (`providers: [XStore]` on component), thin component re-exports store signals:
+
+| Store | Route | Notes |
+|-------|-------|--------|
+| `MortgageStore` | `/mortgage` | `withMortgagePersistence` (`inputs` + `erList` in localStorage) |
+| `ConsumerLoanStore` | `/consumer-loan` | `withCalculatorPersistence` |
+| `SalaryStore` | `/salary` | Custom persistence (`inputs` + `annualBonus`, etc.) |
+| `RentVsBuyStore` | `/rent-vs-buy` | Compare panel computeds |
+| `SavingsStore` | `/savings` | Chart stays in component; computeds in store |
+| `RentalTaxStore` | `/rental-tax` | Custom `onLoad` merge for income mode |
+
+**Store ↔ signal forms:** `createStoreWritable` + `withCalculatorPersistence` in `utils/store-adapters.ts` (deprecated when [NgRx delegated-signal RFC #5121](https://github.com/ngrx/platform/issues/5121) ships). Imperative handlers that read-then-write should use `store.formModelWritable()`, not `store.formModel()`, then `TestBed.flushEffects()` in tests before asserting computeds.
+
+**Experimental:** `createCalculatorStore()` in `utils/create-calculator-store.ts` — prefer explicit `signalStore` for full TypeScript inference.
+
+---
+
 ## Services
 
 ### MortgageCalculatorService
-`services/mortgage-calculator.service.ts` · `providedIn: 'root'`
+`services/mortgage-calculator.service.ts` · `providedIn: 'root'` · delegates to `calculators/mortgage/mortgage.calc.ts`
 - `pmt(principal, annualRate, months): number`
 - `buildSchedule(params: LoanParams, erList: EarlyRepayment[]): AmortizationRow[]` — full amortization with grace period, fixed/variable rate switch, early repayments (reducePmt / reduceDur modes), N.128 levy (0.12% annual)
 - `computeSummary(schedule, baseSchedule, params): MortgageSummary`
 - `computeErMonthsSaved(params, erList): ErMonthsSavedMap`
 
 ### SalaryCalculatorService
-`services/salary-calculator.service.ts` · `providedIn: 'root'`
+`services/salary-calculator.service.ts` · `providedIn: 'root'` · delegates to `calculators/salary/salary.calc.ts` (`SalaryCalculatorEngine`)
 - `calculate(params: SalaryParams): SalaryResult` — EFKA, progressive tax (age-dependent brackets), 14-month model, Christmas/Easter/Leave bonuses, annual bonus (marginal tax), salary change mid-year pro-rata
 - `buildSalaryParams(formSlice, extras?)` — shared form → `SalaryParams` mapping for salary / annual-bonus routes
 - `calculateWithPartialBonuses(params)` — holiday-bonus route with partial-month scaling
@@ -121,7 +148,7 @@ New Phase 1 calculator services in `services/*-calculator.service.ts`.
 - `initCalculatorForm(form, key, destroyRef, options?)` — legacy reactive-forms helper (bulk-er-form only)
 
 ### PersistenceService (mortgage)
-`services/persistence.service.ts` — mortgage extended state (`erList`, `erCounter`) via `initMortgageForm(model, …)`
+`services/persistence.service.ts` — **deprecated**; prefer `MortgageStore` + `withMortgagePersistence`. Thin wrapper kept for legacy tests.
 
 ### ExportService
 `services/export.service.ts`
@@ -201,22 +228,25 @@ export const appConfig: ApplicationConfig = {
 // Lazy route (routes/*.routes.ts)
 { path: 'mortgage', loadComponent: () => import('…').then(m => m.MortgageCalculatorComponent) }
 
-// Signal form model (used in every calculator)
+// Tier 2: signal form + shared persistence helper
 interface MyModel { loanAmount: number; /* never use undefined values */ }
 
-formModel = signal<MyModel>({ loanAmount: 100000 });
-formFields = form(this.formModel);
-
-constructor() {
-  this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef, {
-    onLoad: (saved) => { /* optional custom restore */ },
-    onSave: (value) => { /* optional custom save */ },
-    onApplyShareState: (state, model) => model.set({ ...model(), ...state }),
-    onAfterInit: () => { /* e.g. sync derived fields */ },
-  });
-}
+private readonly formSetup = injectCalculatorForm<MyModel>({
+  defaultModel: { loanAmount: 100000 },
+  storageKey: STORAGE_KEY,
+  schema: myFormSchema, // optional — min/max, hidden, applyWhen (@experimental)
+  persistence: {
+    onLoad: (saved, model) => { /* optional; model is WritableSignal<MyModel> */ },
+    onApplyShareState: (state, model) => model.set({ ...model(), ...state } as MyModel),
+  },
+});
+readonly formModel = this.formSetup.formModel;
+readonly formFields = this.formSetup.formFields;
 
 result = computed(() => this.service.calculate(this.formModel()));
+
+// Tier 1: form(store.formModelWritable, myFormSchema) + linked-field effects (see below)
+// Tier 1 pilots: rent-vs-buy, rental-tax (stores); car-cost uses injectCalculatorForm + schema
 
 // Template bindings
 // <input type="number" [formField]="formFields.loanAmount" />
@@ -238,6 +268,35 @@ this.router.events.pipe(
 - **No barrel files** — each component lists only its template deps in `imports`, imported from direct source paths (duplicate `CommonModule` across files is intentional)
 - **Child form slices** — pass `FieldTree` slices from parent (e.g. `app-loan-form [formFields]="formFields"`, `app-salary-change-block [formFields]="$any(formFields)"`)
 - **`[formField]` inputs** — do not set `min`/`max`/`step` on the same element (use schema validation or accept unconstrained input)
+
+### Signal form schemas & linked fields (v22 pilot)
+
+**Angular 22** (`@angular/*` 22.0.0-rc.x). `npm install` uses `legacy-peer-deps` (`.npmrc`) because `@ngrx/signals@21` peers Angular 21. CLI build requires **Node ≥24.15.0** (or 22.22.3+ / 26+).
+
+**Schemas** (`form(writable, schemaFn)` — still `@experimental`):
+
+```typescript
+import { hidden, SchemaPathTree } from '@angular/forms/signals';
+import { minZero, pctRange } from '../utils/calculator-schemas';
+
+export function myFormSchema(path: SchemaPathTree<MyModel>): void {
+  minZero(path.amount);
+  pctRange(path.ratePct);
+  hidden(path.annualField, ({ valueOf }) => valueOf(path.mode) === 'monthly');
+}
+```
+
+Reusable validators: `utils/calculator-schemas/common-validators.ts`.
+
+**Bi-directional sync** (pct ↔ amount, annual ↔ monthly) is **not** declarative in the schema API — use `effect()` helpers in `utils/calculator-schemas/setup-linked-fields.util.ts`:
+
+- `setupPctAmountPairLinks(formModel, destroyRef, { propertyPrice, mode, pct, amount })` — single pair (generic)
+- `setupAnnualMonthlyLinks(formModel, destroyRef, { annual, monthly }, () => incomeMode)` — rental-tax
+- Rent-vs-buy uses dedicated `rent-vs-buy-linked-fields.ts` (two pct/amount pairs on one price)
+
+Use **`applyWhen` / `hidden`** for conditional visibility; use **effects** for cross-field writes. After imperative `formModelWritable.update`, call **`TestBed.flushEffects()`** in unit tests before asserting store computeds.
+
+**Pilot routes:** `/rent-vs-buy`, `/rental-tax`, `/car-cost` — schemas + linked fields; templates bind `[formField]` only (no redundant `(input)` sync handlers).
 - **`date-select`** — still a CVA; bind via `[(ngModel)]` + `FormsModule` or manual `(ngModelChange)` against `formModel`
 - **Salary extras** — `annualBonus`, `hasSalaryChange`, `inputMode`, etc. stay as separate signals alongside `formModel`
 - Canvas charts use `effect()` for redraws triggered by signal changes

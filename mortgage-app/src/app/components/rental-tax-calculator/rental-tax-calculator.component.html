@@ -48,7 +48,6 @@
                 id="monthlyIncome"
                 data-testid="rental-tax-input-monthlyIncome"
                 [formField]="formFields.monthlyIncome"
-                (input)="onMonthlyIncomeInput()"
               />
             </div>
             <div class="form-hint">
@@ -60,12 +59,7 @@
             <label for="annualIncome">Ετήσιο Εισόδημα Ενοικίων (&#8364;)</label>
             <div class="input-wrap has-pfx">
               <span class="pfx">&#8364;</span>
-              <input
-                type="number"
-                id="annualIncome"
-                [formField]="formFields.annualIncome"
-                (input)="onAnnualIncomeInput()"
-              />
+              <input type="number" id="annualIncome" [formField]="formFields.annualIncome" />
             </div>
             <div class="form-hint">
               Μηνιαίο ισοδύναμο: <strong>{{ result().annualIncome / 12 | euro }}</strong>

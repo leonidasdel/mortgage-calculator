@@ -26,7 +26,6 @@
               id="propertyPrice"
               data-testid="rent-vs-buy-input-propertyPrice"
               [formField]="formFields.propertyPrice"
-              (input)="onPropertyPriceInput()"
             />
           </div>
         </div>
@@ -59,7 +58,6 @@
                 id="downPaymentAmount"
                 data-testid="rent-vs-buy-input-downPaymentAmount"
                 [formField]="formFields.downPaymentAmount"
-                (input)="onDownPaymentAmountInput()"
               />
             </div>
             <div class="form-hint">
@@ -72,7 +70,6 @@
                 id="downPaymentPct"
                 aria-label="Προκαταβολή (%)"
                 [formField]="formFields.downPaymentPct"
-                (input)="onDownPaymentPctInput()"
               />
               <span class="sfx">%</span>
             </div>
@@ -108,7 +105,6 @@
                 id="closingCostsAmount"
                 data-testid="rent-vs-buy-input-closingCostsAmount"
                 [formField]="formFields.closingCostsAmount"
-                (input)="onClosingCostsAmountInput()"
               />
             </div>
             <div class="form-hint">
@@ -121,7 +117,6 @@
                 id="closingCostsPct"
                 aria-label="Έξοδα αγοράς (%)"
                 [formField]="formFields.closingCostsPct"
-                (input)="onClosingCostsPctInput()"
               />
               <span class="sfx">%</span>
             </div>
