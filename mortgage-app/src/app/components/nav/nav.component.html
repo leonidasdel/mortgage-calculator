@@ -42,6 +42,20 @@
     </button>
   </div>
 
+  @if (!collapsed() && hasProfile()) {
+    <p class="profile-hint" data-testid="nav-profile-hint">
+      Τα στοιχεία σας χρησιμοποιούνται ως προεπιλογή σε άλλους υπολογιστές.
+      <button
+        type="button"
+        class="profile-hint-clear"
+        data-testid="nav-profile-clear"
+        (click)="clearProfile()"
+      >
+        Καθαρισμός
+      </button>
+    </p>
+  }
+
   <nav class="sidebar-nav">
     @for (group of navGroups; track group.label) {
       <div class="nav-group">

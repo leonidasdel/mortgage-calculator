@@ -84,11 +84,11 @@ mortgage-app/
 
 ## Calculator architecture
 
-**Pure math** lives in `calculators/<domain>/*.calc.ts`. `@Injectable` `*-calculator.service.ts` files are thin facades (tests and legacy imports keep using services).
+**Pure math** lives in `calculators/<domain>/*.calc.ts` (mortgage, interest, salary, property-purchase, car-cost, inheritance-gift, crypto-tax, savings, rental-tax, severance, unused-leave, freelancer, rent-vs-buy, consumer-loan). `@Injectable` `*-calculator.service.ts` files are thin facades. Portable re-exports: `calculators/index.ts`.
 
-**Tier 2 (simple routes)** — component + `injectCalculatorForm()` from `utils/calculator-form.util.ts` (pilot: interest, property-purchase). Sets up `formModel`, `formFields`, and `CalculatorPersistenceService.initSignalForm`.
+**Tier A (simple routes)** — `injectCalculatorForm()` from `utils/calculator-form.util.ts` + optional `*.schema.ts` + optional `profileBindings` from `constants/profile-field-maps.ts`. Used by: interest, property-purchase, car-cost, crypto-tax, inheritance-gift, annual-bonus, holiday-bonus, severance, unused-leave, freelancer.
 
-**Tier 1 (complex routes)** — route-scoped NgRx `signalStore` (`providers: [XStore]` on component), thin component re-exports store signals:
+**Tier B (complex routes)** — route-scoped NgRx `signalStore` (`providers: [XStore]` on component), `form(store.formModelWritable, schema)` + `withCalculatorPersistence` / custom persistence:
 
 | Store | Route | Notes |
 |-------|-------|--------|
@@ -132,8 +132,11 @@ LEAVE_SURCHARGE_RATE  = 0.04166
 
 **Tax brackets:** imported from `constants/tax-brackets.constants.ts` (2025/2026 tables).
 
-### InheritanceGiftCalculatorService / CryptoTaxCalculatorService / CarCostCalculatorService
-New Phase 1 calculator services in `services/*-calculator.service.ts`.
+### Other calculator services
+All delegate to `calculators/<domain>/*.calc.ts` (same pattern as mortgage/interest/salary).
+
+### UserProfileStore
+`stores/user-profile.store.ts` · `providedIn: 'root'` · `localStorage` key `userFinancialProfile`. Salary (primary) and property-purchase write overlapping fields; `initSignalForm` / store init applies `profileBindings` with fill-missing-only semantics (no overwrite of per-calculator saves or URL share keys). Nav shows hint when profile exists.
 
 ### ShareStateService
 `services/share-state.service.ts` — serialize/deserialize form state ↔ URL query params via `URLSearchParams`; `loadShareStateIntoForm()` for URL restore; copy share link + WhatsApp.
@@ -144,8 +147,7 @@ New Phase 1 calculator services in `services/*-calculator.service.ts`.
 ### CalculatorPersistenceService
 `services/calculator-persistence.service.ts` · `providedIn: 'root'`
 - `saveFormState` / `loadFormState` — generic localStorage for all calculators
-- `initSignalForm(model, key, destroyRef, options?)` — load localStorage → URL override → auto-save via effect (all calculators)
-- `initCalculatorForm(form, key, destroyRef, options?)` — legacy reactive-forms helper (bulk-er-form only)
+- `initSignalForm(model, key, destroyRef, options?)` — load localStorage → URL override → optional `profileBindings` merge → auto-save via effect
 
 ### PersistenceService (mortgage)
 `services/persistence.service.ts` — **deprecated**; prefer `MortgageStore` + `withMortgagePersistence`. Thin wrapper kept for legacy tests.
@@ -228,7 +230,7 @@ export const appConfig: ApplicationConfig = {
 // Lazy route (routes/*.routes.ts)
 { path: 'mortgage', loadComponent: () => import('…').then(m => m.MortgageCalculatorComponent) }
 
-// Tier 2: signal form + shared persistence helper
+// Tier A: injectCalculatorForm + schema + profileBindings
 interface MyModel { loanAmount: number; /* never use undefined values */ }
 
 private readonly formSetup = injectCalculatorForm<MyModel>({
@@ -245,8 +247,8 @@ readonly formFields = this.formSetup.formFields;
 
 result = computed(() => this.service.calculate(this.formModel()));
 
-// Tier 1: form(store.formModelWritable, myFormSchema) + linked-field effects (see below)
-// Tier 1 pilots: rent-vs-buy, rental-tax (stores); car-cost uses injectCalculatorForm + schema
+// Tier B: form(store.formModelWritable, myFormSchema) + linked-field effects (see below)
+// Tier B + schema: rent-vs-buy, rental-tax; Tier A + schema: car-cost, interest, property-purchase
 
 // Template bindings
 // <input type="number" [formField]="formFields.loanAmount" />
@@ -483,6 +485,7 @@ Browsers install to `node_modules` via `PLAYWRIGHT_BROWSERS_PATH=0` (set in npm 
 | `carCostCalcState` | CarCostCalculatorComponent | form values |
 | `severanceCalcState` | SeveranceCalculatorComponent | form values |
 | `propertyPurchaseCalcState` | PropertyPurchaseCalculatorComponent | form values |
+| `userFinancialProfile` | UserProfileStore | grossMonthly, taxYear, ageGroup, children, ftePercent, isMarried, inputMode |
 
 **Share URLs:** URL query params override localStorage on init (via ShareStateService).
 

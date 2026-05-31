@@ -13,19 +13,13 @@ import {
   InterestResult,
 } from '../../services/interest-calculator.service';
 import { injectCalculatorForm } from '../../utils/calculator-form.util';
+import { InterestModel, interestFormSchema } from './interest.schema';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { ExportRowComponent } from '../export-row/export-row.component';
 import { LawFooterComponent } from '../law-footer/law-footer.component';
 
 const STORAGE_KEY = 'interestCalcState';
-
-interface InterestModel {
-  capital: number;
-  rate: number;
-  startDate: string;
-  endDate: string;
-}
 
 @Component({
   selector: 'app-interest-calculator',
@@ -47,6 +41,7 @@ export class InterestCalculatorComponent {
   private readonly formSetup = injectCalculatorForm<InterestModel>({
     defaultModel: () => this.createDefaultModel(),
     storageKey: STORAGE_KEY,
+    schema: interestFormSchema,
   });
 
   readonly formModel = this.formSetup.formModel;

@@ -11,17 +11,21 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ShareStateService } from './share-state.service';
+import { UserProfileStore } from '../stores/user-profile.store';
+import { mergeProfileDefaults, ProfileFieldBinding } from '../utils/merge-profile-defaults.util';
 
-export interface SignalFormInitOptions<T> {
+export interface SignalFormInitOptions<T extends object = object> {
   onLoad?: (saved: Record<string, unknown>, model: WritableSignal<T>) => void;
   onSave?: (value: T) => void;
   onApplyShareState?: (state: Record<string, unknown>, model: WritableSignal<T>) => void;
   onAfterInit?: () => void;
+  profileBindings?: ProfileFieldBinding<T>[];
 }
 
 @Injectable({ providedIn: 'root' })
 export class CalculatorPersistenceService {
   private readonly shareSvc = inject(ShareStateService);
+  private readonly profileStore = inject(UserProfileStore);
   private readonly injector = inject(Injector);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
@@ -52,8 +56,14 @@ export class CalculatorPersistenceService {
     destroyRef: DestroyRef,
     options?: SignalFormInitOptions<T>,
   ): void {
+    const excludedKeys = new Set<string>();
     const saved = this.loadFormState<Record<string, unknown>>(storageKey);
     if (saved) {
+      for (const key of Object.keys(saved)) excludedKeys.add(key);
+      const nested = saved['inputs'] as Record<string, unknown> | undefined;
+      if (nested) {
+        for (const key of Object.keys(nested)) excludedKeys.add(key);
+      }
       if (options?.onLoad) {
         options.onLoad(saved, model);
       } else {
@@ -64,11 +74,23 @@ export class CalculatorPersistenceService {
     const qp = this.shareSvc.getQueryParams();
     if (Object.keys(qp).length) {
       const state = this.shareSvc.deserializeState(qp);
+      for (const key of Object.keys(state)) excludedKeys.add(key);
       if (options?.onApplyShareState) {
         options.onApplyShareState(state, model);
       } else {
         model.set({ ...model(), ...state } as T);
       }
+    }
+
+    if (options?.profileBindings?.length) {
+      const merged = mergeProfileDefaults(
+        model(),
+        this.profileStore.profile(),
+        options.profileBindings,
+        excludedKeys,
+        { overwriteDefaults: !saved },
+      );
+      model.set(merged);
     }
 
     let prevJson = JSON.stringify(model());

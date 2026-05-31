@@ -16,6 +16,9 @@ import {
   reverseCalculateSalary,
 } from '../../calculators/salary/salary.calc';
 import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
+import { UserProfileStore } from '../../stores/user-profile.store';
+import { ProfileFieldBinding } from '../../utils/merge-profile-defaults.util';
+import { UserFinancialProfile } from '../../models/user-profile.models';
 import { createStoreWritable } from '../../utils/store-adapters';
 
 const STORAGE_KEY = 'salaryCalcState';
@@ -33,6 +36,23 @@ export interface SalaryModel {
   employer2Gross: number;
   employer3Gross: number;
 }
+
+const SALARY_PROFILE_BINDINGS: ProfileFieldBinding<SalaryModel>[] = [
+  { modelKey: 'grossMonthly', profileKey: 'grossMonthly' },
+  { modelKey: 'netMonthly', profileKey: 'netMonthly' },
+  {
+    modelKey: 'year',
+    profileKey: 'taxYear',
+    toModel: (p: UserFinancialProfile) => p.taxYear ?? '2026',
+  },
+  { modelKey: 'ageGroup', profileKey: 'ageGroup' },
+  {
+    modelKey: 'children',
+    profileKey: 'children',
+    toModel: (p) => String(p.children ?? 0),
+  },
+  { modelKey: 'ftePercent', profileKey: 'ftePercent' },
+];
 
 const DEFAULT_MODEL: SalaryModel = {
   grossMonthly: 1500,
@@ -61,6 +81,7 @@ export const SalaryStore = signalStore(
   }),
   withMethods((store) => {
     const persistence = inject(CalculatorPersistenceService);
+    const profileStore = inject(UserProfileStore);
     const destroyRef = inject(DestroyRef);
     const platformId = inject(PLATFORM_ID);
     const isBrowser = isPlatformBrowser(platformId);
@@ -217,12 +238,30 @@ export const SalaryStore = signalStore(
     });
     destroyRef.onDestroy(() => grossNetSyncRef.destroy());
 
+    const profileSyncRef = effect(() => {
+      const fv = formModelWritable();
+      const mode = store.inputMode();
+      untracked(() => {
+        profileStore.patchProfile({
+          grossMonthly: fv.grossMonthly,
+          netMonthly: fv.netMonthly,
+          taxYear: fv.year === '2025' ? '2025' : '2026',
+          ageGroup: fv.ageGroup,
+          children: Math.max(0, Number(fv.children) || 0),
+          ftePercent: fv.ftePercent,
+          inputMode: mode,
+        });
+      });
+    });
+    destroyRef.onDestroy(() => profileSyncRef.destroy());
+
     return {
       get formModelWritable() {
         return formModelWritable;
       },
       initSalaryState(): void {
         persistence.initSignalForm(formModelWritable, STORAGE_KEY, destroyRef, {
+          profileBindings: SALARY_PROFILE_BINDINGS,
           onLoad: (saved, model) => {
             applySavedMeta(saved);
             applySavedFormModel(saved, model);

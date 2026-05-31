@@ -1,15 +1,10 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  signal,
-} from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { FormField } from '@angular/forms/signals';
 import { AnnualBonusResult } from '../../models/salary.models';
 import { SalaryCalculatorService } from '../../services/salary-calculator.service';
-import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
+import { ANNUAL_BONUS_PROFILE_BINDINGS } from '../../constants/profile-field-maps';
+import { injectCalculatorForm } from '../../utils/calculator-form.util';
+import { AnnualBonusModel, annualBonusFormSchema } from './annual-bonus.schema';
 
 const STORAGE_KEY = 'annualBonusCalcState';
 
@@ -21,22 +16,12 @@ const ZERO_BONUS: AnnualBonusResult = {
   net: 0,
 };
 
-interface AnnualBonusModel {
-  grossMonthly: number;
-  annualBonus: number;
-  year: string;
-  ageGroup: string;
-  children: string;
-  hasSalaryChange: boolean;
-  salaryChangeMonth: string;
-  previousGross: number;
-}
-
 import { DecimalPipe } from '@angular/common';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { ExportRowComponent } from '../export-row/export-row.component';
 import { LawFooterComponent } from '../law-footer/law-footer.component';
+
 @Component({
   selector: 'app-annual-bonus-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,21 +37,26 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   styleUrl: './annual-bonus-calculator.component.scss',
 })
 export class AnnualBonusCalculatorComponent {
-  formModel = signal<AnnualBonusModel>({
-    grossMonthly: 1500,
-    annualBonus: 1000,
-    year: '2026',
-    ageGroup: 'over30',
-    children: '0',
-    hasSalaryChange: false,
-    salaryChangeMonth: '4',
-    previousGross: 0,
-  });
-  formFields = form(this.formModel);
-
-  private readonly destroyRef = inject(DestroyRef);
   private readonly calc = inject(SalaryCalculatorService);
-  private readonly persistence = inject(CalculatorPersistenceService);
+
+  private readonly formSetup = injectCalculatorForm<AnnualBonusModel>({
+    defaultModel: {
+      grossMonthly: 1500,
+      annualBonus: 1000,
+      year: '2026',
+      ageGroup: 'over30',
+      children: '0',
+      hasSalaryChange: false,
+      salaryChangeMonth: '4',
+      previousGross: 0,
+    },
+    storageKey: STORAGE_KEY,
+    schema: annualBonusFormSchema,
+    profileBindings: ANNUAL_BONUS_PROFILE_BINDINGS,
+  });
+
+  readonly formModel = this.formSetup.formModel;
+  readonly formFields = this.formSetup.formFields;
 
   readonly months = [
     { value: 1, label: 'Ιανουάριος' },
@@ -91,10 +81,6 @@ export class AnnualBonusCalculatorComponent {
   ];
 
   readonly explanationFormula = 'Καθαρό μπόνους = Μικτό − ΕΦΚΑ − οριακός φόρος';
-
-  constructor() {
-    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
-  }
 
   result = computed(() => this.calc.calculate(this.calc.buildSalaryParams(this.formModel())));
 

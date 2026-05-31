@@ -1,6 +1,14 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { UserProfileStore } from '../../stores/user-profile.store';
 
 interface NavItem {
   route: string;
@@ -21,9 +29,17 @@ interface NavGroup {
   styleUrl: './nav.component.scss',
 })
 export class NavComponent {
+  private readonly profileStore = inject(UserProfileStore);
+
   mobileMenuOpen = signal(false);
   collapsed = signal(false);
   darkMode = signal(false);
+
+  readonly hasProfile = computed(
+    () =>
+      this.profileStore.profile().grossMonthly != null ||
+      this.profileStore.profile().ageGroup != null,
+  );
 
   readonly navGroups: NavGroup[] = [
     {
@@ -101,5 +117,9 @@ export class NavComponent {
     localStorage.setItem('darkMode', String(this.darkMode()));
     document.documentElement.classList.toggle('dark', this.darkMode());
     window.dispatchEvent(new Event('themechange'));
+  }
+
+  clearProfile(): void {
+    this.profileStore.clearProfile();
   }
 }

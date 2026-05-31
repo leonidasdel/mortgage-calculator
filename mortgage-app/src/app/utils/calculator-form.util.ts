@@ -4,6 +4,7 @@ import {
   CalculatorPersistenceService,
   SignalFormInitOptions,
 } from '../services/calculator-persistence.service';
+import { ProfileFieldBinding } from './merge-profile-defaults.util';
 
 export interface CalculatorFormSetup<T extends object> {
   formModel: WritableSignal<T>;
@@ -15,6 +16,7 @@ export interface InjectCalculatorFormOptions<T extends object> {
   defaultModel: T | (() => T);
   storageKey: string;
   persistence?: SignalFormInitOptions<T>;
+  profileBindings?: ProfileFieldBinding<T>[];
   schema?: SchemaOrSchemaFn<T>;
 }
 
@@ -38,7 +40,11 @@ export function injectCalculatorForm<T extends object>(
   const formModel = signal<T>(defaultModel);
   const formFields = options.schema ? form<T>(formModel, options.schema) : form<T>(formModel);
 
-  persistence.initSignalForm(formModel, options.storageKey, destroyRef, options.persistence);
+  const persistenceOptions: SignalFormInitOptions<T> = {
+    ...options.persistence,
+    profileBindings: options.profileBindings ?? options.persistence?.profileBindings,
+  };
+  persistence.initSignalForm(formModel, options.storageKey, destroyRef, persistenceOptions);
 
   return { formModel, formFields, destroyRef };
 }

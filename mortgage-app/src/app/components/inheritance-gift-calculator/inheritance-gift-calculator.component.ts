@@ -1,12 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  signal,
-} from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { FormField } from '@angular/forms/signals';
 import {
   KINSHIP_LABELS,
   KinshipCategory,
@@ -16,23 +9,17 @@ import {
   InheritanceGiftCalculatorService,
   InheritanceGiftParams,
 } from '../../services/inheritance-gift-calculator.service';
-import { CalculatorPersistenceService } from '../../services/calculator-persistence.service';
+import { injectCalculatorForm } from '../../utils/calculator-form.util';
+import { InheritanceGiftModel, inheritanceGiftFormSchema } from './inheritance-gift.schema';
 
 const STORAGE_KEY = 'inheritanceGiftCalcState';
-
-interface InheritanceGiftModel {
-  transferType: string;
-  category: string;
-  value: number;
-  hasDisability: boolean;
-  applyPrimaryResidenceInfo: boolean;
-}
 
 import { DecimalPipe } from '@angular/common';
 import { EuroPipe } from '../../pipes/euro.pipe';
 import { CalcExplanationComponent } from '../calc-explanation/calc-explanation.component';
 import { ExportRowComponent } from '../export-row/export-row.component';
 import { LawFooterComponent } from '../law-footer/law-footer.component';
+
 @Component({
   selector: 'app-inheritance-gift-calculator',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,18 +35,22 @@ import { LawFooterComponent } from '../law-footer/law-footer.component';
   styleUrl: './inheritance-gift-calculator.component.scss',
 })
 export class InheritanceGiftCalculatorComponent {
-  formModel = signal<InheritanceGiftModel>({
-    transferType: 'inheritance',
-    category: 'A',
-    value: 250000,
-    hasDisability: false,
-    applyPrimaryResidenceInfo: false,
-  });
-  formFields = form(this.formModel);
-
-  private readonly destroyRef = inject(DestroyRef);
   private readonly calc = inject(InheritanceGiftCalculatorService);
-  private readonly persistence = inject(CalculatorPersistenceService);
+
+  private readonly formSetup = injectCalculatorForm<InheritanceGiftModel>({
+    defaultModel: {
+      transferType: 'inheritance',
+      category: 'A',
+      value: 250000,
+      hasDisability: false,
+      applyPrimaryResidenceInfo: false,
+    },
+    storageKey: STORAGE_KEY,
+    schema: inheritanceGiftFormSchema,
+  });
+
+  readonly formModel = this.formSetup.formModel;
+  readonly formFields = this.formSetup.formFields;
 
   readonly kinshipLabels = KINSHIP_LABELS;
 
@@ -71,10 +62,6 @@ export class InheritanceGiftCalculatorComponent {
   ];
 
   readonly explanationFormula = 'Φόρος = κλιμακωτός υπολογισμός επί φορολογητέας βάσης';
-
-  constructor() {
-    this.persistence.initSignalForm(this.formModel, STORAGE_KEY, this.destroyRef);
-  }
 
   result = computed(() => this.calc.calculate(this.buildParams()));
 

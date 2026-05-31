@@ -141,6 +141,29 @@ body {
   color: #fff;
 }
 
+.profile-hint {
+  margin: 0 12px 8px;
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--fg-muted);
+  background: var(--g50);
+  border-radius: 8px;
+  border: 1px solid var(--g200);
+}
+
+.profile-hint-clear {
+  display: block;
+  margin-top: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--fg-link);
+  font-size: 11px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
