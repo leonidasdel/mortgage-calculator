@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SalaryCalculatorService } from './salary-calculator.service';
 import { SalaryParams } from '../models/salary.models';
-import { MAX_INSURABLE_EARNINGS } from '../constants/payroll.constants';
+import { getMaxInsurableEarnings } from '../constants/payroll.constants';
 import { BASE_TAX_DISCOUNTS } from '../constants/tax-brackets.constants';
 
 describe('SalaryCalculatorService', () => {
@@ -31,10 +31,10 @@ describe('SalaryCalculatorService', () => {
     expect(result.bonusResult?.efkaEmployee).toBe(133.7);
   });
 
-  it('should cap EFKA contributions at MAX_INSURABLE_EARNINGS', () => {
-    const result = service.calculate(baseParams({ grossMonthly: 10000 }));
+  it('should cap EFKA contributions at the year-specific insurable ceiling', () => {
+    const result = service.calculate(baseParams({ grossMonthly: 10000, year: 2026 }));
 
-    expect(result.efkaEmployee).toBe(+(MAX_INSURABLE_EARNINGS * 0.1337).toFixed(2));
+    expect(result.efkaEmployee).toBe(+(getMaxInsurableEarnings(2026) * 0.1337).toFixed(2));
   });
 
   it('should reverse-calculate gross from target net monthly', () => {

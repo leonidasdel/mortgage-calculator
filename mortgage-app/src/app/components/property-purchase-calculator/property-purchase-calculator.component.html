@@ -258,7 +258,7 @@
               <div class="sum-val">{{ result().fmaTaxable | euro: 0 }}</div>
             </div>
             <div class="sum-item total-row">
-              <div class="sum-lbl"><strong>ΦΜΑ (3%)</strong></div>
+              <div class="sum-lbl"><strong>ΦΜΑ (~3,09%)</strong></div>
               <div class="sum-val" [class.blue]="result().fma === 0" [class.red]="result().fma > 0">
                 <strong>{{ result().fma | euro }}</strong>
               </div>
@@ -281,9 +281,9 @@
             <div>
               <div class="lv-law-title">Φόρος Μεταβίβασης Ακινήτου (ΦΜΑ)</div>
               <div class="lv-law-desc">
-                Συντελεστής 3% επί της αντικειμενικής αξίας ή του τιμήματος (το μεγαλύτερο). Αφορά
-                παλαιά ακίνητα (οικοδομική άδεια πριν 1.1.2006). Τα νέα ακίνητα υπάγονται σε ΦΠΑ
-                (ανασταλμένο).
+                Συντελεστής ~3,09% (3% ΦΜΑ + 3% δημοτική επί τον φόρο) επί της αντικειμενικής αξίας
+                ή του τιμήματος (το μεγαλύτερο). Αφορά παλαιά ακίνητα (οικοδομική άδεια πριν
+                1.1.2006). Τα νέα ακίνητα υπάγονται σε ΦΠΑ (ανασταλμένο).
               </div>
             </div>
           </div>

@@ -16,6 +16,19 @@
       </div>
       <div class="card-body">
         <div class="form-group">
+          <label for="taxYear">Φορολογικό Έτος</label>
+          <select
+            id="taxYear"
+            data-testid="rental-tax-input-taxYear"
+            [formField]="formFields.taxYear"
+            class="form-select"
+          >
+            <option value="2026">2026 (Ν.5246/2025)</option>
+            <option value="2025">2025</option>
+          </select>
+        </div>
+
+        <div class="form-group">
           <label>Εισόδημα Ενοικίων</label>
           <div class="rt-income-toggle">
             <button
@@ -141,8 +154,14 @@
         >
           <ul class="info-list-muted">
             <li>Έως €12.000 → 15%</li>
-            <li>€12.001 – €35.000 → 35%</li>
-            <li>Πάνω από €35.000 → 45%</li>
+            @if (formModel().taxYear === '2025') {
+              <li>€12.001 – €35.000 → 35%</li>
+              <li>Πάνω από €35.000 → 45%</li>
+            } @else {
+              <li>€12.001 – €24.000 → 25%</li>
+              <li>€24.001 – €36.000 → 35%</li>
+              <li>Πάνω από €36.000 → 45%</li>
+            }
           </ul>
         </div>
       </div>

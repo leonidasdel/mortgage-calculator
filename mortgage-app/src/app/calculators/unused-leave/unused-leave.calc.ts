@@ -1,9 +1,8 @@
-import { EFKA_EMPLOYEE_RATE, MAX_INSURABLE_EARNINGS } from '../../constants/payroll.constants';
+import { EFKA_EMPLOYEE_RATE, getMaxInsurableEarnings } from '../../constants/payroll.constants';
 import { AgeGroup } from '../../models/salary.models';
 import { calculateTaxOnlySalary } from '../salary/salary.calc';
 
 const EFKA_RATE = EFKA_EMPLOYEE_RATE;
-const MAX_INSURABLE = MAX_INSURABLE_EARNINGS;
 
 export interface TaxBracket {
   from: number;
@@ -79,6 +78,8 @@ export function calculateUnusedLeave(params: UnusedLeaveParams): LeaveResult {
   const includeBonus = !!params.includeHolidayBonus;
   const situation = params.situation as 'termination' | 'during_employment';
   const taxYear = params.taxYear as '2025' | '2026';
+  const year = taxYear === '2026' ? 2026 : 2025;
+  const maxInsurable = getMaxInsurableEarnings(year);
   const ageGroup = (params.ageGroup || 'over30') as AgeGroup;
   const children = Math.min(Math.max(0, +(params.children || 0)), 10);
   const useCustom = !!params.useCustomAnnualIncome;
@@ -119,10 +120,10 @@ export function calculateUnusedLeave(params: UnusedLeaveParams): LeaveResult {
 
   if (situation === 'termination') {
     efkaOnLeaveComp = 0;
-    efkaOnHolidayBonus = +(Math.min(holidayBonus, MAX_INSURABLE) * EFKA_RATE).toFixed(2);
+    efkaOnHolidayBonus = +(Math.min(holidayBonus, maxInsurable) * EFKA_RATE).toFixed(2);
   } else {
-    const insLeave = Math.min(leaveCompensation, MAX_INSURABLE);
-    const insBonus = Math.min(holidayBonus, Math.max(0, MAX_INSURABLE - leaveCompensation));
+    const insLeave = Math.min(leaveCompensation, maxInsurable);
+    const insBonus = Math.min(holidayBonus, Math.max(0, maxInsurable - leaveCompensation));
     efkaOnLeaveComp = +(insLeave * EFKA_RATE).toFixed(2);
     efkaOnHolidayBonus = +(insBonus * EFKA_RATE).toFixed(2);
   }
@@ -139,11 +140,9 @@ export function calculateUnusedLeave(params: UnusedLeaveParams): LeaveResult {
   }
 
   const monthlyForBase = +(annualBaseGross / 14).toFixed(2);
-  const insMonthlyBase = Math.min(monthlyForBase, MAX_INSURABLE);
+  const insMonthlyBase = Math.min(monthlyForBase, maxInsurable);
   const annualEfkaBase = +(insMonthlyBase * EFKA_RATE * 14).toFixed(2);
   const annualBaseTaxable = Math.max(0, +(annualBaseGross - annualEfkaBase).toFixed(2));
-
-  const year = taxYear === '2026' ? 2026 : 2025;
 
   const taxOnBase = calcTax(annualBaseTaxable, year, ageGroup, children);
 

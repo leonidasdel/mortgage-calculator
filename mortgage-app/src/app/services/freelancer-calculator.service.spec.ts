@@ -19,8 +19,8 @@ describe('FreelancerCalculatorService', () => {
       children: 0,
     });
 
-    expect(result.netMonthly).toBe(2574.99);
-    expect(result.annualEfka).toBe(3129.24);
+    expect(result.netMonthly).toBe(2578.95);
+    expect(result.annualEfka).toBe(3009.24);
   });
 
   it('should apply 27.5% advance tax when under 3 years active', () => {

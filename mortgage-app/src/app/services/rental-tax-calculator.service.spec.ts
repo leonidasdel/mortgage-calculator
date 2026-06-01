@@ -28,6 +28,7 @@ describe('RentalTaxCalculatorService', () => {
       monthlyIncome: 0,
       expenseMethod: 'automatic',
       actualExpenses: 0,
+      taxYear: 2026,
     });
 
     expect(result.expensesDeduction).toBe(540);
@@ -53,17 +54,32 @@ describe('RentalTaxCalculatorService', () => {
     expect(result.netAnnual).toBe(10000);
   });
 
-  it('should apply progressive brackets for higher rental income', () => {
+  it('should apply 2026 progressive brackets for higher rental income', () => {
     const result = service.calculate({
       incomeMode: 'annual',
       annualIncome: 40_000,
       monthlyIncome: 0,
       expenseMethod: 'automatic',
       actualExpenses: 0,
+      taxYear: 2026,
     });
 
     expect(result.expensesDeduction).toBe(2000);
     expect(result.taxableIncome).toBe(38000);
+    expect(result.totalTax).toBe(9900);
+    expect(result.netAnnual).toBe(30100);
+  });
+
+  it('should apply 2025 brackets when tax year is 2025', () => {
+    const result = service.calculate({
+      incomeMode: 'annual',
+      annualIncome: 40_000,
+      monthlyIncome: 0,
+      expenseMethod: 'automatic',
+      actualExpenses: 0,
+      taxYear: 2025,
+    });
+
     expect(result.totalTax).toBe(11200);
     expect(result.netAnnual).toBe(28800);
   });

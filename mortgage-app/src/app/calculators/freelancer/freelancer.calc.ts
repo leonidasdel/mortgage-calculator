@@ -1,14 +1,15 @@
 import { AgeGroup } from '../../models/salary.models';
 import { calculateTaxOnlySalary } from '../salary/salary.calc';
 
+/** e-EFKΑ 2026 monthly amounts (main pension + health). */
 export const EFKA_CATEGORIES = [
-  { id: 'special', label: 'Ειδική (νέοι, πρώτα 5 έτη)', monthly: 160.46 },
-  { id: 'cat1', label: 'Κατηγορία 1', monthly: 260.77 },
-  { id: 'cat2', label: 'Κατηγορία 2', monthly: 310.93 },
-  { id: 'cat3', label: 'Κατηγορία 3', monthly: 370.63 },
-  { id: 'cat4', label: 'Κατηγορία 4', monthly: 443.47 },
-  { id: 'cat5', label: 'Κατηγορία 5', monthly: 529.45 },
-  { id: 'cat6', label: 'Κατηγορία 6', monthly: 685.87 },
+  { id: 'special', label: 'Ειδική (νέοι, πρώτα 5 έτη)', monthly: 150.46 },
+  { id: 'cat1', label: 'Κατηγορία 1', monthly: 250.77 },
+  { id: 'cat2', label: 'Κατηγορία 2', monthly: 300.93 },
+  { id: 'cat3', label: 'Κατηγορία 3', monthly: 360.63 },
+  { id: 'cat4', label: 'Κατηγορία 4', monthly: 433.47 },
+  { id: 'cat5', label: 'Κατηγορία 5', monthly: 519.45 },
+  { id: 'cat6', label: 'Κατηγορία 6', monthly: 675.87 },
 ] as const;
 
 export interface TaxBracketRow {
@@ -74,7 +75,7 @@ function calcForCategory(
   advanceRate: number,
   ageGroup: AgeGroup,
 ): CategoryCalc {
-  const annualEfka = cat.monthly * 12;
+  const annualEfka = +(cat.monthly * 12).toFixed(2);
   const taxableIncome = Math.max(0, revenue - expenses - annualEfka);
   const taxResult = calculateTaxOnlySalary(taxableIncome, 2026, ageGroup, children);
   const incomeTax = taxResult.totalTax;
@@ -100,7 +101,7 @@ function calcForCategory(
     advanceTax,
     totalObligations,
     netAnnual,
-    netMonthly: netAnnual / 12,
+    netMonthly: +(netAnnual / 12).toFixed(2),
     effectiveRate: revenue > 0 ? (totalObligations / revenue) * 100 : 0,
   };
 }

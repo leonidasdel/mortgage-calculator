@@ -7,6 +7,7 @@ const STORAGE_KEY = 'rentalTaxCalcState';
 
 export interface RentalTaxModel {
   incomeMode: string;
+  taxYear: string;
   annualIncome: number;
   monthlyIncome: number;
   rentalType: string;
@@ -16,6 +17,7 @@ export interface RentalTaxModel {
 
 const DEFAULT_MODEL: RentalTaxModel = {
   incomeMode: 'annual',
+  taxYear: '2026',
   annualIncome: 12000,
   monthlyIncome: 1000,
   rentalType: 'long-term',
@@ -28,6 +30,7 @@ function patchRentalTaxLoadedState(
   model: WritableSignal<RentalTaxModel>,
 ): void {
   if (state['incomeMode'] == null) state['incomeMode'] = 'annual';
+  if (state['taxYear'] == null) state['taxYear'] = '2026';
   if (state['monthlyIncome'] == null) {
     state['monthlyIncome'] = +(Math.max(0, Number(state['annualIncome']) || 0) / 12).toFixed(2);
   }
@@ -45,6 +48,7 @@ export const RentalTaxStore = signalStore(
       const fv = store.formModel();
       return calcService.calculate({
         incomeMode: fv.incomeMode === 'monthly' ? 'monthly' : 'annual',
+        taxYear: fv.taxYear === '2025' ? 2025 : 2026,
         annualIncome: fv.annualIncome,
         monthlyIncome: fv.monthlyIncome,
         expenseMethod: fv.expenseMethod === 'actual' ? 'actual' : 'automatic',

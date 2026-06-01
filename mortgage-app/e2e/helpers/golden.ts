@@ -15,7 +15,7 @@ export const golden = {
     gross1500_bonus1000: { netBonus: 675.71 },
   },
   freelancer: {
-    revenue60k: { netMonthly: 2574.99 },
+    revenue60k: { netMonthly: 2578.95 },
   },
   unusedLeave: {
     days10: { totalNet: 851.04 },

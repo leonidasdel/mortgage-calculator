@@ -102,6 +102,7 @@ export const RentalTax = {
   inputMonthlyIncome: 'rental-tax-input-monthlyIncome',
   incomeMonthlyPill: 'rental-tax-income-monthly',
   inputRentalType: 'rental-tax-input-rentalType',
+  inputTaxYear: 'rental-tax-input-taxYear',
 } as const;
 
 export const PropertyPurchase = {

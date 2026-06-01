@@ -1,4 +1,5 @@
-const FMA_RATE = 0.03;
+/** 3% transfer tax + 3% municipal surcharge on the tax (≈3.09% effective). */
+const FMA_EFFECTIVE_RATE = 0.0309;
 const NOTARY_RATE = 0.01;
 const VAT_RATE = 0.24;
 const LAND_REGISTRY_RATE = 0.00475;
@@ -8,7 +9,8 @@ const OTHER_FIXED = 500;
 
 const FH_BASE_SINGLE = 200_000;
 const FH_BASE_MARRIED = 250_000;
-const FH_PER_CHILD = 25_000;
+const FH_CHILD_FIRST_TWO = 25_000;
+const FH_CHILD_FROM_THIRD = 30_000;
 
 export interface CostItem {
   label: string;
@@ -47,6 +49,14 @@ export interface PropertyPurchaseResult {
   firstHomeFullExempt: boolean;
 }
 
+/** ΑΑΔΕ: +€25k for each of the first two children, +€30k from the third onward. */
+export function firstHomeChildAllowance(children: number): number {
+  const n = Math.max(0, Math.floor(children));
+  const firstTwo = Math.min(n, 2) * FH_CHILD_FIRST_TWO;
+  const rest = Math.max(0, n - 2) * FH_CHILD_FROM_THIRD;
+  return firstTwo + rest;
+}
+
 export function calculatePropertyPurchase(params: PropertyPurchaseParams): PropertyPurchaseResult {
   const price = Math.max(0, +(params.purchasePrice || 0));
   const aaot = Math.max(0, +(params.aaotValue || price));
@@ -58,10 +68,10 @@ export function calculatePropertyPurchase(params: PropertyPurchaseParams): Prope
   const inclLawyer = !!params.includeLawyer;
 
   const fhBase = married ? FH_BASE_MARRIED : FH_BASE_SINGLE;
-  const fhThreshold = isFirst ? fhBase + children * FH_PER_CHILD : 0;
+  const fhThreshold = isFirst ? fhBase + firstHomeChildAllowance(children) : 0;
   const fmaExemption = isFirst ? Math.min(taxBase, fhThreshold) : 0;
   const fmaTaxable = Math.max(0, taxBase - fmaExemption);
-  const fma = +(fmaTaxable * FMA_RATE).toFixed(2);
+  const fma = +(fmaTaxable * FMA_EFFECTIVE_RATE).toFixed(2);
 
   const notary = +(price * NOTARY_RATE * (1 + VAT_RATE)).toFixed(2);
   const landRegistry = +(price * LAND_REGISTRY_RATE).toFixed(2);
@@ -82,7 +92,7 @@ export function calculatePropertyPurchase(params: PropertyPurchaseParams): Prope
 
   const items: CostItem[] = [
     {
-      label: 'Φόρος Μεταβίβασης Ακινήτου (ΦΜΑ) 3%',
+      label: 'Φόρος Μεταβίβασης Ακινήτου (ΦΜΑ ~3,09%)',
       amount: fma,
       note:
         isFirst && fmaExemption > 0

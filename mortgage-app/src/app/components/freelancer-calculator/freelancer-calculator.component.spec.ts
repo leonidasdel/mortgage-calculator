@@ -30,7 +30,7 @@ describe('FreelancerCalculatorComponent', () => {
     expect(result.netAnnual).toBe(
       result.annualRevenue - result.annualExpenses - result.totalObligations,
     );
-    expect(result.netMonthly).toBe(result.netAnnual / 12);
+    expect(result.netMonthly).toBe(+(result.netAnnual / 12).toFixed(2));
   });
 
   it('should compute exact net monthly for 60000 revenue', () => {
@@ -46,6 +46,6 @@ describe('FreelancerCalculatorComponent', () => {
       children: '0',
     });
 
-    expect(component.result().netMonthly).toBe(2574.99);
+    expect(component.result().netMonthly).toBe(2578.95);
   });
 });

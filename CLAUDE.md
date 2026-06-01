@@ -125,7 +125,7 @@ mortgage-app/
 ```
 EFKA_EMPLOYEE_RATE    = 0.1337  (13.37%)
 EFKA_EMPLOYER_RATE    = 0.2179  (21.79%)
-MAX_INSURABLE_EARNINGS = 7572.62 €/month
+MAX_INSURABLE_EARNINGS = 7572.62 €/month (2025) · 7761.94 €/month (2026) via `getMaxInsurableEarnings(year)`
 MONTHS_PER_YEAR       = 14  (12 regular + Christmas + Easter/Leave)
 LEAVE_SURCHARGE_RATE  = 0.04166
 ```
